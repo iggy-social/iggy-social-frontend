@@ -7,12 +7,22 @@
 
     <div class="container">
       <h1>Profile</h1>
+
+      <p>Address: {{ address }}</p>
     </div>
   </div>
 </template>
 
 <script>
+import { useEthers } from 'vue-dapp'
+
 export default {
-  name: "Profile"
+  name: "Profile",
+
+  setup() {
+    const { address } = useEthers();
+
+    return { address };
+  }
 }
 </script>
