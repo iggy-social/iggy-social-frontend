@@ -3,7 +3,9 @@ import { MetaMaskConnector, WalletConnectConnector, CoinbaseWalletConnector, use
 
 const { open } = useBoard()
 const { address } = useEthers()
+
 const infuraId = ''
+
 const connectors = [
   new MetaMaskConnector({
     appUrl: 'http://localhost:3000',

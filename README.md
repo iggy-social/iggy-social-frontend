@@ -2,6 +2,13 @@
 
 Look at the [nuxt 3 documentation](https://v3.nuxtjs.org) to learn more.
 
+What's included:
+
+- Nuxt 3
+- Vue Dapp
+- Ethers 5
+- Pinia
+
 ## Setup
 
 Make sure to install the dependencies:
@@ -11,7 +18,7 @@ Make sure to install the dependencies:
 yarn install
 
 # npm
-npm install 
+npm install --legacy-peer-deps 
 
 # pnpm
 pnpm install --shamefully-hoist
