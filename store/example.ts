@@ -13,5 +13,9 @@ export const useExampleStore = defineStore({
     getExampleNum: state => state.exampleNum,
   },
 
-  actions: {}
+  actions: {
+    changeNum() {
+      this.exampleNum = 69420;
+    }
+  }
 })
