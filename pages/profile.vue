@@ -21,7 +21,7 @@
 import { useEthers } from 'vue-dapp'
 import { ethers } from 'ethers';
 import { useExampleStore } from '~/store/example'
-import { useToast } from "vue-toastification";
+import { useToast } from "vue-toastification/dist/index.mjs";
 
 export default {
   name: "Profile",

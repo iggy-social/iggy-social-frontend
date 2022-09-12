@@ -1,5 +1,4 @@
-import Toast from "vue-toastification";
-import "vue-toastification/dist/index.css";
+import Toast from 'vue-toastification/dist/index.mjs'
 
 const options = {
   timeout: 5000,

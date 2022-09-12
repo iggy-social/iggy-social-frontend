@@ -4,6 +4,9 @@ const webpack = require('webpack')
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
 export default defineNuxtConfig({
   builder: 'webpack',
+  css: [
+    'vue-toastification/dist/index.css'
+  ],
   hooks: {
     'webpack:config'(configs) {
       configs[0].resolve.fallback = {
