@@ -7,6 +7,9 @@ export default defineNuxtConfig({
   css: [
     'vue-toastification/dist/index.css'
   ],
+  define: {
+    'process.env': {}
+  },
   hooks: {
     'webpack:config'(configs) {
       configs[0].resolve.fallback = {
