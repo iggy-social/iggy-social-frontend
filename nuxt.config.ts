@@ -48,4 +48,5 @@ export default defineNuxtConfig({
   modules: [
     '@pinia/nuxt',
   ],
+  target: "static"
 })
