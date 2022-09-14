@@ -8,6 +8,9 @@ What's included:
 - Vue Dapp
 - Ethers 5
 - Pinia
+- Orbis SDK
+
+> Important: If you use Netlify, make sure to use the `npm run generate` command instead of `npm run build`.
 
 ## Setup
 
@@ -37,7 +40,7 @@ npm run dev
 Build the application for production:
 
 ```bash
-npm run build
+npm run generate
 ```
 
 Locally preview production build:
