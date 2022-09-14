@@ -10,7 +10,9 @@ What's included:
 - Pinia
 - Orbis SDK
 
-> Important: If you use Netlify, make sure to use the `npm run generate` command instead of `npm run build`.
+## Hosting
+
+This template does not work properly on GitHub Pages. Use Netlify or Vercel instead (make sure to use the `npm run generate` command instead of `npm run build` there).
 
 ## Setup
 
