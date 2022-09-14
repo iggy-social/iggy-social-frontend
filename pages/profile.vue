@@ -13,6 +13,7 @@
       <p>Example number from Pinia: {{ exampleStore.exampleNum }}</p>
 
       <button class="btn btn-primary" @click="showToast">Show toast</button>
+      <button class="btn btn-primary mx-3" @click="getOrbisPosts">Get posts (in console)</button>
     </div>
   </div>
 </template>
@@ -27,16 +28,21 @@ import { Orbis } from "@orbisclub/orbis-sdk";
 export default {
   name: "Profile",
 
-  created() {
-    this.toast("Hello there :)")
-  },
-
   methods: {
+    async getOrbisPosts() {
+      let { data, error, status } = await this.orbis.getPosts({context: "kjzl6cwe1jw14ai2gg8e0qmx2j944ppe3s3dgfk003jlb8guuybyg4m77nsrg73"});
+
+      console.log("status:");
+      console.log(status);
+      console.log("error:");
+      console.log(error);
+      console.log("data:");
+      console.log(data);
+    },
+
     async connectOrbis() {
       console.log("connect ceramic");
-      let orbis = new Orbis();
-      console.log("orbis obj");
-      let res = await orbis.connect();
+      let res = await this.orbis.connect();
       console.log("start connection");
       /** Check if connection is successful or not */
       if(res.status == 200) {
@@ -59,10 +65,11 @@ export default {
     const { address } = useEthers();
     const exampleStore = useExampleStore();
     const toast = useToast();
+    const orbis = new Orbis();
 
     console.log(Number(ethers.utils.parseEther("1.0")));
 
-    return { address, exampleStore, toast };
+    return { address, exampleStore, orbis, toast };
   }
 }
 </script>
