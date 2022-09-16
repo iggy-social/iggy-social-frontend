@@ -23,14 +23,13 @@ import { useEthers } from 'vue-dapp'
 import { ethers } from 'ethers';
 import { useExampleStore } from '~/store/example'
 import { useToast } from "vue-toastification/dist/index.mjs";
-import { Orbis } from "@orbisclub/orbis-sdk";
 
 export default {
   name: "Profile",
 
   methods: {
     async getOrbisPosts() {
-      let { data, error, status } = await this.orbis.getPosts({context: "kjzl6cwe1jw14ai2gg8e0qmx2j944ppe3s3dgfk003jlb8guuybyg4m77nsrg73"});
+      let { data, error, status } = await this.$orbis.getPosts({context: "kjzl6cwe1jw14ai2gg8e0qmx2j944ppe3s3dgfk003jlb8guuybyg4m77nsrg73"});
 
       console.log("status:");
       console.log(status);
@@ -42,7 +41,7 @@ export default {
 
     async connectOrbis() {
       console.log("connect ceramic");
-      let res = await this.orbis.connect();
+      let res = await this.$orbis.connect();
       console.log("start connection");
       /** Check if connection is successful or not */
       if(res.status == 200) {
@@ -65,11 +64,10 @@ export default {
     const { address } = useEthers();
     const exampleStore = useExampleStore();
     const toast = useToast();
-    const orbis = new Orbis();
 
     console.log(Number(ethers.utils.parseEther("1.0")));
 
-    return { address, exampleStore, orbis, toast };
+    return { address, exampleStore, toast };
   }
 }
 </script>
