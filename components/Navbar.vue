@@ -20,6 +20,17 @@
               <NuxtLink class="nav-link" to="/profile">Profile page</NuxtLink>
             </li>
 
+            <div v-if="isActivated" class="btn-group mx-2 navbar-menu-btn dropdown-center">
+              <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                {{ $getChainName(Number(chainId)) }}
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                <li><button class="dropdown-item" @click="changeNetwork('Ethereum')">Ethereum</button></li>
+                <li><button class="dropdown-item" @click="changeNetwork('Arbitrum')">Arbitrum</button></li>
+                <li><button class="dropdown-item" @click="changeNetwork('Optimism')">Optimism</button></li>
+              </ul>
+            </div>
+
           </ul>
         </div>
       </div>
@@ -28,7 +39,45 @@
 </template>
 
 <script>
+import { MetaMaskConnector, WalletConnectConnector, CoinbaseWalletConnector, useBoard, useEthers } from 'vue-dapp'
+
 export default {
-  name: "Navbar"
+  name: "Navbar",
+
+  methods: {
+    changeNetwork(networkName) {
+      const networkData = this.$switchChain(networkName); 
+      window.ethereum.request({ 
+        method: networkData.method, 
+        params: networkData.params
+      });
+    },
+  },
+
+  setup() {
+    const { open } = useBoard()
+    const { address, chainId, isActivated } = useEthers()
+
+    const infuraId = ''
+
+    const connectors = [
+      new MetaMaskConnector({
+        appUrl: 'http://localhost:3000',
+      }),
+      new WalletConnectConnector({
+        qrcode: true,
+        rpc: {
+          1: `https://mainnet.infura.io/v3/${infuraId}`,
+          4: `https://rinkeby.infura.io/v3/${infuraId}`,
+        },
+      }),
+      new CoinbaseWalletConnector({
+        appName: 'Vue Dapp',
+        jsonRpcUrl: `https://mainnet.infura.io/v3/${infuraId}`,
+      }),
+    ]
+
+    return { address, chainId, connectors, isActivated, open }
+  }
 }
 </script>
