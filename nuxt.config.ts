@@ -7,9 +7,6 @@ export default defineNuxtConfig({
   css: [
     'vue-toastification/dist/index.css'
   ],
-  define: {
-    'process.env': {}
-  },
   hooks: {
     'webpack:config'(configs) {
       configs[0].resolve.fallback = {
@@ -48,5 +45,12 @@ export default defineNuxtConfig({
   modules: [
     '@pinia/nuxt',
   ],
+  publicRuntimeConfig: {
+    alchemyEthereumKey: process.env.NUXT_ALCHEMY_ETHEREUM_KEY,
+    alchemyPolygonKey: process.env.NUXT_ALCHEMY_POLYGON_KEY,
+    alchemyOptimismKey: process.env.NUXT_ALCHEMY_OPTIMISM_KEY,
+    alchemyArbitrumKey: process.env.NUXT_ALCHEMY_ARBITRUM_KEY,
+    alchemyMumbaiKey: process.env.NUXT_ALCHEMY_MUMBAI_KEY
+  },
   target: "static"
 })

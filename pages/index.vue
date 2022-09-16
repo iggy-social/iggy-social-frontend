@@ -2,6 +2,10 @@
   <div class="container mt-4">
     <h1>Connect your wallet:</h1>
 
+    <p>Env var: {{ $config.alchemyPolygonKey }}</p>
+
+    <p>Chain ID 1: {{ $getChainName(1) }}</p>
+
     <button class="btn btn-primary" @click="open">Connect Wallet</button>
 
     <button class="btn btn-primary mx-3" @click="smthElse">Smth else</button>
