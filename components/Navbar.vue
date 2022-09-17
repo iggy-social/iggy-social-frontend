@@ -13,6 +13,11 @@
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
             <li class="nav-item">
+              <span class="nav-link active" v-if="siteStore.getColorMode === 'dark.css'" @click="changeColorMode('light.css')">Dark mode</span>
+              <span class="nav-link active" v-if="siteStore.getColorMode === 'light.css'" @click="changeColorMode('dark.css')">Light mode</span>
+            </li>
+
+            <li class="nav-item">
               <NuxtLink class="nav-link active" aria-current="page" to="/">Home page</NuxtLink>
             </li>
 
@@ -40,6 +45,7 @@
 
 <script>
 import { MetaMaskConnector, WalletConnectConnector, CoinbaseWalletConnector, useBoard, useEthers } from 'vue-dapp'
+import { useSiteStore } from '~/store/site'
 
 export default {
   name: "Navbar",
@@ -52,11 +58,16 @@ export default {
         params: networkData.params
       });
     },
+
+    changeColorMode(newMode) {
+      this.siteStore.setColorMode(newMode);
+    }
   },
 
   setup() {
     const { open } = useBoard()
     const { address, chainId, isActivated } = useEthers()
+    const siteStore = useSiteStore();
 
     const infuraId = ''
 
@@ -77,7 +88,7 @@ export default {
       }),
     ]
 
-    return { address, chainId, connectors, isActivated, open }
+    return { address, chainId, connectors, isActivated, open, siteStore }
   }
 }
 </script>

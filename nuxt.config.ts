@@ -44,6 +44,7 @@ export default defineNuxtConfig({
   },
   modules: [
     '@pinia/nuxt',
+    '@vueuse/nuxt',
   ],
   publicRuntimeConfig: {
     alchemyEthereumKey: process.env.NUXT_ALCHEMY_ETHEREUM_KEY,
