@@ -4,11 +4,12 @@ Look at the [nuxt 3 documentation](https://v3.nuxtjs.org) to learn more.
 
 What's included:
 
-- Nuxt 3
-- Vue Dapp
-- Ethers 5
-- Pinia
-- Orbis SDK
+- [Nuxt 3](https://v3.nuxtjs.org/)
+- [Vue Dapp](https://vue-dapp-docs.netlify.app/)
+- [Ethers 5](https://ethers.org/)
+- [Pinia](https://pinia.vuejs.org/)
+- [Orbis SDK](https://github.com/OrbisWeb3/orbis-sdk)
+- [Vue Toastification](https://github.com/Maronato/vue-toastification/tree/next)
 
 ## Hosting
 
