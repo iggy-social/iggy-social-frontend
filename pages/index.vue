@@ -8,7 +8,7 @@
 
     <button class="btn btn-primary" @click="open">Connect Wallet</button>
 
-    <button class="btn btn-primary mx-3" @click="smthElse">Smth else</button>
+    <button class="btn btn-primary mx-3" @click="disconnect">Disconnect</button>
 
     <vd-board :connectors="connectors" dark />
     {{ address }}
@@ -16,20 +16,15 @@
 </template>
 
 <script>
-import { MetaMaskConnector, WalletConnectConnector, CoinbaseWalletConnector, useBoard, useEthers } from 'vue-dapp'
+import { MetaMaskConnector, WalletConnectConnector, CoinbaseWalletConnector, useBoard, useEthers, useWallet } from 'vue-dapp'
 
 export default {
   name: "index",
 
-  methods: {
-    smthElse() {
-      console.log("smth else")
-    }
-  },
-
   setup() {
     const { open } = useBoard()
     const { address } = useEthers()
+    const { disconnect } = useWallet()
 
     const infuraId = ''
 
@@ -50,7 +45,7 @@ export default {
       }),
     ]
 
-    return { address, connectors, open }
+    return { address, connectors, disconnect, open }
   }
 }
 </script>
