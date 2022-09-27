@@ -31,9 +31,13 @@ export default defineNuxtConfig({
   },
   meta: {
     link: [
-      { // Bootstrap
+      { // Bootstrap icons
         rel: "stylesheet",
         href: "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css"
+      },
+      { // Bootstrap
+        rel: "stylesheet",
+        href: "/css/base.css"
       }
     ],
     script: [

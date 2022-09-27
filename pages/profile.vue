@@ -10,7 +10,7 @@
 
       <p>Theme: <a href="https://bootswatch.com/zephyr/" target="_blank">Zephyr</a></p>
 
-      <p>Address: {{ address }}</p>
+      <p class="text-break">Address: {{ address }}</p>
 
       <p>Env var: {{ $config.alchemyPolygonKey }}</p>
 
