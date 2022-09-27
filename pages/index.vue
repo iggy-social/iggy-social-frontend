@@ -2,16 +2,19 @@
   <div class="container mt-4">
     <h1>Connect your wallet:</h1>
 
-    <p>Env var: {{ $config.alchemyPolygonKey }}</p>
-
-    <p>Chain ID 1: {{ $getChainName(1) }}</p>
-
     <button class="btn btn-primary" @click="open">Connect Wallet</button>
 
     <button class="btn btn-primary mx-3" @click="disconnect">Disconnect</button>
 
+    <p class="text-break">{{ address }}</p>
+
+    <div class="row mt-4">
+      <div class="col-md-8 offset-md-2">
+        <Chat />
+      </div>
+    </div>
+    
     <vd-board :connectors="connectors" dark />
-    {{ address }}
   </div>
 </template>
 
@@ -23,7 +26,7 @@ export default {
 
   setup() {
     const { open } = useBoard()
-    const { address } = useEthers()
+    const { address, chainId } = useEthers()
     const { disconnect } = useWallet()
 
     const infuraId = ''
@@ -45,7 +48,7 @@ export default {
       }),
     ]
 
-    return { address, connectors, disconnect, open }
+    return { address, chainId, connectors, disconnect, open }
   }
 }
 </script>

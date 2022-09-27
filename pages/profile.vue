@@ -10,6 +10,10 @@
 
       <p>Address: {{ address }}</p>
 
+      <p>Env var: {{ $config.alchemyPolygonKey }}</p>
+
+      <p>Chain ID 1: {{ $getChainName(chainId) }}</p>
+
       <p>Example number from Pinia: {{ exampleStore.exampleNum }}</p>
 
       <button class="btn btn-primary" @click="showToast">Show toast</button>
@@ -61,13 +65,13 @@ export default {
   },
 
   setup() {
-    const { address } = useEthers();
+    const { address, chainId } = useEthers();
     const exampleStore = useExampleStore();
     const toast = useToast();
 
     console.log(Number(ethers.utils.parseEther("1.0")));
 
-    return { address, exampleStore, toast };
+    return { address, chainId, exampleStore, toast };
   }
 }
 </script>

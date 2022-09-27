@@ -1,5 +1,5 @@
 <template>
-  <nav class="navbar navbar-expand-lg bg-light">
+  <nav class="navbar navbar-expand-lg navbar-bg">
     <div class="container-fluid">
       <NuxtLink class="navbar-brand" to="/">Punk Starter</NuxtLink>
 

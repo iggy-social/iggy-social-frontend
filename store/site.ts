@@ -6,7 +6,7 @@ export const useSiteStore = defineStore({
 
   state: () => {
     return {
-      colorMode: "dark.css",
+      colorMode: "light.css",
     }
   },
 
