@@ -1,14 +1,18 @@
-# Punk Nuxt Starter
+# Punk Nuxt Starter (WIP)
 
-Look at the [nuxt 3 documentation](https://v3.nuxtjs.org) to learn more.
+> Work-in-progress (WIP), not production ready yet.
+
+Punk Nuxt Starter is a starter template that can help you set up a Web3 Social website for your web3 community. It uses [Orbis SDK](https://github.com/OrbisWeb3/orbis-sdk) and Ceramic Network in the background.
+
+If your web3 community has it's own Punk Domains extensions (like .klima or .smol), it can be used as usernames instead of addresses.
 
 What's included:
 
+- [Orbis SDK](https://github.com/OrbisWeb3/orbis-sdk)
 - [Nuxt 3](https://v3.nuxtjs.org/)
 - [Vue Dapp](https://vue-dapp-docs.netlify.app/)
 - [Ethers 5](https://ethers.org/)
 - [Pinia](https://pinia.vuejs.org/)
-- [Orbis SDK](https://github.com/OrbisWeb3/orbis-sdk)
 - [Vue Toastification](https://github.com/Maronato/vue-toastification/tree/next)
 
 ## Hosting
