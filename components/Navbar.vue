@@ -1,5 +1,5 @@
 <template>
-  <nav class="navbar navbar-expand-lg navbar-bg">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container-fluid">
       <NuxtLink class="navbar-brand" to="/">Punk Starter</NuxtLink>
 
@@ -12,29 +12,29 @@
         <div class="d-flex ms-auto" >
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
-            <li class="nav-item">
-              <span class="nav-link active" v-if="siteStore.getColorMode === 'dark.css'" @click="changeColorMode('light.css')">Dark mode</span>
-              <span class="nav-link active" v-if="siteStore.getColorMode === 'light.css'" @click="changeColorMode('dark.css')">Light mode</span>
+            <li v-if="isActivated" class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                {{ $getChainName(Number(chainId)) }}
+              </a>
+              <div class="dropdown-menu">
+                <span class="dropdown-item" href="#" @click="changeNetwork('Ethereum')">Ethereum</span>
+                <span class="dropdown-item" href="#" @click="changeNetwork('Arbitrum')">Arbitrum</span>
+                <span class="dropdown-item" href="#" @click="changeNetwork('Optimism')">Optimism</span>
+              </div>
             </li>
 
             <li class="nav-item">
-              <NuxtLink class="nav-link active" aria-current="page" to="/">Home page</NuxtLink>
+              <span class="nav-link" v-if="siteStore.getColorMode === 'dark.css'" @click="changeColorMode('light.css')">Dark mode</span>
+              <span class="nav-link" v-if="siteStore.getColorMode === 'light.css'" @click="changeColorMode('dark.css')">Light mode</span>
+            </li>
+
+            <li class="nav-item">
+              <NuxtLink class="nav-link" aria-current="page" to="/">Home page</NuxtLink>
             </li>
 
             <li class="nav-item">
               <NuxtLink class="nav-link" to="/profile">Profile page</NuxtLink>
             </li>
-
-            <div v-if="isActivated" class="btn-group mx-2 navbar-menu-btn dropdown-center">
-              <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                {{ $getChainName(Number(chainId)) }}
-              </button>
-              <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                <li><button class="dropdown-item" @click="changeNetwork('Ethereum')">Ethereum</button></li>
-                <li><button class="dropdown-item" @click="changeNetwork('Arbitrum')">Arbitrum</button></li>
-                <li><button class="dropdown-item" @click="changeNetwork('Optimism')">Optimism</button></li>
-              </ul>
-            </div>
 
           </ul>
         </div>

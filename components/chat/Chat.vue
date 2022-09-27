@@ -108,7 +108,8 @@ export default {
 }
 
 .name {
-    font-size: 8px
+    font-size: 8px;
+    color: #3e3c3c;
 }
 
 .msg {
