@@ -24,16 +24,21 @@
             </li>
 
             <li class="nav-item">
-              <span class="nav-link" v-if="siteStore.getColorMode === 'dark.css'" @click="changeColorMode('light.css')">Dark mode</span>
-              <span class="nav-link" v-if="siteStore.getColorMode === 'light.css'" @click="changeColorMode('dark.css')">Light mode</span>
-            </li>
-
-            <li class="nav-item">
               <NuxtLink class="nav-link" aria-current="page" to="/">Home page</NuxtLink>
             </li>
 
             <li class="nav-item">
               <NuxtLink class="nav-link" to="/profile">Profile page</NuxtLink>
+            </li>
+
+            <li class="nav-item">
+              <span class="nav-link" v-if="siteStore.getColorMode === 'dark.css'" @click="changeColorMode('light.css')">
+                <i class="bi bi-brightness-high"></i>
+              </span>
+
+              <span class="nav-link" v-if="siteStore.getColorMode === 'light.css'" @click="changeColorMode('dark.css')">
+                <i class="bi bi-moon-fill"></i>
+              </span>
             </li>
 
           </ul>
