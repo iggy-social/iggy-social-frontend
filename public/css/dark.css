@@ -1,6 +1,8 @@
 :root {
   --bs-body-color: #fff;
   --bs-body-bg: #212529;
+  --bs-light-rgb: 33, 37, 41;
+  --bs-light: #212529;
 }
 
 h6, .h6, h5, .h5, h4, .h4, h3, .h3, h2, .h2, h1, .h1 {

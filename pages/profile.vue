@@ -14,7 +14,7 @@
 
       <p>Env var: {{ $config.alchemyPolygonKey }}</p>
 
-      <p>Chain ID 1: {{ $getChainName(chainId) }}</p>
+      <p>Chain: {{ $getChainName(chainId) }}</p>
 
       <p>Example number from Pinia: {{ exampleStore.exampleNum }}</p>
 

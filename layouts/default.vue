@@ -8,12 +8,14 @@
 
     <Navbar />
 
-    <slot></slot>    
+    <slot></slot>
+
+    <vd-board :connectors="connectors" :dark="siteStore.getColorMode==='dark.css'" />
   </div>
 </template>
 
 <script>
-import { MetaMaskConnector, useEthers, useWallet } from 'vue-dapp';
+import { MetaMaskConnector, WalletConnectConnector, CoinbaseWalletConnector, useEthers, useWallet } from 'vue-dapp';
 import { useSiteStore } from '~/store/site';
 import { useLocalStorage } from '@vueuse/core';
 
@@ -22,6 +24,25 @@ export default {
     const siteStore = useSiteStore();
     const { isActivated } = useEthers();
     const { connectWith, wallet } = useWallet();
+
+    const infuraId = ''
+
+    const connectors = [
+      new MetaMaskConnector({
+        appUrl: 'http://localhost:3000',
+      }),
+      new WalletConnectConnector({
+        qrcode: true,
+        rpc: {
+          1: `https://mainnet.infura.io/v3/${infuraId}`,
+          4: `https://rinkeby.infura.io/v3/${infuraId}`,
+        },
+      }),
+      new CoinbaseWalletConnector({
+        appName: 'Vue Dapp',
+        jsonRpcUrl: `https://mainnet.infura.io/v3/${infuraId}`,
+      }),
+    ]
 
     const connectedType = useLocalStorage('connected', null); // when connectedType.value is updated, localStorage is updated too
 
@@ -41,7 +62,7 @@ export default {
       }
     });
     
-    return { siteStore }
+    return { connectors, siteStore }
   }
 }
 </script>
