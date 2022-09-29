@@ -43,7 +43,7 @@ export default {
 
   methods: {
     async getOrbisPosts() {
-      let { data, error, status } = await this.$orbis.getPosts({context: "kjzl6cwe1jw14ai2gg8e0qmx2j944ppe3s3dgfk003jlb8guuybyg4m77nsrg73"});
+      let { data, error, status } = await this.$orbis.getPosts({context: "kjzl6cwe1jw14bmb4kgw6gbu6umo8jz9vxjsunueihadbpr9977tj93s2diycb1"});
 
       console.log("status:");
       console.log(status);

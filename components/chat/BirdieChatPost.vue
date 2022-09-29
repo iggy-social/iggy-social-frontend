@@ -8,8 +8,7 @@
 
     <div class="col-11">
       <p class="card-subtitle mb-1 text-muted">
-        <span v-if="post.creator_details.metadata">{{shortenAddress(post.creator_details.metadata.address)}}</span>
-        <span v-if="!post.creator_details.metadata">Anon</span>
+        <span>{{showDomainOrAddressOrAnon}}</span>
         <span v-if="post.timestamp"> · {{timeSince}}</span>
       </p>
       <p class="card-text">{{post.content.body}}</p>
@@ -19,13 +18,38 @@
 </template>
 
 <script>
-import { shortenAddress } from 'vue-dapp';
+import { ethers } from 'ethers';
+import { useEthers, shortenAddress } from 'vue-dapp';
+import ResolverAbi from "~/assets/abi/ResolverAbi.json";
+import resolvers from "~/assets/resolvers.json";
 
 export default {
   name: "BirdieChatPost",
   props: ["post"],
 
+  data() {
+    return {
+      authorDomain: null
+    }
+  },
+
+  created() {
+    if (this.isActivated) {
+      this.fetchAuthorDomain();
+    }
+  },
+
   computed: {
+    showDomainOrAddressOrAnon() {
+      if (this.authorDomain) {
+        return this.authorDomain;
+      } else if (this.post.creator_details.metadata) {
+        return this.shortenAddress(this.post.creator_details.metadata.address);
+      } else {
+        return "Anon";
+      }
+    },
+
     timeSince() {
       if (!isNaN(this.post.timestamp)) {
         const timePosted = new Date(this.post.timestamp * 1000);
@@ -44,8 +68,50 @@ export default {
     }
   },
 
-  setup() {
-    return { shortenAddress }
+  methods: {
+
+    async fetchAuthorDomain() {
+      const mdAddress = this.post.creator_details.metadata.address;
+
+      if (mdAddress) {
+        // check session storage if author's domain is already stored
+        const storedDomain = sessionStorage.getItem(String(mdAddress).toLowerCase());
+
+        if (storedDomain) {
+          console.log("Already stored")
+          this.authorDomain = storedDomain;
+        } else {
+          console.log("Fetch author's domain")
+          const contract = new ethers.Contract(resolvers[this.chainId], ResolverAbi, this.signer);
+
+          // get author's default domain
+          const domainName = await contract.getDefaultDomain(
+            String(mdAddress).toLowerCase(), 
+            String(this.$tldName).toLowerCase()
+          );
+
+          if (domainName) {
+            this.authorDomain = domainName + this.$tldName;
+            sessionStorage.setItem(String(mdAddress).toLowerCase(), this.authorDomain);
+          } 
+        }
+      }
+      
+    }
   },
+
+  setup() {
+    const { chainId, isActivated, signer } = useEthers();
+
+    return { chainId, isActivated, shortenAddress, signer }
+  },
+
+  watch: {
+    isActivated(newVal, oldVal) {
+      if (newVal) {
+        this.fetchAuthorDomain();
+      }
+    },
+  }
 }
 </script>

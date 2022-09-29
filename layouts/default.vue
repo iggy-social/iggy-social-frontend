@@ -33,6 +33,7 @@ export default {
 
       if (userDomain) {
         this.userStore.setDefaultDomain(userDomain+this.$tldName);
+        sessionStorage.setItem(String(this.address).toLowerCase(), userDomain+this.$tldName);
       } else {
         this.userStore.setDefaultDomain(null);
       }
@@ -44,6 +45,7 @@ export default {
     const userStore = useUserStore();
     const { address, chainId, isActivated, signer } = useEthers();
     const { connectWith, wallet } = useWallet();
+    const connectedType = useLocalStorage('connected', null); // when connectedType.value is updated, localStorage is updated too
 
     const infuraId = ''
 
@@ -63,8 +65,6 @@ export default {
         jsonRpcUrl: `https://mainnet.infura.io/v3/${infuraId}`,
       }),
     ]
-
-    const connectedType = useLocalStorage('connected', null); // when connectedType.value is updated, localStorage is updated too
 
     onMounted(() => {
       // if user already connected via MetaMask before, connect them automatically on the next visit
