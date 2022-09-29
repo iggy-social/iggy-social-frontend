@@ -32,21 +32,11 @@ export default {
         const now = new Date();
         const secondsPast = (now.getTime() - timePosted.getTime() ) / 1000;
 
-        if(secondsPast < 60){
-            return secondsPast + 's';
-        }
-        if(secondsPast < 3600){
-            return parseInt(secondsPast/60) + 'min';
-        }
-        
-        if(secondsPast <= 86400) return parseInt(secondsPast/3600) + 'h';
-
-        if(secondsPast <= 2628000){
-            return parseInt(secondsPast/86400) + 'd';
-        }
-        if(secondsPast <= 31536000){
-            return parseInt(secondsPast/2628000) + 'mo';
-        }
+        if (secondsPast < 60) return secondsPast + 's';
+        if (secondsPast < 3600) return parseInt(secondsPast/60) + 'min';
+        if (secondsPast <= 86400) return parseInt(secondsPast/3600) + 'h';
+        if (secondsPast <= 2628000) return parseInt(secondsPast/86400) + 'd';
+        if (secondsPast <= 31536000) return parseInt(secondsPast/2628000) + 'mo';
         if (secondsPast > 31536000) return parseInt(secondsPast/31536000) + 'y';
       }
 

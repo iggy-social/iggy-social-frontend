@@ -33,7 +33,7 @@
 
             <li v-if="isActivated" class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                Username
+                {{showDomainOrAddress}}
               </a>
               <div class="dropdown-menu">
                 <span class="dropdown-item cursor-pointer" @click="disconnect">Disconnect</span>
@@ -58,11 +58,24 @@
 </template>
 
 <script>
-import { useBoard, useEthers, useWallet } from 'vue-dapp'
+import { useBoard, useEthers, useWallet, shortenAddress } from 'vue-dapp'
 import { useSiteStore } from '~/store/site'
+import { useUserStore } from '~/store/user'
 
 export default {
   name: "Navbar",
+
+  computed: {
+    showDomainOrAddress() {
+      if (this.userStore.getDefaultDomain) {
+        return this.userStore.getDefaultDomain;
+      } else if (this.address) {
+        return this.shortenAddress(this.address);
+      }
+
+      return "Profile"
+    }
+  },
 
   methods: {
     changeNetwork(networkName) {
@@ -83,8 +96,9 @@ export default {
     const { disconnect } = useWallet()
     const { address, chainId, isActivated } = useEthers()
     const siteStore = useSiteStore();
+    const userStore = useUserStore();
 
-    return { address, chainId, disconnect, isActivated, open, siteStore }
+    return { address, chainId, disconnect, isActivated, open, shortenAddress, siteStore, userStore }
   }
 }
 </script>
