@@ -91,6 +91,12 @@ export default {
         this.fetchUserDomain();
       }
     },
+
+    chainId(newVal, oldVal) {
+      if (newVal) {
+        this.fetchUserDomain();
+      }
+    },
   }
 }
 </script>
