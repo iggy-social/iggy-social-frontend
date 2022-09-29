@@ -1,13 +1,13 @@
 <template>
   <div class="container-md">
     <div class="row">
-      <div class="col-md-8">
+      <div class="col-lg-8">
 
         <BirdieChatPost v-for="post in orbisPosts" :key="post" :post="post" />
 
       </div>
 
-      <div class="col-md-4">
+      <div class="col-lg-4">
         <div class="card bg-light mb-3">
           <div class="card-header">Sidebar</div>
           <div class="card-body">

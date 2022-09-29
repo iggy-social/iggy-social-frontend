@@ -1,16 +1,19 @@
 <template>
   <nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-primary">
     <div class="container-fluid">
-      <NuxtLink class="navbar-brand" to="/">Punk Starter Template ({{$tldName}})</NuxtLink>
+      <NuxtLink class="navbar-brand" to="/">Punk Starter ({{$tldName}})</NuxtLink>
 
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <div class="offcanvas offcanvas-end text-bg-primary" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+        <div class="offcanvas-header">
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
 
-        <div class="d-flex ms-auto" >
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <div class="offcanvas-body" >
+          <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
 
             <li class="nav-item">
               <NuxtLink class="nav-link" to="/profile">Profile page</NuxtLink>
@@ -24,7 +27,7 @@
               <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
                 {{ $getChainName(Number(chainId)) }}
               </a>
-              <div class="dropdown-menu">
+              <div class="dropdown-menu dropdown-menu-primary">
                 <span class="dropdown-item cursor-pointer" @click="changeNetwork('Ethereum')">Ethereum</span>
                 <span class="dropdown-item cursor-pointer" @click="changeNetwork('Arbitrum')">Arbitrum</span>
                 <span class="dropdown-item cursor-pointer" @click="changeNetwork('Optimism')">Optimism</span>
@@ -35,7 +38,7 @@
               <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
                 {{showDomainOrAddress}}
               </a>
-              <div class="dropdown-menu">
+              <div class="dropdown-menu dropdown-menu-primary">
                 <span class="dropdown-item cursor-pointer" @click="disconnect">Disconnect</span>
               </div>
             </li>
