@@ -1,10 +1,15 @@
 :root {
   --bs-body-color: #f8f9fa;
-  --bs-body-bg: #212529;
+  --bs-body-bg: #1F2327;
   --bs-light-rgb: 33, 37, 41;
   --bs-light: #212529;
 }
 
 h6, .h6, h5, .h5, h4, .h4, h3, .h3, h2, .h2, h1, .h1 {
+  color: #f8f9fa;
+}
+
+.form-control, .form-control:focus, .form-control:disabled {
+  background-color: #1F2327;
   color: #f8f9fa;
 }
