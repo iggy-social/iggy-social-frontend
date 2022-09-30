@@ -85,11 +85,11 @@ export default {
           // get author's default domain
           const domainName = await contract.getDefaultDomain(
             String(mdAddress).toLowerCase(), 
-            String(this.$tldName).toLowerCase()
+            String(this.$config.tldName).toLowerCase()
           );
 
           if (domainName) {
-            this.authorDomain = domainName + this.$tldName;
+            this.authorDomain = domainName + this.$config.tldName;
             sessionStorage.setItem(String(mdAddress).toLowerCase(), this.authorDomain);
           } 
         }

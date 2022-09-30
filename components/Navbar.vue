@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-primary">
     <div class="container-fluid">
-      <NuxtLink class="navbar-brand" to="/">Punk Starter ({{$tldName}})</NuxtLink>
+      <NuxtLink class="navbar-brand" to="/">Punk Starter ({{$config.tldName}})</NuxtLink>
 
       <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
         <span class="navbar-toggler-icon"></span>
@@ -24,7 +24,7 @@
                 {{showDomainOrAddress}}
               </a>
               <div class="dropdown-menu dropdown-menu-primary">
-                <span class="dropdown-item cursor-pointer" @click="disconnect">Disconnect</span>
+                <span class="dropdown-item cursor-pointer" @click="disconnectWallet">Disconnect</span>
               </div>
             </li>
 
@@ -91,6 +91,11 @@ export default {
 
     changeColorMode(newMode) {
       this.siteStore.setColorMode(newMode);
+    },
+
+    async disconnectWallet() {
+      this.disconnect();
+      await this.$orbis.logout();
     }
   },
 

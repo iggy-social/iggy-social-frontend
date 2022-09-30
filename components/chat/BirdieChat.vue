@@ -31,11 +31,11 @@
 
       <div class="col-lg-4">
         <div class="card bg-light mb-3">
-          <div class="card-header">{{$tldName}} domains</div>
+          <div class="card-header">{{$config.tldName}} domains</div>
           <div class="card-body">
-            <h4 class="card-title">{{$tldName}} domains chat</h4>
+            <h4 class="card-title">{{$config.tldName}} domains chat</h4>
             <p class="card-text">
-              This is a chat for {{$tldName}} domain holders. Get yourself a {{$tldName}} domain on 
+              This is a chat for {{$config.tldName}} domain holders. Get yourself a {{$config.tldName}} domain on 
               Punk Domains (on Optimism).
             </p>
 
@@ -92,11 +92,7 @@ export default {
     },
 
     async connectToOrbis() {
-      console.log("start connection");
-
-      let res = await this.$orbis.connect(window.ethereum, false);
-
-      console.log("connection started");
+      let res = await this.$orbis.connect(this.signer.provider.provider, false);
 
       /** Check if connection is successful or not */
       if(res.status == 200) {
@@ -166,10 +162,10 @@ export default {
   },
 
   setup() {
-    const { address, isActivated } = useEthers();
+    const { address, isActivated, signer } = useEthers();
     const toast = useToast();
 
-    return { address, isActivated, toast }
+    return { address, isActivated, signer, toast }
   },
 }
 </script>

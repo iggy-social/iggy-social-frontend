@@ -29,11 +29,11 @@ export default {
       const contract = new ethers.Contract(resolvers[this.chainId], ResolverAbi, this.signer);
 
       // get user's default domain
-      const userDomain = await contract.getDefaultDomain(this.address, this.$tldName);
+      const userDomain = await contract.getDefaultDomain(this.address, this.$config.tldName);
 
       if (userDomain) {
-        this.userStore.setDefaultDomain(userDomain+this.$tldName);
-        sessionStorage.setItem(String(this.address).toLowerCase(), userDomain+this.$tldName);
+        this.userStore.setDefaultDomain(userDomain+this.$config.tldName);
+        sessionStorage.setItem(String(this.address).toLowerCase(), userDomain+this.$config.tldName);
       } else {
         this.userStore.setDefaultDomain(null);
       }
@@ -41,34 +41,34 @@ export default {
   },
 
   setup() {
+    const config = useRuntimeConfig()
     const siteStore = useSiteStore();
     const userStore = useUserStore();
     const { address, chainId, isActivated, signer } = useEthers();
     const { connectWith, wallet } = useWallet();
-    const connectedType = useLocalStorage('connected', null); // when connectedType.value is updated, localStorage is updated too
 
-    const infuraId = ''
+    const localStorageConnected = useLocalStorage('connected', null); // when localStorageConnected.value is updated, localStorage is updated too
 
     const connectors = [
       new MetaMaskConnector({
-        appUrl: 'http://localhost:3000',
+        appUrl: config.projectUrl,
       }),
       new WalletConnectConnector({
         qrcode: true,
         rpc: {
-          1: `https://mainnet.infura.io/v3/${infuraId}`,
-          4: `https://rinkeby.infura.io/v3/${infuraId}`,
+          10: "https://mainnet.optimism.io", //`https://opt-mainnet.g.alchemy.com/v2/${config.alchemyOptimismKey}`,
+          42161: "https://arb1.arbitrum.io/rpc", //`https://arb-mainnet.g.alchemy.com/v2/${config.alchemyArbitrumKey}`,
         },
       }),
       new CoinbaseWalletConnector({
-        appName: 'Vue Dapp',
-        jsonRpcUrl: `https://mainnet.infura.io/v3/${infuraId}`,
+        appName: config.projectName,
+        jsonRpcUrl: "https://mainnet.optimism.io",
       }),
     ]
 
     onMounted(() => {
       // if user already connected via MetaMask before, connect them automatically on the next visit
-      if (!isActivated.value && connectedType.value == "metamask") {
+      if (!isActivated.value && localStorageConnected.value == "metamask") {
         const connector = new MetaMaskConnector();
         connectWith(connector);
       }
@@ -76,9 +76,10 @@ export default {
 
     watch(isActivated, (newValue, oldValue) => {
       if (newValue) {
-        connectedType.value = String(wallet.connector.name).toLowerCase(); // "connected" value in localStorage updated
+        localStorageConnected.value = String(wallet.connector.name).toLowerCase(); // "connected" value in localStorage updated
       } else {
-        connectedType.value = null; // "connected" value in localStorage deleted
+        // if disconnected, delete local storage values
+        localStorageConnected.value = null; // "connected" value in localStorage deleted
       }
     });
     
