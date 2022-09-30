@@ -19,6 +19,7 @@
 
 <script>
 import { ethers } from 'ethers';
+import sanitizeHtml from 'sanitize-html';
 import { useEthers, shortenAddress } from 'vue-dapp';
 import ResolverAbi from "~/assets/abi/ResolverAbi.json";
 import resolvers from "~/assets/resolvers.json";
@@ -101,6 +102,9 @@ export default {
 
     parsePostText() {
       let postText = this.post.content.body;
+
+      postText = sanitizeHtml(postText, {allowedTags: false});
+
       postText = this.imgParsing(postText);
       this.parsedText = this.urlParsing(postText);
     },
@@ -111,7 +115,7 @@ export default {
       if (!urlRegex.test(text)) { return text };
 
       return text.replace(urlRegex, function(url) {
-        return '<br/><img class="my-3" src="' + url + '" /><br/>';
+        return '<br/><img class="my-3 img-fluid" src="' + url + '" /><br/>';
       })
     },
 
