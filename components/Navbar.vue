@@ -30,12 +30,12 @@
 
             <li v-if="isActivated" class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                {{ $getChainName(Number(chainId)) }}
+                {{ showChainName }}
               </a>
               <div class="dropdown-menu dropdown-menu-primary">
-                <span class="dropdown-item cursor-pointer" @click="changeNetwork('Ethereum')">Ethereum</span>
-                <span class="dropdown-item cursor-pointer" @click="changeNetwork('Arbitrum')">Arbitrum</span>
-                <span class="dropdown-item cursor-pointer" @click="changeNetwork('Optimism')">Optimism</span>
+                <span class="dropdown-item cursor-pointer" @click="changeNetwork($getChainName($config.supportedChainId))">
+                  Switch to {{ $getChainName($config.supportedChainId) }}
+                </span>
               </div>
             </li>
 
@@ -69,6 +69,14 @@ export default {
   name: "Navbar",
 
   computed: {
+    showChainName() {
+      if (this.chainId === this.$config.supportedChainId) {
+        return this.$getChainName(this.$config.supportedChainId);
+      } else {
+        return "Unsupported network";
+      }
+    },
+
     showDomainOrAddress() {
       if (this.userStore.getDefaultDomain) {
         return this.userStore.getDefaultDomain;

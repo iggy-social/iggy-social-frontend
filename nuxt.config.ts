@@ -58,7 +58,8 @@ export default defineNuxtConfig({
     alchemyMumbaiKey: process.env.NUXT_ALCHEMY_MUMBAI_KEY,
     tldName: ".wagmi",
     projectName: "Punk Domains",
-    projectUrl: "https://punk-nuxt-starter.vercel.app/"
+    projectUrl: "https://punk-nuxt-starter.vercel.app/",
+    supportedChainId: 10
   },
   target: "static"
 })

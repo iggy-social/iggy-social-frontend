@@ -8,14 +8,15 @@
             <div class="form-group mt-2">
               <textarea 
                 v-model="postText" 
-                :disabled="!isUserConnectedOrbis" 
+                :disabled="!isUserConnectedOrbis || !isSupportedChain" 
                 class="form-control" id="exampleTextarea" rows="3" 
                 :placeholder="createPostPlaceholder"
               ></textarea>
             </div>
 
-            <button v-if="isUserConnectedOrbis" :disabled="!postText" class="btn btn-primary mt-2 mb-2" @click="createPost">Submit</button>
-            <button v-if="!isUserConnectedOrbis" class="btn btn-primary mt-2 mb-2" @click="connectToOrbis">Connect to chat</button>
+            <button v-if="isUserConnectedOrbis && isSupportedChain" :disabled="!postText" class="btn btn-primary mt-2 mb-2" @click="createPost">Submit</button>
+            <button v-if="!isUserConnectedOrbis && isSupportedChain" class="btn btn-primary mt-2 mb-2" @click="connectToOrbis">Connect to chat</button>
+            <button disabled="true" v-if="!isSupportedChain" class="btn btn-primary mt-2 mb-2">Switch to {{$getChainName($config.supportedChainId)}}</button>
           </div>
         </div>
 
@@ -83,7 +84,15 @@ export default {
       } else {
         return "What's happening? (Please connect to chat to post messages.)"
       }
-    }
+    },
+
+    isSupportedChain() {
+      if (this.chainId === this.$config.supportedChainId) {
+        return true;
+      } else {
+        return false;
+      }
+    },
   },
 
   methods: {
@@ -162,10 +171,10 @@ export default {
   },
 
   setup() {
-    const { address, isActivated, signer } = useEthers();
+    const { address, chainId, isActivated, signer } = useEthers();
     const toast = useToast();
 
-    return { address, isActivated, signer, toast }
+    return { address, chainId, isActivated, signer, toast }
   },
 }
 </script>

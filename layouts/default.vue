@@ -26,16 +26,18 @@ import resolvers from "~/assets/resolvers.json";
 export default {
   methods: {
     async fetchUserDomain() {
-      const contract = new ethers.Contract(resolvers[this.chainId], ResolverAbi, this.signer);
+      if (this.chainId === this.$config.supportedChainId) {
+        const contract = new ethers.Contract(resolvers[this.chainId], ResolverAbi, this.signer);
 
-      // get user's default domain
-      const userDomain = await contract.getDefaultDomain(this.address, this.$config.tldName);
+        // get user's default domain
+        const userDomain = await contract.getDefaultDomain(this.address, this.$config.tldName);
 
-      if (userDomain) {
-        this.userStore.setDefaultDomain(userDomain+this.$config.tldName);
-        sessionStorage.setItem(String(this.address).toLowerCase(), userDomain+this.$config.tldName);
-      } else {
-        this.userStore.setDefaultDomain(null);
+        if (userDomain) {
+          this.userStore.setDefaultDomain(userDomain+this.$config.tldName);
+          sessionStorage.setItem(String(this.address).toLowerCase(), userDomain+this.$config.tldName);
+        } else {
+          this.userStore.setDefaultDomain(null);
+        }
       }
     }
   },
