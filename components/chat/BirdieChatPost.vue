@@ -11,7 +11,7 @@
         <span>{{showDomainOrAddressOrAnon}}</span>
         <span v-if="post.timestamp"> · {{timeSince}}</span>
       </p>
-      <p class="card-text">{{post.content.body}}</p>
+      <p class="card-text" v-html="parsedText"></p>
     </div>
   </div>
 </div>
@@ -29,7 +29,8 @@ export default {
 
   data() {
     return {
-      authorDomain: null
+      authorDomain: null,
+      parsedText: null,
     }
   },
 
@@ -37,6 +38,8 @@ export default {
     if (this.isActivated && this.post.creator_details.metadata) {
       this.fetchAuthorDomain();
     }
+
+    this.parsePostText();
   },
 
   computed: {
@@ -94,7 +97,32 @@ export default {
           } 
         }
       }
-      
+    },
+
+    parsePostText() {
+      let postText = this.post.content.body;
+      postText = this.imgParsing(postText);
+      this.parsedText = this.urlParsing(postText);
+    },
+
+    imgParsing(text) {
+      const urlRegex = /(https?:\/\/.*\.(?:png|jpg|jpeg|gif))/i;
+
+      if (!urlRegex.test(text)) { return text };
+
+      return text.replace(urlRegex, function(url) {
+        return '<br/><img class="my-3" src="' + url + '" /><br/>';
+      })
+    },
+
+    urlParsing(text) {
+      const urlRegex = /(https?:\/\/(?!.*\.(jpg|png|jpeg|gif|pdf|docx))[^\s]+)/g;
+
+      if (!urlRegex.test(text)) { return text };
+
+      return text.replace(urlRegex, function(url) {
+        return '<a target="_blank" href="' + url + '">' + url + '</a>';
+      })
     }
   },
 
