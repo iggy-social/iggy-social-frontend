@@ -64,7 +64,7 @@ export default {
   data() {
     return {
       isUserConnectedOrbis: false,
-      orbisContext: "kjzl6cwe1jw14bmb4kgw6gbu6umo8jz9vxjsunueihadbpr9977tj93s2diycb1", // kjzl6cwe1jw14ai2gg8e0qmx2j944ppe3s3dgfk003jlb8guuybyg4m77nsrg73
+      orbisContext: "kjzl6cwe1jw14bmb4kgw6gbu6umo8jz9vxjsunueihadbpr9977tj93s2diycb1", //"kjzl6cwe1jw145e1i1agcrjp9375sjpyyk7imu281koehrpve0pr46lvr5e9xco",
       orbisPosts: [],
       pageCounter: 0,
       postText: null,
@@ -122,7 +122,8 @@ export default {
       /** Check if posting is successful or not */
       if(res.status == 200) {
         // post on current feed
-        const newPost = {
+        this.orbisPosts.unshift({
+          stream_id: res.doc,
           timestamp: Math.floor(Date.now() / 1000),
           creator_details: {
             metadata: {
@@ -132,10 +133,9 @@ export default {
           content: {
             body: this.postText
           }
-        };
+        });
 
-        this.orbisPosts.unshift(newPost);
-        this.postText = null;
+        this.postText = "";
       } else {
         console.log("Error posting via Orbis to Ceramic: ", res);
         this.toast(res.result, {type: "error"});
