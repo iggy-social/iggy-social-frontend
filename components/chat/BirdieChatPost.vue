@@ -1,12 +1,12 @@
 <template>
-<div class="card bg-light mb-3">
+<div class="card bg-light mb-3" v-if="post">
   <div class="card-body row">
-    <div class="col-1">
+    <div class="col-2 col-md-1">
       <img v-if="post.creator_details.profile" :src="post.creator_details.profile.pfp" class="img-fluid rounded-circle" />
       <img v-if="!post.creator_details.profile" src="https://img.icons8.com/color/40/000000/guest-female.png" class="img-fluid rounded-circle" />
     </div>
 
-    <div class="col-11">
+    <div class="col-10 col-md-11">
       <p class="card-subtitle mb-1 text-muted">
         <span>{{showDomainOrAddressOrAnon}}</span>
         <span v-if="post.timestamp"> · {{timeSince}}</span>
@@ -34,7 +34,7 @@ export default {
   },
 
   created() {
-    if (this.isActivated) {
+    if (this.isActivated && this.post.creator_details.metadata) {
       this.fetchAuthorDomain();
     }
   },
@@ -78,10 +78,8 @@ export default {
         const storedDomain = sessionStorage.getItem(String(mdAddress).toLowerCase());
 
         if (storedDomain) {
-          console.log("Already stored")
           this.authorDomain = storedDomain;
         } else {
-          console.log("Fetch author's domain")
           const contract = new ethers.Contract(resolvers[this.chainId], ResolverAbi, this.signer);
 
           // get author's default domain
