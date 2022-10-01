@@ -69,7 +69,6 @@ export default {
   data() {
     return {
       isUserConnectedOrbis: false,
-      orbisContext: "kjzl6cwe1jw14bmb4kgw6gbu6umo8jz9vxjsunueihadbpr9977tj93s2diycb1", //"kjzl6cwe1jw145e1i1agcrjp9375sjpyyk7imu281koehrpve0pr46lvr5e9xco",
       orbisPosts: [],
       pageCounter: 0,
       postText: null,
@@ -90,6 +89,14 @@ export default {
         return "What's happening? (Please connect wallet and then sign up for chat to post messages.)"
       } else {
         return "What's happening? (Please sign up for chat to post messages.)"
+      }
+    },
+
+    getOrbisContext() {
+      if (this.$config.orbisTest) {
+        return "kjzl6cwe1jw145e1i1agcrjp9375sjpyyk7imu281koehrpve0pr46lvr5e9xco"; // Test Group
+      } else {
+        return this.$config.orbisContext;
       }
     },
 
@@ -123,7 +130,7 @@ export default {
       // post on Orbis & Ceramic
       let res = await this.$orbis.createPost({
         body: this.postText, 
-        context: this.orbisContext
+        context: this.getOrbisContext
       });
 
       /** Check if posting is successful or not */
@@ -151,7 +158,7 @@ export default {
 
     async getOrbisPosts() {
       let { data, error } = await this.$orbis.getPosts(
-        {context: this.orbisContext},
+        {context: this.getOrbisContext},
         this.pageCounter
       );
 

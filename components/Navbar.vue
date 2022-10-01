@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-primary">
     <div class="container-fluid">
-      <NuxtLink class="navbar-brand" to="/">Punk Starter ({{$config.tldName}})</NuxtLink>
+      <NuxtLink class="navbar-brand" to="/">{{dotlessDomainName}} CHAT</NuxtLink>
 
       <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
         <span class="navbar-toggler-icon"></span>
@@ -67,6 +67,10 @@ export default {
   },
 
   computed: {
+    dotlessDomainName() {
+      return String(this.$config.tldName).replace(".", "").toUpperCase();
+    },
+
     showDomainOrAddress() {
       if (this.userStore.getDefaultDomain) {
         return this.userStore.getDefaultDomain;

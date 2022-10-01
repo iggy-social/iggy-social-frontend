@@ -56,10 +56,12 @@ export default defineNuxtConfig({
     alchemyOptimismKey: process.env.NUXT_ALCHEMY_OPTIMISM_KEY,
     alchemyArbitrumKey: process.env.NUXT_ALCHEMY_ARBITRUM_KEY,
     alchemyMumbaiKey: process.env.NUXT_ALCHEMY_MUMBAI_KEY,
-    tldName: ".wagmi",
+    orbisContext: "kjzl6cwe1jw14bmb4kgw6gbu6umo8jz9vxjsunueihadbpr9977tj93s2diycb1", // production context
+    orbisTest: false, // if true, test context will be used instead of the production one
     projectName: "Punk Domains",
     projectUrl: "https://punk-nuxt-starter.vercel.app/",
-    supportedChainId: 10
+    supportedChainId: 10,
+    tldName: ".wagmi",
   },
   target: "static"
 })
