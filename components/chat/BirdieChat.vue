@@ -5,7 +5,7 @@
 
         <div class="card bg-light mb-3">
           <div class="card-body">
-            <div class="form-group mt-2">
+            <div class="form-group mt-2 mb-2">
               <textarea 
                 v-model="postText" 
                 :disabled="!isUserConnectedOrbis || !isSupportedChain" 
@@ -14,10 +14,10 @@
               ></textarea>
             </div>
 
-            <button v-if="isActivated && isUserConnectedOrbis && isSupportedChain" :disabled="!postText" class="btn btn-primary mt-2 mb-2" @click="createPost">Submit</button>
-            <button v-if="isActivated && !isUserConnectedOrbis && isSupportedChain" class="btn btn-primary mt-2 mb-2" @click="connectToOrbis">Sign up for chat</button>
-            <button disabled="true" v-if="isActivated && !isSupportedChain" class="btn btn-primary mt-2 mb-2">Switch to {{$getChainName($config.supportedChainId)}}</button>
-            <ConnectWalletButton v-if="!isActivated" class="btn btn-primary mt-2 mb-2" btnText="Connect wallet" />
+            <button v-if="isActivated && isUserConnectedOrbis && isSupportedChain" :disabled="!postText" class="btn btn-primary" @click="createPost">Submit</button>
+            <button v-if="isActivated && !isUserConnectedOrbis && isSupportedChain" class="btn btn-primary" @click="connectToOrbis">Sign up for chat</button>
+            <ConnectWalletButton v-if="!isActivated" class="btn btn-primary" btnText="Connect wallet" />
+            <SwitchChainButton v-if="isActivated && !isSupportedChain" :navbar="false" :dropdown="false" />
           </div>
         </div>
 
@@ -42,8 +42,6 @@
             </p>
 
             <a class="btn btn-outline-primary mt-2 mb-2" href="https://punk.domains" target="_blank">Go to Punk Domains</a>
-
-            <span class="btn btn-primary mt-2 mb-2">Second button</span>
           </div>
         </div>
       </div>
@@ -57,13 +55,15 @@ import { useEthers } from 'vue-dapp';
 import BirdieChatPost from "./BirdieChatPost.vue";
 import { useToast } from "vue-toastification/dist/index.mjs";
 import ConnectWalletButton from "~/components/ConnectWalletButton.vue";
+import SwitchChainButton from "~/components/SwitchChainButton.vue";
 
 export default {
   name: "BirdieChat",
 
   components: {
     BirdieChatPost,
-    ConnectWalletButton
+    ConnectWalletButton,
+    SwitchChainButton
   },
 
   data() {

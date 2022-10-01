@@ -28,16 +28,7 @@
               </div>
             </li>
 
-            <li v-if="isActivated" class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                {{ showChainName }}
-              </a>
-              <div class="dropdown-menu dropdown-menu-primary">
-                <span class="dropdown-item cursor-pointer" @click="changeNetwork($getChainName($config.supportedChainId))">
-                  Switch to {{ $getChainName($config.supportedChainId) }}
-                </span>
-              </div>
-            </li>
+            <SwitchChainButton v-if="isActivated" :navbar="true" :dropdown="true" />
 
             <li class="nav-item" data-bs-dismiss="offcanvas">
               <NuxtLink class="nav-link" to="/profile">Profile page</NuxtLink>
@@ -65,23 +56,17 @@ import { useEthers, useWallet, shortenAddress } from 'vue-dapp';
 import { useSiteStore } from '~/store/site';
 import { useUserStore } from '~/store/user';
 import ConnectWalletButton from "~/components/ConnectWalletButton.vue";
+import SwitchChainButton from "~/components/SwitchChainButton.vue";
 
 export default {
   name: "Navbar",
 
   components: {
-    ConnectWalletButton
+    ConnectWalletButton,
+    SwitchChainButton
   },
 
   computed: {
-    showChainName() {
-      if (this.chainId === this.$config.supportedChainId) {
-        return this.$getChainName(this.$config.supportedChainId);
-      } else {
-        return "Unsupported network";
-      }
-    },
-
     showDomainOrAddress() {
       if (this.userStore.getDefaultDomain) {
         return this.userStore.getDefaultDomain;
@@ -94,14 +79,6 @@ export default {
   },
 
   methods: {
-    changeNetwork(networkName) {
-      const networkData = this.$switchChain(networkName); 
-      window.ethereum.request({ 
-        method: networkData.method, 
-        params: networkData.params
-      });
-    },
-
     changeColorMode(newMode) {
       this.siteStore.setColorMode(newMode);
     },
@@ -114,11 +91,11 @@ export default {
 
   setup() {
     const { disconnect } = useWallet();
-    const { address, chainId, isActivated } = useEthers();
+    const { address, isActivated } = useEthers();
     const siteStore = useSiteStore();
     const userStore = useUserStore();
 
-    return { address, chainId, disconnect, isActivated, shortenAddress, siteStore, userStore }
+    return { address, disconnect, isActivated, shortenAddress, siteStore, userStore }
   }
 }
 </script>
