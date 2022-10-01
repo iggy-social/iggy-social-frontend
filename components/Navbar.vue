@@ -15,8 +15,8 @@
         <div class="offcanvas-body" >
           <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
 
-            <li v-if="!isActivated" class="nav-item" data-bs-dismiss="offcanvas" @click="open">
-              <span class="nav-link cursor-pointer">Connect</span>
+            <li v-if="!isActivated" class="nav-item" data-bs-dismiss="offcanvas">
+              <ConnectWalletButton class="nav-link cursor-pointer" btnText="Connect wallet" />
             </li>
 
             <li v-if="isActivated" class="nav-item dropdown">
@@ -61,12 +61,17 @@
 </template>
 
 <script>
-import { useBoard, useEthers, useWallet, shortenAddress } from 'vue-dapp'
-import { useSiteStore } from '~/store/site'
-import { useUserStore } from '~/store/user'
+import { useEthers, useWallet, shortenAddress } from 'vue-dapp';
+import { useSiteStore } from '~/store/site';
+import { useUserStore } from '~/store/user';
+import ConnectWalletButton from "~/components/ConnectWalletButton.vue";
 
 export default {
   name: "Navbar",
+
+  components: {
+    ConnectWalletButton
+  },
 
   computed: {
     showChainName() {
@@ -108,13 +113,12 @@ export default {
   },
 
   setup() {
-    const { open } = useBoard()
-    const { disconnect } = useWallet()
-    const { address, chainId, isActivated } = useEthers()
+    const { disconnect } = useWallet();
+    const { address, chainId, isActivated } = useEthers();
     const siteStore = useSiteStore();
     const userStore = useUserStore();
 
-    return { address, chainId, disconnect, isActivated, open, shortenAddress, siteStore, userStore }
+    return { address, chainId, disconnect, isActivated, shortenAddress, siteStore, userStore }
   }
 }
 </script>

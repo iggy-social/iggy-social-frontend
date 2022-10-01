@@ -3,7 +3,7 @@
     <div class="row">
       <div class="col-lg-8">
 
-        <div v-if="isActivated" class="card bg-light mb-3">
+        <div class="card bg-light mb-3">
           <div class="card-body">
             <div class="form-group mt-2">
               <textarea 
@@ -14,9 +14,10 @@
               ></textarea>
             </div>
 
-            <button v-if="isUserConnectedOrbis && isSupportedChain" :disabled="!postText" class="btn btn-primary mt-2 mb-2" @click="createPost">Submit</button>
-            <button v-if="!isUserConnectedOrbis && isSupportedChain" class="btn btn-primary mt-2 mb-2" @click="connectToOrbis">Connect to chat</button>
-            <button disabled="true" v-if="!isSupportedChain" class="btn btn-primary mt-2 mb-2">Switch to {{$getChainName($config.supportedChainId)}}</button>
+            <button v-if="isActivated && isUserConnectedOrbis && isSupportedChain" :disabled="!postText" class="btn btn-primary mt-2 mb-2" @click="createPost">Submit</button>
+            <button v-if="isActivated && !isUserConnectedOrbis && isSupportedChain" class="btn btn-primary mt-2 mb-2" @click="connectToOrbis">Sign up for chat</button>
+            <button disabled="true" v-if="isActivated && !isSupportedChain" class="btn btn-primary mt-2 mb-2">Switch to {{$getChainName($config.supportedChainId)}}</button>
+            <ConnectWalletButton v-if="!isActivated" class="btn btn-primary mt-2 mb-2" btnText="Connect wallet" />
           </div>
         </div>
 
@@ -41,6 +42,8 @@
             </p>
 
             <a class="btn btn-outline-primary mt-2 mb-2" href="https://punk.domains" target="_blank">Go to Punk Domains</a>
+
+            <span class="btn btn-primary mt-2 mb-2">Second button</span>
           </div>
         </div>
       </div>
@@ -53,12 +56,14 @@
 import { useEthers } from 'vue-dapp';
 import BirdieChatPost from "./BirdieChatPost.vue";
 import { useToast } from "vue-toastification/dist/index.mjs";
+import ConnectWalletButton from "~/components/ConnectWalletButton.vue";
 
 export default {
   name: "BirdieChat",
 
   components: {
-    BirdieChatPost
+    BirdieChatPost,
+    ConnectWalletButton
   },
 
   data() {
@@ -81,8 +86,10 @@ export default {
     createPostPlaceholder() {
       if (this.isUserConnectedOrbis) {
         return "What's happening?"
+      } else if (!this.isActivated) {
+        return "What's happening? (Please connect wallet and then sign up for chat to post messages.)"
       } else {
-        return "What's happening? (Please connect to chat to post messages.)"
+        return "What's happening? (Please sign up for chat to post messages.)"
       }
     },
 
