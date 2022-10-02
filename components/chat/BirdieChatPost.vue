@@ -11,7 +11,13 @@
         <span>{{showDomainOrAddressOrAnon}}</span>
         <span v-if="post.timestamp"> · {{timeSince}}</span>
       </p>
+
       <p class="card-text" v-html="parsedText"></p>
+
+      <p class="card-subtitle mt-1 text-muted">
+        <i @click="likePost" :class="alreadyLiked ? 'bi bi-heart-fill' : 'bi bi-heart'"></i> 
+        {{post.count_likes}}
+      </p>
     </div>
   </div>
 </div>
@@ -23,13 +29,16 @@ import sanitizeHtml from 'sanitize-html';
 import { useEthers, shortenAddress } from 'vue-dapp';
 import ResolverAbi from "~/assets/abi/ResolverAbi.json";
 import resolvers from "~/assets/resolvers.json";
+import { useToast } from "vue-toastification/dist/index.mjs";
+import { useUserStore } from '~/store/user';
 
 export default {
   name: "BirdieChatPost",
-  props: ["post"],
+  props: ["post", "isUserConnectedOrbis"],
 
   data() {
     return {
+      alreadyLiked: false,
       authorDomain: null,
       parsedText: null,
     }
@@ -74,7 +83,25 @@ export default {
 
   methods: {
 
+    async checkIfAlreadyLiked() {
+      // check if user has already liked this post
+      if (this.isUserConnectedOrbis) {
+        let res = await this.$orbis.getReaction(
+          String(this.post.stream_id), 
+          String(this.userStore.getDidParent) // current user's did
+        );
+
+        /** Check if request is successful or not */
+        if (res.status == 200) {
+          if (res.data && res.data.type === "like") {
+            this.alreadyLiked = true; // mark as liked
+          }
+        }
+      }
+    },
+
     async fetchAuthorDomain() {
+      // find out if post author has a domain name
       const mdAddress = this.post.creator_details.metadata.address;
 
       if (mdAddress) {
@@ -96,6 +123,25 @@ export default {
             this.authorDomain = domainName + this.$config.tldName;
             sessionStorage.setItem(String(mdAddress).toLowerCase(), this.authorDomain);
           } 
+        }
+      }
+    },
+
+    async likePost() {
+      if (this.isUserConnectedOrbis && !this.alreadyLiked) {
+        let res = await this.$orbis.react(
+          this.post.stream_id,
+          "like"
+        );
+
+        /** Check if request is successful or not */
+        if (res.status == 200) {
+          // mark as liked
+          this.alreadyLiked = true;
+          this.post.count_likes++;
+        } else {
+          console.log("Error liking the post: ", res);
+          this.toast(res.result, {type: "error"});
         }
       }
     },
@@ -132,16 +178,30 @@ export default {
 
   setup() {
     const { chainId, isActivated, signer } = useEthers();
+    const toast = useToast();
+    const userStore = useUserStore();
 
-    return { chainId, isActivated, shortenAddress, signer }
+    return { chainId, isActivated, shortenAddress, signer, toast, userStore }
   },
 
   watch: {
+    chainId(newVal, oldVal) {
+      if (newVal) {
+        this.fetchAuthorDomain();
+      }
+    },
+
     isActivated(newVal, oldVal) {
       if (newVal) {
         this.fetchAuthorDomain();
       }
     },
+
+    isUserConnectedOrbis(newVal, oldVal) {
+      if (newVal) {
+        this.checkIfAlreadyLiked();
+      }
+    }
   }
 }
 </script>

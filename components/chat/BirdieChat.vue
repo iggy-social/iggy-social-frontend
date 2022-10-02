@@ -22,7 +22,7 @@
         </div>
 
         <div v-if="orbisPosts">
-          <BirdieChatPost v-for="post in orbisPosts" :key="post.stream_id" :post="post" />
+          <BirdieChatPost v-for="post in orbisPosts" :key="post.stream_id" :post="post" :isUserConnectedOrbis="isUserConnectedOrbis" />
         </div>
 
         <div class="d-grid gap-2 col-6 mx-auto mb-5" v-if="showLoadMore">
@@ -54,6 +54,7 @@
 import { useEthers } from 'vue-dapp';
 import BirdieChatPost from "./BirdieChatPost.vue";
 import { useToast } from "vue-toastification/dist/index.mjs";
+import { useUserStore } from '~/store/user';
 import ConnectWalletButton from "~/components/ConnectWalletButton.vue";
 import SwitchChainButton from "~/components/SwitchChainButton.vue";
 
@@ -112,6 +113,11 @@ export default {
   methods: {
     async checkConnectionToOrbis() {
       this.isUserConnectedOrbis = await this.$orbis.isConnected();
+
+      if (this.$orbis.session) {
+        this.userStore.setDid(this.$orbis.session.did._id);
+        this.userStore.setDidParent(this.$orbis.session.did._parentId);
+      }
     },
 
     async connectToOrbis() {
@@ -120,6 +126,11 @@ export default {
       /** Check if connection is successful or not */
       if(res.status == 200) {
         this.isUserConnectedOrbis = true;
+
+        if (this.$orbis.session) {
+          this.userStore.setDid(this.$orbis.session.did._id);
+          this.userStore.setDidParent(this.$orbis.session.did._parentId);
+        }
       } else {
         console.log("Error connecting to Ceramic: ", res);
         this.toast(res.result, {type: "error"});
@@ -187,8 +198,9 @@ export default {
   setup() {
     const { address, chainId, isActivated, signer } = useEthers();
     const toast = useToast();
+    const userStore = useUserStore();
 
-    return { address, chainId, isActivated, signer, toast }
+    return { address, chainId, isActivated, signer, toast, userStore }
   },
 }
 </script>
