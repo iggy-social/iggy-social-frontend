@@ -45,7 +45,7 @@ export default {
   },
 
   created() {
-    if (this.isActivated && this.post.creator_details.metadata) {
+    if (this.post.creator_details.metadata) {
       this.fetchAuthorDomain();
     }
 
@@ -111,7 +111,15 @@ export default {
         if (storedDomain) {
           this.authorDomain = storedDomain;
         } else {
-          const contract = new ethers.Contract(resolvers[this.chainId], ResolverAbi, this.signer);
+          // fetch provider from Alchemy
+          let provider = this.$getFallbackProvider(this.$config.supportedChainId);
+
+          if (this.isActivated && this.chainId === this.$config.supportedChainId) {
+            // fetch provider from user's MetaMask
+            provider = this.signer;
+          }
+
+          const contract = new ethers.Contract(resolvers[this.$config.supportedChainId], ResolverAbi, provider);
 
           // get author's default domain
           const domainName = await contract.getDefaultDomain(
@@ -208,18 +216,6 @@ export default {
   },
 
   watch: {
-    chainId(newVal, oldVal) {
-      if (newVal) {
-        this.fetchAuthorDomain();
-      }
-    },
-
-    isActivated(newVal, oldVal) {
-      if (newVal) {
-        this.fetchAuthorDomain();
-      }
-    },
-
     isUserConnectedOrbis(newVal, oldVal) {
       if (newVal) {
         this.checkIfAlreadyLiked();
