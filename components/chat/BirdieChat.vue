@@ -149,6 +149,7 @@ export default {
         // post on current feed
         this.orbisPosts.unshift({
           stream_id: res.doc,
+          count_likes: 0,
           timestamp: Math.floor(Date.now() / 1000),
           creator_details: {
             metadata: {
@@ -160,7 +161,7 @@ export default {
           }
         });
 
-        this.postText = "";
+        this.postText = null;
       } else {
         console.log("Error posting via Orbis to Ceramic: ", res);
         this.toast(res.result, {type: "error"});

@@ -69,7 +69,7 @@ export default {
         const now = new Date();
         const secondsPast = (now.getTime() - timePosted.getTime() ) / 1000;
 
-        if (secondsPast < 60) return secondsPast + 's';
+        if (secondsPast < 60) return 'now';
         if (secondsPast < 3600) return parseInt(secondsPast/60) + 'min';
         if (secondsPast <= 86400) return parseInt(secondsPast/3600) + 'h';
         if (secondsPast <= 2628000) return parseInt(secondsPast/86400) + 'd';
@@ -129,18 +129,41 @@ export default {
 
     async likePost() {
       if (this.isUserConnectedOrbis && !this.alreadyLiked) {
+        // like the post
         let res = await this.$orbis.react(
           this.post.stream_id,
           "like"
         );
 
+        // mark as liked
+        this.alreadyLiked = true;
+        this.post.count_likes++;
+
         /** Check if request is successful or not */
-        if (res.status == 200) {
-          // mark as liked
+        if (res.status !== 200) {
+          // if failed request, unmark as liked
+          this.alreadyLiked = false;
+          this.post.count_likes--;
+          console.log("Error liking the post: ", res);
+          this.toast(res.result, {type: "error"});
+        }
+      } else if (this.isUserConnectedOrbis && this.alreadyLiked) {
+        // remove reaction ("un-like" the post)
+        let res = await this.$orbis.react(
+          this.post.stream_id,
+          "none" // "none" removes the previous "like" reaction
+        );
+
+        // un-mark as liked
+        this.alreadyLiked = false;
+        this.post.count_likes--;
+
+        /** Check if request is successful or not */
+        if (res.status !== 200) {
+          // if failed request, mark as liked again
           this.alreadyLiked = true;
           this.post.count_likes++;
-        } else {
-          console.log("Error liking the post: ", res);
+          console.log("Error un-liking the post: ", res);
           this.toast(res.result, {type: "error"});
         }
       }

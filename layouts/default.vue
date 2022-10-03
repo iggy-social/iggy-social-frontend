@@ -1,8 +1,8 @@
 <template>
   <div>
     <Head>
-      <Title>Punk Starter Template</Title>
-      <Meta name="description" content="Punk Starter template with Nuxt 3 and Vue Dapp" />
+      <Title>{{dotlessDomainName}} CHAT</Title>
+      <Meta name="description" :content="'Chat for ' + $config.tldName + ' domain holders.'" />
       <Link rel="stylesheet" :href="'/css/'+siteStore.getColorMode" />
     </Head>
 
@@ -24,6 +24,12 @@ import ResolverAbi from "~/assets/abi/ResolverAbi.json";
 import resolvers from "~/assets/resolvers.json";
 
 export default {
+  computed: {
+    dotlessDomainName() {
+      return String(this.$config.tldName).replace(".", "").toUpperCase();
+    },
+  },
+
   methods: {
     async fetchUserDomain() {
       if (this.chainId === this.$config.supportedChainId) {
