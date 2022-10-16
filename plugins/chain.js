@@ -60,7 +60,8 @@ export default defineNuxtPlugin(() => {
     } else if (chainId === 10) {
       // Optimism
       urls = [
-        "https://mainnet.optimism.io",
+        "https://1rpc.io/op",
+        "https://rpc.ankr.com/optimism",
         "https://opt-mainnet.g.alchemy.com/v2/" + config.alchemyOptimismKey
       ]; 
     } else if (chainId === 56) {
@@ -152,7 +153,7 @@ export default defineNuxtPlugin(() => {
         chainId: "0xA",
         chainName: "Optimism",
         nativeCurrency: { decimals: 18, name: "ETH", symbol: "ETH" }, 
-        rpcUrls: ["https://mainnet.optimism.io"]
+        rpcUrls: ["https://1rpc.io/op"]
       }] 
     } else if (chainName == "Optimism Testnet") {
       method = "wallet_addEthereumChain"

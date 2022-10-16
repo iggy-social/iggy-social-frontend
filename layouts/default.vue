@@ -64,13 +64,13 @@ export default {
       new WalletConnectConnector({
         qrcode: true,
         rpc: {
-          10: "https://mainnet.optimism.io", //`https://opt-mainnet.g.alchemy.com/v2/${config.alchemyOptimismKey}`,
+          10: "https://1rpc.io/op", //`https://opt-mainnet.g.alchemy.com/v2/${config.alchemyOptimismKey}`,
           42161: "https://arb1.arbitrum.io/rpc", //`https://arb-mainnet.g.alchemy.com/v2/${config.alchemyArbitrumKey}`,
         },
       }),
       new CoinbaseWalletConnector({
         appName: config.projectName,
-        jsonRpcUrl: "https://mainnet.optimism.io",
+        jsonRpcUrl: "https://1rpc.io/op",
       }),
     ]
 
