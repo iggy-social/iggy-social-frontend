@@ -1,8 +1,10 @@
-# Iggy SOcial
+# Iggy Social
 
 > Work-in-progress (WIP), not production ready yet.
 
 Iggy Social is a Web3 Social frontend website. It uses [Orbis SDK](https://github.com/OrbisWeb3/orbis-sdk) and Ceramic Network in the background.
+
+Development preview: https://iggy-social-frontend.vercel.app/
 
 If your web3 community has its own Punk Domains extension, it can be used as for usernames instead of addresses.
 

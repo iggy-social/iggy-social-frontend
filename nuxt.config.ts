@@ -59,7 +59,7 @@ export default defineNuxtConfig({
     orbisContext: "kjzl6cwe1jw14bmb4kgw6gbu6umo8jz9vxjsunueihadbpr9977tj93s2diycb1", // production context
     orbisTest: false, // if true, test context will be used instead of the production one
     projectName: "Iggy Social",
-    projectUrl: "https://iggy-social.vercel.app/",
+    projectUrl: "https://iggy-social-frontend.vercel.app/",
     supportedChainId: 1313161555,
     tldName: ".testrora",
   },
