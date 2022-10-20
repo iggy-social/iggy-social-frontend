@@ -1,10 +1,10 @@
-# Punk Nuxt Starter (WIP)
+# Iggy SOcial
 
 > Work-in-progress (WIP), not production ready yet.
 
-Punk Nuxt Starter is a starter template that can help you set up a Web3 Social website for your web3 community. It uses [Orbis SDK](https://github.com/OrbisWeb3/orbis-sdk) and Ceramic Network in the background.
+Iggy Social is a Web3 Social frontend website. It uses [Orbis SDK](https://github.com/OrbisWeb3/orbis-sdk) and Ceramic Network in the background.
 
-If your web3 community has it's own Punk Domains extensions (like .klima or .smol), it can be used as usernames instead of addresses.
+If your web3 community has its own Punk Domains extension, it can be used as for usernames instead of addresses.
 
 What's included:
 
@@ -42,7 +42,7 @@ publicRuntimeConfig: {
   alchemyOptimismKey: process.env.NUXT_ALCHEMY_OPTIMISM_KEY,
   alchemyArbitrumKey: process.env.NUXT_ALCHEMY_ARBITRUM_KEY,
   alchemyMumbaiKey: process.env.NUXT_ALCHEMY_MUMBAI_KEY,
-  tldName: ".wagmi",
+  tldName: ".testrora",
   projectName: "My project name",
   projectUrl: "https://my.website.url"
 },

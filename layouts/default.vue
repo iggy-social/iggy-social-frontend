@@ -63,14 +63,15 @@ export default {
       }),
       new WalletConnectConnector({
         qrcode: true,
-        rpc: {
+        rpc: { // TODO: get values from nuxt.config.ts
           10: "https://1rpc.io/op", //`https://opt-mainnet.g.alchemy.com/v2/${config.alchemyOptimismKey}`,
           42161: "https://arb1.arbitrum.io/rpc", //`https://arb-mainnet.g.alchemy.com/v2/${config.alchemyArbitrumKey}`,
+          1313161555: "https://testnet.aurora.dev"
         },
       }),
-      new CoinbaseWalletConnector({
+      new CoinbaseWalletConnector({ // TODO: get values from nuxt.config.ts
         appName: config.projectName,
-        jsonRpcUrl: "https://1rpc.io/op",
+        jsonRpcUrl: "https://testnet.aurora.dev",
       }),
     ]
 

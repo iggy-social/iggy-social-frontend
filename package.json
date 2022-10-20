@@ -1,4 +1,5 @@
 {
+  "name": "iggy-social-frontend",
   "private": true,
   "scripts": {
     "build": "nuxt build",
