@@ -6,6 +6,8 @@ Iggy Social is a Web3 Social frontend website. It uses [Orbis SDK](https://githu
 
 Development preview: https://iggy-social-frontend.vercel.app/
 
+Landing page: https://iggy.social
+
 If your web3 community has its own Punk Domains extension, it can be used as for usernames instead of addresses.
 
 What's included:
