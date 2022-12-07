@@ -1,15 +1,15 @@
 import { ethers } from 'ethers';
 
 export default defineNuxtPlugin(() => {
-  const config = useRuntimeConfig()
+  //const config = useRuntimeConfig() // access env vars like this: config.alchemyPolygonKey
 
   function getChainName(chainId) {
-    if (chainId === 137) {
-      return "Polygon";
-    } else if (chainId === 1) {
+    if (chainId === 1) {
       return "Ethereum";
     } else if (chainId === 10) {
       return "Optimism";
+    } else if (chainId === 19) {
+      return "Songbird";
     } else if (chainId === 56) {
       return "BNB Smart Chain";
     } else if (chainId === 69) {
@@ -20,10 +20,16 @@ export default defineNuxtPlugin(() => {
       return "Gnosis Chain";
     } else if (chainId === 137) {
       return "Polygon";
+    } else if (chainId === 250) {
+      return "Fantom";
+    } else if (chainId === 4002) {
+      return "Fantom Testnet";
     } else if (chainId === 42161) {
       return "Arbitrum";
     } else if (chainId === 421611) {
       return "Arbitrum Testnet";
+    } else if (chainId === 421613) {
+      return "Arbitrum Goerli Testnet";
     } else if (chainId === 80001) {
       return "Polygon Testnet";
     } else if (chainId === 3) {
@@ -37,89 +43,106 @@ export default defineNuxtPlugin(() => {
     }
   }
 
-  function getFallbackProvider(chainId) {
+  function getFallbackProvider(networkId) {
     let urls;
 
-    if (chainId === 1) {
-      // Ethereum
-      urls = [
-        "https://eth-mainnet.g.alchemy.com/v2/" + config.alchemyEthereumKey
-      ];
-    } else if (chainId === 137) {
-      // Polygon PoS Chain
-      urls = [
-        "https://polygon-rpc.com/", 
-        "https://polygon-mainnet.g.alchemy.com/v2/" + config.alchemyPolygonKey
-      ];
-    } else if (chainId === 80001) {
-      // Mumbai testnet (Polygon testnet)
-      urls = [
-        "https://polygon-mumbai.g.alchemy.com/v2/" + config.alchemyMumbaiKey,
-        "https://matic-mumbai.chainstacklabs.com"
-      ]
-    } else if (chainId === 10) {
-      // Optimism
-      urls = [
-        "https://1rpc.io/op",
-        "https://rpc.ankr.com/optimism",
-        "https://opt-mainnet.g.alchemy.com/v2/" + config.alchemyOptimismKey
-      ]; 
-    } else if (chainId === 56) {
-      // BSC mainnet
-      urls = [
-        "https://bscrpc.com"
-      ];
-    } else if (chainId === 77) {
-      // Gnosis Chain testnet (Sokol)
-      urls = [
-        "https://sokol.poa.network"
-      ];
-    } else if (chainId === 100) {
-      // Gnosis Chain
-      urls = [
-        "https://rpc.xdaichain.com",
-        "https://rpc.gnosischain.com"
-      ];
-    } else if (chainId === 42161) {
-      // Arbitrum
-      urls = [
-        "https://arb1.arbitrum.io/rpc",
-        "https://arb-mainnet.g.alchemy.com/v2/" + config.alchemyArbitrumKey
-      ];
-    } else if (chainId === 421611) {
-      // Arbitrum testnet
-      urls = [
-        "https://rinkeby.arbitrum.io/rpc"
-      ];
-    } else if (chainId === 1313161555) {
-      // Aurora testnet
-      urls = [
-        "https://testnet.aurora.dev"
-      ];
-    }
+      if (networkId === 137) {
+        // Polygon PoS Chain
+        urls = [
+          "https://1rpc.io/matic",
+          "https://polygon-rpc.com/"
+        ];
+      } else if (networkId === 80001) {
+        // Mumbai testnet (Polygon testnet)
+        urls = [
+          "https://matic-mumbai.chainstacklabs.com"
+        ]
+      } else if (networkId === 10) {
+        // Optimism
+        urls = [
+          "https://mainnet.optimism.io"
+        ]; 
+      } else if (networkId === 19) {
+        // Songbird
+        urls = [
+          "https://songbird.towolabs.com/rpc",
+          "https://songbird-api.flare.network/ext/C/rpc"
+        ]; 
+      } else if (networkId === 56) {
+        // BSC mainnet
+        urls = [
+          "https://bscrpc.com"
+        ];
+      } else if (networkId === 77) {
+        // Gnosis Chain testnet (Sokol)
+        urls = [
+          "https://sokol.poa.network"
+        ];
+      } else if (networkId === 100) {
+        // Gnosis Chain
+        urls = [
+          "https://rpc.xdaichain.com",
+          "https://rpc.gnosischain.com"
+        ];
+      } else if (networkId === 250) {
+        // Fantom Mainnet
+        urls = [
+          "https://1rpc.io/ftm",
+          "https://rpcapi.fantom.network",
+          "https://rpc.ftm.tools"
+        ];
+      } else if (networkId === 4002) {
+        // Fantom Testnet
+        urls = [
+          "https://rpc.ankr.com/fantom_testnet",
+          //"https://rpc.testnet.fantom.network",
+          "https://fantom-testnet.public.blastapi.io"
+        ];
+      } else if (networkId === 42161) {
+        // Arbitrum
+        urls = [
+          "https://1rpc.io/arb",
+          "https://arb1.arbitrum.io/rpc"
+        ];
+      } else if (networkId === 421611) {
+        // Arbitrum testnet
+        urls = [
+          "https://rinkeby.arbitrum.io/rpc"
+        ];
+      } else if (networkId === 421613) {
+        // Arbitrum Goerli testnet
+        urls = [
+          "https://goerli-rollup.arbitrum.io/rpc"
+        ];
+      } else if (networkId === 1313161555) {
+        // Aurora testnet
+        urls = [
+          "https://testnet.aurora.dev"
+        ];
+      }
 
-    if (urls) {
-      const providers = urls.map(url => new ethers.providers.JsonRpcProvider(url));
-      return new ethers.providers.FallbackProvider(providers, 1); // return fallback provider
-    } else {
-      return null;
-    }
+      if (urls) {
+        const providers = urls.map(url => new ethers.providers.JsonRpcProvider(url));
+        return new ethers.providers.FallbackProvider(providers, 1); // return fallback provider
+      } else {
+        return null;
+      }
   }
 
-  function switchChain(chainName) {
+  function switchChain(networkName) {
     let method;
     let params;
 
-    if (chainName == "Ethereum") {
+    if (networkName == "Ethereum") {
       method = "wallet_switchEthereumChain"
       params = [{ chainId: "0x1" }] 
-    } else if (chainName == "Ropsten") {
+    } else if (networkName == "Ropsten") {
       method = "wallet_switchEthereumChain"
       params = [{ chainId: "0x3" }] 
-    } else if (chainName == "Rinkeby") {
+    } else if (networkName == "Rinkeby") {
       method = "wallet_switchEthereumChain"
       params = [{ chainId: "0x4" }] 
-    } else if (chainName == "Polygon Testnet") {
+    } else if (networkName == "Polygon Testnet") {
       method = "wallet_addEthereumChain"
       params = [{ 
         blockExplorerUrls: [ "https://mumbai.polygonscan.com" ],
@@ -128,7 +151,7 @@ export default defineNuxtPlugin(() => {
         nativeCurrency: { decimals: 18, name: "Matic", symbol: "MATIC" }, 
         rpcUrls: ["https://matic-mumbai.chainstacklabs.com"]
       }] 
-    } else if (chainName == "Arbitrum Testnet") {
+    } else if (networkName == "Arbitrum Testnet") {
       method = "wallet_addEthereumChain"
       params = [{ 
         blockExplorerUrls: [ "https://testnet.arbiscan.io" ],
@@ -137,7 +160,7 @@ export default defineNuxtPlugin(() => {
         nativeCurrency: { decimals: 18, name: "ETH", symbol: "ETH" }, 
         rpcUrls: ["https://rinkeby.arbitrum.io/rpc"]
       }] 
-    } else if (chainName == "Arbitrum") {
+    } else if (networkName == "Arbitrum") {
       method = "wallet_addEthereumChain"
       params = [{ 
         blockExplorerUrls: [ "https://arbiscan.io" ],
@@ -146,7 +169,7 @@ export default defineNuxtPlugin(() => {
         nativeCurrency: { decimals: 18, name: "ETH", symbol: "ETH" }, 
         rpcUrls: ["https://arb1.arbitrum.io/rpc"]
       }] 
-    } else if (chainName == "Optimism") {
+    } else if (networkName == "Optimism") {
       method = "wallet_addEthereumChain"
       params = [{ 
         blockExplorerUrls: [ "https://optimistic.etherscan.io/" ],
@@ -155,7 +178,7 @@ export default defineNuxtPlugin(() => {
         nativeCurrency: { decimals: 18, name: "ETH", symbol: "ETH" }, 
         rpcUrls: ["https://1rpc.io/op"]
       }] 
-    } else if (chainName == "Optimism Testnet") {
+    } else if (networkName == "Optimism Testnet") {
       method = "wallet_addEthereumChain"
       params = [{ 
         blockExplorerUrls: [ "https://kovan-optimistic.etherscan.io/" ],
@@ -164,16 +187,16 @@ export default defineNuxtPlugin(() => {
         nativeCurrency: { decimals: 18, name: "ETH", symbol: "ETH" }, 
         rpcUrls: ["https://kovan.optimism.io"]
       }] 
-    } else if (chainName == "Polygon") {
+    } else if (networkName == "Polygon") {
       method = "wallet_addEthereumChain"
       params = [{ 
         blockExplorerUrls: [ "https://polygonscan.com" ],
         chainId: "0x89",
         chainName: "Polygon PoS Chain",
         nativeCurrency: { decimals: 18, name: "MATIC", symbol: "MATIC" }, 
-        rpcUrls: ["https://polygon-rpc.com/"]
+        rpcUrls: ["https://1rpc.io/matic"]
       }] 
-    } else if (chainName == "Gnosis Testnet") {
+    } else if (networkName == "Gnosis Testnet") {
       method = "wallet_addEthereumChain"
       params = [{ 
         blockExplorerUrls: [ "https://blockscout.com/poa/sokol" ],
@@ -182,7 +205,7 @@ export default defineNuxtPlugin(() => {
         nativeCurrency: { decimals: 18, name: "SPOA", symbol: "SPOA" }, 
         rpcUrls: ["https://sokol.poa.network"]
       }] 
-    } else if (chainName == "Gnosis Chain") {
+    } else if (networkName == "Gnosis Chain") {
       method = "wallet_addEthereumChain"
       params = [{ 
         blockExplorerUrls: [ "https://blockscout.com/xdai/mainnet" ],
@@ -191,7 +214,7 @@ export default defineNuxtPlugin(() => {
         nativeCurrency: { decimals: 18, name: "XDAI", symbol: "XDAI" }, 
         rpcUrls: ["https://rpc.gnosischain.com"]
       }] 
-    } else if (chainName == "BNB Smart Chain") {
+    } else if (networkName == "BNB Smart Chain") {
       method = "wallet_addEthereumChain"
       params = [{ 
         blockExplorerUrls: [ "https://bscscan.com/" ],
@@ -200,7 +223,7 @@ export default defineNuxtPlugin(() => {
         nativeCurrency: { decimals: 18, name: "BNB", symbol: "BNB" }, 
         rpcUrls: ["https://bscrpc.com"]
       }] 
-    } else if (chainName == "Aurora Testnet") {
+    } else if (networkName == "Aurora Testnet") {
       method = "wallet_addEthereumChain"
       params = [{ 
         blockExplorerUrls: [ "https://testnet.aurorascan.dev/" ],
@@ -208,6 +231,33 @@ export default defineNuxtPlugin(() => {
         chainName: "Aurora Testnet",
         nativeCurrency: { decimals: 18, name: "ETH", symbol: "ETH" }, 
         rpcUrls: ["https://testnet.aurora.dev"]
+      }] 
+    } else if (networkName == "Fantom") {
+      method = "wallet_addEthereumChain"
+      params = [{ 
+        blockExplorerUrls: [ "https://ftmscan.com" ],
+        chainId: "0xFA",
+        chainName: "Fantom",
+        nativeCurrency: { decimals: 18, name: "FTM", symbol: "FTM" }, 
+        rpcUrls: ["https://1rpc.io/ftm"]
+      }] 
+    } else if (networkName == "Fantom Testnet") {
+      method = "wallet_addEthereumChain"
+      params = [{ 
+        blockExplorerUrls: [ "https://testnet.ftmscan.com" ],
+        chainId: "0xFA2",
+        chainName: "Fantom Testnet",
+        nativeCurrency: { decimals: 18, name: "FTM", symbol: "FTM" }, 
+        rpcUrls: ["https://rpc.ankr.com/fantom_testnet"]
+      }] 
+    } else if (networkName == "Songbird") {
+      method = "wallet_addEthereumChain"
+      params = [{ 
+        blockExplorerUrls: [ "https://songbird-explorer.flare.network/" ],
+        chainId: "0x13",
+        chainName: "Songbird",
+        nativeCurrency: { decimals: 18, name: "SGB", symbol: "SGB" }, 
+        rpcUrls: ["https://songbird.towolabs.com/rpc", "https://songbird-api.flare.network/ext/C/rpc"]
       }] 
     }
 

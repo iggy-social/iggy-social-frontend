@@ -60,8 +60,8 @@ export default defineNuxtConfig({
     orbisTest: false, // if true, test context will be used instead of the production one
     projectName: "Iggy Social",
     projectUrl: "https://iggy-social-frontend.vercel.app/",
-    supportedChainId: 1313161555,
-    tldName: ".testrora",
+    supportedChainId: 19,
+    tldName: ".sgb",
   },
   target: "static"
 })
