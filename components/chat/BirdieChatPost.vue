@@ -224,3 +224,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.bi-heart, .bi-heart-fill {
+  cursor: pointer;
+}
+</style>
