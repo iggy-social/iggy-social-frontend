@@ -22,8 +22,13 @@ import { useUserStore } from '~/store/user';
 import { useLocalStorage } from '@vueuse/core';
 import ResolverAbi from "~/assets/abi/ResolverAbi.json";
 import resolvers from "~/assets/resolvers.json";
+import Navbar from "~/components/Navbar.vue";
 
 export default {
+  components: {
+    Navbar
+  },
+
   computed: {
     dotlessDomainName() {
       return String(this.$config.tldName).replace(".", "").toUpperCase();

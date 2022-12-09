@@ -4,6 +4,7 @@ const webpack = require('webpack')
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
 export default defineNuxtConfig({
   builder: 'webpack',
+  components: false,
   css: [
     'vue-toastification/dist/index.css'
   ],
