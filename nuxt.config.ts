@@ -62,7 +62,10 @@ export default defineNuxtConfig({
         plugins: [
           NodeGlobalsPolyfillPlugin({
             process: true,  // fix nuxt3 process
-            buffer: true
+            buffer: true,
+            define: {
+              global: 'globalThis'
+            }
           }),
           NodeModulesPolyfillPlugin()
         ],
