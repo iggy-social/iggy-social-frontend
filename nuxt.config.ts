@@ -35,6 +35,9 @@ export default defineNuxtConfig({
       ]
     }
   },
+  imports: {
+    global: true
+  },
   modules: [
     '@pinia/nuxt',
     '@vueuse/nuxt',
@@ -50,6 +53,9 @@ export default defineNuxtConfig({
     }
   },
   vite: {
+    build: {
+      target: ['es2020'] // fix big integer literals error
+    },
     optimizeDeps: {
       esbuildOptions: {
         define: {
@@ -64,9 +70,6 @@ export default defineNuxtConfig({
         ],
         target: "es2020" // fix big integer literals error
       }
-    },
-    build: {
-      target: ['es2020'] // fix big integer literals error
-    },
+    }
   }
 })
