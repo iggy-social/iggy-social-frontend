@@ -12,6 +12,11 @@
 
     <vd-board :connectors="connectors" :dark="siteStore.getColorMode==='dark.css'" />
   </div>
+
+  <!-- Do not delete: ugly hack to make "global" work with Vite -->
+  <component :is="'script'">
+  var global = global || window;
+  </component>
 </template>
 
 <script>

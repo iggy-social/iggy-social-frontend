@@ -35,9 +35,6 @@ export default defineNuxtConfig({
       ]
     }
   },
-  imports: {
-    global: true
-  },
   modules: [
     '@pinia/nuxt',
     '@vueuse/nuxt',
@@ -57,14 +54,10 @@ export default defineNuxtConfig({
     build: {
       target: ['es2020'] // fix big integer literals error
     },
-    define: {
-      //global: { this: globalThis }
-      //global: "globalThis"
-    },
     optimizeDeps: {
       esbuildOptions: {
         define: {
-          //global: 'globalThis'  // fix nuxt3 global
+          global: 'globalThis'  // fix nuxt3 global
         },
         plugins: [
           NodeGlobalsPolyfillPlugin({
