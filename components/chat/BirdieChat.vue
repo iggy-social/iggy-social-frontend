@@ -179,8 +179,8 @@ export default {
         this.toast(error, {type: "error"});
       }
 
-      console.log("data:");
-      console.log(data);
+      //console.log("data:");
+      //console.log(data);
 
       if (data.length < 50) {
         this.showLoadMore = false; // hide Load More Posts button if there's less than 50 posts received
