@@ -58,7 +58,7 @@ export default defineNuxtConfig({
       target: ['es2020'] // fix big integer literals error
     },
     define: {
-      //global: 'globalThis'
+      global: {}
     },
     optimizeDeps: {
       esbuildOptions: {
