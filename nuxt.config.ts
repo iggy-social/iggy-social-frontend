@@ -64,6 +64,9 @@ export default defineNuxtConfig({
         ],
         target: "es2020" // fix big integer literals error
       }
-    }
+    },
+    build: {
+      target: ['esnext']
+    },
   }
 })
