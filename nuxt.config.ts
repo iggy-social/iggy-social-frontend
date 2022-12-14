@@ -49,7 +49,6 @@ export default defineNuxtConfig({
       tldName: ".sgb",
     }
   },
-  //ssr: false,
   vite: {
     build: {
       target: ['es2020'] // fix big integer literals error
