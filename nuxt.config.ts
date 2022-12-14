@@ -57,7 +57,7 @@ export default defineNuxtConfig({
     optimizeDeps: {
       esbuildOptions: {
         define: {
-          //global: 'globalThis'  // fix nuxt3 global
+          global: 'globalThis'  // fix nuxt3 global
         },
         plugins: [
           NodeGlobalsPolyfillPlugin({
