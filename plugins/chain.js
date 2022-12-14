@@ -1,7 +1,5 @@
 import { ethers } from 'ethers';
 
-var global = window;
-
 export default defineNuxtPlugin(() => {
   //const config = useRuntimeConfig() // access env vars like this: config.alchemyPolygonKey
 
