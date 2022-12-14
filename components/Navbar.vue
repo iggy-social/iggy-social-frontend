@@ -1,9 +1,4 @@
 <template>
-  <!-- Do not delete: ugly hack to make "global" work with Vite -->
-  <component :is="'script'">
-  var global = global || window;
-  </component>
-
   <nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-primary">
     <div class="container-fluid">
       <NuxtLink class="navbar-brand" to="/">{{dotlessDomainName}} CHAT</NuxtLink>
