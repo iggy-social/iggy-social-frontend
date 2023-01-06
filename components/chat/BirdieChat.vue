@@ -52,7 +52,7 @@
 
 <script>
 import { useEthers } from 'vue-dapp';
-import BirdieChatPost from "./BirdieChatPost.vue";
+import BirdieChatPost from "~/components/chat/BirdieChatPost.vue";
 import { useToast } from "vue-toastification/dist/index.mjs";
 import { useUserStore } from '~/store/user';
 import ConnectWalletButton from "~/components/ConnectWalletButton.vue";

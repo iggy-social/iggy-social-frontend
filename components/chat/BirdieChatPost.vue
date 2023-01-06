@@ -9,7 +9,7 @@
     <div class="col-10 col-md-11">
       <p class="card-subtitle mb-1 text-muted">
         <span>{{showDomainOrAddressOrAnon}}</span>
-        <span v-if="post.timestamp"> · {{timeSince}}</span>
+        <span v-if="post.timestamp"> · <NuxtLink :to="'/birdie-post/'+post.stream_id">{{timeSince}}</NuxtLink></span>
       </p>
 
       <p class="card-text" v-html="parsedText"></p>
@@ -17,6 +17,10 @@
       <p class="card-subtitle mt-1 text-muted">
         <i @click="likePost" :class="alreadyLiked ? 'bi bi-heart-fill' : 'bi bi-heart'"></i> 
         {{post.count_likes}}
+      </p>
+
+      <p class="card-subtitle mt-1 text-muted">
+        
       </p>
     </div>
   </div>
