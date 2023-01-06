@@ -1,4 +1,9 @@
 <template>
+  <Head>
+    <Title>Birdie Post by {{getPostAuthor}}</Title>
+    <Meta name="description" v-if="post" :content="post.content.body" />
+  </Head>
+
   <BirdieChatPost v-if="post" :post="post" :isUserConnectedOrbis="isUserConnectedOrbis" />
 </template>
 
@@ -22,6 +27,16 @@ export default {
   created() {
     this.checkConnectionToOrbis();
     this.getPostObject();
+  },
+
+  computed: {
+    getPostAuthor() {
+      if (this.post) {
+        return this.post.creator_details.metadata.address;
+      }
+
+      return null;
+    }
   },
 
   methods: {
