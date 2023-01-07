@@ -39,6 +39,11 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@vueuse/nuxt',
   ],
+  router: {
+    options: {
+      hashMode: true
+    }
+  },
   runtimeConfig: {
     public: {
       orbisContext: "kjzl6cwe1jw14bmb4kgw6gbu6umo8jz9vxjsunueihadbpr9977tj93s2diycb1", // production context
@@ -49,7 +54,6 @@ export default defineNuxtConfig({
       tldName: ".sgb",
     }
   },
-  ssr: false,
   vite: {
     build: {
       target: ['es2020'] // fix big integer literals error
