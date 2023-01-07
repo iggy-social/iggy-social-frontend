@@ -1,6 +1,6 @@
 <template>
   <Head>
-    <Title>Birdie Post by {{getPostAuthor}}</Title>
+    <Title>Chat Post by {{getPostAuthor}}</Title>
     <Meta name="description" v-if="post" :content="post.content.body" />
   </Head>
 
@@ -25,9 +25,6 @@ export default {
   },
 
   created() {
-    console.log("this.$route.params.id: " + this.$route.params.id);
-    console.log("this.route.query.id: " + this.route.query.id);
-
     this.checkConnectionToOrbis();
     this.getPostObject();
   },
@@ -53,7 +50,7 @@ export default {
     },
 
     async getPostObject() {
-      let { data, error } = await this.$orbis.getPost(this.$route.params.id);
+      let { data, error } = await this.$orbis.getPost(this.route.query.id);
 
       //console.log("data:")
       //console.log(data)

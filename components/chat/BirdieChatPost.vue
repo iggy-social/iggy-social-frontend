@@ -9,7 +9,7 @@
     <div class="col-10 col-md-11">
       <p class="card-subtitle mb-1 text-muted">
         <span>{{showDomainOrAddressOrAnon}}</span>
-        <span v-if="post.timestamp"> · <NuxtLink :to="'/birdie-post/'+post.stream_id">{{timeSince}}</NuxtLink></span>
+        <span v-if="post.timestamp"> · <NuxtLink :to="'/post/?id='+post.stream_id">{{timeSince}}</NuxtLink></span>
       </p>
 
       <p class="card-text" v-html="parsedText"></p>
