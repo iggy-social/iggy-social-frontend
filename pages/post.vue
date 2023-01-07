@@ -1,7 +1,7 @@
 <template>
   <Head>
-    <Title>Chat Post by {{getPostAuthor}}</Title>
-    <Meta name="description" v-if="post" :content="post.content.body" />
+    <Title>Chat Post</Title>
+    <Meta name="description" content="Chat general description" />
   </Head>
 
   <BirdieChatPost v-if="post" :post="post" :isUserConnectedOrbis="isUserConnectedOrbis" />
