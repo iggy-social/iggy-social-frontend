@@ -3,10 +3,6 @@ import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfil
 
 // https://nuxt.com/docs/api/configuration/nuxt-config 
 export default defineNuxtConfig({
-  components: false,
-  css: [
-    'vue-toastification/dist/index.css' 
-  ],
   app: {
     head: {
       meta: [
@@ -35,6 +31,10 @@ export default defineNuxtConfig({
       ]
     }
   },
+  components: false,
+  css: [
+    'vue-toastification/dist/index.css' 
+  ],
   modules: [
     '@pinia/nuxt',
     '@vueuse/nuxt',
@@ -49,6 +49,7 @@ export default defineNuxtConfig({
       tldName: ".sgb",
     }
   },
+  ssr: false,
   vite: {
     build: {
       target: ['es2020'] // fix big integer literals error
