@@ -4,6 +4,7 @@
     <Meta name="description" content="Chat general description" />
   </Head>
 
+  <!-- TODO: show component based on the chat type selection (Birdie, Forum, smth else) -->
   <BirdieChatPost v-if="post" :post="post" :isUserConnectedOrbis="isUserConnectedOrbis" />
 </template>
 
