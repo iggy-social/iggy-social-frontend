@@ -1,11 +1,11 @@
 <template>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light navbar-mobile">
+  <nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-primary navbar-mobile">
     <div class="container-fluid">
       <button @click="toggleLeftSidebar" class="nav-item btn navbar-toggler nav-btn-left" type="button">
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <span class="navbar-brand mx-auto">Brand</span>
+      <span class="navbar-brand mx-auto">{{$config.projectName}}</span>
 
       <button @click="toggleRightSidebar" class="nav-item btn navbar-toggler nav-btn-right" type="button">
         <span class="navbar-toggler-icon"></span>

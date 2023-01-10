@@ -1,7 +1,7 @@
 <template>
   <div class="container-md">
     <div class="row">
-      <div class="col-lg-8">
+      <div class="col-lg-12">
 
         <div class="card bg-light mb-3">
           <div class="card-body">
@@ -29,21 +29,6 @@
           <button class="btn btn-primary" type="button" @click="getOrbisPosts">Load more posts</button>
         </div>
 
-      </div>
-
-      <div class="col-lg-4">
-        <div class="card bg-light mb-3">
-          <div class="card-header">{{$config.tldName}} domains</div>
-          <div class="card-body">
-            <h4 class="card-title">{{$config.tldName}} domains chat</h4>
-            <p class="card-text">
-              This is a chat for {{$config.tldName}} domain holders. Get yourself a {{$config.tldName}} domain on 
-              Punk Domains (on Optimism).
-            </p>
-
-            <a class="btn btn-outline-primary mt-2 mb-2" href="https://punk.domains" target="_blank">Go to Punk Domains</a>
-          </div>
-        </div>
       </div>
     </div>
   </div>

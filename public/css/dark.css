@@ -1,3 +1,5 @@
+@import "./custom.css";
+
 :root {
   --bs-body-color: #f8f9fa;
   --bs-body-bg: #1F2327;

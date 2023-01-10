@@ -1,0 +1,19 @@
+.slide-fade-enter-active, .slide-fade-leave-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-fade-enter-from, .slide-fade-leave-to {
+  transform: translateX(20px);
+  opacity: 0;
+}
+
+/* Desktop only */
+@media screen and (min-width: 1000px) {
+  .center-col {
+    width: 150%;
+  }
+
+  .main-container {
+    max-width: 1800px;
+  }
+}
