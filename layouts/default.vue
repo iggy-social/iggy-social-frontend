@@ -15,7 +15,7 @@
 
         <SidebarLeft />
 
-        <Transition name="slide-fade">
+        <Transition name="slide">
           <div v-show="sidebarStore.showMainContent" class="p-2 center-col bg-light">
             <slot></slot>
           </div>

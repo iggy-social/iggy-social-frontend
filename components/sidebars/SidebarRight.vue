@@ -1,5 +1,5 @@
 <template>
-<Transition name="slide-fade">
+<Transition name="slide-right">
   <div v-if="sidebarStore.showRightSidebar" class="p-2 right-col">
 
     <div class="card bg-light mb-3">
