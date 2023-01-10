@@ -55,7 +55,7 @@ export default {
   data() {
     return {
       breakpoint: 1000,
-      width: 1200
+      width: null
     }
   },
 
@@ -178,7 +178,6 @@ export default {
     },
 
     width(newVal, oldVal) {
-      console.log("Width: ", newVal);
       if (newVal > this.breakpoint) {
         this.sidebarStore.setLeftSidebar(true);
         this.sidebarStore.setMainContent(true);
