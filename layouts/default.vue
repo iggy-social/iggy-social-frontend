@@ -6,9 +6,27 @@
       <Link rel="stylesheet" :href="'/css/'+siteStore.getColorMode" />
     </Head>
 
-    <Navbar />
+    <NavbarDesktop v-if="!isMobile" />
+    <NavbarMobile v-if="isMobile" />
 
-    <slot></slot>
+    <!-- Main content with sidebars -->
+    <div class="d-flex flex-column align-items-center mt-3">
+      <div class="d-flex main-container">
+
+        <SidebarLeft />
+
+        <Transition name="slide-fade">
+          <div v-if="sidebarStore.showMainContent" class="p-2 center-col bg-light">
+            <slot></slot>
+          </div>
+        </Transition>
+
+        <SidebarRight />
+        
+      </div>
+    </div>
+
+    
 
     <vd-board :connectors="connectors" :dark="siteStore.getColorMode==='dark.css'" />
   </div>
@@ -22,22 +40,58 @@
 <script>
 import { ethers } from 'ethers';
 import { MetaMaskConnector, WalletConnectConnector, CoinbaseWalletConnector, useEthers, useWallet } from 'vue-dapp';
+import { useSidebarStore } from '~/store/sidebars';
 import { useSiteStore } from '~/store/site';
 import { useUserStore } from '~/store/user';
 import { useLocalStorage } from '@vueuse/core';
 import ResolverAbi from "~/assets/abi/ResolverAbi.json";
 import resolvers from "~/assets/resolvers.json";
-import Navbar from "~/components/Navbar.vue";
+import NavbarDesktop from "~/components/navbars/NavbarDesktop.vue";
+import NavbarMobile from "~/components/navbars/NavbarMobile.vue";
+import SidebarLeft from "~/components/sidebars/SidebarLeft.vue";
+import SidebarRight from "~/components/sidebars/SidebarRight.vue";
 
 export default {
+  data() {
+    return {
+      breakpoint: 1000,
+      width: 1200
+    }
+  },
+
   components: {
-    Navbar
+    NavbarDesktop,
+    NavbarMobile,
+    SidebarLeft,
+    SidebarRight
+  },
+
+  mounted() {
+    this.width = window.innerWidth;
+
+    if (this.width < this.breakpoint) {
+      this.sidebarStore.setLeftSidebar(false);
+      this.sidebarStore.setRightSidebar(false);
+    }
+
+    window.addEventListener('resize', this.onWidthChange);
+  },
+
+  unmounted() {
+    window.removeEventListener('resize', onWidthChange);
   },
 
   computed: {
     dotlessDomainName() {
       return String(this.$config.tldName).replace(".", "").toUpperCase();
     },
+
+    isMobile() {
+      if (this.width < this.breakpoint) {
+        return true;
+      }
+      return false;
+    }
   },
 
   methods: {
@@ -55,11 +109,16 @@ export default {
           this.userStore.setDefaultDomain(null);
         }
       }
+    },
+
+    onWidthChange() {
+      this.width = window.innerWidth;
     }
   },
 
   setup() {
     const config = useRuntimeConfig()
+    const sidebarStore = useSidebarStore();
     const siteStore = useSiteStore();
     const userStore = useUserStore();
     const { address, chainId, isActivated, signer } = useEthers();
@@ -102,7 +161,7 @@ export default {
       }
     });
     
-    return { address, chainId, connectors, signer, siteStore, userStore }
+    return { address, chainId, connectors, signer, sidebarStore, siteStore, userStore }
   },
 
   watch: {
@@ -115,6 +174,19 @@ export default {
     chainId(newVal, oldVal) {
       if (newVal) {
         this.fetchUserDomain();
+      }
+    },
+
+    width(newVal, oldVal) {
+      console.log("Width: ", newVal);
+      if (newVal > this.breakpoint) {
+        this.sidebarStore.setLeftSidebar(true);
+        this.sidebarStore.setMainContent(true);
+        this.sidebarStore.setRightSidebar(true);
+      } else {
+        this.sidebarStore.setLeftSidebar(false);
+        this.sidebarStore.setMainContent(true);
+        this.sidebarStore.setRightSidebar(false);
       }
     },
   }
