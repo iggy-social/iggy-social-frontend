@@ -169,7 +169,7 @@ export default {
           this.post.stream_id,
           "none" // "none" removes the previous "like" reaction
         );
-        
+
         /** Check if request is successful or not */
         if (res.status !== 200) {
           // if failed request, mark as liked again
@@ -178,6 +178,10 @@ export default {
           console.log("Error un-liking the post: ", res);
           this.toast(res.result, {type: "error"});
         }
+      } else {
+        this.toast("Please sign into chat to be able to react on a post.", {type: "warning"});
+
+        // TODO: open a modal to sign into chat instead
       }
     },
 

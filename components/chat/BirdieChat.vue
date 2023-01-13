@@ -15,7 +15,7 @@
             </div>
 
             <button v-if="isActivated && isUserConnectedOrbis && isSupportedChain" :disabled="!postText" class="btn btn-primary" @click="createPost">Submit</button>
-            <button v-if="isActivated && !isUserConnectedOrbis && isSupportedChain" class="btn btn-primary" @click="connectToOrbis">Sign up for chat</button>
+            <button v-if="isActivated && !isUserConnectedOrbis && isSupportedChain" class="btn btn-primary" @click="connectToOrbis">Sign into chat</button>
             <ConnectWalletButton v-if="!isActivated" class="btn btn-primary" btnText="Connect wallet" />
             <SwitchChainButton v-if="isActivated && !isSupportedChain" :navbar="false" :dropdown="false" />
           </div>
