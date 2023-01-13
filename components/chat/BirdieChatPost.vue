@@ -141,15 +141,15 @@ export default {
 
     async likePost() {
       if (this.isUserConnectedOrbis && !this.alreadyLiked) {
+        // mark as liked
+        this.alreadyLiked = true;
+        this.post.count_likes++;
+
         // like the post
         let res = await this.$orbis.react(
           this.post.stream_id,
           "like"
         );
-
-        // mark as liked
-        this.alreadyLiked = true;
-        this.post.count_likes++;
 
         /** Check if request is successful or not */
         if (res.status !== 200) {
@@ -160,16 +160,16 @@ export default {
           this.toast(res.result, {type: "error"});
         }
       } else if (this.isUserConnectedOrbis && this.alreadyLiked) {
+        // un-mark as liked
+        this.alreadyLiked = false;
+        this.post.count_likes--;
+
         // remove reaction ("un-like" the post)
         let res = await this.$orbis.react(
           this.post.stream_id,
           "none" // "none" removes the previous "like" reaction
         );
-
-        // un-mark as liked
-        this.alreadyLiked = false;
-        this.post.count_likes--;
-
+        
         /** Check if request is successful or not */
         if (res.status !== 200) {
           // if failed request, mark as liked again
