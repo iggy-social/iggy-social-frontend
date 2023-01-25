@@ -1,4 +1,6 @@
-/* Sidebar transations */
+
+
+/* Sidebar transitions */
 .slide-enter { transform: translateX(100%) }
 .slide-left-enter { transform: translateX(100%) }
 .slide-right-enter { transform: translateX(100%) }
@@ -25,12 +27,12 @@
 .slide-right-leave-active,
 .slide-enter-active,
 .slide-leave-active { transition: all 750ms ease-in-out }
-/* END Sidebar transations */
+/* END Sidebar transitions */
 
 /* Desktop only */
 @media screen and (min-width: 1000px) {
-  .center-col {
-    width: 150%;
+  .left-col, .right-col {
+    width: 30%;
   }
 
   .main-container {

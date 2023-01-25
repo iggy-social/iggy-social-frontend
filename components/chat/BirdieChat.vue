@@ -72,9 +72,9 @@ export default {
       if (this.isUserConnectedOrbis) {
         return "What's happening?"
       } else if (!this.isActivated) {
-        return "What's happening? (Please connect wallet and then sign up for chat to post messages.)"
+        return "What's happening? (Please connect wallet and then sign into chat to post messages.)"
       } else {
-        return "What's happening? (Please sign up for chat to post messages.)"
+        return "What's happening? (Please sign into chat to post messages.)"
       }
     },
 

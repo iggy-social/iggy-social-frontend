@@ -16,7 +16,7 @@
         <SidebarLeft />
 
         <Transition name="slide">
-          <div v-show="sidebarStore.showMainContent" class="p-2 center-col bg-light">
+          <div v-show="sidebarStore.showMainContent" class="p-2 center-col">
             <slot></slot>
           </div>
         </Transition>

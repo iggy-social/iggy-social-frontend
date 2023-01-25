@@ -1,11 +1,13 @@
 <template>
 <Transition name="slide-left">
   <div v-if="sidebarStore.showLeftSidebar" class="p-2 left-col">
-    <h3>Left</h3>
-    <p>
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, massa at euismod molestie, elit risus congue 
-      elit, non hendrerit metus odio id metus.
-    </p>
+    <div class="d-grid gap-2">
+      <NuxtLink class="btn btn-outline-primary" to="/">Home</NuxtLink>
+      <NuxtLink class="btn btn-outline-primary disabled" to="/profile">Notifications</NuxtLink>
+      <NuxtLink class="btn btn-outline-primary disabled" to="/profile">Explore</NuxtLink>
+      <NuxtLink class="btn btn-outline-primary" to="/profile">Profile</NuxtLink>
+      <NuxtLink class="btn btn-outline-primary disabled" to="/profile">Messages</NuxtLink>
+    </div>
   </div>
 </Transition>
 </template>
