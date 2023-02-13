@@ -3,6 +3,17 @@
   width: auto;
 }
 
+.navbar-toggler:focus {
+  /* Remove the shadow effect */
+  border: 0 !important;
+  box-shadow: none !important;   
+}
+
+.navbar-toggler {
+  /* Remove border from the icon */
+   border: 0 !important;
+}
+
 .sidebar-nav {
   width: 100vw;
 }
