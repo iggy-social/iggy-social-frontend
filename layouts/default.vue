@@ -7,19 +7,17 @@
     </Head>
 
     <NavbarDesktop v-if="!isMobile" />
-    <NavbarMobile v-if="isMobile" />
+    <NavbarMobile v-if="isMobile" :lSidebar="lSidebar" :rSidebar="rSidebar" />
 
     <!-- Main content with sidebars -->
-    <div class="d-flex flex-column align-items-center mt-3">
-      <div class="d-flex main-container">
+    <div class="container-fluid page-container">
+      <div class="row flex-nowrap">
 
         <SidebarLeft />
 
-        <Transition name="slide">
-          <div v-show="sidebarStore.showMainContent" class="p-2 center-col">
-            <slot></slot>
-          </div>
-        </Transition>
+        <main class="col col-lg-4 ps-md-2 pt-2 main-containter" v-show="sidebarStore.showMainContent">
+          <slot></slot>
+        </main>
 
         <SidebarRight />
         
@@ -55,6 +53,8 @@ export default {
   data() {
     return {
       breakpoint: 1000,
+      lSidebar: null,
+      rSidebar: null,
       width: null
     }
   },
@@ -67,11 +67,18 @@ export default {
   },
 
   mounted() {
+    this.lSidebar = new bootstrap.Collapse('#sidebar1', {toggle: false});
+    this.rSidebar = new bootstrap.Collapse('#sidebar2', {toggle: false});
     this.width = window.innerWidth;
 
     if (this.width < this.breakpoint) {
       this.sidebarStore.setLeftSidebar(false);
       this.sidebarStore.setRightSidebar(false);
+      this.lSidebar.hide();
+      this.rSidebar.hide();
+    } else {
+      this.lSidebar.show();
+      this.rSidebar.show();
     }
 
     window.addEventListener('resize', this.onWidthChange);
@@ -179,10 +186,14 @@ export default {
 
     width(newVal, oldVal) {
       if (newVal > this.breakpoint) {
+        this.lSidebar.show();
+        this.rSidebar.show();
         this.sidebarStore.setLeftSidebar(true);
         this.sidebarStore.setMainContent(true);
         this.sidebarStore.setRightSidebar(true);
       } else {
+        this.lSidebar.hide();
+        this.rSidebar.hide();
         this.sidebarStore.setLeftSidebar(false);
         this.sidebarStore.setMainContent(true);
         this.sidebarStore.setRightSidebar(false);

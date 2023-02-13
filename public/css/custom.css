@@ -1,41 +1,24 @@
+.main-containter {
+  flex: 0 0 auto;
+  width: auto;
+}
 
-
-/* Sidebar transitions */
-.slide-enter { transform: translateX(100%) }
-.slide-left-enter { transform: translateX(100%) }
-.slide-right-enter { transform: translateX(100%) }
-
-.slide-enter-to { transform: translateX(0) }
-.slide-left-enter-to { transform: translateX(0) }
-.slide-right-enter-to { transform: translateX(0) }
-
-.slide-enter-active { position: absolute }
-.slide-left-enter-active { position: absolute }
-.slide-right-enter-active { position: absolute }
-
-.slide-leave { transform: translateX(0) }
-.slide-left-leave { transform: translateX(0) }
-.slide-right-leave { transform: translateX(0) }
-
-.slide-leave-to { transform: translateY(+100%) }
-.slide-left-leave-to { transform: translateX(-100%) }
-.slide-right-leave-to { transform: translateX(+100%) }
-
-.slide-left-enter-active,
-.slide-left-leave-active, 
-.slide-right-enter-active,
-.slide-right-leave-active,
-.slide-enter-active,
-.slide-leave-active { transition: all 750ms ease-in-out }
-/* END Sidebar transitions */
+.sidebar-nav {
+  width: 100vw;
+}
 
 /* Desktop only */
 @media screen and (min-width: 1000px) {
-  .left-col, .right-col {
-    width: 30%;
+  .main-containter {
+    flex: 1 0 0%;
+    width: auto;
   }
 
-  .main-container {
+  .page-container {
     max-width: 1800px;
+  }
+
+  .sidebar-nav {
+    width: 260px;
   }
 }
