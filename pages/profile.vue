@@ -41,8 +41,6 @@ export default {
     const exampleStore = useExampleStore();
     const toast = useToast();
 
-    console.log(Number(ethers.utils.parseEther("1.0")));
-
     return { address, chainId, exampleStore, toast };
   }
 }

@@ -21,7 +21,7 @@
   <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
     {{ showChainName }}
   </a>
-  <div class="dropdown-menu dropdown-menu-primary">
+  <div class="dropdown-menu dropdown-menu-end dropdown-menu-primary">
     <span class="dropdown-item cursor-pointer" @click="changeNetwork($getChainName($config.supportedChainId))">
       Switch to {{ $getChainName($config.supportedChainId) }}
     </span>

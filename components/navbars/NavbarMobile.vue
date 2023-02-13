@@ -26,7 +26,7 @@ export default {
   methods: {
     toggleLeftSidebar() {
       this.sidebarStore.setRightSidebar(false);
-      this.rSidebar.hide();
+      //this.rSidebar.hide();
 
       if (this.sidebarStore.showLeftSidebar) {
         this.sidebarStore.setLeftSidebar(false);
@@ -45,11 +45,11 @@ export default {
 
       if (this.sidebarStore.showRightSidebar) {
         this.sidebarStore.setRightSidebar(false);
-        this.rSidebar.hide();
+        //this.rSidebar.hide();
         this.sidebarStore.setMainContent(true);
       } else {
         this.sidebarStore.setRightSidebar(true);
-        this.rSidebar.show();
+        //this.rSidebar.show();
         this.sidebarStore.setMainContent(false);
       }
     }

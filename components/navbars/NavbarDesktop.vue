@@ -19,16 +19,16 @@
               <ConnectWalletButton class="nav-link cursor-pointer" btnText="Connect wallet" />
             </li>
 
+            <SwitchChainButton v-if="isActivated" :navbar="true" :dropdown="true" />
+
             <li v-if="isActivated" class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
                 {{showDomainOrAddress}}
               </a>
-              <div class="dropdown-menu dropdown-menu-primary">
+              <div class="dropdown-menu dropdown-menu-end dropdown-menu-primary">
                 <span class="dropdown-item cursor-pointer" @click="disconnectWallet">Disconnect</span>
               </div>
             </li>
-
-            <SwitchChainButton v-if="isActivated" :navbar="true" :dropdown="true" />
 
             <li class="nav-item" data-bs-dismiss="offcanvas">
               <span class="nav-link" v-if="siteStore.getColorMode === 'dark.css'" @click="changeColorMode('light.css')">

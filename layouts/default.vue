@@ -78,7 +78,9 @@ export default {
       this.rSidebar.hide();
     } else {
       this.lSidebar.show();
-      this.rSidebar.show();
+      //this.rSidebar.show();
+      this.sidebarStore.setLeftSidebar(true);
+      this.sidebarStore.setRightSidebar(true);
     }
 
     window.addEventListener('resize', this.onWidthChange);
