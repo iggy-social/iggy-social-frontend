@@ -14,6 +14,11 @@
    border: 0 !important;
 }
 
+.nav-pills .nav-link:hover {
+  color: var(--bs-nav-pills-link-active-color);
+  background-color: var(--bs-nav-pills-link-active-bg);
+}
+
 .sidebar-nav {
   width: 100vw;
 }

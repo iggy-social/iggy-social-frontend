@@ -31,10 +31,6 @@
             <SwitchChainButton v-if="isActivated" :navbar="true" :dropdown="true" />
 
             <li class="nav-item" data-bs-dismiss="offcanvas">
-              <NuxtLink class="nav-link" to="/profile">Profile page</NuxtLink>
-            </li>
-
-            <li class="nav-item" data-bs-dismiss="offcanvas">
               <span class="nav-link" v-if="siteStore.getColorMode === 'dark.css'" @click="changeColorMode('light.css')">
                 <i class="bi bi-brightness-high"></i>
               </span>
