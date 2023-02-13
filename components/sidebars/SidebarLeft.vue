@@ -14,7 +14,7 @@
           </NuxtLink>
         </li>
         <li class="nav-item">
-          <NuxtLink class="nav-link disabled" :class="$route.path.startsWith('/profile') ? 'active' : ''" aria-current="page" to="/profile">
+          <NuxtLink class="nav-link disabled" :class="$route.path.startsWith('/notifications') ? 'active' : ''" aria-current="page" to="/notifications">
             <i class="bi bi-bell"></i> Notifications
           </NuxtLink>
         </li>
