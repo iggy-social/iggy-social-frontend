@@ -1,5 +1,5 @@
 <template>
-<div class="card bg-light mb-3" v-if="post">
+<div class="card mb-3" v-if="post">
   <div class="card-body row">
     <div class="col-2 col-md-1">
       <img v-if="post.creator_details.profile" :src="post.creator_details.profile.pfp" class="img-fluid rounded-circle" />

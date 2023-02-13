@@ -3,10 +3,6 @@
     <div class="container-fluid">
       <NuxtLink class="navbar-brand" to="/">{{$config.projectName}}</NuxtLink>
 
-      <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
       <div class="offcanvas offcanvas-end text-bg-primary" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
         <div class="offcanvas-header">
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -30,12 +26,12 @@
               </div>
             </li>
 
-            <li class="nav-item" data-bs-dismiss="offcanvas">
-              <span class="nav-link" v-if="siteStore.getColorMode === 'dark.css'" @click="changeColorMode('light.css')">
+            <li class="nav-item">
+              <span class="nav-link" v-if="siteStore.getColorMode === 'dark'" @click="changeColorMode('light')">
                 <i class="bi bi-brightness-high"></i>
               </span>
 
-              <span class="nav-link" v-if="siteStore.getColorMode === 'light.css'" @click="changeColorMode('dark.css')">
+              <span class="nav-link" v-if="siteStore.getColorMode === 'light'" @click="changeColorMode('dark')">
                 <i class="bi bi-moon-fill"></i>
               </span>
             </li>
@@ -81,6 +77,7 @@ export default {
   methods: {
     changeColorMode(newMode) {
       this.siteStore.setColorMode(newMode);
+      document.documentElement.setAttribute("data-bs-theme", this.siteStore.getColorMode);
     },
 
     async disconnectWallet() {

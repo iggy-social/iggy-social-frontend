@@ -3,7 +3,6 @@
     <Head>
       <Title>{{dotlessDomainName}} CHAT</Title>
       <Meta name="description" :content="'Chat for ' + $config.tldName + ' domain holders.'" />
-      <Link rel="stylesheet" :href="'/css/'+siteStore.getColorMode" />
     </Head>
 
     <NavbarDesktop v-if="!isMobile" />
@@ -26,7 +25,7 @@
 
     
 
-    <vd-board :connectors="connectors" :dark="siteStore.getColorMode==='dark.css'" />
+    <vd-board :connectors="connectors" :dark="siteStore.getColorMode==='dark'" />
   </div>
 
   <!-- Do not delete: ugly hack to make "global" work with Vite -->
@@ -67,6 +66,8 @@ export default {
   },
 
   mounted() {
+    document.documentElement.setAttribute("data-bs-theme", this.siteStore.getColorMode);
+
     this.lSidebar = new bootstrap.Collapse('#sidebar1', {toggle: false});
     this.rSidebar = new bootstrap.Collapse('#sidebar2', {toggle: false});
     this.width = window.innerWidth;

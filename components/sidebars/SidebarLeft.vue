@@ -1,7 +1,7 @@
 <template>
-<div class="col col-lg-auto px-0 bg-light">
+<div class="col col-lg-auto px-0">
   <div id="sidebar1" class="collapse collapse-horizontal">
-    <div class="sidebar-nav list-group border-0 rounded-0 text-sm-start min-vh-100 bg-light">
+    <div class="sidebar-nav list-group border-0 rounded-0 text-sm-start min-vh-100">
       <ul class="nav nav-pills flex-column m-2">
         <li class="nav-item p-1">
           <NuxtLink class="nav-link" :class="$route.path === '/' ? 'active' : ''" aria-current="page" to="/">
