@@ -1,5 +1,5 @@
 <template>
-  <BirdieChat class="mt-3" />
+  <BirdieChat class="mt-1" />
 </template>
 
 <script>
