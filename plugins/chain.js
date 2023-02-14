@@ -66,7 +66,7 @@ export default defineNuxtPlugin(() => {
         // Songbird
         urls = [
           "https://songbird.towolabs.com/rpc",
-          "https://songbird-api.flare.network/ext/C/rpc"
+          //"https://songbird-api.flare.network/ext/C/rpc"
         ]; 
       } else if (networkId === 56) {
         // BSC mainnet

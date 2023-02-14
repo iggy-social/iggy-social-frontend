@@ -73,7 +73,6 @@ export default {
       // @todo if still not found, check orbis
       if (this.imgPath === this.defaultImage && this.image) {
         this.imgPath = this.image;
-        window.localStorage.setItem(String(this.address).toLowerCase()+"-img", this.imgPath); // if image, then store it in local storage
       }
     }
   },
