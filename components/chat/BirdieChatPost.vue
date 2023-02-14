@@ -2,13 +2,22 @@
 <div class="card mb-3" v-if="post">
   <div class="card-body row">
     <div class="col-2 col-md-1">
+      <ProfileImage 
+        class="img-fluid rounded-circle"
+        :address="authorAddress" 
+        :domain="authorDomain"
+        :image="getOrbisImage"
+      />
+      <!--
       <img v-if="post.creator_details.profile" :src="post.creator_details.profile.pfp" class="img-fluid rounded-circle" />
       <img v-if="!post.creator_details.profile" src="https://img.icons8.com/color/40/000000/guest-female.png" class="img-fluid rounded-circle" />
+      -->
     </div>
 
     <div class="col-10 col-md-11">
       <p class="card-subtitle mb-1 text-muted">
-        <span>{{showDomainOrAddressOrAnon}}</span>
+        <span v-if="authorDomain"><NuxtLink :to="'/profile/?id='+authorDomain">{{showDomainOrAddressOrAnon}}</NuxtLink></span>
+        <span v-if="!authorDomain">{{showDomainOrAddressOrAnon}}</span>
         <span v-if="post.timestamp"> · <NuxtLink :to="'/post/?id='+post.stream_id">{{timeSince}}</NuxtLink></span>
       </p>
 
@@ -35,14 +44,20 @@ import ResolverAbi from "~/assets/abi/ResolverAbi.json";
 import resolvers from "~/assets/resolvers.json";
 import { useToast } from "vue-toastification/dist/index.mjs";
 import { useUserStore } from '~/store/user';
+import ProfileImage from "~/components/profile/ProfileImage.vue";
 
 export default {
   name: "BirdieChatPost",
   props: ["post", "isUserConnectedOrbis"],
 
+  components: {
+    ProfileImage
+  },
+
   data() {
     return {
       alreadyLiked: false,
+      authorAddress: null,
       authorDomain: null,
       parsedText: null,
     }
@@ -57,6 +72,14 @@ export default {
   },
 
   computed: {
+    getOrbisImage() {
+      if (this.post.creator_details.profile) {
+        return this.post.creator_details.profile.pfp;
+      }
+
+      return null;
+    },
+
     showDomainOrAddressOrAnon() {
       if (this.authorDomain) {
         return this.authorDomain;
@@ -106,11 +129,11 @@ export default {
 
     async fetchAuthorDomain() {
       // find out if post author has a domain name
-      const mdAddress = this.post.creator_details.metadata.address;
+      this.authorAddress = this.post.creator_details.metadata.address;
 
-      if (mdAddress) {
+      if (this.authorAddress) {
         // check session storage if author's domain is already stored
-        const storedDomain = sessionStorage.getItem(String(mdAddress).toLowerCase());
+        const storedDomain = sessionStorage.getItem(String(this.authorAddress).toLowerCase());
 
         if (storedDomain) {
           this.authorDomain = storedDomain;
@@ -127,13 +150,13 @@ export default {
 
           // get author's default domain
           const domainName = await contract.getDefaultDomain(
-            String(mdAddress).toLowerCase(), 
+            String(this.authorAddress).toLowerCase(), 
             String(this.$config.tldName).toLowerCase()
           );
 
           if (domainName) {
             this.authorDomain = domainName + this.$config.tldName;
-            sessionStorage.setItem(String(mdAddress).toLowerCase(), this.authorDomain);
+            sessionStorage.setItem(String(this.authorAddress).toLowerCase(), this.authorDomain);
           } 
         }
       }

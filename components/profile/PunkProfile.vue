@@ -70,7 +70,7 @@ export default {
 
       // if domain is not provided, check session storage
       if (!this.domain && this.uAddress) {
-        this.domain = sessionStorage.getItem(String(this.uAddress).toLowerCase());
+        this.domain = window.sessionStorage.getItem(String(this.uAddress).toLowerCase());
       }
 
       // if domain is not provided, then fetch it
@@ -82,17 +82,21 @@ export default {
 
         if (domainName) {
           this.domain = domainName + this.$config.tldName;
-          sessionStorage.setItem(String(this.uAddress).toLowerCase(), this.domain);
+          window.sessionStorage.setItem(String(this.uAddress).toLowerCase(), this.domain);
         } 
       }
 
       if (this.domain && !this.uAddress) {
-        this.uAddress = await contract.getDomainHolder(
+        const domainHolder = await contract.getDomainHolder(
           String(this.domain).toLowerCase().split(".")[0], 
           String(this.$config.tldName).toLowerCase()
         );
 
-        sessionStorage.setItem(String(this.uAddress).toLowerCase(), this.domain);
+        if (domainHolder !== ethers.constants.AddressZero) {
+          this.uAddress = domainHolder;
+        }
+
+        window.sessionStorage.setItem(String(this.uAddress).toLowerCase(), this.domain);
       }
     },
 

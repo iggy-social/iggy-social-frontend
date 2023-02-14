@@ -10,29 +10,29 @@ import resolvers from "~/assets/resolvers.json";
 
 export default {
   name: "ProfileImage",
-  props: ["image", "address", "domain", "refresh"],
+  props: ["address", "domain", "image", "refresh"],
 
   data() {
     return {
-      imgPath: "https://img.icons8.com/color/40/000000/guest-female.png"
+      imgPath: null,
+      defaultImage: "https://img.icons8.com/color/40/000000/guest-female.png"
     }
   },
 
-  mounted() {
-    if (this.image) {
-      this.imgPath = this.image;
-      localStorage.setItem(String(this.address).toLowerCase()+"-img", this.image); // if image, then store it in local storage
-    } else {
-      if (this.refresh) {
-        this.fetchFreshImage();
-      } else {
-        const storedImage = localStorage.getItem(String(this.address).toLowerCase()+"-img");
+  created() {
+    this.imgPath = this.defaultImage;
+  },
 
-        if (storedImage) {
-          this.imgPath = storedImage;
-        } else {
-          this.fetchFreshImage();
-        }
+  mounted() {
+    if (this.refresh) {
+      this.fetchFreshImage();
+    } else {
+      const storedImage = localStorage.getItem(String(this.address).toLowerCase()+"-img");
+
+      if (storedImage) {
+        this.imgPath = storedImage;
+      } else {
+        this.fetchFreshImage();
       }
     }
   },
@@ -50,14 +50,31 @@ export default {
 
         const contract = new ethers.Contract(resolvers[this.$config.supportedChainId], ResolverAbi, provider);
 
-        // @todo: store to local storage
-      }
-      
+        // fetch domain data from Punk Domains
+        const domainData = await contract.getDomainData (
+          String(this.domain).toLowerCase().split(".")[0], 
+          String(this.$config.tldName).toLowerCase()
+        );
 
-      // if still not found, check orbis
-      // if still nothing, keep the default image
-      console.log("fetch fresh image");
-      
+        if (domainData) {
+          const imgAddress = JSON.parse(domainData).imgAddress;
+
+          if (imgAddress) {
+            if (imgAddress.startsWith("ipfs://") || imgAddress.startsWith("http")) {
+              this.imgPath = imgAddress;
+              window.localStorage.setItem(String(this.address).toLowerCase()+"-img", this.imgPath); // if image, then store it in local storage
+            }
+          }
+
+          // @todo: fetch and parse image set as NFT
+        }
+      }
+
+      // @todo if still not found, check orbis
+      if (this.imgPath === this.defaultImage && this.image) {
+        this.imgPath = this.image;
+        window.localStorage.setItem(String(this.address).toLowerCase()+"-img", this.imgPath); // if image, then store it in local storage
+      }
     }
   },
  
