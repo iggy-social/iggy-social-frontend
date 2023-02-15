@@ -1,5 +1,5 @@
 <template>
-  <div class="card">
+  <div class="card border">
     <div class="card-body">
       <h3 class="mb-3">{{ domain }}</h3>
 
@@ -34,29 +34,22 @@ export default {
   },
 
   created() {
-    console.log(this.$route.query.id);
-
     // if uAddress and/or domain is not provided via props, then find it yourself
-    if (!this.uAddress || !this.domain) {
+    if (!this.pAddress || !this.pDomain) {
       this.fetchAddressAndDomain();
     }
   },
 
   methods: {
     async fetchAddressAndDomain() {
-      // if uAddress and/or domain is not provided via props, then find it yourself
-      let provider = this.$getFallbackProvider(this.$config.supportedChainId);
-
-      if (this.isActivated && this.chainId === this.$config.supportedChainId) {
-        // fetch provider from user's MetaMask
-        provider = this.signer;
-      }
-
-      const contract = new ethers.Contract(resolvers[this.$config.supportedChainId], ResolverAbi, provider);
-
       // see if id is in the URL query and figure out whether it is a domain or uAddress
+      console.log("fetchAddressAndDomain() called")
+
       if (this.$route.query.id) {
+        console.log("this.$route.query.id")
         const id = this.$route.query.id;
+
+        console.log(id)
 
         if (id.includes(".")) {
           this.domain = id; // domain
@@ -72,6 +65,16 @@ export default {
       if (!this.domain && this.uAddress) {
         this.domain = window.sessionStorage.getItem(String(this.uAddress).toLowerCase());
       }
+
+      // set contract
+      let provider = this.$getFallbackProvider(this.$config.supportedChainId);
+
+      if (this.isActivated && this.chainId === this.$config.supportedChainId) {
+        // fetch provider from user's MetaMask
+        provider = this.signer;
+      }
+
+      const contract = new ethers.Contract(resolvers[this.$config.supportedChainId], ResolverAbi, provider);
 
       // if domain is not provided, then fetch it
       if (!this.domain && this.uAddress) {
@@ -108,6 +111,12 @@ export default {
     const exampleStore = useExampleStore();
 
     return { address, chainId, isActivated, exampleStore, signer };
+  },
+
+  watch: {
+    address() {
+      this.fetchAddressAndDomain();
+    }
   }
 }
 </script>

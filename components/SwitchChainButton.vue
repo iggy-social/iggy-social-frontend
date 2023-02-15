@@ -9,7 +9,7 @@
   <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
     {{ showChainName }}
   </button>
-  <div class="dropdown-menu dropdown-menu-primary">
+  <div class="dropdown-menu">
     <span class="dropdown-item cursor-pointer" @click="changeNetwork($getChainName($config.supportedChainId))">
       Switch to {{ $getChainName($config.supportedChainId) }}
     </span>
@@ -21,7 +21,7 @@
   <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
     {{ showChainName }}
   </a>
-  <div class="dropdown-menu dropdown-menu-end dropdown-menu-primary">
+  <div class="dropdown-menu dropdown-menu-end">
     <span class="dropdown-item cursor-pointer" @click="changeNetwork($getChainName($config.supportedChainId))">
       Switch to {{ $getChainName($config.supportedChainId) }}
     </span>
@@ -62,9 +62,3 @@ export default {
   },
 }
 </script>
-
-<style scoped>
-.cursor-pointer {
-  cursor: pointer;
-}
-</style>

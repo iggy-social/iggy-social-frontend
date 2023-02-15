@@ -1,12 +1,12 @@
 <template>
-  <nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-primary navbar-mobile">
+  <nav class="navbar sticky-top navbar-expand-lg navbar-mobile">
     <div class="container-fluid">
       <button @click="toggleLeftSidebar" class="nav-item btn navbar-toggler nav-btn-left" type="button">
         <span v-if="!sidebarStore.showLeftSidebar" class="navbar-toggler-icon"></span>
         <span v-if="sidebarStore.showLeftSidebar" class="bi bi-x-lg"></span>
       </button>
 
-      <span class="navbar-brand mx-auto">{{$config.projectName}}</span>
+      <NuxtLink class="navbar-brand mx-auto" to="/">{{$config.projectName}}</NuxtLink>
 
       <button @click="toggleRightSidebar" class="nav-item btn navbar-toggler nav-btn-right" type="button">
         <span v-if="!sidebarStore.showRightSidebar" class="navbar-toggler-icon"></span>

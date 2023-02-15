@@ -1,44 +1,35 @@
 <template>
-  <nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-primary">
+  <nav class="navbar navbar-expand-lg">
     <div class="container-fluid">
       <NuxtLink class="navbar-brand" to="/">{{$config.projectName}}</NuxtLink>
 
-      <div class="offcanvas offcanvas-end text-bg-primary" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
-        <div class="offcanvas-header">
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
+      <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+        <li v-if="!isActivated" class="nav-item">
+          <ConnectWalletButton class="nav-link cursor-pointer" btnText="Connect wallet" />
+        </li>
 
-        <div class="offcanvas-body" >
-          <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+        <SwitchChainButton v-if="isActivated" :navbar="true" :dropdown="true" />
 
-            <li v-if="!isActivated" class="nav-item" data-bs-dismiss="offcanvas">
-              <ConnectWalletButton class="nav-link cursor-pointer" btnText="Connect wallet" />
-            </li>
+        <li v-if="isActivated" class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+            {{showDomainOrAddress}}
+          </a>
+          <div class="dropdown-menu dropdown-menu-end">
+            <span class="dropdown-item cursor-pointer" @click="disconnectWallet">Disconnect</span>
+          </div>
+        </li>
 
-            <SwitchChainButton v-if="isActivated" :navbar="true" :dropdown="true" />
+        <li class="nav-item cursor-pointer">
+          <span class="nav-link" v-if="siteStore.getColorMode === 'dark'" @click="changeColorMode('light')">
+            <i class="bi bi-brightness-high"></i>
+          </span>
 
-            <li v-if="isActivated" class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                {{showDomainOrAddress}}
-              </a>
-              <div class="dropdown-menu dropdown-menu-end dropdown-menu-primary">
-                <span class="dropdown-item cursor-pointer" @click="disconnectWallet">Disconnect</span>
-              </div>
-            </li>
+          <span class="nav-link" v-if="siteStore.getColorMode === 'light'" @click="changeColorMode('dark')">
+            <i class="bi bi-moon-fill"></i>
+          </span>
+        </li>
 
-            <li class="nav-item">
-              <span class="nav-link" v-if="siteStore.getColorMode === 'dark'" @click="changeColorMode('light')">
-                <i class="bi bi-brightness-high"></i>
-              </span>
-
-              <span class="nav-link" v-if="siteStore.getColorMode === 'light'" @click="changeColorMode('dark')">
-                <i class="bi bi-moon-fill"></i>
-              </span>
-            </li>
-
-          </ul>
-        </div>
-      </div>
+      </ul>
     </div>
   </nav>
 </template>
@@ -96,9 +87,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.cursor-pointer {
-  cursor: pointer;
-}
-</style>

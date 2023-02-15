@@ -3,7 +3,7 @@
     <div class="row">
       <div class="col-lg-12">
 
-        <div class="card mb-3">
+        <div class="card mb-3 border">
           <div class="card-body">
             <div class="form-group mt-2 mb-2">
               <textarea 
