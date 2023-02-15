@@ -1,9 +1,9 @@
 <template>
   <nav class="navbar navbar-expand-lg">
-    <div class="container-fluid">
+    <div class="container-fluid mx-3">
       <NuxtLink class="navbar-brand" to="/">{{$config.projectName}}</NuxtLink>
 
-      <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+      <ul class="navbar-nav justify-content-end flex-grow-1">
         <li v-if="!isActivated" class="nav-item">
           <ConnectWalletButton class="nav-link cursor-pointer" btnText="Connect wallet" />
         </li>
