@@ -6,10 +6,13 @@
 
   <!-- TODO: show component based on the chat type selection (Birdie, Forum, smth else) -->
   <BirdieChatPost v-if="post" :post="post" :isUserConnectedOrbis="isUserConnectedOrbis" />
+
+  <BirdieChat v-if="post" :id="post.stream_id" />
 </template>
 
 <script>
 import BirdieChatPost from "~/components/chat/BirdieChatPost.vue";
+import BirdieChat from "~/components/chat/BirdieChat.vue";
 import { useUserStore } from '~/store/user';
 import { useToast } from "vue-toastification/dist/index.mjs";
 
@@ -22,6 +25,7 @@ export default {
   },
 
   components: {
+    BirdieChat,
     BirdieChatPost
   },
 

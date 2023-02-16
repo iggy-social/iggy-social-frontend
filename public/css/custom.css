@@ -253,6 +253,12 @@
   background-color: var(--bs-nav-pills-link-active-bg);
 }
 
+.quote-reply-to {
+  font-size: 0.725rem;
+  font-weight: 400;
+  font-style: italic;
+}
+
 .sidebar-nav {
   width: 100vw;
 }

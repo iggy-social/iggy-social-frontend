@@ -45,6 +45,7 @@ import SwitchChainButton from "~/components/SwitchChainButton.vue";
 
 export default {
   name: "BirdieChat",
+  props: ["id"],
 
   components: {
     BirdieChatPost,
@@ -58,6 +59,9 @@ export default {
       orbisPosts: [],
       pageCounter: 0,
       postText: null,
+      // @todo: allow comments to have a "reply to" button which populates this field with an id of the comment being replied to
+      // can be a new modal that opens
+      reply_to: null, 
       showLoadMore: true
     }
   },
@@ -70,6 +74,9 @@ export default {
   computed: {
     createPostPlaceholder() {
       if (this.isUserConnectedOrbis) {
+        if (this.id) {
+          return "Post your reply"
+        }
         return "What's happening?"
       } else if (!this.isActivated) {
         return "What's happening? (Please connect wallet and then sign into chat to post messages.)"
@@ -126,11 +133,24 @@ export default {
     },
 
     async createPost() {
+      let options;
+
+      if (this.id) {
+        options = {
+          master: this.id, // the main post in the thread
+          reply_to: this.id, // important: reply_to needs to be filled out even if the reply is directly to the master post
+          body: this.postText, 
+          context: this.getOrbisContext
+        }
+      } else {
+        options = {
+          body: this.postText, 
+          context: this.getOrbisContext
+        }
+      }
+
       // post on Orbis & Ceramic
-      let res = await this.$orbis.createPost({
-        body: this.postText, 
-        context: this.getOrbisContext
-      });
+      let res = await this.$orbis.createPost(options);
 
       /** Check if posting is successful or not */
       if(res.status == 200) {
@@ -144,6 +164,8 @@ export default {
               address: this.address
             }
           },
+          master: this.id,
+          reply_to: this.id,
           content: {
             body: this.postText
           }
@@ -157,8 +179,23 @@ export default {
     },
 
     async getOrbisPosts() {
+      let options;
+
+      if (this.id) {
+        options = {
+          master: this.id, // master is the post ID
+          context: this.getOrbisContext, // context is the group ID
+          only_master: false // only get master posts (not replies)
+        }
+      } else {
+        options = {
+          context: this.getOrbisContext, // context is the group ID
+          only_master: true // only get master posts (not replies)
+        }
+      }
+
       let { data, error } = await this.$orbis.getPosts(
-        {context: this.getOrbisContext},
+        options,
         this.pageCounter
       );
 

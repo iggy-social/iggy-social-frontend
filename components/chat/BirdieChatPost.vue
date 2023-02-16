@@ -8,24 +8,37 @@
         :domain="authorDomain"
         :image="getOrbisImage"
       />
-      <!--
-      <img v-if="post.creator_details.profile" :src="post.creator_details.profile.pfp" class="img-fluid rounded-circle" />
-      <img v-if="!post.creator_details.profile" src="https://img.icons8.com/color/40/000000/guest-female.png" class="img-fluid rounded-circle" />
-      -->
     </div>
 
     <div class="col-10 col-md-11">
       <p class="card-subtitle mb-1 text-muted">
         <span v-if="authorDomain"><NuxtLink :to="'/profile/?id='+authorDomain">{{showDomainOrAddressOrAnon}}</NuxtLink></span>
         <span v-if="!authorDomain">{{showDomainOrAddressOrAnon}}</span>
-        <span v-if="post.timestamp"> · <NuxtLink :to="'/post/?id='+post.stream_id">{{timeSince}}</NuxtLink></span>
+        <span v-if="post.timestamp && !post.master"> · <NuxtLink :to="'/post/?id='+post.stream_id">{{timeSince}}</NuxtLink></span>
+        <span v-if="post.timestamp && post.master"> · {{timeSince}}</span>
+      </p>
+
+      <p v-if="post.master && post.master !== post.reply_to" class="card-text">
+        <blockquote class="quote-reply-to">
+          &gt; 
+          {{ getDomainFromStorage(post.reply_to_creator_details.metadata.address) }}:
+          {{ post.reply_to_details.body }}
+        </blockquote>
       </p>
 
       <p class="card-text" v-html="parsedText"></p>
 
       <p class="card-subtitle mt-1 text-muted">
-        <i @click="likePost" :class="alreadyLiked ? 'bi bi-heart-fill' : 'bi bi-heart'"></i> 
-        {{post.count_likes}}
+        
+        <span>
+          <i @click="likePost" :class="alreadyLiked ? 'bi bi-heart-fill' : 'bi bi-heart'"></i> 
+          {{post.count_likes}}
+        </span>
+
+        <span v-if="!post.master" class="mx-3">
+          <i class="bi bi-chat"></i> 
+          {{post.count_replies}}
+        </span>
       </p>
 
       <p class="card-subtitle mt-1 text-muted">
@@ -162,6 +175,16 @@ export default {
       }
     },
 
+    getDomainFromStorage(addr) {
+      const domainName = sessionStorage.getItem(String(addr).toLowerCase());
+
+      if (domainName) {
+        return domainName;
+      } else {
+        return this.shortenAddress(addr);
+      }
+    },
+
     async likePost() {
       if (this.isUserConnectedOrbis && !this.alreadyLiked) {
         // mark as liked
@@ -204,7 +227,7 @@ export default {
       } else {
         this.toast("Please sign into chat to be able to react on a post.", {type: "warning"});
 
-        // TODO: open a modal to sign into chat instead
+        // @todo: open a modal to sign into chat instead
       }
     },
 
