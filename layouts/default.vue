@@ -12,7 +12,7 @@
     <div class="container-fluid page-container">
       <div class="row flex-nowrap">
 
-        <SidebarLeft />
+        <SidebarLeft :lSidebar="lSidebar" :isMobile="isMobile" />
 
         <main class="col col-lg-4 ps-md-2 pt-2 main-containter" v-show="sidebarStore.showMainContent">
           <slot></slot>

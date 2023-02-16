@@ -177,6 +177,15 @@
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, -webkit-box-shadow 0.15s ease-in-out;
 }
 
+.hover-underline:hover {
+  text-decoration: underline;
+}
+
+.link-without-color {
+  color: var(--bs-secondary-color);
+  text-decoration: none;
+}
+
 .main-containter {
   flex: 0 0 auto;
   width: auto;
@@ -211,12 +220,16 @@
 }
 */
 
-.navbar-brand {
+.navbar-brand, .navbar-brand:hover {
   color: var(--bs-heading-color);
 }
 
 .navbar-dark .navbar-nav .nav-link:hover {
   background-color: rgba(255, 255, 255, 0.1);
+}
+
+.navbar-mobile {
+  background: var(--bs-body-bg);
 }
 
 .navbar-toggler {

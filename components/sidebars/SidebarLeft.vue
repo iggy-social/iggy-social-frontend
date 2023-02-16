@@ -4,12 +4,12 @@
     <div class="sidebar-nav list-group border-0 rounded-0 text-sm-start min-vh-100">
       <div class="card m-2 p-2 bg-light">
         <ul class="nav nav-pills flex-column">
-          <li class="nav-item p-1">
+          <li class="nav-item p-1" @click="closeLeftSidebar">
             <NuxtLink class="nav-link" :class="$route.path === '/' ? 'active' : ''" aria-current="page" to="/">
               <i class="bi bi-house"></i> Home
             </NuxtLink>
           </li>
-          <li class="nav-item p-1">
+          <li class="nav-item p-1" @click="closeLeftSidebar">
             <NuxtLink class="nav-link" :class="$route.path.startsWith('/profile') ? 'active' : ''" aria-current="page" to="/profile">
               <i class="bi bi-person"></i> Profile
             </NuxtLink>
@@ -27,11 +27,25 @@
 </template>
 
 <script>
+import { useSidebarStore } from '~/store/sidebars';
+
 export default {
   name: "SidebarLeft",
+  props: ["lSidebar", "isMobile"],
+
+  methods: {
+    closeLeftSidebar() {
+      if (this.isMobile) {
+        this.lSidebar.hide();
+        this.sidebarStore.setLeftSidebar(false);
+        this.sidebarStore.setMainContent(true);
+      }
+    }
+  },
 
   setup() {
-    
-  }
+    const sidebarStore = useSidebarStore();
+    return { sidebarStore }
+  },
 }
 </script>
