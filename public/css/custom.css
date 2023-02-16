@@ -202,6 +202,15 @@
   border-radius: 0.375rem;
 }
 
+/* @todo Add your custom navbar background color */
+/*
+.navbar-bg-custom {
+  background: linear-gradient(40deg,#ff6ec4,#8e85e6);
+  border-bottom-right-radius: 15px;
+  border-bottom-left-radius: 15px;
+}
+*/
+
 .navbar-brand {
   color: var(--bs-heading-color);
 }

@@ -106,7 +106,10 @@ export default {
     },
 
     async connectToOrbis() {
-      let res = await this.$orbis.connect(this.signer.provider.provider, false);
+      let res = await this.$orbis.connect_v2({
+        provider: this.signer.provider.provider, 
+        lit: false
+      });
 
       /** Check if connection is successful or not */
       if(res.status == 200) {
