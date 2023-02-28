@@ -35,18 +35,39 @@ import { useEthers } from 'vue-dapp';
 import { ethers } from 'ethers';
 import { useToast } from "vue-toastification/dist/index.mjs";
 import WaitingToast from "~/components/WaitingToast";
+import sanitizeHtml from 'sanitize-html';
 
 export default {
   name: "IggyPostMint",
-  props: ["post", "textPreview"],
+  props: ["post", "parsedText"],
 
   data() {
     return {
-      postPrice: null
+      postPrice: null,
+      textPreview: null
     }
   },
 
+  created() {
+    this.createTextPreview();
+  },
+
   methods: {
+    createTextPreview() {
+      const sanitizedText = sanitizeHtml(this.parsedText, {
+        allowedTags: [],
+        allowedAttributes: {}
+      });
+
+      if (sanitizedText.length > 100) {
+        this.textPreview = sanitizedText.replace(/[^\x00-\x7F]/g, "").substring(0, 97) + "...";
+      } else if (sanitizedText.length === 0) {
+        this.textPreview = "No text";
+      } else {
+        this.textPreview = sanitizedText.replace(/[^\x00-\x7F]/g, "");
+      }
+    },
+
     async fetchMintData() {
       console.log("fetchMintData");
 
@@ -78,7 +99,7 @@ export default {
             this.post.creator_details.metadata.address, // post author
             this.address, // NFT receiver
             ethers.constants.AddressZero, // @todo: enable referrals
-            this.textPreview, // text preview
+            String(this.textPreview), // text preview
             1, // quantity
             {
               value: ethers.utils.parseUnits(this.postPrice, this.$config.tokenDecimals)

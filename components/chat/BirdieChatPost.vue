@@ -40,7 +40,7 @@
           {{post.count_replies}}
         </NuxtLink>
 
-        <IggyPostMint :post="post" :textPreview="textPreview" />
+        <IggyPostMint :post="post" :parsedText="parsedText" />
       </p>
 
       <p class="card-subtitle mt-1 text-muted">
@@ -105,10 +105,6 @@ export default {
       } else {
         return "Anon";
       }
-    },
-
-    textPreview() {
-      return this.parsedText.replace(/[^\x00-\x7F]/g, "");
     },
 
     timeSince() {
