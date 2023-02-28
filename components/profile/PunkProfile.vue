@@ -16,7 +16,7 @@ import { ethers } from 'ethers';
 import { useExampleStore } from '~/store/example'
 import ProfileImage from "~/components/profile/ProfileImage.vue";
 import ResolverAbi from "~/assets/abi/ResolverAbi.json";
-import resolvers from "~/assets/resolvers.json";
+import resolvers from "~/assets/data/resolvers.json";
 
 export default {
   name: "PunkProfile",

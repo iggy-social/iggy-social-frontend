@@ -50,12 +50,18 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
+      blockExplorerBaseUrl: "https://mumbai.polygonscan.com",
+      iggyPostAddress: "0x9f48c192561f3A6f0efeeE5Fce00Fd9788675eF8",
+      iggyPostMinterAddress: "0x249f1172Ebd8686386a5C0Ee704378B85acD0627",
       orbisContext: "kjzl6cwe1jw14bmb4kgw6gbu6umo8jz9vxjsunueihadbpr9977tj93s2diycb1", // production context
       orbisTest: false, // if true, test context will be used instead of the production one
       projectName: "Iggy Social Demo",
       projectUrl: "https://iggy-social-frontend.vercel.app/",
-      supportedChainId: 19,
-      tldName: ".sgb",
+      supportedChainId: 80001,
+      tldName: ".testpoly",
+      tokenAddress: null, // leave null if it's a native token of the chain
+      tokenDecimals: 18,
+      tokenSymbol: "MATIC",
     }
   },
   vite: {

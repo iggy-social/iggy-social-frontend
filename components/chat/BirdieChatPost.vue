@@ -31,14 +31,16 @@
       <p class="card-subtitle mt-1 text-muted">
         
         <span>
-          <i @click="likePost" :class="alreadyLiked ? 'bi bi-heart-fill' : 'bi bi-heart'"></i> 
+          <i @click="likePost" class="cursor-pointer" :class="alreadyLiked ? 'bi bi-heart-fill' : 'bi bi-heart'"></i> 
           {{post.count_likes}}
         </span>
 
-        <NuxtLink v-if="!post.master" class="mx-3 link-without-color" :to="'/post/?id='+post.stream_id">
+        <NuxtLink v-if="!post.master" class="ms-3 link-without-color" :to="'/post/?id='+post.stream_id">
           <i class="bi bi-chat"></i> 
           {{post.count_replies}}
         </NuxtLink>
+
+        <IggyPostMint :post="post" :textPreview="textPreview" />
       </p>
 
       <p class="card-subtitle mt-1 text-muted">
@@ -54,17 +56,19 @@ import { ethers } from 'ethers';
 import sanitizeHtml from 'sanitize-html';
 import { useEthers, shortenAddress } from 'vue-dapp';
 import ResolverAbi from "~/assets/abi/ResolverAbi.json";
-import resolvers from "~/assets/resolvers.json";
+import resolvers from "~/assets/data/resolvers.json";
 import { useToast } from "vue-toastification/dist/index.mjs";
 import { useUserStore } from '~/store/user';
 import ProfileImage from "~/components/profile/ProfileImage.vue";
+import IggyPostMint from "~~/components/IggyPostMint.vue";
 
 export default {
   name: "BirdieChatPost",
   props: ["post", "isUserConnectedOrbis"],
 
   components: {
-    ProfileImage
+    ProfileImage,
+    IggyPostMint
   },
 
   data() {
@@ -101,6 +105,10 @@ export default {
       } else {
         return "Anon";
       }
+    },
+
+    textPreview() {
+      return this.parsedText.replace(/[^\x00-\x7F]/g, "");
     },
 
     timeSince() {
@@ -258,7 +266,7 @@ export default {
       return text.replace(urlRegex, function(url) {
         return '<a target="_blank" href="' + url + '">' + url + '</a>';
       })
-    }
+    },
   },
 
   setup() {
@@ -278,9 +286,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.bi-heart, .bi-heart-fill {
-  cursor: pointer;
-}
-</style>

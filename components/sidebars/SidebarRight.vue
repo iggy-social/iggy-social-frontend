@@ -4,11 +4,11 @@
     <div id="sidebar-nav" class="list-group border-0 rounded-0 text-sm-start min-vh-100">
 
       <div class="card m-2 bg-light">
-        <div class="card-header bg-light">Songbird Community</div>
+        <div class="card-header bg-light">Web3 Community</div>
         <div class="card-body">
           <p class="card-text">
             This is a chat for {{$config.tldName}} domain holders. Get yourself a {{$config.tldName}} domain on 
-            <a href="https://songbird.domains" target="_blank">Songbird Domains</a>.
+            <a href="https://punk.domains" target="_blank">Punk Domains</a>.
           </p>
         </div>
       </div>

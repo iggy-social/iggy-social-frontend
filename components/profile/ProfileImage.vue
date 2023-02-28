@@ -6,7 +6,7 @@
 import { ethers } from 'ethers';
 import { useEthers } from 'vue-dapp';
 import ResolverAbi from "~/assets/abi/ResolverAbi.json";
-import resolvers from "~/assets/resolvers.json";
+import resolvers from "~/assets/data/resolvers.json";
 
 export default {
   name: "ProfileImage",

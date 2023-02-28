@@ -1,7 +1,7 @@
 <template>
   <div>
     <Head>
-      <Title>{{dotlessDomainName}} CHAT</Title>
+      <Title>Iggy Social Demo</Title>
       <Meta name="description" :content="'Chat for ' + $config.tldName + ' domain holders.'" />
     </Head>
 
@@ -42,7 +42,7 @@ import { useSiteStore } from '~/store/site';
 import { useUserStore } from '~/store/user';
 import { useLocalStorage } from '@vueuse/core';
 import ResolverAbi from "~/assets/abi/ResolverAbi.json";
-import resolvers from "~/assets/resolvers.json";
+import resolvers from "~/assets/data/resolvers.json";
 import NavbarDesktop from "~/components/navbars/NavbarDesktop.vue";
 import NavbarMobile from "~/components/navbars/NavbarMobile.vue";
 import SidebarLeft from "~/components/sidebars/SidebarLeft.vue";
@@ -92,10 +92,6 @@ export default {
   },
 
   computed: {
-    dotlessDomainName() {
-      return String(this.$config.tldName).replace(".", "").toUpperCase();
-    },
-
     isMobile() {
       if (this.width < this.breakpoint) {
         return true;

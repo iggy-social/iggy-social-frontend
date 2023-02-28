@@ -220,7 +220,7 @@
 }
 */
 
-.navbar-brand, .navbar-brand:hover {
+.navbar-brand, .navbar-brand:hover, .navbar-brand:active, .navbar-brand:focus {
   color: var(--bs-heading-color);
 }
 

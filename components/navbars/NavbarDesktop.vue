@@ -50,10 +50,6 @@ export default {
   },
 
   computed: {
-    dotlessDomainName() {
-      return String(this.$config.tldName).replace(".", "").toUpperCase();
-    },
-
     showDomainOrAddress() {
       if (this.userStore.getDefaultDomain) {
         return this.userStore.getDefaultDomain;
