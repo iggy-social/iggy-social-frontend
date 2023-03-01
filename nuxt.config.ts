@@ -54,7 +54,7 @@ export default defineNuxtConfig({
       iggyPostAddress: "0x9f48c192561f3A6f0efeeE5Fce00Fd9788675eF8",
       iggyPostMinterAddress: "0x249f1172Ebd8686386a5C0Ee704378B85acD0627",
       orbisContext: "kjzl6cwe1jw14bmb4kgw6gbu6umo8jz9vxjsunueihadbpr9977tj93s2diycb1", // production context
-      orbisTest: false, // if true, test context will be used instead of the production one
+      orbisTest: true, // if true, test context will be used instead of the production one
       projectName: "Iggy Social Demo",
       projectUrl: "https://iggy-social-frontend.vercel.app/",
       supportedChainId: 80001,

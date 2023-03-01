@@ -87,7 +87,7 @@ export default {
 
     getOrbisContext() {
       if (this.$config.orbisTest) {
-        return "kjzl6cwe1jw145e1i1agcrjp9375sjpyyk7imu281koehrpve0pr46lvr5e9xco"; // Test Group
+        return "kjzl6cwe1jw145tfqv2eqv8tiz6puo27meyz4smz40atppuc13tulqca87k35z2"; // Test Group
       } else {
         return this.$config.orbisContext;
       }
