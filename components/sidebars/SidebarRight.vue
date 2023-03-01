@@ -3,15 +3,7 @@
   <div id="sidebar2" class="collapse collapse-horizontal" :class="{ show: sidebarStore.showRightSidebar }">
     <div id="sidebar-nav" class="list-group border-0 rounded-0 text-sm-start min-vh-100">
 
-      <div class="card m-2 bg-light">
-        <div class="card-header bg-light">Web3 Community</div>
-        <div class="card-body">
-          <p class="card-text">
-            This is a chat for {{$config.tldName}} domain holders. Get yourself a {{$config.tldName}} domain on 
-            <a href="https://punk.domains" target="_blank">Punk Domains</a>.
-          </p>
-        </div>
-      </div>
+      <NameMintWidget />
 
       <div class="card m-2 bg-light">
         <div class="card-header bg-light">Swap</div>
@@ -39,13 +31,18 @@
 
 <script>
 import { useSidebarStore } from '~/store/sidebars';
+import NameMintWidget from '~/components/names/NameMintWidget.vue';
 
 export default {
-  name: "SidebarRight",
+    name: "SidebarRight",
 
-  setup() {
-    const sidebarStore = useSidebarStore();
-    return { sidebarStore }
-  }
+    components: { 
+      NameMintWidget 
+    },
+
+    setup() {
+        const sidebarStore = useSidebarStore();
+        return { sidebarStore };
+    }
 }
 </script>

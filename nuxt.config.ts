@@ -57,6 +57,9 @@ export default defineNuxtConfig({
       orbisTest: true, // if true, test context will be used instead of the production one
       projectName: "Iggy Social Demo",
       projectUrl: "https://iggy-social-frontend.vercel.app/",
+      punkMinterAddress: "", // punk domain minter contract address
+      punkNumberOfPrices: 1, // number of different prices (based on domain length), usually 1 (price()) or 5 (price1char() - price5char())
+      punkTldAddress: "0x4fd04c33E692B967F663B75A1976a1671E93B4dd", // punk domain TLD address
       supportedChainId: 80001,
       tldName: ".testpoly",
       tokenAddress: null, // leave null if it's a native token of the chain

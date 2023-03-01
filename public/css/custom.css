@@ -142,6 +142,10 @@
   border-radius: var(--bs-card-border-radius);
 }
 
+.card-header {
+  font-size: 1.1em;
+}
+
 .cursor-pointer {
   cursor: pointer;
 }

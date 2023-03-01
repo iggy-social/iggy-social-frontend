@@ -155,7 +155,7 @@ export default {
         if (storedDomain) {
           this.authorDomain = storedDomain;
         } else {
-          // fetch provider from Alchemy
+          // fetch provider from hardcoded RPCs
           let provider = this.$getFallbackProvider(this.$config.supportedChainId);
 
           if (this.isActivated && this.chainId === this.$config.supportedChainId) {
