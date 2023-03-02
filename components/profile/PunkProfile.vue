@@ -1,7 +1,11 @@
 <template>
   <div class="card border">
     <div class="card-body">
-      <h3 class="mb-3">{{ domain }}</h3>
+      <p class="text-white fs-3" @click="$router.back()">
+        <i class="bi bi-arrow-left-circle cursor-pointer"></i>
+      </p>
+
+      <h3 class="mb-3 mt-3">{{ domain }}</h3>
 
       <ProfileImage v-if="uAddress" class="img-fluid img-thumbnail rounded-circle w-25" :address="uAddress" :domain="domain" />
 
