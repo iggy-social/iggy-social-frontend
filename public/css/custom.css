@@ -146,6 +146,10 @@
   font-size: 1.1em;
 }
 
+.hover-color:hover {
+  color: var(--bs-primary);
+}
+
 .wallet-img-wrapper {
   border-width: 2px;
   border-color: var(--bs-modal-bg);

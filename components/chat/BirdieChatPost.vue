@@ -12,9 +12,9 @@
 
     <div class="col-10 col-md-11">
       <p class="card-subtitle mb-1 text-muted">
-        <NuxtLink v-if="authorDomain" class="link-without-color hover-underline" :to="'/profile/?id='+authorDomain">{{showDomainOrAddressOrAnon}}</NuxtLink>
+        <NuxtLink v-if="authorDomain" class="link-without-color hover-color" :to="'/profile/?id='+authorDomain">{{showDomainOrAddressOrAnon}}</NuxtLink>
         <span v-if="!authorDomain">{{showDomainOrAddressOrAnon}}</span>
-        <span v-if="post.timestamp && !post.master"> · <NuxtLink class="link-without-color hover-underline" :to="'/post/?id='+post.stream_id">{{timeSince}}</NuxtLink></span>
+        <span v-if="post.timestamp && !post.master"> · <NuxtLink class="link-without-color hover-color" :to="'/post/?id='+post.stream_id">{{timeSince}}</NuxtLink></span>
         <span v-if="post.timestamp && post.master"> · {{timeSince}}</span>
       </p>
 
@@ -31,11 +31,11 @@
       <p class="card-subtitle mt-1 text-muted">
         
         <span>
-          <i @click="likePost" class="cursor-pointer" :class="alreadyLiked ? 'bi bi-heart-fill' : 'bi bi-heart'"></i> 
+          <i @click="likePost" class="cursor-pointer hover-color" :class="alreadyLiked ? 'bi bi-heart-fill' : 'bi bi-heart'"></i> 
           {{post.count_likes}}
         </span>
 
-        <NuxtLink v-if="!post.master" class="ms-3 link-without-color" :to="'/post/?id='+post.stream_id">
+        <NuxtLink v-if="!post.master" class="ms-3 link-without-color hover-color" :to="'/post/?id='+post.stream_id">
           <i class="bi bi-chat"></i> 
           {{post.count_replies}}
         </NuxtLink>

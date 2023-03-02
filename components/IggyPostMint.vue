@@ -1,5 +1,5 @@
 <template>
-<span @click="fetchMintData" class="cursor-pointer ms-3" data-bs-toggle="modal" :data-bs-target="'#mintPostModal'+post.stream_id">
+<span @click="fetchMintData" class="cursor-pointer ms-3 hover-color" data-bs-toggle="modal" :data-bs-target="'#mintPostModal'+post.stream_id">
   <i class="bi bi-collection"></i> 
   Mint
 </span>
@@ -10,7 +10,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h1 class="modal-title fs-5" id="mintPostModalLabel">Mint this post as NFT</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" id="closeMintPostModal" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <p>Mint this post as NFT and show appreciation to the author.</p>
@@ -129,6 +129,7 @@ export default {
               type: "success",
               onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
             });
+            document.getElementById('closeMintPostModal').click();
           } else {
             this.toast.dismiss(toastWait);
             this.toast("Transaction has failed.", {
