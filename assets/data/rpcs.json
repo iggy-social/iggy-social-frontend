@@ -1,0 +1,16 @@
+{
+  "1": "https://1rpc.io/eth",
+  "10": "https://1rpc.io/op",
+  "14": "https://flare-api.flare.network/ext/C/rpc",
+  "16": "https://coston-api.flare.network/ext/C/rpc",
+  "19": "https://songbird-api.flare.network/ext/C/rpc",
+  "56": "https://1rpc.io/bnb",
+  "100": "https://rpc.gnosischain.com",
+  "137": "https://1rpc.io/matic",
+  "250": "https://1rpc.io/ftm",
+  "592": "https://1rpc.io/astr",
+  "1284": "https://1rpc.io/glmr",
+  "42161": "https://1rpc.io/arb",
+  "43114": "https://1rpc.io/avax/c",
+  "80001": "https://matic-mumbai.chainstacklabs.com"
+}

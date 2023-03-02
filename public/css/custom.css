@@ -146,6 +146,20 @@
   font-size: 1.1em;
 }
 
+.wallet-img-wrapper {
+  border-width: 2px;
+  border-color: var(--bs-modal-bg);
+  border-style: solid;
+}
+
+.card-img-wallet:hover {
+  opacity: 0.5;
+}
+
+.card-img-wallet:active {
+  transform: scale(0.8);
+}
+
 .cursor-pointer {
   cursor: pointer;
 }

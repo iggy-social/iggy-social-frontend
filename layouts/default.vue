@@ -23,9 +23,66 @@
       </div>
     </div>
 
-    
+    <!-- Connect Wallet modal -->
+    <div class="modal modal-sm fade" id="connectModal" tabindex="-1" aria-labelledby="connectModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Connect your wallet</h5>
+            <button id="closeConnectModal" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true"></span>
+            </button>
+          </div>
+          <div class="modal-body row">
 
-    <vd-board :connectors="connectors" :dark="siteStore.getColorMode==='dark'" />
+            <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectMetaMask">
+              <img src="@/assets/img/wallets/metamask.png" class="card-img-top card-img-wallet" alt="MetaMask">
+            </div>
+
+            <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectMetaMask">
+              <img src="@/assets/img/wallets/bifrost.png" class="card-img-top card-img-wallet" alt="Bifrost">
+            </div> 
+
+            <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectWalletConnect">
+              <img src="@/assets/img/wallets/wc.png" class="card-img-top card-img-wallet" alt="Wallet Connect">
+            </div>
+
+            <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectCoinbase">
+              <img src="@/assets/img/wallets/coinbase.png" class="card-img-top card-img-wallet" alt="Coinbase">
+            </div>
+
+            <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectMetaMask">
+              <img src="@/assets/img/wallets/rabby.png" class="card-img-top card-img-wallet" alt="Rabby">
+            </div> 
+
+            <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectMetaMask">
+              <img src="@/assets/img/wallets/brave.png" class="card-img-top card-img-wallet" alt="Brave">
+            </div>
+
+            <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectWalletConnect">
+              <img src="@/assets/img/wallets/minerva.png" class="card-img-top card-img-wallet" alt="Minerva">
+            </div>
+
+            <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectWalletConnect">
+              <img src="@/assets/img/wallets/argent.png" class="card-img-top card-img-wallet" alt="Argent">
+            </div>
+
+            <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectWalletConnect">
+              <img src="@/assets/img/wallets/1inch.png" class="card-img-top card-img-wallet" alt="1inch">
+            </div>
+
+            <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectMetaMask">
+              <img src="@/assets/img/wallets/trust.png" class="card-img-top card-img-wallet" alt="Trust Wallet">
+            </div>
+
+            <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectMetaMask">
+              <img src="@/assets/img/wallets/imtoken.png" class="card-img-top card-img-wallet" alt="imToken">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- END Connect Wallet modal -->
   </div>
 
   <!-- Do not delete: ugly hack to make "global" work with Vite -->
@@ -40,9 +97,10 @@ import { MetaMaskConnector, WalletConnectConnector, CoinbaseWalletConnector, use
 import { useSidebarStore } from '~/store/sidebars';
 import { useSiteStore } from '~/store/site';
 import { useUserStore } from '~/store/user';
-import { useLocalStorage } from '@vueuse/core';
+//import { useLocalStorage } from '@vueuse/core';
 import ResolverAbi from "~/assets/abi/ResolverAbi.json";
 import resolvers from "~/assets/data/resolvers.json";
+import rpcs from "~/assets/data/rpcs.json";
 import NavbarDesktop from "~/components/navbars/NavbarDesktop.vue";
 import NavbarMobile from "~/components/navbars/NavbarMobile.vue";
 import SidebarLeft from "~/components/sidebars/SidebarLeft.vue";
@@ -65,7 +123,22 @@ export default {
     SidebarRight
   },
 
+  created() {
+		// if user already connected before, connect them automatically on the next visit
+		
+	},
+
   mounted() {
+    if (!this.isActivated) {
+			if (localStorage.getItem("connected") == "metamask") {
+				this.connectMetaMask();
+			} else if (localStorage.getItem("connected") == "walletconnect") {
+				this.connectWalletConnect();
+			} else if (localStorage.getItem("connected") == "coinbase") {
+				this.connectCoinbase();
+			}
+		}
+
     document.documentElement.setAttribute("data-bs-theme", this.siteStore.getColorMode);
 
     this.lSidebar = new bootstrap.Collapse('#sidebar1', {toggle: false});
@@ -101,6 +174,24 @@ export default {
   },
 
   methods: {
+    async connectCoinbase() {
+			await this.connectWith(this.coinbaseConnector);
+			localStorage.setItem("connected", "coinbase"); // store in local storage to autoconnect next time
+			document.getElementById('closeConnectModal').click();
+		},
+
+		async connectMetaMask() {
+			await this.connectWith(this.mmConnector);
+			localStorage.setItem("connected", "metamask"); // store in local storage to autoconnect next time
+			document.getElementById('closeConnectModal').click();
+		},
+
+		async connectWalletConnect() {
+			await this.connectWith(this.wcConnector);
+			localStorage.setItem("connected", "walletconnect"); // store in local storage to autoconnect next time
+			document.getElementById('closeConnectModal').click();
+		},
+
     async fetchUserDomain() {
       if (this.chainId === this.$config.supportedChainId) {
         const contract = new ethers.Contract(resolvers[this.chainId], ResolverAbi, this.signer);
@@ -123,51 +214,33 @@ export default {
   },
 
   setup() {
-    const config = useRuntimeConfig()
+    const config = useRuntimeConfig();
     const sidebarStore = useSidebarStore();
     const siteStore = useSiteStore();
     const userStore = useUserStore();
     const { address, chainId, isActivated, signer } = useEthers();
-    const { connectWith, wallet } = useWallet();
+    const { connectWith } = useWallet();
 
-    const localStorageConnected = useLocalStorage('connected', null); // when localStorageConnected.value is updated, localStorage is updated too
+    //const localStorageConnected = useLocalStorage('connected', null); // when localStorageConnected.value is updated, localStorage is updated too
 
-    const connectors = [
-      new MetaMaskConnector({
-        appUrl: config.projectUrl,
-      }),
-      new WalletConnectConnector({
-        qrcode: true,
-        rpc: { // TODO: get values from nuxt.config.ts
-          10: "https://1rpc.io/op", //`https://opt-mainnet.g.alchemy.com/v2/${config.alchemyOptimismKey}`,
-          42161: "https://arb1.arbitrum.io/rpc", //`https://arb-mainnet.g.alchemy.com/v2/${config.alchemyArbitrumKey}`,
-          1313161555: "https://testnet.aurora.dev"
-        },
-      }),
-      new CoinbaseWalletConnector({ // TODO: get values from nuxt.config.ts
-        appName: config.projectName,
-        jsonRpcUrl: "https://testnet.aurora.dev",
-      }),
-    ]
+    const coinbaseConnector = new CoinbaseWalletConnector({
+			appName: config.projectName,
+			jsonRpcUrl: rpcs[String(config.supportedChainId)],
+		});
 
-    onMounted(() => {
-      // if user already connected via MetaMask before, connect them automatically on the next visit
-      if (!isActivated.value && localStorageConnected.value == "metamask") {
-        const connector = new MetaMaskConnector();
-        connectWith(connector);
-      }
-    })
+		const mmConnector = new MetaMaskConnector({
+			appUrl: config.projectUrl,
+		});
 
-    watch(isActivated, (newValue, oldValue) => {
-      if (newValue) {
-        localStorageConnected.value = String(wallet.connector.name).toLowerCase(); // "connected" value in localStorage updated
-      } else {
-        // if disconnected, delete local storage values
-        localStorageConnected.value = null; // "connected" value in localStorage deleted
-      }
-    });
+		const wcConnector = new WalletConnectConnector({
+			qrcode: true,
+			rpc: rpcs,
+		});
     
-    return { address, chainId, connectors, signer, sidebarStore, siteStore, userStore }
+    return { 
+      address, chainId, coinbaseConnector, connectWith, isActivated, mmConnector, signer, 
+      sidebarStore, siteStore, userStore, wcConnector 
+    }
   },
 
   watch: {
@@ -182,6 +255,12 @@ export default {
         this.fetchUserDomain();
       }
     },
+
+    isActivated(newVal, oldVal) {
+			if (oldVal === true && newVal === false) { // if user disconnects, clear the local storage
+				localStorage.clear();
+			}
+		},
 
     width(newVal, oldVal) {
       if (newVal > this.breakpoint) {
