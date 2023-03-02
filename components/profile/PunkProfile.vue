@@ -1,7 +1,7 @@
 <template>
   <div class="card border">
     <div class="card-body">
-      <p class="text-white fs-3" @click="$router.back()">
+      <p class="fs-3" @click="$router.back()">
         <i class="bi bi-arrow-left-circle cursor-pointer"></i>
       </p>
 

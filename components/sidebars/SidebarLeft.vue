@@ -14,8 +14,8 @@
               <i class="bi bi-person"></i> Profile
             </NuxtLink>
           </li>
-          <li class="nav-item p-1">
-            <NuxtLink class="nav-link disabled" :class="$route.path.startsWith('/about') ? 'active' : ''" aria-current="page" to="/about">
+          <li class="nav-item p-1" @click="closeLeftSidebar">
+            <NuxtLink class="nav-link" :class="$route.path.startsWith('/about') ? 'active' : ''" aria-current="page" to="/about">
               <i class="bi bi-patch-question"></i> About
             </NuxtLink>
           </li>
