@@ -8,7 +8,7 @@
     "preview": "nuxt preview"
   },
   "dependencies": {
-    "@orbisclub/orbis-sdk": "^0.4.18",
+    "@orbisclub/orbis-sdk": "^0.4.23",
     "@pinia/nuxt": "^0.4.6",
     "@vueuse/core": "^9.2.0",
     "@vueuse/nuxt": "^9.2.0",
