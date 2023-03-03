@@ -241,6 +241,7 @@ export default {
       postText = sanitizeHtml(postText, {allowedTags: false});
 
       postText = this.imgParsing(postText);
+      postText = this.youtubeParsing(postText);
       this.parsedText = this.urlParsing(postText);
     },
 
@@ -250,7 +251,7 @@ export default {
       if (!urlRegex.test(text)) { return text };
 
       return text.replace(urlRegex, function(url) {
-        return '<br/><img class="my-3 img-fluid" src="' + url + '" /><br/>';
+        return '<br/><img class="my-3 img-fluid rounded" src="' + url + '" /><br/>';
       })
     },
 
@@ -260,7 +261,24 @@ export default {
       if (!urlRegex.test(text)) { return text };
 
       return text.replace(urlRegex, function(url) {
+        if (url.startsWith("https://www.youtube.com/embed/")) {
+          // ignore youtube embeds
+          return url;
+        }
+
         return '<a target="_blank" href="' + url + '">' + url + '</a>';
+      })
+    },
+
+    youtubeParsing(text) {
+      const urlRegex = /(?:https?:\/\/)?(?:youtu\.be\/|(?:www\.|m\.)?youtube\.com\/(?:watch|v|embed)(?:\.php)?(?:\?.*v=|\/))([a-zA-Z0-9\_-]+)/g;
+
+      if (!urlRegex.test(text)) { return text };
+
+      return text.replace(urlRegex, function(url) {
+        const videoId = url.match(/(?:https?:\/\/)?(?:www\.|m\.)?youtu(?:be)?\.(?:com|be)(?:\/watch\/?\?v=|\/embed\/|\/)([^\s&\?\/\#]+)/)[1];
+
+        return "<iframe class='rounded' width='100%' height='315' src='https://www.youtube.com/embed/" + videoId + "' frameborder='0' allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share' allowfullscreen></iframe>";
       })
     },
   },
