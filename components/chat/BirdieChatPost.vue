@@ -2,12 +2,14 @@
 <div class="card mb-3 border" v-if="post">
   <div class="card-body row">
     <div class="col-2 col-md-1">
-      <ProfileImage 
-        class="img-fluid rounded-circle"
-        :address="authorAddress" 
-        :domain="authorDomain"
-        :image="getOrbisImage"
-      />
+      <NuxtLink :to="'/profile/?id='+authorDomain">
+        <ProfileImage 
+          class="img-fluid rounded-circle"
+          :address="authorAddress" 
+          :domain="authorDomain"
+          :image="getOrbisImage"
+        />
+      </NuxtLink>
     </div>
 
     <div class="col-10 col-md-11">
