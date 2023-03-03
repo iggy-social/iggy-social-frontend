@@ -125,4 +125,5 @@
   --bs-breakpoint-xl: 1200px;
   --bs-breakpoint-xxl: 1400px;
   --bs-nav-pills-link-active-bg: #3459e6;
+  --bs-white-black-toggle: #000;
 }

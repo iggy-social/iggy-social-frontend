@@ -150,12 +150,6 @@
   color: var(--bs-primary);
 }
 
-.wallet-img-wrapper {
-  border-width: 2px;
-  border-color: var(--bs-modal-bg);
-  border-style: solid;
-}
-
 .card-img-wallet:hover {
   opacity: 0.5;
 }
@@ -294,8 +288,26 @@
   font-style: italic;
 }
 
+.sidebar-profile-image {
+  border: 2px solid white;
+}
+
 .sidebar-nav {
   width: 100vw;
+}
+
+.w-30 {
+  width: 30%;
+}
+
+.w-40 {
+  width: 40%;
+}
+
+.wallet-img-wrapper {
+  border-width: 2px;
+  border-color: var(--bs-modal-bg);
+  border-style: solid;
 }
 
 /* Desktop only */

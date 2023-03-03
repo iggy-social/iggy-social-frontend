@@ -7,7 +7,11 @@ export const useUserStore = defineStore({
     return {
       defaultDomain: null,
       did: null,
-      didParent: null
+      didParent: null,
+      followers: 0,
+      following: 0,
+      lastActivityTimestamp: null,
+      orbisImage: null
     }
   },
 
@@ -22,6 +26,22 @@ export const useUserStore = defineStore({
 
     getDidParent(state) {
       return state.didParent;
+    },
+
+    getFollowers(state) {
+      return state.followers;
+    },
+
+    getFollowing(state) {
+      return state.following;
+    },
+
+    getLastActivityTimestamp(state) {
+      return state.lastActivityTimestamp;
+    },
+
+    getOrbisImage(state) {
+      return state.orbisImage;
     }
   },
 
@@ -36,6 +56,22 @@ export const useUserStore = defineStore({
 
     setDidParent(didParent: any) {
       this.didParent = didParent;
+    },
+
+    setFollowers(followers: any) {
+      this.followers = followers;
+    },
+
+    setFollowing(following: any) {
+      this.following = following;
+    },
+
+    setLastActivityTimestamp(timestamp: any) {
+      this.lastActivityTimestamp = timestamp;
+    },
+
+    setOrbisImage(image: any) {
+      this.orbisImage = image;
     }
   }
 })

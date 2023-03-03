@@ -114,6 +114,7 @@ export default {
   data() {
     return {
       breakpoint: 1000,
+      isUserConnectedOrbis: false,
       lSidebar: null,
       rSidebar: null,
       width: null
@@ -178,6 +179,35 @@ export default {
   },
 
   methods: {
+    async fetchOrbisProfile() {
+      if (this.isActivated) {
+        let { data, error } = await this.$orbis.getDids(this.address);
+
+        if (data[0].did) {
+          const profile = await this.$orbis.getProfile(data[0].did);
+
+          if (profile && profile.data.details.profile) {
+            this.userStore.setOrbisImage(profile.data.details.profile.pfp);
+          }
+
+          if (profile) {
+            this.userStore.setFollowers(profile.data.count_followers);
+            this.userStore.setFollowing(profile.data.count_following);
+            this.userStore.setLastActivityTimestamp(profile.data.last_activity_timestamp);
+          }
+        }
+      }
+    },
+
+    async getOrbisDids() {
+      this.isUserConnectedOrbis = await this.$orbis.isConnected();
+
+      if (this.$orbis.session) {
+        this.userStore.setDid(this.$orbis.session.did._id);
+        this.userStore.setDidParent(this.$orbis.session.did._parentId);
+      }
+    },
+
     async connectCoinbase() {
 			await this.connectWith(this.coinbaseConnector);
 			localStorage.setItem("connected", "coinbase"); // store in local storage to autoconnect next time
@@ -263,7 +293,14 @@ export default {
     isActivated(newVal, oldVal) {
 			if (oldVal === true && newVal === false) { // if user disconnects, clear the local storage
 				localStorage.clear();
-			}
+				sessionStorage.clear();
+			} else {
+        if (!this.userStore.getDid) {
+          this.getOrbisDids();
+        }
+
+        this.fetchOrbisProfile();
+      }
 		},
 
     width(newVal, oldVal) {

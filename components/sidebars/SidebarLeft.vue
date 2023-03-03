@@ -3,6 +3,23 @@
   <div id="sidebar1" class="collapse collapse-horizontal">
     <div class="sidebar-nav list-group border-0 rounded-0 text-sm-start min-vh-100">
       <div class="card m-2 p-2 bg-light">
+
+        <div v-if="isActivated" class="text-center">
+
+          <NuxtLink to="/profile">
+            <ProfileImage 
+              class="img-fluid mt-3 rounded-circle w-30 sidebar-profile-image" 
+              :address="address" :domain="userStore.getDefaultDomain" :image="userStore.getOrbisImage" 
+            />
+          </NuxtLink>
+
+          <h6 class="mt-3">
+            {{ userStore.getDefaultDomain }}
+          </h6>
+
+          <hr />
+        </div>
+
         <ul class="nav nav-pills flex-column">
           <li class="nav-item p-1" @click="closeLeftSidebar">
             <NuxtLink class="nav-link" :class="$route.path === '/' ? 'active' : ''" aria-current="page" to="/">
@@ -27,13 +44,19 @@
 </template>
 
 <script>
-import { useSidebarStore } from '~/store/sidebars';
 import { useEthers } from 'vue-dapp';
+import { useSidebarStore } from '~/store/sidebars';
+import { useUserStore } from '~/store/user';
+import ProfileImage from "~/components/profile/ProfileImage.vue";
 
 export default {
   name: "SidebarLeft",
   props: ["lSidebar", "isMobile"],
 
+  components: {
+    ProfileImage
+  },
+  
   methods: {
     closeLeftSidebar() {
       if (this.isMobile) {
@@ -46,9 +69,10 @@ export default {
 
   setup() {
     const sidebarStore = useSidebarStore();
-    const { isActivated } = useEthers();
+    const { address, isActivated } = useEthers();
+    const userStore = useUserStore();
 
-    return { isActivated, sidebarStore }
+    return { address, isActivated, sidebarStore, userStore }
   },
 }
 </script>
