@@ -10,7 +10,7 @@ export default {
   data() {
     return {
       imgPath: null,
-      defaultImage: "/_nuxt/assets/img/user/anon.svg"
+      defaultImage: "/img/user/anon.svg"
     }
   },
 
