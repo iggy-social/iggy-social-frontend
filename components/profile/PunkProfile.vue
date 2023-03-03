@@ -7,9 +7,11 @@
 
       <h3 class="mb-3 mt-3">{{ domain }}</h3>
 
-      <ProfileImage v-if="uAddress" class="img-fluid img-thumbnail rounded-circle w-25" :address="uAddress" :domain="domain" />
+      <ProfileImage v-if="uAddress" class="img-fluid img-thumbnail rounded-circle w-25" :address="uAddress" :domain="domain" :image="orbisImage" />
 
       <p class="text-break mt-3">Address: {{ uAddress }}</p>
+      <p class="text-break mt-3">Followers: {{ followers }}</p>
+      <p class="text-break mt-3">Following: {{ following }}</p>
     </div>
   </div>
 </template>
@@ -17,7 +19,7 @@
 <script>
 import { useEthers } from 'vue-dapp'
 import { ethers } from 'ethers';
-import { useExampleStore } from '~/store/example'
+import { useUserStore } from '~/store/user'
 import ProfileImage from "~/components/profile/ProfileImage.vue";
 import ResolverAbi from "~/assets/abi/ResolverAbi.json";
 import resolvers from "~/assets/data/resolvers.json";
@@ -28,8 +30,13 @@ export default {
 
   data() {
     return {
-      uAddress: this.pAddress,
       domain: this.pDomain,
+      followers: 0,
+      following: 0,
+      isUserConnectedOrbis: null,
+      lastActivityTimestamp: null,
+      orbisImage: null,
+      uAddress: this.pAddress
     }
   },
 
@@ -42,18 +49,28 @@ export default {
     if (!this.pAddress || !this.pDomain) {
       this.fetchAddressAndDomain();
     }
+
+    if (!this.userStore.getDid) {
+      this.checkConnectionToOrbis();
+    }
+
+    
   },
 
   methods: {
+    async checkConnectionToOrbis() {
+      this.isUserConnectedOrbis = await this.$orbis.isConnected();
+
+      if (this.$orbis.session) {
+        this.userStore.setDid(this.$orbis.session.did._id);
+        this.userStore.setDidParent(this.$orbis.session.did._parentId);
+      }
+    },
+
     async fetchAddressAndDomain() {
       // see if id is in the URL query and figure out whether it is a domain or uAddress
-      console.log("fetchAddressAndDomain() called")
-
       if (this.$route.query.id) {
-        console.log("this.$route.query.id")
         const id = this.$route.query.id;
-
-        console.log(id)
 
         if (id.includes(".")) {
           this.domain = id; // domain
@@ -105,16 +122,38 @@ export default {
 
         window.sessionStorage.setItem(String(this.uAddress).toLowerCase(), this.domain);
       }
+
+      this.fetchOrbisProfile();
     },
+
+    async fetchOrbisProfile() {
+      if (this.uAddress) {
+        let { data, error } = await this.$orbis.getDids(this.uAddress);
+
+        if (data[0].did) {
+          const profile = await this.$orbis.getProfile(data[0].did);
+
+          if (profile && profile.data.details.profile) {
+            this.orbisImage = profile.data.details.profile.pfp;
+          }
+
+          if (profile) {
+            this.followers = profile.data.count_followers;
+            this.following = profile.data.count_following;
+            this.lastActivityTimestamp = profile.data.last_activity_timestamp;
+          }
+        }
+      }
+    }
 
     // @todo: refresh button to refresh user data (e.g. profile image)
   },
 
   setup() {
     const { address, chainId, isActivated, signer } = useEthers();
-    const exampleStore = useExampleStore();
+    const userStore = useUserStore();
 
-    return { address, chainId, isActivated, exampleStore, signer };
+    return { address, chainId, isActivated, userStore, signer };
   },
 
   watch: {

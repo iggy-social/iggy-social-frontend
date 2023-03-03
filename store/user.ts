@@ -26,15 +26,15 @@ export const useUserStore = defineStore({
   },
 
   actions: {
-    setDefaultDomain(domain) {
+    setDefaultDomain(domain: any) {
       this.defaultDomain = domain;
     },
 
-    setDid(did) {
+    setDid(did: any) {
       this.did = did;
     },
 
-    setDidParent(didParent) {
+    setDidParent(didParent: any) {
       this.didParent = didParent;
     }
   }

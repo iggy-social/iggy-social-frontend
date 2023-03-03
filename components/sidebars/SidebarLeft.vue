@@ -9,7 +9,7 @@
               <i class="bi bi-house"></i> Home
             </NuxtLink>
           </li>
-          <li class="nav-item p-1" @click="closeLeftSidebar">
+          <li v-if="isActivated" class="nav-item p-1" @click="closeLeftSidebar">
             <NuxtLink class="nav-link" :class="$route.path.startsWith('/profile') ? 'active' : ''" aria-current="page" to="/profile">
               <i class="bi bi-person"></i> Profile
             </NuxtLink>
@@ -28,6 +28,7 @@
 
 <script>
 import { useSidebarStore } from '~/store/sidebars';
+import { useEthers } from 'vue-dapp';
 
 export default {
   name: "SidebarLeft",
@@ -45,7 +46,9 @@ export default {
 
   setup() {
     const sidebarStore = useSidebarStore();
-    return { sidebarStore }
+    const { isActivated } = useEthers();
+
+    return { isActivated, sidebarStore }
   },
 }
 </script>
