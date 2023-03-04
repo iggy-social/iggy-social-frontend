@@ -51,11 +51,14 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       blockExplorerBaseUrl: "https://mumbai.polygonscan.com",
+      favicon: "/img/favicon.jpg",
       iggyPostAddress: "0x9f48c192561f3A6f0efeeE5Fce00Fd9788675eF8",
       iggyPostMinterAddress: "0x249f1172Ebd8686386a5C0Ee704378B85acD0627",
       orbisContext: "kjzl6cwe1jw14bmb4kgw6gbu6umo8jz9vxjsunueihadbpr9977tj93s2diycb1", // production context
       orbisTest: true, // if true, test context will be used instead of the production one
+      previewImage: "/img/cover.png",
       projectName: "Iggy Social Demo",
+      projectDescription: "Chat for .testnet domain holdes.",
       projectUrl: "https://iggy-social-frontend.vercel.app/",
       punkMinterAddress: "", // punk domain minter contract address
       punkNumberOfPrices: 1, // number of different prices (based on domain length), usually 1 (price()) or 5 (price1char() - price5char())

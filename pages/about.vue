@@ -1,7 +1,7 @@
 <template>
   <Head>
     <Title>About Iggy Social</Title>
-    <Meta name="description" content="Profile page" />
+    <Meta property="og:title" content="About Iggy Social" />
   </Head>
 
   <div class="card border">

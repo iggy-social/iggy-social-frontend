@@ -1,8 +1,13 @@
 <template>
   <div>
     <Head>
-      <Title>Iggy Social Demo</Title>
-      <Meta name="description" :content="'Chat for ' + $config.tldName + ' domain holders.'" />
+      <Title>{{ $config.projectName }}</Title>
+      <Meta name="description" :content="$config.projectDescription" />
+      <Link rel="icon" type="image/x-icon" :href="$config.favicon" />
+
+      <Meta property="og:title" :content="$config.projectName" />
+      <Meta property="og:description" :content="$config.projectDescription" />
+      <Meta property="og:image" :content="$config.previewImage" />
     </Head>
 
     <NavbarDesktop v-if="!isMobile" />
