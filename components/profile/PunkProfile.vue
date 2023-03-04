@@ -39,13 +39,23 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
+
+            <div v-if="!isUserConnectedOrbis">
+              <p>First connect to Ceramic to change the profile picture:</p>
+
+              <button class="btn btn-primary" @click="connectToOrbis">Connect to Ceramic</button>
+            </div>
+            
+            <div class="mt-3" v-if="isUserConnectedOrbis">
             Enter the new image URL:
 
             <input v-model="newImageLink" type="text" class="form-control mt-2" placeholder="Enter image link" />
+            </div>
+
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary" @click="changeImage">
+            <button type="button" class="btn btn-primary" @click="changeImage" :disabled="!isUserConnectedOrbis">
               <span v-if="waitingImageUpdate" class="spinner-border spinner-border-sm mx-1" role="status" aria-hidden="true"></span>
               Submit changes
             </button>
@@ -96,10 +106,6 @@ export default {
       this.fetchAddressAndDomain();
     }
 
-    if (!this.userStore.getDid) {
-      
-    }
-
     this.checkConnectionToOrbis();
   },
 
@@ -140,11 +146,39 @@ export default {
     },
 
     async checkConnectionToOrbis() {
-      this.isUserConnectedOrbis = await this.$orbis.isConnected();
+      let res = await this.$orbis.isConnected();
 
-      if (this.$orbis.session) {
-        this.userStore.setDid(this.$orbis.session.did._id);
-        this.userStore.setDidParent(this.$orbis.session.did._parentId);
+      console.log(res);
+
+      if (res) {
+        this.isUserConnectedOrbis = true;
+
+        if (this.$orbis.session && !this.userStore.getDid) {
+          this.userStore.setDid(this.$orbis.session.did._id);
+          this.userStore.setDidParent(this.$orbis.session.did._parentId);
+        }
+      } else {
+        this.isUserConnectedOrbis = false;
+      }
+    },
+
+    async connectToOrbis() {
+      let res = await this.$orbis.connect_v2({
+        provider: this.signer.provider.provider, 
+        lit: false
+      });
+
+      /** Check if connection is successful or not */
+      if(res.status == 200) {
+        this.isUserConnectedOrbis = true;
+
+        if (this.$orbis.session) {
+          this.userStore.setDid(this.$orbis.session.did._id);
+          this.userStore.setDidParent(this.$orbis.session.did._parentId);
+        }
+      } else {
+        console.log("Error connecting to Ceramic: ", res);
+        this.toast(res.result, {type: "error"});
       }
     },
 
@@ -215,7 +249,7 @@ export default {
         /*
         if (this.isActivated && this.chainId === this.$config.supportedChainId) {
           // fetch provider from user's wallet
-          provider = this.signer; // for some reason this is causing an error when fetching balance
+          provider = this.signer.provider.provider;
         }
         */
 
