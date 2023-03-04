@@ -8,6 +8,7 @@
 
           <NuxtLink to="/profile">
             <ProfileImage 
+              :key="userStore.getOrbisImage"
               @click="closeLeftSidebar"
               class="img-fluid mt-3 rounded-circle w-30 sidebar-profile-image" 
               :address="address" :domain="userStore.getDefaultDomain" :image="userStore.getOrbisImage" 

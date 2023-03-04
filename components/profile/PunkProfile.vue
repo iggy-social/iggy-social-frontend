@@ -7,7 +7,7 @@
 
       <h3 class="mb-3 mt-3">{{ domain }}</h3>
 
-      <ProfileImage v-if="uAddress" class="img-fluid img-thumbnail rounded-circle w-25" :address="uAddress" :domain="domain" :image="orbisImage" />
+      <ProfileImage :key="orbisImage" v-if="uAddress" class="img-fluid img-thumbnail rounded-circle w-25" :address="uAddress" :domain="domain" :image="orbisImage" />
 
       <div class="mt-2">
         <button 
@@ -36,7 +36,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <h1 class="modal-title fs-5" id="changeImageModalLabel">Change image</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button type="button" id="changeImageModalClose" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
 
@@ -109,6 +109,12 @@ export default {
     this.checkConnectionToOrbis();
   },
 
+  mounted() {
+    if (this.userStore.getOrbisImage) {
+      this.orbisImage = this.userStore.getOrbisImage;
+    }
+  },
+
   computed: {
     balanceEth() {
       const bal = ethers.utils.formatEther(this.uBalance);
@@ -131,14 +137,17 @@ export default {
         });
 
         /** Check if request is successful or not */
-        if (res.status !== 200) {
+        if (res.status !== 200) { // unsuccessful
           console.log("Error: ", res);
           this.toast(res.result, {type: "error"});
           this.waitingImageUpdate = false;
-        } else {
+        } else { // successful
+          this.orbisImage = this.newImageLink;
+          this.userStore.setOrbisImage(this.newImageLink);
+          sessionStorage.setItem(String(this.address).toLowerCase()+"-img", this.newImageLink);
           this.toast("Image successfully updated!", {type: "success"});
           this.waitingImageUpdate = false;
-          sessionStorage.setItem(String(this.address).toLowerCase()+"-img", this.newImageLink);
+          document.getElementById('changeImageModalClose').click();
         }
       } else {
         this.toast("Please connect to chat first", {type: "error"});
@@ -147,8 +156,6 @@ export default {
 
     async checkConnectionToOrbis() {
       let res = await this.$orbis.isConnected();
-
-      console.log(res);
 
       if (res) {
         this.isUserConnectedOrbis = true;
