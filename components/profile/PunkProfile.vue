@@ -10,21 +10,18 @@
       <ProfileImage v-if="uAddress" class="img-fluid img-thumbnail rounded-circle w-25" :address="uAddress" :domain="domain" :image="orbisImage" />
 
       <div class="mt-2">
-        <button class="btn btn-primary mt-2 me-2">Change image</button>
+        <button 
+          v-if="uAddress === address" 
+          class="btn btn-primary mt-2 me-2" data-bs-toggle="modal" data-bs-target="#changeImageModal"
+        >
+          Change image
+        </button>
 
-        <a class="btn btn-outline-primary mt-2 me-2" :href="$config.blockExplorerBaseUrl+'/address/'+uAddress" target="_blank">
+        <a v-if="uAddress" class="btn btn-outline-primary mt-2 me-2" :href="$config.blockExplorerBaseUrl+'/address/'+uAddress" target="_blank">
           {{ shortenAddress(uAddress) }} <i class="bi bi-box-arrow-up-right"></i>
         </a>
 
         <button class="btn btn-outline-primary mt-2 disabled">{{ balanceEth }} {{ $config.tokenSymbol }}</button>
-      </div>
-
-      <div class="mt-3 ">
-        
-      </div>
-
-      <div class="mt-3 ">
-        
       </div>
 
       <!--
@@ -32,13 +29,40 @@
       <p class="text-break mt-3">Following: {{ following }}</p>
       -->
     </div>
+
+    <!-- Change Image Modal -->
+    <div class="modal fade" id="changeImageModal" tabindex="-1" aria-labelledby="changeImageModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="changeImageModalLabel">Change image</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            Enter the new image URL:
+
+            <input v-model="newImageLink" type="text" class="form-control mt-2" placeholder="Enter image link" />
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" @click="changeImage">
+              <span v-if="waitingImageUpdate" class="spinner-border spinner-border-sm mx-1" role="status" aria-hidden="true"></span>
+              Submit changes
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- END Change Image Modal -->
+
   </div>
 </template>
 
 <script>
-import { useEthers, shortenAddress } from 'vue-dapp'
+import { useEthers, shortenAddress } from 'vue-dapp';
 import { ethers } from 'ethers';
-import { useUserStore } from '~/store/user'
+import { useUserStore } from '~/store/user';
+import { useToast } from "vue-toastification/dist/index.mjs";
 import ProfileImage from "~/components/profile/ProfileImage.vue";
 import ResolverAbi from "~/assets/abi/ResolverAbi.json";
 import resolvers from "~/assets/data/resolvers.json";
@@ -54,9 +78,11 @@ export default {
       following: 0,
       isUserConnectedOrbis: null,
       lastActivityTimestamp: null,
+      newImageLink: null,
       orbisImage: null,
       uAddress: this.pAddress,
-      uBalance: 0
+      uBalance: 0,
+      waitingImageUpdate: false
     }
   },
 
@@ -71,8 +97,10 @@ export default {
     }
 
     if (!this.userStore.getDid) {
-      this.checkConnectionToOrbis();
+      
     }
+
+    this.checkConnectionToOrbis();
   },
 
   computed: {
@@ -88,6 +116,29 @@ export default {
   },
 
   methods: {
+    async changeImage() {
+      if (this.isUserConnectedOrbis) {
+        this.waitingImageUpdate = true;
+
+        const res = await this.$orbis.updateProfile({
+          pfp: this.newImageLink
+        });
+
+        /** Check if request is successful or not */
+        if (res.status !== 200) {
+          console.log("Error: ", res);
+          this.toast(res.result, {type: "error"});
+          this.waitingImageUpdate = false;
+        } else {
+          this.toast("Image successfully updated!", {type: "success"});
+          this.waitingImageUpdate = false;
+          sessionStorage.setItem(String(this.address).toLowerCase()+"-img", this.newImageLink);
+        }
+      } else {
+        this.toast("Please connect to chat first", {type: "error"});
+      }
+    },
+
     async checkConnectionToOrbis() {
       this.isUserConnectedOrbis = await this.$orbis.isConnected();
 
@@ -164,11 +215,9 @@ export default {
         /*
         if (this.isActivated && this.chainId === this.$config.supportedChainId) {
           // fetch provider from user's wallet
-          provider = this.signer;
+          provider = this.signer; // for some reason this is causing an error when fetching balance
         }
         */
-
-        console.log("uAddress: ", this.uAddress);
 
         // fetch balance of an address
         this.uBalance = await provider.getBalance(this.uAddress);
@@ -201,8 +250,9 @@ export default {
   setup() {
     const { address, balance, chainId, isActivated, signer } = useEthers();
     const userStore = useUserStore();
+    const toast = useToast();
 
-    return { address, balance, chainId, isActivated, userStore, shortenAddress, signer };
+    return { address, balance, chainId, isActivated, userStore, shortenAddress, signer, toast };
   },
 
   watch: {
