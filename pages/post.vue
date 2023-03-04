@@ -11,8 +11,8 @@
 </template>
 
 <script>
-import BirdieChatPost from "~/components/chat/BirdieChatPost.vue";
-import BirdieChat from "~/components/chat/BirdieChat.vue";
+import BirdieChatPost from "~~/components/chat/birdie/BirdieChatPost.vue";
+import BirdieChat from "~~/components/chat/birdie/BirdieChat.vue";
 import { useUserStore } from '~/store/user';
 import { useToast } from "vue-toastification/dist/index.mjs";
 

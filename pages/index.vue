@@ -4,7 +4,7 @@
 
 <script>
 import { useEthers } from 'vue-dapp'
-import BirdieChat from "../components/chat/BirdieChat.vue"
+import BirdieChat from "../components/chat/birdie/BirdieChat.vue"
 
 export default {
   name: "index",
