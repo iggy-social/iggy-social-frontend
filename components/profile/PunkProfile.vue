@@ -9,15 +9,34 @@
 
       <ProfileImage v-if="uAddress" class="img-fluid img-thumbnail rounded-circle w-25" :address="uAddress" :domain="domain" :image="orbisImage" />
 
-      <p class="text-break mt-3">Address: {{ uAddress }}</p>
+      <div class="mt-2">
+        <button class="btn btn-primary mt-2 me-2">Change image</button>
+
+        <a class="btn btn-outline-primary mt-2 me-2" :href="$config.blockExplorerBaseUrl+'/address/'+uAddress" target="_blank">
+          {{ shortenAddress(uAddress) }} <i class="bi bi-box-arrow-up-right"></i>
+        </a>
+
+        <button class="btn btn-outline-primary mt-2 disabled">{{ balanceEth }} {{ $config.tokenSymbol }}</button>
+      </div>
+
+      <div class="mt-3 ">
+        
+      </div>
+
+      <div class="mt-3 ">
+        
+      </div>
+
+      <!--
       <p class="text-break mt-3">Followers: {{ followers }}</p>
       <p class="text-break mt-3">Following: {{ following }}</p>
+      -->
     </div>
   </div>
 </template>
 
 <script>
-import { useEthers } from 'vue-dapp'
+import { useEthers, shortenAddress } from 'vue-dapp'
 import { ethers } from 'ethers';
 import { useUserStore } from '~/store/user'
 import ProfileImage from "~/components/profile/ProfileImage.vue";
@@ -36,7 +55,8 @@ export default {
       isUserConnectedOrbis: null,
       lastActivityTimestamp: null,
       orbisImage: null,
-      uAddress: this.pAddress
+      uAddress: this.pAddress,
+      uBalance: 0
     }
   },
 
@@ -53,8 +73,18 @@ export default {
     if (!this.userStore.getDid) {
       this.checkConnectionToOrbis();
     }
+  },
 
-    
+  computed: {
+    balanceEth() {
+      const bal = ethers.utils.formatEther(this.uBalance);
+
+      if (bal > 0) {
+        return Number(bal).toFixed(2)
+      } else {
+        return Number(bal).toFixed(4)
+      }
+    }
   },
 
   methods: {
@@ -91,7 +121,7 @@ export default {
       let provider = this.$getFallbackProvider(this.$config.supportedChainId);
 
       if (this.isActivated && this.chainId === this.$config.supportedChainId) {
-        // fetch provider from user's MetaMask
+        // fetch provider from user's wallet
         provider = this.signer;
       }
 
@@ -124,6 +154,25 @@ export default {
       }
 
       this.fetchOrbisProfile();
+      this.fetchBalance();
+    },
+
+    async fetchBalance() {
+      if (this.uAddress) {
+        let provider = this.$getFallbackProvider(this.$config.supportedChainId);
+
+        /*
+        if (this.isActivated && this.chainId === this.$config.supportedChainId) {
+          // fetch provider from user's wallet
+          provider = this.signer;
+        }
+        */
+
+        console.log("uAddress: ", this.uAddress);
+
+        // fetch balance of an address
+        this.uBalance = await provider.getBalance(this.uAddress);
+      }
     },
 
     async fetchOrbisProfile() {
@@ -150,10 +199,10 @@ export default {
   },
 
   setup() {
-    const { address, chainId, isActivated, signer } = useEthers();
+    const { address, balance, chainId, isActivated, signer } = useEthers();
     const userStore = useUserStore();
 
-    return { address, chainId, isActivated, userStore, signer };
+    return { address, balance, chainId, isActivated, userStore, shortenAddress, signer };
   },
 
   watch: {
