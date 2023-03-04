@@ -238,9 +238,12 @@ export default {
     },
 
     parsePostText() {
-      let postText = this.post.content.body;
+      let postText = this.post.content.body.replace(/(\r\n|\n|\r)/gm, "<br/>");
 
-      postText = sanitizeHtml(postText, {allowedTags: false});
+      postText = sanitizeHtml(postText, {
+        allowedTags: [ 'li', 'ul', 'ol', 'br', 'em', 'strong', 'i', 'b' ],
+        allowedAttributes: {}
+      });
 
       postText = this.imgParsing(postText);
       postText = this.youtubeParsing(postText);
