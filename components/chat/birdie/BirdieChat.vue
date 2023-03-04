@@ -22,7 +22,7 @@
         </div>
 
         <div v-if="orbisPosts">
-          <BirdieChatPost v-for="post in orbisPosts" :key="post.stream_id" :post="post" :isUserConnectedOrbis="isUserConnectedOrbis" />
+          <BirdieChatPost @insertReply="insertReply" v-for="post in orbisPosts" :key="post.stream_id" :post="post" :isUserConnectedOrbis="isUserConnectedOrbis" />
         </div>
 
         <div class="d-grid gap-2 col-6 mx-auto mb-5" v-if="showLoadMore">
@@ -59,8 +59,6 @@ export default {
       orbisPosts: [],
       pageCounter: 0,
       postText: null,
-      // @todo: allow comments to have a "reply to" button which populates this field with an id of the comment being replied to
-      // can be a new modal that opens
       reply_to: null, 
       showLoadMore: true
     }
@@ -87,7 +85,7 @@ export default {
 
     getOrbisContext() {
       if (this.$config.orbisTest) {
-        return "kjzl6cwe1jw145tfqv2eqv8tiz6puo27meyz4smz40atppuc13tulqca87k35z2"; // Test Group
+        return this.$config.orbisTestContext;
       } else {
         return this.$config.orbisContext;
       }
@@ -162,6 +160,9 @@ export default {
           creator_details: {
             metadata: {
               address: this.address
+            },
+            profile: {
+              pfp: this.userStore.getOrbisImage
             }
           },
           master: this.id,
@@ -218,7 +219,36 @@ export default {
       this.pageCounter++;
     },
 
-    
+    async insertReply(streamId, replyToId, replyText, repliedText, repliedAddress) {
+      // callback hook for BirdieChatPost component
+      // listens for reply event and inserts reply into feed
+      this.orbisPosts.unshift({
+        stream_id: streamId,
+        count_likes: 0,
+        timestamp: Math.floor(Date.now() / 1000),
+        creator_details: {
+          metadata: {
+            address: this.address
+          },
+          profile: {
+            pfp: this.userStore.getOrbisImage
+          }
+        },
+        master: this.id,
+        reply_to: replyToId, // the post/stream ID of the post being replied to
+        content: {
+          body: replyText // the text of the reply
+        },
+        reply_to_details: {
+          body: repliedText // the text of the post being replied to
+        },
+        reply_to_creator_details: {
+          metadata: {
+            address: repliedAddress // the author address of the post being replied to
+          }
+        }
+      });
+    }
   },
 
   setup() {

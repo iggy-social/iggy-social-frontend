@@ -56,6 +56,7 @@ export default defineNuxtConfig({
       iggyPostMinterAddress: "0x249f1172Ebd8686386a5C0Ee704378B85acD0627",
       orbisContext: "kjzl6cwe1jw14bmb4kgw6gbu6umo8jz9vxjsunueihadbpr9977tj93s2diycb1", // production context
       orbisTest: true, // if true, test context will be used instead of the production one
+      orbisTestContext: "kjzl6cwe1jw145tfqv2eqv8tiz6puo27meyz4smz40atppuc13tulqca87k35z2", // test context
       previewImage: "/img/cover.png",
       projectName: "Iggy Social Demo",
       projectDescription: "Chat for .testnet domain holdes.",

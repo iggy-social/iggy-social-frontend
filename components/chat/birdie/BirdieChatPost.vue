@@ -43,13 +43,43 @@
         </NuxtLink>
 
         <IggyPostMint :post="post" :parsedText="parsedText" />
-      </p>
 
-      <p class="card-subtitle mt-1 text-muted">
-        
+        <span v-if="post.master" class="cursor-pointer hover-color ms-2" data-bs-toggle="modal" :data-bs-target="'#replyModal'+post.stream_id">
+          <i class="bi bi-reply" /> Reply
+        </span>
       </p>
     </div>
   </div>
+
+
+  <!-- Reply Modal -->
+  <div class="modal fade" :id="'replyModal'+post.stream_id" tabindex="-1" :aria-labelledby="'replyModalLabel'+post.stream_id" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" :id="'replyModalLabel'+post.stream_id">Reply to comment</h1>
+          <button type="button" class="btn-close" :id="'closeReplyModal'+post.stream_id" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group mt-2 mb-2">
+            <textarea 
+              v-model="replyText" 
+              :disabled="!isUserConnectedOrbis" 
+              class="form-control" 
+              rows="3" 
+              placeholder="Enter your reply"
+            ></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" @click="replyPost">Submit reply</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- END Reply Modal -->
+
 </div>
 </template>
 
@@ -66,6 +96,7 @@ import IggyPostMint from "~~/components/IggyPostMint.vue";
 
 export default {
   name: "BirdieChatPost",
+  emits: ["insertReply"],
   props: ["post", "isUserConnectedOrbis"],
 
   components: {
@@ -79,6 +110,7 @@ export default {
       authorAddress: null,
       authorDomain: null,
       parsedText: null,
+      replyText: null
     }
   },
 
@@ -91,6 +123,14 @@ export default {
   },
 
   computed: {
+    getOrbisContext() {
+      if (this.$config.orbisTest) {
+        return this.$config.orbisTestContext;
+      } else {
+        return this.$config.orbisContext;
+      }
+    },
+
     getOrbisImage() {
       if (this.post.creator_details.profile) {
         return this.post.creator_details.profile.pfp;
@@ -234,6 +274,37 @@ export default {
         this.toast("Please sign into chat to be able to react on a post.", {type: "warning"});
 
         // @todo: open a modal to sign into chat instead
+      }
+    },
+
+    async replyPost() {
+      // @todo
+
+      if (this.isUserConnectedOrbis) {
+        const options = {
+          master: this.post.master, // the main post in the thread
+          reply_to: this.post.stream_id, // important: reply_to needs to be filled out even if the reply is directly to the master post
+          body: this.replyText, 
+          context: this.getOrbisContext
+        }
+
+        // post on Orbis & Ceramic
+      let res = await this.$orbis.createPost(options);
+
+      /** Check if posting is successful or not */
+      if (res.status == 200) {
+        // success
+        this.toast("Reply successfully posted", {type: "success"});
+        this.$emit("insertReply", res.doc, this.post.stream_id, this.replyText, this.parsedText, this.post.creator_details.metadata.address);
+        document.getElementById('closeReplyModal'+this.post.stream_id).click();
+        this.replyText = null;
+      } else {
+        console.log("Error posting via Orbis to Ceramic: ", res);
+        this.toast(res.result, {type: "error"});
+      }
+
+      } else {
+        this.toast("Please sign into chat to be able to reply to a post.", {type: "warning"});
       }
     },
 
