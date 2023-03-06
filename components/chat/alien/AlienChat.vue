@@ -22,7 +22,7 @@
         </div>
 
         <div v-if="orbisPosts">
-          <BirdieChatPost @insertReply="insertReply" @removePost="removePost" v-for="post in orbisPosts" :key="post.stream_id" :post="post" :isUserConnectedOrbis="isUserConnectedOrbis" />
+          <AlienChatPost @insertReply="insertReply" @removePost="removePost" v-for="post in orbisPosts" :key="post.stream_id" :post="post" :isUserConnectedOrbis="isUserConnectedOrbis" />
         </div>
 
         <div class="d-grid gap-2 col-6 mx-auto mb-5" v-if="showLoadMore">
@@ -37,18 +37,18 @@
 
 <script>
 import { useEthers } from 'vue-dapp';
-import BirdieChatPost from "~~/components/chat/birdie/BirdieChatPost.vue";
+import AlienChatPost from "~~/components/chat/alien/AlienChatPost.vue";
 import { useToast } from "vue-toastification/dist/index.mjs";
 import { useUserStore } from '~/store/user';
 import ConnectWalletButton from "~/components/ConnectWalletButton.vue";
 import SwitchChainButton from "~/components/SwitchChainButton.vue";
 
 export default {
-  name: "BirdieChat",
+  name: "AlienChat",
   props: ["id"],
 
   components: {
-    BirdieChatPost,
+    AlienChatPost,
     ConnectWalletButton,
     SwitchChainButton
   },
@@ -220,7 +220,7 @@ export default {
     },
 
     async insertReply(streamId, replyToId, replyText, repliedText, repliedAddress) {
-      // callback hook for BirdieChatPost component
+      // callback hook for AlienChatPost component
       // listens for reply event and inserts reply into feed
       this.orbisPosts.unshift({
         stream_id: streamId,
@@ -251,7 +251,7 @@ export default {
     },
 
     async removePost(streamId) {
-      // callback hook for BirdieChatPost component
+      // callback hook for AlienChatPost component
       // listens for delete event and removes post from feed
       this.orbisPosts = this.orbisPosts.filter((post) => post.stream_id !== streamId);
     }

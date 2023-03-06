@@ -119,7 +119,7 @@ import ProfileImage from "~/components/profile/ProfileImage.vue";
 import IggyPostMint from "~~/components/IggyPostMint.vue";
 
 export default {
-  name: "BirdieChatPost",
+  name: "AlienChatPost",
   emits: ["insertReply", "removePost"],
   props: ["post", "isUserConnectedOrbis"],
 

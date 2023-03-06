@@ -4,15 +4,15 @@
     <Meta name="description" content="Chat general description" />
   </Head>
 
-  <!-- TODO: show component based on the chat type selection (Birdie, Forum, smth else) -->
-  <BirdieChatPost v-if="post" :post="post" :isUserConnectedOrbis="isUserConnectedOrbis" />
+  <!-- TODO: show component based on the chat type selection (Alien, Forum, smth else) -->
+  <AlienChatPost v-if="post" :post="post" :isUserConnectedOrbis="isUserConnectedOrbis" />
 
-  <BirdieChat v-if="post" :id="post.stream_id" />
+  <AlienChat v-if="post" :id="post.stream_id" />
 </template>
 
 <script>
-import BirdieChatPost from "~~/components/chat/birdie/BirdieChatPost.vue";
-import BirdieChat from "~~/components/chat/birdie/BirdieChat.vue";
+import AlienChatPost from "~~/components/chat/alien/AlienChatPost.vue";
+import AlienChat from "~~/components/chat/alien/AlienChat.vue";
 import { useUserStore } from '~/store/user';
 import { useToast } from "vue-toastification/dist/index.mjs";
 
@@ -25,8 +25,8 @@ export default {
   },
 
   components: {
-    BirdieChat,
-    BirdieChatPost
+    AlienChat,
+    AlienChatPost
   },
 
   created() {

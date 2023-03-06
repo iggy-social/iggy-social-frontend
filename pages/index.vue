@@ -1,16 +1,16 @@
 <template>
-  <BirdieChat class="mt-1" />
+  <AlienChat class="mt-1" />
 </template>
 
 <script>
 import { useEthers } from 'vue-dapp'
-import BirdieChat from "../components/chat/birdie/BirdieChat.vue"
+import AlienChat from "../components/chat/alien/AlienChat.vue"
 
 export default {
   name: "index",
 
   components: {
-    BirdieChat
+    AlienChat
   },
 
   setup() {
