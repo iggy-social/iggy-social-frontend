@@ -22,7 +22,7 @@
         </div>
 
         <div v-if="orbisPosts">
-          <BirdieChatPost @insertReply="insertReply" v-for="post in orbisPosts" :key="post.stream_id" :post="post" :isUserConnectedOrbis="isUserConnectedOrbis" />
+          <BirdieChatPost @insertReply="insertReply" @removePost="removePost" v-for="post in orbisPosts" :key="post.stream_id" :post="post" :isUserConnectedOrbis="isUserConnectedOrbis" />
         </div>
 
         <div class="d-grid gap-2 col-6 mx-auto mb-5" v-if="showLoadMore">
@@ -248,6 +248,12 @@ export default {
           }
         }
       });
+    },
+
+    async removePost(streamId) {
+      // callback hook for BirdieChatPost component
+      // listens for delete event and removes post from feed
+      this.orbisPosts = this.orbisPosts.filter((post) => post.stream_id !== streamId);
     }
   },
 

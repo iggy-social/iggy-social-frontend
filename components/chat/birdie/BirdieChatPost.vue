@@ -47,6 +47,10 @@
         <span v-if="post.master" class="cursor-pointer hover-color ms-2" data-bs-toggle="modal" :data-bs-target="'#replyModal'+post.stream_id">
           <i class="bi bi-reply" /> Reply
         </span>
+
+        <span v-if="isCurrentUserAuthor" class="cursor-pointer hover-color ms-2" data-bs-toggle="modal" :data-bs-target="'#deleteModal'+post.stream_id">
+          <i class="bi bi-trash" /> Delete
+        </span>
       </p>
     </div>
   </div>
@@ -80,6 +84,26 @@
   </div>
   <!-- END Reply Modal -->
 
+  <!-- Delete Modal -->
+  <div class="modal fade" :id="'deleteModal'+post.stream_id" tabindex="-1" :aria-labelledby="'deleteModalLabel'+post.stream_id" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" :id="'deleteModalLabel'+post.stream_id">Delete post</h1>
+          <button type="button" class="btn-close" :id="'closeDeleteModal'+post.stream_id" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Do you really want to delete this post?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" @click="deletePost">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- END Delete Modal -->
+
 </div>
 </template>
 
@@ -96,7 +120,7 @@ import IggyPostMint from "~~/components/IggyPostMint.vue";
 
 export default {
   name: "BirdieChatPost",
-  emits: ["insertReply"],
+  emits: ["insertReply", "removePost"],
   props: ["post", "isUserConnectedOrbis"],
 
   components: {
@@ -137,6 +161,10 @@ export default {
       }
 
       return null;
+    },
+
+    isCurrentUserAuthor() {
+      return String(this.authorAddress).toLowerCase() === String(this.address).toLowerCase();
     },
 
     showDomainOrAddressOrAnon() {
@@ -183,6 +211,26 @@ export default {
             this.alreadyLiked = true; // mark as liked
           }
         }
+      }
+    },
+
+    async deletePost() {
+      if (this.isUserConnectedOrbis) {
+        let res = await this.$orbis.deletePost(
+          String(this.post.stream_id)
+        );
+
+        /** Check if request is successful or not */
+        if (res.status == 200) {
+          this.toast("Post deleted successfully", {type: "success"});
+          this.$emit("removePost", this.post.stream_id);
+          document.getElementById('closeDeleteModal'+this.post.stream_id).click();
+        } else {
+          this.toast("Error deleting post", {type: "error"});
+          console.log("Error posting via Orbis to Ceramic: ", res);
+        }
+      } else {
+        this.toast("Please sign into chat to be able to delete your post.", {type: "warning"});
       }
     },
 
@@ -360,11 +408,11 @@ export default {
   },
 
   setup() {
-    const { chainId, isActivated, signer } = useEthers();
+    const { address, chainId, isActivated, signer } = useEthers();
     const toast = useToast();
     const userStore = useUserStore();
 
-    return { chainId, isActivated, shortenAddress, signer, toast, userStore }
+    return { address, chainId, isActivated, shortenAddress, signer, toast, userStore }
   },
 
   watch: {
