@@ -1,6 +1,6 @@
 <template>
 <div class="col col-lg-auto px-0 mt-1">
-  <div id="sidebar1" class="collapse collapse-horizontal">
+  <div id="sidebar1" class="collapse collapse-horizontal sticky-lg-top">
     <div class="sidebar-nav list-group border-0 rounded-0 text-sm-start min-vh-100">
       <div class="card m-2 p-2 bg-light">
 
