@@ -51,13 +51,13 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       blockExplorerBaseUrl: "https://mumbai.polygonscan.com",
-      favicon: "/img/favicon.jpg",
+      favicon: "/img/favicon.png",
       iggyPostAddress: "0x9f48c192561f3A6f0efeeE5Fce00Fd9788675eF8",
       iggyPostMinterAddress: "0xD48e9b2D25CEe123be1d01c09645A0a355174db0",
       orbisContext: "kjzl6cwe1jw14bmb4kgw6gbu6umo8jz9vxjsunueihadbpr9977tj93s2diycb1", // production context
       orbisTest: true, // if true, test context will be used instead of the production one
       orbisTestContext: "kjzl6cwe1jw145tfqv2eqv8tiz6puo27meyz4smz40atppuc13tulqca87k35z2", // test context
-      previewImage: "/img/cover.png",
+      previewImage: "/img/preview.png",
       projectName: "Iggy Social Demo",
       projectDescription: "Chat for .testnet domain holdes.",
       projectUrl: "https://iggy-social-frontend.vercel.app/",
