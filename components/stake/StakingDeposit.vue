@@ -65,7 +65,7 @@
     </div>
 
     <p class="text-center">
-      <small class="text-center" v-if="depositTooLow">
+      <small class="text-center" v-if="allowanceTooLow">
         <em>
           You will need to do 2 transactions: Approve token and then Deposit.
         </em>
