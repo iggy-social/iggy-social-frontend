@@ -33,6 +33,13 @@
               <i class="bi bi-person"></i> Profile
             </NuxtLink>
           </li>
+          <!--
+          <li class="nav-item p-1" @click="closeLeftSidebar">
+            <NuxtLink class="nav-link" :class="$route.path.startsWith('/stake') ? 'active' : ''" aria-current="page" to="/stake">
+              <i class="bi bi-cash-stack"></i> Stake & Earn
+            </NuxtLink>
+          </li>
+          -->
           <li class="nav-item p-1" @click="closeLeftSidebar">
             <NuxtLink class="nav-link" :class="$route.path.startsWith('/about') ? 'active' : ''" aria-current="page" to="/about">
               <i class="bi bi-patch-question"></i> About
