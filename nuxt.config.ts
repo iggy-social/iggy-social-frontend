@@ -66,7 +66,7 @@ export default defineNuxtConfig({
       punkTldAddress: "0x2582EC420195Fefb091B098da6FAdEE49f490740", // punk domain TLD address
       stakingTokenAddress: "0xF3B3ea54C96850e413A6d6aC139B6AEBa7D6D7f1", // a token to stake address
       stakingTokenSymbol: "LP tokens", // a token to stake symbol or name
-      stakingContractAddress: "0x63F36191b3660A70059661083C2189a71be5FBdE",
+      stakingContractAddress: "0xDA07Ef226E212f548979339BFEb13160C1d52f30",
       supportedChainId: 80001,
       tldName: ".testnet",
       tokenAddress: null, // leave null if it's a native token of the chain
