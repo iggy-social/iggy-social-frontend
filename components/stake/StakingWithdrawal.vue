@@ -89,33 +89,19 @@ export default {
       const hours = Math.floor(minutes / 60);
       const days = Math.floor(hours / 24);
 
-      console.log(seconds, "s,", minutes, "min", hours, "hours", days, "days");
-
-      if (days === 1) {
-        return `${days} day`;
+      if (days > 0) {
+        return `${days+1} days`;
       }
 
-      if (days > 1) {
-        return `${days} days`;
+      if (hours > 0) {
+        return `${hours+1} hours`;
       }
 
-      if (hours === 1) {
-        return `${hours} hour`;
+      if (minutes > 0) {
+        return `${minutes+1} minutes`;
       }
 
-      if (hours > 1) {
-        return `${hours} hours`;
-      }
-
-      if (minutes === 1) {
-        return `${minutes} minute`;
-      }
-
-      if (minutes > 1) {
-        return `${minutes} minutes`;
-      }
-
-      return `${seconds} seconds`;
+      return `${seconds+1} seconds`;
     },
 
     minDeposit() {
@@ -153,12 +139,6 @@ export default {
 
       if (Number(this.withdrawalAmountWei) < Number(this.receiptTokenBalanceWei)) {
         const remainingStakedAmountWei = Number(this.receiptTokenBalanceWei) - Number(this.withdrawalAmountWei);
-
-        console.log("remainingStakedAmountWei", remainingStakedAmountWei);
-
-        console.log("minDepositWei", Number(this.minDepositWei));
-
-        console.log("remainingStakedAmountWei < minDepositWei", remainingStakedAmountWei < Number(this.minDepositWei));
 
         if (Number(remainingStakedAmountWei) < Number(this.minDepositWei)) {
           return {

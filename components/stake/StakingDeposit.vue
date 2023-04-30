@@ -63,6 +63,15 @@
         Deposit
       </button>
     </div>
+
+    <p class="text-center">
+      <small class="text-center" v-if="depositTooLow">
+        <em>
+          You will need to do 2 transactions: Approve token and then Deposit.
+        </em>
+      </small>
+    </p>
+
   </div>
 </template>
 
