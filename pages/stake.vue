@@ -68,7 +68,12 @@
           <div class="d-flex justify-content-center mt-5">
             <div class="col-12 col-lg-8">
               <StakingClaim 
-                :loadingStakingData="loadingStakingData"
+                :loadingStakingData="loadingStakingData" 
+                :claimAmountWei="claimAmountWei" 
+                :lastClaimPeriod="lastClaimPeriod" 
+                :periodLength="periodLength" 
+                :stakingContractAddress="$config.stakingContractAddress" 
+                @clearClaimAmount="clearClaimAmount"
               />
             </div>
           </div>
@@ -111,12 +116,14 @@ export default {
 
   data() {
     return {
-      claimAmount: 0, // how much rewards can user claim
+      claimAmountWei: 0, // how much rewards can user claim
       currentTab: "deposit",
+      lastClaimPeriod: 0,
       loadingStakingData: false,
       lockedTimeLeft: 0, // in seconds
       minDepositWei: 0,
       maxDepositWei: 0,
+      periodLength: 0,
       receiptTokenBalanceWei: 0,
       stakingTokenAllowanceWei: 0,
       stakingTokenBalanceWei: 0,
@@ -154,6 +161,10 @@ export default {
       localStorage.setItem("stakeCurrentTab", tab);
     },
 
+    clearClaimAmount() {
+      this.claimAmountWei = 0;
+    },
+
     async fetchStakingData() {
       this.loadingStakingData = true;
 
@@ -161,8 +172,10 @@ export default {
       const stakingContractInterface = new ethers.utils.Interface([
         "function balanceOf(address _owner) public view returns (uint256)",
         "function getLockedTimeLeft(address _user) external view returns (uint256)",
+        "function lastClaimPeriod() external view returns (uint256)",
         "function minDeposit() external view returns (uint256)",
         "function maxDeposit() external view returns (uint256)",
+        "function periodLength() external view returns (uint256)",
         "function previewClaim(address _claimer) public view returns (uint256)"
       ]);
 
@@ -186,7 +199,7 @@ export default {
       );
 
       // fetch previewClaim
-      this.claimAmount = await stakingContract.previewClaim(this.address);
+      this.claimAmountWei = await stakingContract.previewClaim(this.address);
 
       // fetch staking token balance
       this.stakingTokenBalanceWei = await stakingToken.balanceOf(this.address);
@@ -211,6 +224,12 @@ export default {
 
       // fetch maxDeposit
       this.maxDepositWei = await stakingContract.maxDeposit();
+
+      // fetch lastClaimPeriod
+      this.lastClaimPeriod = await stakingContract.lastClaimPeriod();
+
+      // fetch periodLength
+      this.periodLength = await stakingContract.periodLength();
 
       this.loadingStakingData = false;
     },
