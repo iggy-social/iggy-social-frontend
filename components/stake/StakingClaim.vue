@@ -19,7 +19,7 @@
     </div>
 
     <!-- Claim button -->
-    <div class="d-flex justify-content-center mt-4 mb-4">
+    <div v-if="!lastPeriodUpdateNeeded" class="d-flex justify-content-center mt-4 mb-4">
       <button 
         :disabled="waiting"
         class="btn btn-outline-primary" 
@@ -31,12 +31,30 @@
       </button>
     </div>
 
+    <!-- Update Claim Period button -->
+    <div v-if="lastPeriodUpdateNeeded" class="d-flex justify-content-center mt-4 mb-4">
+      <button 
+        :disabled="waitingUpdate"
+        class="btn btn-outline-primary" 
+        type="button"
+        @click="updateClaimPeriod"
+      >
+        <span v-if="loadingStakingData || waitingUpdate" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        Update Claim Period
+      </button>
+    </div>
+
     <hr>
 
     <h4 class="text-center">Stats</h4>
 
     <ul>
+      <li>Previous period rewards: {{ claimRewardsTotal }} {{ $config.tokenSymbol }}</li>
       <li>Previous period end date: {{ lastPeriodDateTime }}</li>
+      <li>Period length: {{ periodLengthHumanReadable }}</li>
+      <li>This period rewards: {{ futureRewards }} {{ $config.tokenSymbol }} (so far)</li>
+      <li>Min deposit: {{ minDeposit }} {{ $config.tokenSymbol }}</li>
+      <li>Your stake: {{ receiptTokenBalance }} {{ $config.tokenSymbol }}</li>
     </ul>
   </div>
 </template>
@@ -49,12 +67,16 @@ import WaitingToast from "~/components/WaitingToast";
 
 export default {
   name: 'StakingClaim',
-  props: ["loadingStakingData", "claimAmountWei", "lastClaimPeriod", "periodLength", "stakingContractAddress"],
-  emits: ["clearClaimAmount"],
+  props: [
+    "loadingStakingData", "claimAmountWei", "claimRewardsTotalWei", "futureRewardsWei", "lastClaimPeriod", "minDepositWei", 
+    "periodLength", "receiptTokenBalanceWei", "stakingContractAddress"
+  ],
+  emits: ["clearClaimAmount", "updateLastClaimPeriod"],
 
   data() {
     return {
-      waiting: false
+      waiting: false,
+      waitingUpdate: false
     }
   },
 
@@ -67,6 +89,22 @@ export default {
       return ethers.utils.formatEther(String(this.claimAmountWei));
     },
 
+    claimRewardsTotal() {
+      if (this.claimRewardsTotalWei === null || this.claimRewardsTotalWei === undefined || this.claimRewardsTotalWei === "" || this.claimRewardsTotalWei == 0) {
+        return 0;
+      };
+
+      return ethers.utils.formatEther(String(this.claimRewardsTotalWei));
+    },
+
+    futureRewards() {
+      if (this.futureRewardsWei === null || this.futureRewardsWei === undefined || this.futureRewardsWei === "" || this.futureRewardsWei == 0) {
+        return 0;
+      };
+
+      return ethers.utils.formatEther(String(this.futureRewardsWei));
+    },
+
     lastPeriodDateTime() {
       if (this.lastClaimPeriod === null || this.lastClaimPeriod === undefined || this.lastClaimPeriod === "" || this.lastClaimPeriod == 0) {
         return null;
@@ -76,6 +114,63 @@ export default {
       const month = new Intl.DateTimeFormat('en', { month: 'short' }).format(d);
 
       return d.getDate()  + " " + month + " " + d.getFullYear() + " " + d.getHours() + ":" + d.getMinutes().toString().padStart(2, '0');
+    },
+
+    lastPeriodUpdateNeeded() {
+      if (this.lastClaimPeriod === null || this.lastClaimPeriod === undefined || this.lastClaimPeriod === "" || this.lastClaimPeriod == 0) {
+        return false;
+      };
+
+      const now = Math.floor(Date.now() / 1000);
+
+      if (now - (Number(this.lastClaimPeriod)+Number(this.periodLength)) > 0) {
+        // last claim period is more than the period length ago, so we need to update the claim period
+        return true;
+      }
+      
+      return false;
+    },
+
+    minDeposit() {
+      if (this.minDepositWei === null || this.minDepositWei === undefined || this.minDepositWei === "" || this.minDepositWei == 0) {
+        return 0;
+      };
+
+      return ethers.utils.formatEther(String(this.minDepositWei));
+    },
+
+    periodLengthHumanReadable() {
+      if (this.periodLength === null || this.periodLength === undefined || this.periodLength === "" || this.periodLength == 0) {
+        return null;
+      };
+
+      // return period length (in seconds) in human readable format (minutes, hours, days)
+      const seconds = Number(this.periodLength);
+      const minutes = Math.floor(seconds / 60);
+      const hours = Math.floor(minutes / 60);
+      const days = Math.floor(hours / 24);
+
+      if (days > 0) {
+        return `${days} days`;
+      }
+
+      if (hours > 0) {
+        return `${hours} hours`;
+      }
+
+      if (minutes > 0) {
+        return `${minutes} minutes`;
+      }
+
+      return `${seconds} seconds`;
+    },
+
+    receiptTokenBalance() {
+      if (this.receiptTokenBalanceWei === null || this.receiptTokenBalanceWei === undefined || this.receiptTokenBalanceWei === "" || this.receiptTokenBalanceWei == 0) {
+        return 0;
+      };
+
+      return ethers.utils.formatEther(String(this.receiptTokenBalanceWei));
     }
   },
 
@@ -136,6 +231,67 @@ export default {
         console.error(e);
         this.toast(e.message, {type: "error"});
         this.waiting = false;
+      }
+    },
+
+    async updateClaimPeriod() {
+      this.waitingUpdate = true;
+
+      // set up staking contract
+      const stakingContractInterface = new ethers.utils.Interface([
+        "function updateLastClaimPeriod() external"
+      ]);
+
+      const stakingContract = new ethers.Contract(
+        this.stakingContractAddress,
+        stakingContractInterface,
+        this.signer
+      );
+
+      try {
+        const tx = await stakingContract.updateLastClaimPeriod();
+
+        const toastWait = this.toast(
+          {
+            component: WaitingToast,
+            props: {
+              text: "Please wait for your transaction to confirm. Click on this notification to see transaction in the block explorer."
+            }
+          },
+          {
+            type: "info",
+            onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
+          }
+        );
+
+        const receipt = await tx.wait();
+
+        if (receipt.status === 1) {
+          this.toast.dismiss(toastWait);
+
+          this.toast("You have successfully updated the claim period! Thank you :)", {
+            type: "success",
+            onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
+          });
+
+          this.waitingUpdate = false;
+
+          // update last claim period
+          const now = Math.floor(Date.now() / 1000);
+          this.$emit("updateLastClaimPeriod", now);
+        } else {
+          this.toast.dismiss(toastWait);
+          this.waitingUpdate = false;
+          this.toast("Transaction has failed.", {
+            type: "error",
+            onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
+          });
+          console.log(receipt);
+        }
+      } catch (e) {
+        console.error(e);
+        this.toast(e.message, {type: "error"});
+        this.waitingUpdate = false;
       }
     },
   },

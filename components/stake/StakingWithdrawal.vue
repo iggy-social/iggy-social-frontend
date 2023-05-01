@@ -68,7 +68,7 @@ export default {
     "loadingStakingData", "lockedTimeLeft", "minDepositWei", "receiptTokenBalanceWei", "stakingContractAddress", 
     "stakingTokenAddress", "stakingTokenDecimals"
   ],
-  emits: ["addBalance"],
+  emits: ["addBalance", "clearClaimAmount"],
 
   data() {
     return {
@@ -195,6 +195,7 @@ export default {
 
         if (receipt.status === 1) {
           this.$emit("addBalance", this.withdrawalAmountWei); // add balance to (unstaked) tokens
+          this.$emit("clearClaimAmount"); // clear claim amount in parent component
 
           this.toast.dismiss(toastWait);
 

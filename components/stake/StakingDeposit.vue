@@ -84,7 +84,7 @@ import WaitingToast from "~/components/WaitingToast";
 export default {
   name: 'StakingDeposit',
   props: ["loadingStakingData", "minDepositWei", "maxDepositWei", "stakingContractAddress", "stakingTokenAddress", "stakingTokenAllowanceWei", "stakingTokenBalanceWei", "stakingTokenDecimals"],
-  emits: ["subtractBalance", "updateAllowance"],
+  emits: ["clearClaimAmount", "subtractBalance", "updateAllowance"],
 
   data() {
     return {
@@ -221,6 +221,7 @@ export default {
         if (receipt.status === 1) {
           this.$emit("updateAllowance", 0); // reset allowance
           this.$emit("subtractBalance", this.depositAmountWei);
+          this.$emit("clearClaimAmount"); // clear claim amount in parent component
 
           this.toast.dismiss(toastWait);
 

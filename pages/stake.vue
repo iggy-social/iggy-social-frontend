@@ -48,14 +48,15 @@
           <div class="d-flex justify-content-center mt-5">
             <div class="col-12 col-lg-8">
               <StakingDeposit 
-                :loadingStakingData="loadingStakingData"
+                :loadingStakingData="loadingStakingData" 
                 :minDepositWei="minDepositWei" 
                 :maxDepositWei="maxDepositWei" 
                 :stakingContractAddress="$config.stakingContractAddress" 
                 :stakingTokenAddress="$config.stakingTokenAddress" 
-                :stakingTokenBalanceWei="stakingTokenBalanceWei"
+                :stakingTokenBalanceWei="stakingTokenBalanceWei" 
                 :stakingTokenAllowanceWei="stakingTokenAllowanceWei" 
                 :stakingTokenDecimals="stakingTokenDecimals" 
+                @clearClaimAmount="clearClaimAmount" 
                 @subtractBalance="subtractBalance" 
                 @updateAllowance="updateAllowance" 
               />
@@ -70,10 +71,15 @@
               <StakingClaim 
                 :loadingStakingData="loadingStakingData" 
                 :claimAmountWei="claimAmountWei" 
+                :claimRewardsTotalWei="claimRewardsTotalWei" 
+                :futureRewardsWei="futureRewardsWei" 
                 :lastClaimPeriod="lastClaimPeriod" 
+                :minDepositWei="minDepositWei" 
                 :periodLength="periodLength" 
+                :receiptTokenBalanceWei="receiptTokenBalanceWei" 
                 :stakingContractAddress="$config.stakingContractAddress" 
-                @clearClaimAmount="clearClaimAmount"
+                @clearClaimAmount="clearClaimAmount" 
+                @updateLastClaimPeriod="updateLastClaimPeriod"
               />
             </div>
           </div>
@@ -92,7 +98,8 @@
                 :stakingTokenDecimals="stakingTokenDecimals" 
                 :stakingTokenSymbol="$config.stakingTokenSymbol" 
                 :receiptTokenBalanceWei="receiptTokenBalanceWei" 
-                @addBalance="addBalance"
+                @addBalance="addBalance" 
+                @clearClaimAmount="clearClaimAmount" 
               />
             </div>
           </div>
@@ -117,7 +124,9 @@ export default {
   data() {
     return {
       claimAmountWei: 0, // how much rewards can user claim
+      claimRewardsTotalWei: 0, // total rewards to be claimed for the previous period
       currentTab: "deposit",
+      futureRewardsWei: 0, // total rewards to be claimed for the current period
       lastClaimPeriod: 0,
       loadingStakingData: false,
       lockedTimeLeft: 0, // in seconds
@@ -171,6 +180,8 @@ export default {
       // set up staking contract (which is also receipt token contract)
       const stakingContractInterface = new ethers.utils.Interface([
         "function balanceOf(address _owner) public view returns (uint256)",
+        "function claimRewardsTotal() external view returns (uint256)",
+        "function futureRewards() external view returns (uint256)",
         "function getLockedTimeLeft(address _user) external view returns (uint256)",
         "function lastClaimPeriod() external view returns (uint256)",
         "function minDeposit() external view returns (uint256)",
@@ -222,8 +233,9 @@ export default {
       // fetch minDeposit
       this.minDepositWei = await stakingContract.minDeposit();
 
-      // fetch maxDeposit
-      this.maxDepositWei = await stakingContract.maxDeposit();
+      this.loadingStakingData = false;
+
+      // less sensitive data that can be fetched later (no need to wait)
 
       // fetch lastClaimPeriod
       this.lastClaimPeriod = await stakingContract.lastClaimPeriod();
@@ -231,7 +243,14 @@ export default {
       // fetch periodLength
       this.periodLength = await stakingContract.periodLength();
 
-      this.loadingStakingData = false;
+      // fetch maxDeposit
+      this.maxDepositWei = await stakingContract.maxDeposit();
+
+      // fetch claimRewardsTotal
+      this.claimRewardsTotalWei = await stakingContract.claimRewardsTotal();
+
+      // fetch futureRewards
+      this.futureRewardsWei = await stakingContract.futureRewards();
     },
 
     subtractBalance(subBalance) { // staking token balance
@@ -241,7 +260,11 @@ export default {
 
     updateAllowance(newAllowance) {
       this.stakingTokenAllowanceWei = Number(newAllowance);
-    }
+    },
+
+    updateLastClaimPeriod(newLastClaimPeriod) {
+      this.lastClaimPeriod = Number(newLastClaimPeriod);
+    },
   },
 
   setup() {
