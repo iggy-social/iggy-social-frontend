@@ -109,6 +109,10 @@ export default {
     },
 
     receiptTokenBalance() {
+      if (this.receiptTokenBalanceWei === null || this.receiptTokenBalanceWei === undefined || this.receiptTokenBalanceWei == 0) {
+        return 0;
+      }
+
       return ethers.utils.formatEther(String(this.receiptTokenBalanceWei));
     },
 

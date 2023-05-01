@@ -145,7 +145,8 @@ export default {
 
   methods: {
     addBalance(aBalance) { // staking token balance
-      this.stakingTokenBalanceWei += aBalance;
+      this.stakingTokenBalanceWei = Number(this.stakingTokenBalanceWei) + Number(aBalance);
+      this.receiptTokenBalanceWei = Number(this.receiptTokenBalanceWei) - Number(aBalance);
     },
 
     changeCurrentTab(tab) {
@@ -215,11 +216,12 @@ export default {
     },
 
     subtractBalance(subBalance) { // staking token balance
-      this.stakingTokenBalanceWei -= subBalance;
+      this.stakingTokenBalanceWei = Number(this.stakingTokenBalanceWei) - Number(subBalance);
+      this.receiptTokenBalanceWei = Number(this.receiptTokenBalanceWei) + Number(subBalance);
     },
 
     updateAllowance(newAllowance) {
-      this.stakingTokenAllowanceWei = newAllowance;
+      this.stakingTokenAllowanceWei = Number(newAllowance);
     }
   },
 

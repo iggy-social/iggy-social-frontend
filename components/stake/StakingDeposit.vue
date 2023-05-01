@@ -163,12 +163,14 @@ export default {
 
           this.toast.dismiss(toastWait);
 
-          this.toast("You have successfully approved tokens!", {
+          this.toast("You have successfully approved tokens. Now proceed with depositing tokens!", {
             type: "success",
             onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
           });
 
           this.waitingApproval = false;
+
+          this.deposit();
         } else {
           this.toast.dismiss(toastWait);
           this.waitingApproval = false;
