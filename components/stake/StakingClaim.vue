@@ -53,8 +53,8 @@
       <li>Previous period end date: {{ lastPeriodDateTime }}</li>
       <li>Period length: {{ periodLengthHumanReadable }}</li>
       <li>This period rewards: {{ futureRewards }} {{ $config.tokenSymbol }} (so far)</li>
-      <li>Min deposit: {{ minDeposit }} {{ $config.tokenSymbol }}</li>
-      <li>Your stake: {{ receiptTokenBalance }} {{ $config.tokenSymbol }}</li>
+      <li>Min deposit: {{ minDeposit }} {{ $config.stakingTokenSymbol }}</li>
+      <li>Your stake: {{ receiptTokenBalance }} {{ $config.stakingTokenSymbol }}</li>
     </ul>
   </div>
 </template>
