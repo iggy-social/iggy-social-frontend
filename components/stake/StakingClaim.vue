@@ -19,7 +19,7 @@
     </div>
 
     <!-- Claim button -->
-    <div v-if="!lastPeriodUpdateNeeded" class="d-flex justify-content-center mt-4 mb-4">
+    <div class="d-flex justify-content-center mt-4 mb-4">
       <button 
         :disabled="waiting"
         class="btn btn-outline-primary" 
@@ -27,20 +27,8 @@
         @click="claim"
       >
         <span v-if="loadingStakingData || waiting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-        Claim
-      </button>
-    </div>
-
-    <!-- Update Claim Period button -->
-    <div v-if="lastPeriodUpdateNeeded" class="d-flex justify-content-center mt-4 mb-4">
-      <button 
-        :disabled="waitingUpdate"
-        class="btn btn-outline-primary" 
-        type="button"
-        @click="updateClaimPeriod"
-      >
-        <span v-if="loadingStakingData || waitingUpdate" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-        Update Claim Period
+        <span v-if="!lastPeriodUpdateNeeded">Claim</span>
+        <span v-if="lastPeriodUpdateNeeded">Update Claim Period</span>
       </button>
     </div>
 
@@ -75,8 +63,7 @@ export default {
 
   data() {
     return {
-      waiting: false,
-      waitingUpdate: false
+      waiting: false
     }
   },
 
@@ -232,68 +219,7 @@ export default {
         this.toast(e.message, {type: "error"});
         this.waiting = false;
       }
-    },
-
-    async updateClaimPeriod() {
-      this.waitingUpdate = true;
-
-      // set up staking contract
-      const stakingContractInterface = new ethers.utils.Interface([
-        "function updateLastClaimPeriod() external"
-      ]);
-
-      const stakingContract = new ethers.Contract(
-        this.stakingContractAddress,
-        stakingContractInterface,
-        this.signer
-      );
-
-      try {
-        const tx = await stakingContract.updateLastClaimPeriod();
-
-        const toastWait = this.toast(
-          {
-            component: WaitingToast,
-            props: {
-              text: "Please wait for your transaction to confirm. Click on this notification to see transaction in the block explorer."
-            }
-          },
-          {
-            type: "info",
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
-          }
-        );
-
-        const receipt = await tx.wait();
-
-        if (receipt.status === 1) {
-          this.toast.dismiss(toastWait);
-
-          this.toast("You have successfully updated the claim period! Thank you :)", {
-            type: "success",
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
-          });
-
-          this.waitingUpdate = false;
-
-          // update last claim period
-          const now = Math.floor(Date.now() / 1000);
-          this.$emit("updateLastClaimPeriod", now);
-        } else {
-          this.toast.dismiss(toastWait);
-          this.waitingUpdate = false;
-          this.toast("Transaction has failed.", {
-            type: "error",
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
-          });
-          console.log(receipt);
-        }
-      } catch (e) {
-        console.error(e);
-        this.toast(e.message, {type: "error"});
-        this.waitingUpdate = false;
-      }
-    },
+    }
   },
 
   setup() {
