@@ -216,7 +216,17 @@ export default {
         }
       } catch (e) {
         console.error(e);
-        this.toast(e.message, {type: "error"});
+
+        let extractMessage = e.message.split("reason=")[1];
+        extractMessage = extractMessage.split(", method=")[0];
+        extractMessage = extractMessage.replace('"', "");
+        extractMessage = extractMessage.replace('execution reverted:', "Error:");
+        extractMessage = extractMessage.replace('PeriodicEthRewards: ', "");
+
+        console.log(extractMessage);
+        
+        this.toast(extractMessage, {type: "error"});
+
         this.waitingWithdrawal = false;
       }
     },
