@@ -134,6 +134,8 @@ export default {
       maxDepositWei: 0,
       periodLength: 0,
       receiptTokenBalanceWei: 0,
+      stakingContract: null, // staking contract instance
+      stakingToken: null, // staking token contract/instance
       stakingTokenAllowanceWei: 0,
       stakingTokenBalanceWei: 0,
       stakingTokenDecimals: 18
@@ -174,6 +176,22 @@ export default {
       this.claimAmountWei = 0;
     },
 
+    async fetchClaimRewardsTotal() {
+      this.claimRewardsTotalWei = await this.stakingContract.claimRewardsTotal();
+    },
+
+    async fetchFutureRewards() {
+      this.futureRewardsWei = await this.stakingContract.futureRewards();
+    },
+
+    async fetchLockedTimeLeft() {
+      this.lockedTimeLeft = await this.stakingContract.getLockedTimeLeft(this.address);
+    },
+
+    async fetchPreviewClaim() {
+      this.claimAmountWei = await this.stakingContract.previewClaim(this.address);
+    },
+
     async fetchStakingData() {
       this.loadingStakingData = true;
 
@@ -190,7 +208,7 @@ export default {
         "function previewClaim(address _claimer) public view returns (uint256)"
       ]);
 
-      const stakingContract = new ethers.Contract(
+      this.stakingContract = new ethers.Contract(
         this.$config.stakingContractAddress,
         stakingContractInterface,
         this.signer
@@ -203,67 +221,71 @@ export default {
         "function decimals() public view returns (uint8)"
       ]);
 
-      const stakingToken = new ethers.Contract(
+      this.stakingToken = new ethers.Contract(
         this.$config.stakingTokenAddress,
         stakingTokenInterface,
         this.signer
       );
 
       // fetch previewClaim
-      this.claimAmountWei = await stakingContract.previewClaim(this.address);
+      this.fetchPreviewClaim();
 
       // fetch staking token balance
-      this.stakingTokenBalanceWei = await stakingToken.balanceOf(this.address);
+      this.stakingTokenBalanceWei = await this.stakingToken.balanceOf(this.address);
 
       // fetch staking token approved amount for the staking contract
-      this.stakingTokenAllowanceWei = await stakingToken.allowance(
+      this.stakingTokenAllowanceWei = await this.stakingToken.allowance(
         this.address,
         this.$config.stakingContractAddress
       );
 
       // fetch receipt token balance
-      this.receiptTokenBalanceWei = await stakingContract.balanceOf(this.address);
+      this.receiptTokenBalanceWei = await this.stakingContract.balanceOf(this.address);
 
       // fetch getLockedTimeLeft
-      this.lockedTimeLeft = await stakingContract.getLockedTimeLeft(this.address);
+      this.fetchLockedTimeLeft();
 
       // fetch staking token decimals
-      // this.stakingTokenDecimals = await stakingToken.decimals();
+      // this.stakingTokenDecimals = await this.stakingToken.decimals();
 
       // fetch minDeposit
-      this.minDepositWei = await stakingContract.minDeposit();
+      this.minDepositWei = await this.stakingContract.minDeposit();
 
       this.loadingStakingData = false;
 
       // less sensitive data that can be fetched later (no need to wait)
 
       // fetch lastClaimPeriod
-      this.lastClaimPeriod = await stakingContract.lastClaimPeriod();
+      this.lastClaimPeriod = await this.stakingContract.lastClaimPeriod();
 
       // fetch periodLength
-      this.periodLength = await stakingContract.periodLength();
+      this.periodLength = await this.stakingContract.periodLength();
 
       // fetch maxDeposit
-      this.maxDepositWei = await stakingContract.maxDeposit();
+      this.maxDepositWei = await this.stakingContract.maxDeposit();
 
       // fetch claimRewardsTotal
-      this.claimRewardsTotalWei = await stakingContract.claimRewardsTotal();
+      this.fetchClaimRewardsTotal();
 
       // fetch futureRewards
-      this.futureRewardsWei = await stakingContract.futureRewards();
+      this.fetchFutureRewards();
     },
 
     subtractBalance(subBalance) { // staking token balance
       this.stakingTokenBalanceWei = Number(this.stakingTokenBalanceWei) - Number(subBalance);
       this.receiptTokenBalanceWei = Number(this.receiptTokenBalanceWei) + Number(subBalance);
+      this.fetchLockedTimeLeft(); // update locked time left because deposit was made
     },
 
     updateAllowance(newAllowance) {
       this.stakingTokenAllowanceWei = Number(newAllowance);
     },
 
-    updateLastClaimPeriod(newLastClaimPeriod) {
-      this.lastClaimPeriod = Number(newLastClaimPeriod);
+    updateLastClaimPeriod() {
+      this.lastClaimPeriod = Math.floor(Date.now() / 1000);
+      this.fetchPreviewClaim();
+      this.fetchClaimRewardsTotal();
+      this.fetchFutureRewards();
     },
   },
 

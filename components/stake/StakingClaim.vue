@@ -196,6 +196,7 @@ export default {
 
         if (receipt.status === 1) {
           this.$emit("clearClaimAmount"); // clear claim amount in parent component
+          this.$emit("updateLastClaimPeriod"); // update last claim period in parent component
 
           this.toast.dismiss(toastWait);
 
