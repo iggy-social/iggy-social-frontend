@@ -1,7 +1,7 @@
 <template>
   <div>
     <p class="text-center">
-      Withdraw/unstake {{ $config.stakingTokenSymbol }} (it will also auto-claim any remaining rewards).
+      Unstake {{ $config.stakingTokenSymbol }} (it will also auto-claim any remaining rewards).
     </p>
 
     <!-- Input field -->
@@ -46,7 +46,7 @@
         @click="withdrawal"
       >
         <span v-if="loadingStakingData || waitingWithdrawal" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-        Withdraw
+        Unstake
       </button>
     </div>
 
@@ -147,7 +147,7 @@ export default {
         if (Number(remainingStakedAmountWei) < Number(this.minDepositWei)) {
           return {
             error: true,
-            message: "You cannot withdraw this amount because the staked balance left will be less than the minimum required deposit amount (" + String(Number(this.minDeposit)) + " tokens)."
+            message: "You cannot unstake this amount because the staked balance left will be less than the minimum required staking amount (" + String(Number(this.minDeposit)) + " tokens)."
           };
         }
       }

@@ -18,7 +18,7 @@
             class="nav-link" 
             :class="currentTab === 'deposit' ? 'active' : ''" 
             @click="changeCurrentTab('deposit')" 
-          >Deposit</button>
+          >Stake</button>
         </li>
 
         <li class="nav-item">
@@ -34,7 +34,7 @@
             class="nav-link" 
             :class="currentTab === 'withdraw' ? 'active' : ''" 
             @click="changeCurrentTab('withdraw')" 
-          >Withdraw</button>
+          >Unstake</button>
         </li>
 
       </ul>

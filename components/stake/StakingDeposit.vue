@@ -1,7 +1,7 @@
 <template>
   <div>
     <p class="text-center">
-      Stake/deposit {{ $config.stakingTokenSymbol }} to receive periodic staking rewards in {{ $config.tokenSymbol }} tokens.
+      Stake {{ $config.stakingTokenSymbol }} to receive periodic staking rewards in {{ $config.tokenSymbol }} tokens.
     </p>
 
     <!-- Input field -->
@@ -60,14 +60,14 @@
         @click="deposit"
       >
         <span v-if="loadingStakingData || waitingDeposit" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-        Deposit
+        Stake
       </button>
     </div>
 
     <p class="text-center">
       <small class="text-center" v-if="allowanceTooLow">
         <em>
-          You will need to do 2 transactions: Approve token and then Deposit.
+          You will need to do 2 transactions: Approve token and then Stake.
         </em>
       </small>
     </p>
@@ -163,7 +163,7 @@ export default {
 
           this.toast.dismiss(toastWait);
 
-          this.toast("You have successfully approved tokens. Now proceed with depositing tokens!", {
+          this.toast("You have successfully approved tokens. Now proceed with staking!", {
             type: "success",
             onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
           });
