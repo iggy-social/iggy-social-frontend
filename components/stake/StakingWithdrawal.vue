@@ -217,15 +217,20 @@ export default {
       } catch (e) {
         console.error(e);
 
-        let extractMessage = e.message.split("reason=")[1];
-        extractMessage = extractMessage.split(", method=")[0];
-        extractMessage = extractMessage.replace('"', "");
-        extractMessage = extractMessage.replace('execution reverted:', "Error:");
-        extractMessage = extractMessage.replace('PeriodicEthRewards: ', "");
+        try {
+          let extractMessage = e.message.split("reason=")[1];
+          extractMessage = extractMessage.split(", method=")[0];
+          extractMessage = extractMessage.replace('"', "");
+          extractMessage = extractMessage.replace('"', "");
+          extractMessage = extractMessage.replace('execution reverted:', "Error:");
+          extractMessage = extractMessage.replace('PeriodicEthRewards: ', "");
 
-        console.log(extractMessage);
-        
-        this.toast(extractMessage, {type: "error"});
+          console.log(extractMessage);
+          
+          this.toast(extractMessage, {type: "error"});
+        } catch (e) {
+          this.toast("Transaction has failed.", {type: "error"});
+        }
 
         this.waitingWithdrawal = false;
       }

@@ -51,6 +51,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       blockExplorerBaseUrl: "https://mumbai.polygonscan.com",
+      chatTokenClaimDomainsAddress: "0x3ebDBc1D47d4bFe7D08A58123Ab3c85fC7358831", // chat token claim domains contract address
+      chatTokenSymbol: "CHAT", // chat token symbol or name
       favicon: "/img/favicon.png",
       iggyPostAddress: "0x9f48c192561f3A6f0efeeE5Fce00Fd9788675eF8",
       iggyPostMinterAddress: "0xe80A5619DCf6a3C2AC129841a1eDeb9e8d402942",
