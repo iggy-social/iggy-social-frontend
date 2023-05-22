@@ -77,7 +77,7 @@ export default {
       ]);
 
       const chatTokenClaimDomainsContract = new ethers.Contract(
-        this.$config.chatTokenClaimDomainsAddress,
+        this.$config.airdropClaimDomainsAddress,
         chatTokenClaimDomainsInterface,
         this.signer
       );

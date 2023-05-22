@@ -50,8 +50,9 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
+      airdropClaimDomainsAddress: "0x3ebDBc1D47d4bFe7D08A58123Ab3c85fC7358831", // chat token claim for domain holders contract address
+      airdropPostMintersAddress: "0x11608f93Ec226E173754262c04F98Df3Bfaad7Db", // chat token claim for post minters contract address
       blockExplorerBaseUrl: "https://mumbai.polygonscan.com",
-      chatTokenClaimDomainsAddress: "0x3ebDBc1D47d4bFe7D08A58123Ab3c85fC7358831", // chat token claim domains contract address
       chatTokenSymbol: "CHAT", // chat token symbol or name
       favicon: "/img/favicon.png",
       iggyPostAddress: "0x9f48c192561f3A6f0efeeE5Fce00Fd9788675eF8",

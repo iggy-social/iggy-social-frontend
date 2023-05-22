@@ -51,7 +51,11 @@
         <div v-if="currentTab === 'post'">
           <div class="d-flex justify-content-center mt-5">
             <div class="col-12 col-lg-8">
-              Airdrop for post minters
+              <AirdropPostMinters
+                :airdropPostMintingWei="airdropPostMintingWei"
+                :loadingData="fetchingData" 
+                @setDomainChatRewardWeiToZero="setDomainChatRewardWeiToZero"
+              />
             </div>
           </div>
         </div>
@@ -66,12 +70,14 @@
 import { ethers } from 'ethers';
 import { useEthers } from 'vue-dapp';
 import AirdropDomainHolders from '~/components/airdrop/AirdropDomainHolders.vue';
+import AirdropPostMinters from '~/components/airdrop/AirdropPostMinters.vue';
 
 export default {
   name: 'Airdrop',
 
   data() {
     return {
+      airdropPostMintingWei: 0, // the amount of CHAT tokens that user will get for past post minting (unclaimed only)
       currentTab: "domain",
       domainChatRewardWei: 100000000000000,
       fetchingData: false,
@@ -79,7 +85,8 @@ export default {
   },
 
   components: {
-    AirdropDomainHolders
+    AirdropDomainHolders,
+    AirdropPostMinters
   },
 
   mounted() {
@@ -102,10 +109,8 @@ export default {
     },
 
     async fetchAirdropData() {
-      // TODO: fetch airdrop data
+      // fetch airdrop data
       this.fetchingData = true;
-
-      // get data from post enum contract
 
       // fetch chat reward from the ChatTokenClaimDomains contract
       const chatTokenClaimDomainsInterface = new ethers.utils.Interface([
@@ -113,14 +118,31 @@ export default {
       ]);
 
       const chatTokenClaimDomainsContract = new ethers.Contract(
-        this.$config.chatTokenClaimDomainsAddress,
+        this.$config.airdropClaimDomainsAddress,
         chatTokenClaimDomainsInterface,
         this.signer
       );
 
       this.domainChatRewardWei = await chatTokenClaimDomainsContract.chatReward();
 
+      // preview airdrop claim for minting posts
+      const claimPostMintersInterface = new ethers.utils.Interface([
+        "function claimPreview(address _address) public view returns (uint256)"
+      ]);
+
+      const claimPostMintersContract = new ethers.Contract(
+        this.$config.airdropPostMintersAddress,
+        claimPostMintersInterface,
+        this.signer
+      );
+
+      this.airdropPostMintingWei = await claimPostMintersContract.claimPreview(this.address);
+
       this.fetchingData = false;
+    },
+
+    setDomainChatRewardWeiToZero() {
+      this.domainChatRewardWei = 0;
     }
   },
 
