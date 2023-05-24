@@ -1,7 +1,15 @@
 <template>
   <Head>
-    <Title>Stake</Title>
-    <Meta property="og:title" content="Stake" />
+    <Title>Stake and Earn | {{ $config.projectMetadataTitle }}</Title>
+    <Meta property="og:title" content="Stake and Earn" />
+
+    <Meta name="description" :content="'Stake and earn ' + $config.tokenSymbol + ' on ' + $config.projectName + '!'" />
+
+    <Meta property="og:image" :content="$config.projectUrl+$config.previewImageStake" />
+    <Meta property="og:description" :content="'Stake and earn ' + $config.tokenSymbol + ' on ' + $config.projectName + '!'" />
+
+    <Meta name="twitter:image" :content="$config.projectUrl+$config.previewImageStake" />
+    <Meta name="twitter:description" :content="'Stake and earn ' + $config.tokenSymbol + ' on ' + $config.projectName + '!'" />
   </Head>
 
   <div class="card border">
