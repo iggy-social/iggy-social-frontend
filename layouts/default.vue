@@ -204,6 +204,17 @@ export default {
       }
     },
 
+    async fetchChatTokenBalance() {
+      if (this.$config.chatTokenAddress) {
+        const chatTokenInterface = new ethers.utils.Interface([
+          "function balanceOf(address owner) view returns (uint256)",
+        ]);
+        const chatTokenContract = new ethers.Contract(this.$config.chatTokenAddress, chatTokenInterface, this.signer);
+        const balance = await chatTokenContract.balanceOf(this.address);
+        this.userStore.setChatTokenBalanceWei(balance);
+      }
+    },
+
     async getOrbisDids() {
       this.isUserConnectedOrbis = await this.$orbis.isConnected();
 
@@ -244,6 +255,8 @@ export default {
         } else {
           this.userStore.setDefaultDomain(null);
         }
+
+        this.fetchChatTokenBalance();
       }
     },
 
