@@ -72,6 +72,10 @@
       </small>
     </p>
 
+    <hr class="mb-5" />
+
+    <AddLiquidity />
+
   </div>
 </template>
 
@@ -80,6 +84,7 @@ import { ethers } from 'ethers';
 import { useEthers } from 'vue-dapp';
 import { useToast } from "vue-toastification/dist/index.mjs";
 import WaitingToast from "~/components/WaitingToast";
+import AddLiquidity from '~/components/stake/AddLiquidity.vue';
 
 export default {
   name: 'StakingDeposit',
@@ -93,6 +98,10 @@ export default {
       waitingApproval: false,
       waitingDeposit: false
     }
+  },
+
+  components: {
+    AddLiquidity
   },
 
   mounted() {
