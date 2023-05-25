@@ -1,10 +1,9 @@
 <template>
-  <div>
-    <p class="text-center">
-      Stake {{ $config.lpTokenSymbol }} to receive periodic staking rewards in {{ $config.tokenSymbol }} tokens.
+  <p class="text-center">
+      Remove liquidity and get back {{ $config.chatTokenSymbol }} & {{ $config.tokenSymbol }} tokens.
     </p>
 
-    <!-- Input field -->
+    <!-- CHAT token field -->
     <div class="input-group mt-5">
       <button class="btn btn-primary" type="button" data-bs-toggle="dropdown" aria-expanded="false" disabled>
         {{ $config.lpTokenSymbol }}
@@ -37,46 +36,39 @@
       </em>
     </small>
 
-    
     <div class="d-flex justify-content-center mt-4 mb-4">
       <!-- Approve token button -->
       <button 
-        :disabled="waitingApproval || depositTooLow"
+        :disabled="waitingApproval"
         v-if="allowanceTooLow"
         class="btn btn-outline-primary" 
         type="button"
         @click="approveToken"
       >
-        <span v-if="loadingStakingData || waitingApproval" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-        Approve token
+        <span v-if="waitingApproval" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        Approve {{ $config.lpTokenSymbol }} token
       </button>
 
       <!-- Deposit button -->
       <button 
-        :disabled="waitingDeposit || depositTooLow"
+        :disabled="waitingDeposit"
         v-if="!allowanceTooLow"
         class="btn btn-outline-primary" 
         type="button"
         @click="deposit"
       >
-        <span v-if="loadingStakingData || waitingDeposit" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-        Stake
+        <span v-if="waitingDeposit" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        Remove liquidity
       </button>
     </div>
 
     <p class="text-center">
       <small class="text-center" v-if="allowanceTooLow">
         <em>
-          You will need to do 2 transactions: Approve token and then Stake.
+          You will need to do 2 transactions: Approve {{ $config.lpTokenSymbol }} token and then Get {{ $config.lpTokenSymbol }}.
         </em>
       </small>
     </p>
-
-    <hr class="mb-5" />
-
-    <AddLiquidity />
-
-  </div>
 </template>
 
 <script>
@@ -84,29 +76,33 @@ import { ethers } from 'ethers';
 import { useEthers } from 'vue-dapp';
 import { useToast } from "vue-toastification/dist/index.mjs";
 import WaitingToast from "~/components/WaitingToast";
-import AddLiquidity from '~/components/stake/AddLiquidity.vue';
 import { useUserStore } from '~/store/user';
+import { useSiteStore } from '~/store/site';
 
 export default {
-  name: 'StakingDeposit',
-  props: ["loadingStakingData", "minDepositWei", "maxDepositWei", "lpTokenAllowanceWei", "lpTokenDecimals"],
-  emits: ["clearClaimAmount", "subtractBalance", "updateAllowance"],
+  name: 'RemoveLiquidity',
 
   data() {
     return {
       allowanceWei: 0,
+      debounce: null, // debounce to get ETH amount
       depositAmount: 0,
+      nativeCoinAmount: 0,
+      nativeCoinAmountWei: null,
+      timeout: 800, // timeout for debounce in miliseconds
       waitingApproval: false,
       waitingDeposit: false
     }
   },
 
   components: {
-    AddLiquidity
+    WaitingToast
   },
 
   mounted() {
-    this.allowanceWei = this.lpTokenAllowanceWei;
+    if (this.address) {
+      this.fetchAllowance();
+    }
   },
 
   computed: {
@@ -114,25 +110,21 @@ export default {
       return Number(this.allowanceWei) < Number(this.depositAmountWei);
     },
 
+    lpBalanceTooLow() {
+      return Number(this.userStore.getLpTokenBalanceWei) < Number(this.depositAmountWei);
+    },
+
+    lpTokenBalance() {
+      return ethers.utils.formatEther(this.userStore.getLpTokenBalanceWei);
+    },
+
     depositAmountWei() {
       if (!this.depositAmount || Number(this.depositAmount) === 0) {
         return 0;
       }
 
-      return ethers.utils.parseUnits(String(this.depositAmount), this.lpTokenDecimals);
-    },
-
-    depositTooLow() {
-      if (!this.depositAmount || Number(this.depositAmount) === 0) {
-        return true;
-      }
-
-      return Number(this.depositAmountWei) < Number(this.minDepositWei);
-    },
-
-    lpTokenBalance() {
-      return ethers.utils.formatUnits(this.userStore.getLpTokenBalanceWei, this.lpTokenDecimals);
-    },
+      return ethers.utils.parseEther(String(this.depositAmount));
+    }
   },
 
   methods: {
@@ -151,7 +143,7 @@ export default {
       );
 
       try {
-        const tx = await lpToken.approve(this.$config.stakingContractAddress, this.depositAmountWei);
+        const tx = await lpToken.approve(this.$config.swapRouterAddress, this.depositAmountWei);
 
         const toastWait = this.toast(
           {
@@ -169,11 +161,11 @@ export default {
         const receipt = await tx.wait();
 
         if (receipt.status === 1) {
-          this.$emit("updateAllowance", this.depositAmountWei);
+          this.allowanceWei = this.depositAmountWei;
 
           this.toast.dismiss(toastWait);
 
-          this.toast("You have successfully approved tokens. Now proceed with staking!", {
+          this.toast("You have successfully approved tokens. Now proceed with getting LP tokens!", {
             type: "success",
             onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
           });
@@ -199,25 +191,55 @@ export default {
     async deposit() {
       this.waitingDeposit = true;
 
-      // set up staking contract
-      const stakingContractInterface = new ethers.utils.Interface([
-        "function deposit(uint256 _assets) external returns (uint256)"
+      // add liquidity to the pool
+      const routerInterface = new ethers.utils.Interface([
+        "function removeLiquidityETH(address token,uint liquidity,uint amountTokenMin,uint amountETHMin,address to,uint deadline) external returns (uint amountToken, uint amountETH)",
+        "function calculateETHAndTokensToReceive(address _lpToken, uint256 _lpAmount) external view returns (uint256 amountToken, uint256 amountETH)"
       ]);
 
-      const stakingContract = new ethers.Contract(
-        this.$config.stakingContractAddress,
-        stakingContractInterface,
+      const routerContract = new ethers.Contract(
+        this.$config.swapRouterAddress,
+        routerInterface,
         this.signer
       );
 
+      // TODO: calculate the minimum amount of both native coin and chat token to be received
+      const chatETHAmounts = await routerContract.calculateETHAndTokensToReceive(
+        this.$config.lpTokenAddress,
+        ethers.utils.parseEther(String(this.depositAmount))
+      );
+
+      console.log("chatETHAmounts");
+      console.log(chatETHAmounts);
+      console.log(chatETHAmounts[0]);
+      console.log(Number(chatETHAmounts[0]));
+      console.log(Number(chatETHAmounts[1]));
+
+      const deadline = Math.floor(Date.now() / 1000) + 60 * this.siteStore.getSwapDeadline; // get deadline from user's chat settings
+
+      // subtract slippage (from user's chat settings)
+      const slippageBps = Math.floor(Number(this.siteStore.getSlippage) * 100); // convert to bps
+      const ncAmountWeiMin = chatETHAmounts[1].sub(chatETHAmounts[1].div(10000).mul(slippageBps)); // apply slippage
+      const tokenAmountWeiMin = chatETHAmounts[0].sub(chatETHAmounts[0].div(10000).mul(slippageBps)); // apply slippage
+
+      console.log("ncAmountWeiMin", Number(ncAmountWeiMin));
+      console.log("tokenAmountWeiMin", Number(tokenAmountWeiMin));
+
       try {
-        const tx = await stakingContract.deposit(this.depositAmountWei);
+        const tx = await routerContract.removeLiquidityETH(
+          this.$config.chatTokenAddress,
+          this.depositAmountWei, // LP tokens to burn
+          tokenAmountWeiMin, // min amount of chat tokens to receive
+          ncAmountWeiMin, // min amount of native coins to receive
+          this.address,
+          deadline
+        );
 
         const toastWait = this.toast(
           {
             component: WaitingToast,
             props: {
-              text: "Please wait for your transaction to confirm. Click on this notification to see transaction in the block explorer."
+              text: `Removing liquidity from the ${this.$config.lpTokenSymbol}-${this.$config.tokenSymbol} pool...`
             }
           },
           {
@@ -229,32 +251,46 @@ export default {
         const receipt = await tx.wait();
 
         if (receipt.status === 1) {
-          this.$emit("updateAllowance", 0); // reset allowance
-          this.$emit("subtractBalance", this.depositAmountWei);
-          this.$emit("clearClaimAmount"); // clear claim amount in parent component
-
           this.toast.dismiss(toastWait);
 
-          this.toast("You have successfully staked tokens!", {
+          this.toast(`You have successfully removed liquidity and received ${this.$config.lpTokenSymbol} & ${this.$config.tokenSymbol}!`, {
             type: "success",
             onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
           });
 
-          this.waitingDeposit = false;
+          this.allowanceWei.sub(this.depositAmountWei); // subtract deposited amount from allowance
+          this.userStore.setLpTokenBalanceWei(this.userStore.getLpTokenBalanceWei.sub(this.depositAmountWei)); // subtract deposited amount from chat token balance
         } else {
           this.toast.dismiss(toastWait);
-          this.waitingDeposit = false;
           this.toast("Transaction has failed.", {
             type: "error",
             onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
           });
           console.log(receipt);
         }
-      } catch (e) {
-        console.error(e);
-        this.toast(e.message, {type: "error"});
+      } catch (error) {
+        console.error(error);
+      } finally {
         this.waitingDeposit = false;
       }
+    },
+
+    async fetchAllowance() {
+      // check chat token allowance for the iggy router contract
+      const lpTokenInterface = new ethers.utils.Interface([
+        "function allowance(address owner, address spender) public view returns (uint256)"
+      ]);
+
+      const lpTokenContract = new ethers.Contract(
+        this.$config.lpTokenAddress,
+        lpTokenInterface,
+        this.signer
+      );
+
+      this.allowanceWei = await lpTokenContract.allowance(
+        this.address,
+        this.$config.swapRouterAddress
+      );
     },
 
     setMaxInputTokenAmount() {
@@ -263,22 +299,27 @@ export default {
   },
 
   setup() {
-    const { signer } = useEthers();
+    const { address, balance, signer } = useEthers();
     const toast = useToast();
     const userStore = useUserStore();
+    const siteStore = useSiteStore();
 
     return {
+      address,
+      balance,
       signer,
+      siteStore,
       toast,
       userStore
     }
   },
 
   watch: {
-    lpTokenAllowanceWei() {
-      this.allowanceWei = this.lpTokenAllowanceWei;
-    }
+    address(newVal, oldVal) {
+      if (newVal) {
+        this.fetchAllowance();
+      }
+    },
   }
-
 }
 </script>

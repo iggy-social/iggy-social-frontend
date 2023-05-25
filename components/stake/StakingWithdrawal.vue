@@ -53,6 +53,10 @@
     <div v-if="withdrawalIncorrect.error" class="alert alert-warning text-center" role="alert">
       {{ withdrawalIncorrect.message }}
     </div>
+
+    <hr />
+
+    <RemoveLiquidity />
   </div>
 </template>
 
@@ -61,6 +65,7 @@ import { ethers } from 'ethers';
 import { useEthers } from 'vue-dapp';
 import { useToast } from "vue-toastification/dist/index.mjs";
 import WaitingToast from "~/components/WaitingToast";
+import RemoveLiquidity from '~/components/stake/RemoveLiquidity.vue';
 import { useUserStore } from '~/store/user';
 
 export default {
@@ -75,6 +80,10 @@ export default {
       withdrawalAmount: 0,
       waitingWithdrawal: false
     }
+  },
+
+  components: {
+    RemoveLiquidity
   },
 
   computed: {

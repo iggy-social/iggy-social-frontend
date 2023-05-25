@@ -57,7 +57,7 @@
       <em>
         Balance: 
         <span>
-          {{ this.nativeBalance }} {{ $config.tokenSymbol }}
+          {{ nativeBalance }} {{ $config.tokenSymbol }}
         </span>
       </em>
     </small>
@@ -139,7 +139,9 @@ export default {
   },
 
   mounted() {
-    this.fetchAllowance();
+    if (this.address) {
+      this.fetchAllowance();
+    }
   },
 
   computed: {
@@ -178,7 +180,11 @@ export default {
     },
 
     nativeBalanceTooLow() {
-      return Number(this.nativeCoinAmountWei) > Number(this.balance);
+      if (this.balance) {
+        return Number(this.nativeCoinAmountWei) > Number(this.balance);
+      }
+
+      return false;
     },
   },
 
@@ -414,5 +420,13 @@ export default {
       userStore
     }
   },
+
+  watch: {
+    address(newVal, oldVal) {
+      if (newVal) {
+        this.fetchAllowance();
+      }
+    },
+  }
 }
 </script>
