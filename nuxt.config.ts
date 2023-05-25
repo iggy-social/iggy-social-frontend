@@ -74,7 +74,7 @@ export default defineNuxtConfig({
       lpTokenSymbol: "LP tokens", // a token to stake symbol or name
       stakingContractAddress: "0x96Dc7548fD018d1E51d2d5e98B265411C3D0F22A",
       supportedChainId: 80001,
-      swapRouterAddress: "0x618c0622ab0821704F165427f324C28FA831dC39", // iggy swap router contract address
+      swapRouterAddress: "0x4C4E86135e80790a88cD4a2cA073503647650991", // iggy swap router contract address
       tldName: ".testnet",
       tokenAddress: null, // leave null if it's a native token of the chain
       tokenDecimals: 18,

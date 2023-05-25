@@ -46,7 +46,7 @@
         @click="approveToken"
       >
         <span v-if="waitingApproval" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-        Approve {{ $config.lpTokenSymbol }} token
+        Approve {{ $config.lpTokenSymbol }}
       </button>
 
       <!-- Deposit button -->
@@ -65,7 +65,7 @@
     <p class="text-center">
       <small class="text-center" v-if="allowanceTooLow">
         <em>
-          You will need to do 2 transactions: Approve {{ $config.lpTokenSymbol }} token and then Get {{ $config.lpTokenSymbol }}.
+          You will need to do 2 transactions: Approve {{ $config.lpTokenSymbol }} and then Remove liquidity.
         </em>
       </small>
     </p>
@@ -165,7 +165,7 @@ export default {
 
           this.toast.dismiss(toastWait);
 
-          this.toast("You have successfully approved tokens. Now proceed with getting LP tokens!", {
+          this.toast("You have successfully approved tokens. Now proceed with removing liquidity!", {
             type: "success",
             onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
           });
@@ -203,17 +203,11 @@ export default {
         this.signer
       );
 
-      // TODO: calculate the minimum amount of both native coin and chat token to be received
+      // calculate the minimum amount of both native coin and chat token to be received
       const chatETHAmounts = await routerContract.calculateETHAndTokensToReceive(
-        this.$config.lpTokenAddress,
+        this.$config.chatTokenAddress,
         ethers.utils.parseEther(String(this.depositAmount))
       );
-
-      console.log("chatETHAmounts");
-      console.log(chatETHAmounts);
-      console.log(chatETHAmounts[0]);
-      console.log(Number(chatETHAmounts[0]));
-      console.log(Number(chatETHAmounts[1]));
 
       const deadline = Math.floor(Date.now() / 1000) + 60 * this.siteStore.getSwapDeadline; // get deadline from user's chat settings
 
