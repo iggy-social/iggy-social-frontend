@@ -164,13 +164,17 @@ export default {
     },
 
     nativeBalance() {
-      const nBal = Number(ethers.utils.formatEther(this.balance));
+      if (this.balance) {
+        const nBal = Number(ethers.utils.formatEther(this.balance));
 
-      if (nBal > 0) {
-        return nBal.toFixed(2);
-      } else {
-        return nBal.toFixed(6);
+        if (nBal > 0) {
+          return nBal.toFixed(2);
+        } else {
+          return nBal.toFixed(6);
+        }
       }
+
+      return 0;
     },
 
     nativeBalanceTooLow() {
@@ -293,17 +297,17 @@ export default {
         const receipt = await tx.wait();
 
         if (receipt.status === 1) {
-          // TODO: update LP/staking tokens balance (perhaps move staking tokens balance to user store)
-          this.allowanceWei.sub(this.depositAmountWei); // subtract deposited amount from allowance
-          let chatTokenBalanceWei = ethers.utils.parseEther(this.chatTokenBalance);
-          this.userStore.setChatTokenBalanceWei(chatTokenBalanceWei.sub(this.depositAmountWei)); // subtract deposited amount from chat token balance
-
           this.toast.dismiss(toastWait);
 
           this.toast(`You have successfully provided liquidity and received ${this.$config.lpTokenSymbol}!`, {
             type: "success",
             onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
           });
+
+          this.allowanceWei.sub(this.depositAmountWei); // subtract deposited amount from allowance
+          let chatTokenBalanceWei = ethers.utils.parseEther(this.chatTokenBalance);
+          this.userStore.setChatTokenBalanceWei(chatTokenBalanceWei.sub(this.depositAmountWei)); // subtract deposited amount from chat token balance
+          this.fetchLpTokenBalance();
         } else {
           this.toast.dismiss(toastWait);
           this.toast("Transaction has failed.", {
@@ -335,6 +339,21 @@ export default {
         this.address,
         this.$config.swapRouterAddress
       );
+    },
+
+    async fetchLpTokenBalance() {
+      // check chat token balance
+      const lpTokenInterface = new ethers.utils.Interface([
+        "function balanceOf(address account) external view returns (uint256)"
+      ]);
+
+      const lpTokenContract = new ethers.Contract(
+        this.$config.lpTokenAddress,
+        lpTokenInterface,
+        this.signer
+      );
+
+      this.userStore.setLpTokenBalanceWei(await lpTokenContract.balanceOf(this.address));
     },
 
     async fetchNativeCoinAmount() {

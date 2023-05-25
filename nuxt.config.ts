@@ -70,9 +70,9 @@ export default defineNuxtConfig({
       punkMinterAddress: "", // punk domain minter contract address
       punkNumberOfPrices: 1, // number of different prices (based on domain length), usually 1 (price()) or 5 (price1char() - price5char())
       punkTldAddress: "0x2582EC420195Fefb091B098da6FAdEE49f490740", // punk domain TLD address
-      lpTokenAddress: "0xF3B3ea54C96850e413A6d6aC139B6AEBa7D6D7f1", // a token to stake address
+      lpTokenAddress: "0xF874f79eBfB8FEe898a289C4cAa5dc4383873431", // a token to stake address
       lpTokenSymbol: "LP tokens", // a token to stake symbol or name
-      stakingContractAddress: "0x2A3eAb8c5Ec441dA67E3f1935088F035BBf91E48",
+      stakingContractAddress: "0x96Dc7548fD018d1E51d2d5e98B265411C3D0F22A",
       supportedChainId: 80001,
       swapRouterAddress: "0x9e9905FA405A5FC7Ee2DEB94CbAc089B4FE6f0Ef", // iggy swap router contract address
       tldName: ".testnet",
