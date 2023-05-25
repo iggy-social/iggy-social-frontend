@@ -1,7 +1,7 @@
 <template>
   <div>
     <p class="text-center">
-      Unstake {{ $config.stakingTokenSymbol }} (it will also auto-claim any remaining rewards).
+      Unstake {{ $config.lpTokenSymbol }} (it will also auto-claim any remaining rewards).
     </p>
 
     <!-- Input field -->
@@ -32,7 +32,7 @@
       <em>
         Balance: 
         <span class="cursor-pointer hover-color" @click="setMaxInputTokenAmount">
-          {{ receiptTokenBalance }} staked tokens
+          {{ stakeTokenBalance }} staked tokens
         </span>
       </em>
     </small>
@@ -65,8 +65,8 @@ import WaitingToast from "~/components/WaitingToast";
 export default {
   name: 'StakingWithdrawal',
   props: [
-    "loadingStakingData", "lockedTimeLeft", "minDepositWei", "receiptTokenBalanceWei", "stakingContractAddress", 
-    "stakingTokenAddress", "stakingTokenDecimals"
+    "loadingStakingData", "lockedTimeLeft", "minDepositWei", "stakeTokenBalanceWei", 
+    "lpTokenAddress", "lpTokenDecimals"
   ],
   emits: ["addBalance", "clearClaimAmount"],
 
@@ -105,15 +105,15 @@ export default {
     },
 
     minDeposit() {
-      return ethers.utils.formatUnits(String(this.minDepositWei), Number(this.stakingTokenDecimals));
+      return ethers.utils.formatUnits(String(this.minDepositWei), Number(this.lpTokenDecimals));
     },
 
-    receiptTokenBalance() {
-      if (this.receiptTokenBalanceWei === null || this.receiptTokenBalanceWei === undefined || this.receiptTokenBalanceWei == 0) {
+    stakeTokenBalance() {
+      if (this.stakeTokenBalanceWei === null || this.stakeTokenBalanceWei === undefined || this.stakeTokenBalanceWei == 0) {
         return 0;
       }
 
-      return ethers.utils.formatEther(String(this.receiptTokenBalanceWei));
+      return ethers.utils.formatEther(String(this.stakeTokenBalanceWei));
     },
 
     withdrawalAmountWei() {
@@ -134,15 +134,15 @@ export default {
       }
 
       // amount is too high
-      if (Number(this.withdrawalAmountWei) > Number(this.receiptTokenBalanceWei)) {
+      if (Number(this.withdrawalAmountWei) > Number(this.stakeTokenBalanceWei)) {
         return {
           error: true,
           message: "The amount exceeds your staked token balance."
         };
       }
 
-      if (Number(this.withdrawalAmountWei) < Number(this.receiptTokenBalanceWei)) {
-        const remainingStakedAmountWei = Number(this.receiptTokenBalanceWei) - Number(this.withdrawalAmountWei);
+      if (Number(this.withdrawalAmountWei) < Number(this.stakeTokenBalanceWei)) {
+        const remainingStakedAmountWei = Number(this.stakeTokenBalanceWei) - Number(this.withdrawalAmountWei);
 
         if (Number(remainingStakedAmountWei) < Number(this.minDepositWei)) {
           return {
@@ -170,7 +170,7 @@ export default {
       ]);
 
       const stakingContract = new ethers.Contract(
-        this.stakingContractAddress,
+        this.$config.stakingContractAddress,
         stakingContractInterface,
         this.signer
       );
@@ -237,7 +237,7 @@ export default {
     },
 
     setMaxInputTokenAmount() {
-      this.withdrawalAmount = this.receiptTokenBalance;
+      this.withdrawalAmount = this.stakeTokenBalance;
     },
   },
 

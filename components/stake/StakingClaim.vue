@@ -41,8 +41,8 @@
       <li>Previous period end date: {{ lastPeriodDateTime }}</li>
       <li>Period length: {{ periodLengthHumanReadable }}</li>
       <li>This period rewards: {{ futureRewards }} {{ $config.tokenSymbol }} (so far)</li>
-      <li>Min stake: {{ minDeposit }} {{ $config.stakingTokenSymbol }}</li>
-      <li>Your stake: {{ receiptTokenBalance }} {{ $config.stakingTokenSymbol }}</li>
+      <li>Min stake: {{ minDeposit }} {{ $config.lpTokenSymbol }}</li>
+      <li>Your stake: {{ stakeTokenBalance }} {{ $config.lpTokenSymbol }}</li>
     </ul>
   </div>
 </template>
@@ -57,7 +57,7 @@ export default {
   name: 'StakingClaim',
   props: [
     "loadingStakingData", "claimAmountWei", "claimRewardsTotalWei", "futureRewardsWei", "lastClaimPeriod", "minDepositWei", 
-    "periodLength", "receiptTokenBalanceWei", "stakingContractAddress"
+    "periodLength", "stakeTokenBalanceWei"
   ],
   emits: ["clearClaimAmount", "updateLastClaimPeriod"],
 
@@ -152,12 +152,12 @@ export default {
       return `${seconds} seconds`;
     },
 
-    receiptTokenBalance() {
-      if (this.receiptTokenBalanceWei === null || this.receiptTokenBalanceWei === undefined || this.receiptTokenBalanceWei === "" || this.receiptTokenBalanceWei == 0) {
+    stakeTokenBalance() {
+      if (this.stakeTokenBalanceWei === null || this.stakeTokenBalanceWei === undefined || this.stakeTokenBalanceWei === "" || this.stakeTokenBalanceWei == 0) {
         return 0;
       };
 
-      return ethers.utils.formatEther(String(this.receiptTokenBalanceWei));
+      return ethers.utils.formatEther(String(this.stakeTokenBalanceWei));
     }
   },
 
@@ -171,7 +171,7 @@ export default {
       ]);
 
       const stakingContract = new ethers.Contract(
-        this.stakingContractAddress,
+        this.$config.stakingContractAddress,
         stakingContractInterface,
         this.signer
       );

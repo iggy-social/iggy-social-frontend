@@ -1,6 +1,6 @@
 <template>
   <p class="text-center">
-      No {{ $config.stakingTokenSymbol }}? Add liquidity to the {{ $config.chatTokenSymbol }}-{{ $config.tokenSymbol }} pool below 
+      No {{ $config.lpTokenSymbol }}? Add liquidity to the {{ $config.chatTokenSymbol }}-{{ $config.tokenSymbol }} pool below 
       to get some.
     </p>
 
@@ -84,7 +84,7 @@
         @click="deposit"
       >
         <span v-if="waitingDeposit" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-        Get {{ $config.stakingTokenSymbol }}
+        Get {{ $config.lpTokenSymbol }}
       </button>
 
       <!-- Native balance too low button -->
@@ -103,7 +103,7 @@
     <p class="text-center">
       <small class="text-center" v-if="allowanceTooLow">
         <em>
-          You will need to do 2 transactions: Approve {{ $config.chatTokenSymbol }} token and then Get {{ $config.stakingTokenSymbol }}.
+          You will need to do 2 transactions: Approve {{ $config.chatTokenSymbol }} token and then Get {{ $config.lpTokenSymbol }}.
         </em>
       </small>
     </p>
@@ -293,14 +293,14 @@ export default {
         const receipt = await tx.wait();
 
         if (receipt.status === 1) {
-          // TODO: update LP tokens balance
+          // TODO: update LP/staking tokens balance (perhaps move staking tokens balance to user store)
           this.allowanceWei.sub(this.depositAmountWei); // subtract deposited amount from allowance
           let chatTokenBalanceWei = ethers.utils.parseEther(this.chatTokenBalance);
           this.userStore.setChatTokenBalanceWei(chatTokenBalanceWei.sub(this.depositAmountWei)); // subtract deposited amount from chat token balance
 
           this.toast.dismiss(toastWait);
 
-          this.toast(`You have successfully provided liquidity and received ${this.$config.stakingTokenSymbol}!`, {
+          this.toast(`You have successfully provided liquidity and received ${this.$config.lpTokenSymbol}!`, {
             type: "success",
             onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
           });

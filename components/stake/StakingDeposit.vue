@@ -1,13 +1,13 @@
 <template>
   <div>
     <p class="text-center">
-      Stake {{ $config.stakingTokenSymbol }} to receive periodic staking rewards in {{ $config.tokenSymbol }} tokens.
+      Stake {{ $config.lpTokenSymbol }} to receive periodic staking rewards in {{ $config.tokenSymbol }} tokens.
     </p>
 
     <!-- Input field -->
     <div class="input-group mt-5">
       <button class="btn btn-primary" type="button" data-bs-toggle="dropdown" aria-expanded="false" disabled>
-        {{ $config.stakingTokenSymbol }}
+        {{ $config.lpTokenSymbol }}
       </button>
 
       <input 
@@ -32,7 +32,7 @@
       <em>
         Balance: 
         <span class="cursor-pointer hover-color" @click="setMaxInputTokenAmount">
-          {{ stakingTokenBalance }} {{ $config.stakingTokenSymbol }}
+          {{ lpTokenBalance }} {{ $config.lpTokenSymbol }}
         </span>
       </em>
     </small>
@@ -85,10 +85,11 @@ import { useEthers } from 'vue-dapp';
 import { useToast } from "vue-toastification/dist/index.mjs";
 import WaitingToast from "~/components/WaitingToast";
 import AddLiquidity from '~/components/stake/AddLiquidity.vue';
+import { useUserStore } from '~/store/user';
 
 export default {
   name: 'StakingDeposit',
-  props: ["loadingStakingData", "minDepositWei", "maxDepositWei", "stakingContractAddress", "stakingTokenAddress", "stakingTokenAllowanceWei", "stakingTokenBalanceWei", "stakingTokenDecimals"],
+  props: ["loadingStakingData", "minDepositWei", "maxDepositWei", "lpTokenAddress", "lpTokenAllowanceWei", "lpTokenDecimals"],
   emits: ["clearClaimAmount", "subtractBalance", "updateAllowance"],
 
   data() {
@@ -105,7 +106,7 @@ export default {
   },
 
   mounted() {
-    this.allowanceWei = this.stakingTokenAllowanceWei;
+    this.allowanceWei = this.lpTokenAllowanceWei;
   },
 
   computed: {
@@ -118,7 +119,7 @@ export default {
         return 0;
       }
 
-      return ethers.utils.parseUnits(String(this.depositAmount), this.stakingTokenDecimals);
+      return ethers.utils.parseUnits(String(this.depositAmount), this.lpTokenDecimals);
     },
 
     depositTooLow() {
@@ -129,8 +130,8 @@ export default {
       return Number(this.depositAmountWei) < Number(this.minDepositWei);
     },
 
-    stakingTokenBalance() {
-      return ethers.utils.formatUnits(String(this.stakingTokenBalanceWei), this.stakingTokenDecimals);
+    lpTokenBalance() {
+      return ethers.utils.formatUnits(this.userStore.getLpTokenBalanceWei, this.lpTokenDecimals);
     },
   },
 
@@ -139,18 +140,18 @@ export default {
       this.waitingApproval = true;
 
       // set up staking token
-      const stakingTokenInterface = new ethers.utils.Interface([
+      const lpTokenInterface = new ethers.utils.Interface([
         "function approve(address spender, uint256 amount) public returns (bool)"
       ]);
 
-      const stakingToken = new ethers.Contract(
-        this.stakingTokenAddress,
-        stakingTokenInterface,
+      const lpToken = new ethers.Contract(
+        this.lpTokenAddress,
+        lpTokenInterface,
         this.signer
       );
 
       try {
-        const tx = await stakingToken.approve(this.stakingContractAddress, this.depositAmountWei);
+        const tx = await lpToken.approve(this.$config.stakingContractAddress, this.depositAmountWei);
 
         const toastWait = this.toast(
           {
@@ -204,7 +205,7 @@ export default {
       ]);
 
       const stakingContract = new ethers.Contract(
-        this.stakingContractAddress,
+        this.$config.stakingContractAddress,
         stakingContractInterface,
         this.signer
       );
@@ -257,24 +258,26 @@ export default {
     },
 
     setMaxInputTokenAmount() {
-      this.depositAmount = this.stakingTokenBalance;
+      this.depositAmount = this.lpTokenBalance;
     },
   },
 
   setup() {
     const { address, signer } = useEthers();
     const toast = useToast();
+    const userStore = useUserStore();
 
     return {
       address,
       signer,
-      toast
+      toast,
+      userStore
     }
   },
 
   watch: {
-    stakingTokenAllowanceWei() {
-      this.allowanceWei = this.stakingTokenAllowanceWei;
+    lpTokenAllowanceWei() {
+      this.allowanceWei = this.lpTokenAllowanceWei;
     }
   }
 

@@ -59,11 +59,9 @@
                 :loadingStakingData="loadingStakingData" 
                 :minDepositWei="minDepositWei" 
                 :maxDepositWei="maxDepositWei" 
-                :stakingContractAddress="$config.stakingContractAddress" 
-                :stakingTokenAddress="$config.stakingTokenAddress" 
-                :stakingTokenBalanceWei="stakingTokenBalanceWei" 
-                :stakingTokenAllowanceWei="stakingTokenAllowanceWei" 
-                :stakingTokenDecimals="stakingTokenDecimals" 
+                :lpTokenAddress="$config.lpTokenAddress" 
+                :lpTokenAllowanceWei="lpTokenAllowanceWei" 
+                :lpTokenDecimals="lpTokenDecimals" 
                 @clearClaimAmount="clearClaimAmount" 
                 @subtractBalance="subtractBalance" 
                 @updateAllowance="updateAllowance" 
@@ -84,8 +82,7 @@
                 :lastClaimPeriod="lastClaimPeriod" 
                 :minDepositWei="minDepositWei" 
                 :periodLength="periodLength" 
-                :receiptTokenBalanceWei="receiptTokenBalanceWei" 
-                :stakingContractAddress="$config.stakingContractAddress" 
+                :stakeTokenBalanceWei="stakeTokenBalanceWei"  
                 @clearClaimAmount="clearClaimAmount" 
                 @updateLastClaimPeriod="updateLastClaimPeriod"
               />
@@ -101,11 +98,10 @@
                 :loadingStakingData="loadingStakingData" 
                 :lockedTimeLeft="lockedTimeLeft" 
                 :minDepositWei="minDepositWei" 
-                :stakingContractAddress="$config.stakingContractAddress" 
-                :stakingTokenAddress="$config.stakingTokenAddress" 
-                :stakingTokenDecimals="stakingTokenDecimals" 
-                :stakingTokenSymbol="$config.stakingTokenSymbol" 
-                :receiptTokenBalanceWei="receiptTokenBalanceWei" 
+                :lpTokenAddress="$config.lpTokenAddress" 
+                :lpTokenDecimals="lpTokenDecimals" 
+                :lpTokenSymbol="$config.lpTokenSymbol" 
+                :stakeTokenBalanceWei="stakeTokenBalanceWei" 
                 @addBalance="addBalance" 
                 @clearClaimAmount="clearClaimAmount" 
               />
@@ -125,6 +121,7 @@ import { useEthers } from 'vue-dapp';
 import StakingClaim from '~/components/stake/StakingClaim.vue';
 import StakingDeposit from '~/components/stake/StakingDeposit.vue';
 import StakingWithdrawal from '~/components/stake/StakingWithdrawal.vue';
+import { useUserStore } from '~/store/user';
 
 export default {
   name: 'Stake',
@@ -141,12 +138,11 @@ export default {
       minDepositWei: 0,
       maxDepositWei: 0,
       periodLength: 0,
-      receiptTokenBalanceWei: 0,
+      stakeTokenBalanceWei: 0,
       stakingContract: null, // staking contract instance
-      stakingToken: null, // staking token contract/instance
-      stakingTokenAllowanceWei: 0,
-      stakingTokenBalanceWei: 0,
-      stakingTokenDecimals: 18
+      lpToken: null, // staking token contract/instance
+      lpTokenAllowanceWei: 0,
+      lpTokenDecimals: 18
     }
   },
 
@@ -171,8 +167,8 @@ export default {
 
   methods: {
     addBalance(aBalance) { // staking token balance
-      this.stakingTokenBalanceWei = Number(this.stakingTokenBalanceWei) + Number(aBalance);
-      this.receiptTokenBalanceWei = Number(this.receiptTokenBalanceWei) - Number(aBalance);
+      this.userStore.setLpTokenBalanceWei(this.userStore.getLpTokenBalanceWei.add(aBalance));
+      this.stakeTokenBalanceWei = Number(this.stakeTokenBalanceWei) - Number(aBalance);
     },
 
     changeCurrentTab(tab) {
@@ -223,15 +219,15 @@ export default {
       );
 
       // set up staking token
-      const stakingTokenInterface = new ethers.utils.Interface([
+      const lpTokenInterface = new ethers.utils.Interface([
         "function allowance(address _owner, address _spender) public view returns (uint256)",
         "function balanceOf(address _owner) public view returns (uint256)",
         "function decimals() public view returns (uint8)"
       ]);
 
-      this.stakingToken = new ethers.Contract(
-        this.$config.stakingTokenAddress,
-        stakingTokenInterface,
+      this.lpToken = new ethers.Contract(
+        this.$config.lpTokenAddress,
+        lpTokenInterface,
         this.signer
       );
 
@@ -239,22 +235,22 @@ export default {
       this.fetchPreviewClaim();
 
       // fetch staking token balance
-      this.stakingTokenBalanceWei = await this.stakingToken.balanceOf(this.address);
+      this.userStore.setLpTokenBalanceWei(await this.lpToken.balanceOf(this.address));
 
       // fetch staking token approved amount for the staking contract
-      this.stakingTokenAllowanceWei = await this.stakingToken.allowance(
+      this.lpTokenAllowanceWei = await this.lpToken.allowance(
         this.address,
         this.$config.stakingContractAddress
       );
 
       // fetch receipt token balance
-      this.receiptTokenBalanceWei = await this.stakingContract.balanceOf(this.address);
+      this.stakeTokenBalanceWei = await this.stakingContract.balanceOf(this.address);
 
       // fetch getLockedTimeLeft
       this.fetchLockedTimeLeft();
 
       // fetch staking token decimals
-      // this.stakingTokenDecimals = await this.stakingToken.decimals();
+      // this.lpTokenDecimals = await this.lpToken.decimals();
 
       // fetch minDeposit
       this.minDepositWei = await this.stakingContract.minDeposit();
@@ -280,13 +276,13 @@ export default {
     },
 
     subtractBalance(subBalance) { // staking token balance
-      this.stakingTokenBalanceWei = Number(this.stakingTokenBalanceWei) - Number(subBalance);
-      this.receiptTokenBalanceWei = Number(this.receiptTokenBalanceWei) + Number(subBalance);
+      this.userStore.setLpTokenBalanceWei(this.userStore.getLpTokenBalanceWei.sub(subBalance));
+      this.stakeTokenBalanceWei = Number(this.stakeTokenBalanceWei) + Number(subBalance);
       this.fetchLockedTimeLeft(); // update locked time left because deposit was made
     },
 
     updateAllowance(newAllowance) {
-      this.stakingTokenAllowanceWei = Number(newAllowance);
+      this.lpTokenAllowanceWei = Number(newAllowance);
     },
 
     updateLastClaimPeriod() {
@@ -299,8 +295,9 @@ export default {
 
   setup() {
     const { address, signer } = useEthers();
+    const userStore = useUserStore();
 
-    return { address, signer }
+    return { address, signer, userStore };
   },
 
   watch: {

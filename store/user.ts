@@ -14,7 +14,9 @@ export const useUserStore = defineStore({
       following: 0,
       isConnectedToOrbis: false,
       lastActivityTimestamp: null,
-      orbisImage: null
+      lpTokenBalanceWei: BigInt(0),
+      orbisImage: null,
+      stakeTokenBalanceWei: BigInt(0) // receipt token from the staking contract (aka governance token)
     }
   },
 
@@ -28,7 +30,7 @@ export const useUserStore = defineStore({
     },
 
     getChatTokenBalanceWei(state) {
-      return state.chatTokenBalanceWei;
+      return ethers.BigNumber.from(state.chatTokenBalanceWei);
     },
 
     getDefaultDomain(state) {
@@ -59,14 +61,30 @@ export const useUserStore = defineStore({
       return state.lastActivityTimestamp;
     },
 
+    getLpTokenBalanceWei(state) {
+      return ethers.BigNumber.from(state.lpTokenBalanceWei);
+    },
+
     getOrbisImage(state) {
       return state.orbisImage;
+    },
+
+    getStakeTokenBalanceWei(state) {
+      return ethers.BigNumber.from(state.stakeTokenBalanceWei);
     }
   },
 
   actions: {
     addToChatTokenBalanceWei(balance: ethers.BigNumber) {
       this.chatTokenBalanceWei += balance.toBigInt();
+    },
+
+    addToLpTokenBalanceWei(balance: ethers.BigNumber) {
+      this.lpTokenBalanceWei += balance.toBigInt();
+    },
+
+    addToStakeTokenBalanceWei(balance: ethers.BigNumber) {
+      this.stakeTokenBalanceWei += balance.toBigInt();
     },
 
     setChatTokenBalanceWei(balance: ethers.BigNumber) {
@@ -101,8 +119,17 @@ export const useUserStore = defineStore({
       this.lastActivityTimestamp = timestamp;
     },
 
+    setLpTokenBalanceWei(balance: ethers.BigNumber) {
+      this.lpTokenBalanceWei = balance.toBigInt();
+    },
+
     setOrbisImage(image: any) {
       this.orbisImage = image;
+    },
+
+    setStakeTokenBalanceWei(balance: ethers.BigNumber) {
+      this.stakeTokenBalanceWei = balance.toBigInt();
     }
+
   }
 })
