@@ -52,17 +52,21 @@
       >
     </div>
 
-    <!-- 
-      TODO: 
-      - check native coin balance (if too low, prevent from trying to add liquidity) 
-      - check native coin balance already in default layout and store it in user store
-    -->
+    <!-- Native coin balance -->
+    <small class="text-muted">
+      <em>
+        Balance: 
+        <span>
+          {{ this.nativeBalance }} {{ $config.tokenSymbol }}
+        </span>
+      </em>
+    </small>
 
     <div class="d-flex justify-content-center mt-4 mb-4">
       <!-- Approve token button -->
       <button 
         :disabled="waitingApproval"
-        v-if="allowanceTooLow"
+        v-if="allowanceTooLow && !nativeBalanceTooLow"
         class="btn btn-outline-primary" 
         type="button"
         @click="approveToken"
@@ -74,13 +78,25 @@
       <!-- Deposit button -->
       <button 
         :disabled="waitingDeposit"
-        v-if="!allowanceTooLow"
+        v-if="!allowanceTooLow && !nativeBalanceTooLow"
         class="btn btn-outline-primary" 
         type="button"
         @click="deposit"
       >
         <span v-if="waitingDeposit" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
         Get {{ $config.stakingTokenSymbol }}
+      </button>
+
+      <!-- Native balance too low button -->
+      <button 
+        disabled 
+        v-if="nativeBalanceTooLow || chatBalanceTooLow"
+        class="btn btn-outline-primary" 
+        type="button"
+      >
+        <span v-if="nativeBalanceTooLow && !chatBalanceTooLow">{{ $config.tokenSymbol }}</span> 
+        <span v-if="chatBalanceTooLow">{{ $config.chatTokenSymbol }}</span>
+        balance too low
       </button>
     </div>
 
@@ -99,6 +115,7 @@ import { useEthers } from 'vue-dapp';
 import { useToast } from "vue-toastification/dist/index.mjs";
 import WaitingToast from "~/components/WaitingToast";
 import { useUserStore } from '~/store/user';
+import { useSiteStore } from '~/store/site';
 
 export default {
   name: 'AddLiquidity',
@@ -130,6 +147,10 @@ export default {
       return Number(this.allowanceWei) < Number(this.depositAmountWei);
     },
 
+    chatBalanceTooLow() {
+      return Number(this.userStore.getChatTokenBalanceWei) < Number(this.depositAmountWei);
+    },
+
     chatTokenBalance() {
       return ethers.utils.formatEther(this.userStore.getChatTokenBalanceWei);
     },
@@ -140,7 +161,21 @@ export default {
       }
 
       return ethers.utils.parseEther(String(this.depositAmount));
-    }
+    },
+
+    nativeBalance() {
+      const nBal = Number(ethers.utils.formatEther(this.balance));
+
+      if (nBal > 0) {
+        return nBal.toFixed(2);
+      } else {
+        return nBal.toFixed(6);
+      }
+    },
+
+    nativeBalanceTooLow() {
+      return Number(this.nativeCoinAmountWei) > Number(this.balance);
+    },
   },
 
   methods: {
@@ -177,7 +212,7 @@ export default {
         const receipt = await tx.wait();
 
         if (receipt.status === 1) {
-          this.$emit("updateAllowance", this.depositAmountWei);
+          this.allowanceWei = this.depositAmountWei;
 
           this.toast.dismiss(toastWait);
 
@@ -218,17 +253,16 @@ export default {
         this.signer
       );
 
-      const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // TODO: get deadline from user's chat settings
+      const deadline = Math.floor(Date.now() / 1000) + 60 * this.siteStore.getSwapDeadline; // get deadline from user's chat settings
 
       // take nativeCoinAmount instead of nativeCoinAmountWei in case user entered a value in the field 
       // themselves (holds true for the first time, when nativeCoinAmountWei is null)
       const ncAmountWei = ethers.utils.parseEther(String(this.nativeCoinAmount)); 
 
-      // TODO: subtract slippage (from user's chat settings)
-      const ncAmountWeiMin = ncAmountWei; 
-
-      // TODO: subtract slippage (from user's chat settings)
-      const depositAmountWeiMin = this.depositAmountWei;
+      // subtract slippage (from user's chat settings)
+      const slippageBps = Math.floor(Number(this.siteStore.getSlippage) * 100); // convert to bps
+      const ncAmountWeiMin = ncAmountWei.sub(ncAmountWei.div(10000).mul(slippageBps)); // apply slippage
+      const depositAmountWeiMin = this.depositAmountWei.sub(this.depositAmountWei.div(10000).mul(slippageBps)); // apply slippage
 
       try {
         const tx = await routerContract.addLiquidityETH(
@@ -259,8 +293,10 @@ export default {
         const receipt = await tx.wait();
 
         if (receipt.status === 1) {
-          // TODO: update allowance, chat token balance, native coin balance, and LP tokens balance
-          //this.$emit("updateAllowance", 0); // reset allowance
+          // TODO: update LP tokens balance
+          this.allowanceWei.sub(this.depositAmountWei); // subtract deposited amount from allowance
+          let chatTokenBalanceWei = ethers.utils.parseEther(this.chatTokenBalance);
+          this.userStore.setChatTokenBalanceWei(chatTokenBalanceWei.sub(this.depositAmountWei)); // subtract deposited amount from chat token balance
 
           this.toast.dismiss(toastWait);
 
@@ -345,13 +381,16 @@ export default {
   },
 
   setup() {
-    const { address, signer } = useEthers();
+    const { address, balance, signer } = useEthers();
     const toast = useToast();
     const userStore = useUserStore();
+    const siteStore = useSiteStore();
 
     return {
       address,
+      balance,
       signer,
+      siteStore,
       toast,
       userStore
     }
