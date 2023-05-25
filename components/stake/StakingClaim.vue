@@ -52,12 +52,13 @@ import { ethers } from 'ethers';
 import { useEthers } from 'vue-dapp';
 import { useToast } from "vue-toastification/dist/index.mjs";
 import WaitingToast from "~/components/WaitingToast";
+import { useUserStore } from '~/store/user';
 
 export default {
   name: 'StakingClaim',
   props: [
     "loadingStakingData", "claimAmountWei", "claimRewardsTotalWei", "futureRewardsWei", "lastClaimPeriod", "minDepositWei", 
-    "periodLength", "stakeTokenBalanceWei"
+    "periodLength"
   ],
   emits: ["clearClaimAmount", "updateLastClaimPeriod"],
 
@@ -153,11 +154,7 @@ export default {
     },
 
     stakeTokenBalance() {
-      if (this.stakeTokenBalanceWei === null || this.stakeTokenBalanceWei === undefined || this.stakeTokenBalanceWei === "" || this.stakeTokenBalanceWei == 0) {
-        return 0;
-      };
-
-      return ethers.utils.formatEther(String(this.stakeTokenBalanceWei));
+      return ethers.utils.formatEther(this.userStore.getStakeTokenBalanceWei);
     }
   },
 
@@ -226,11 +223,13 @@ export default {
   setup() {
     const { address, signer } = useEthers();
     const toast = useToast();
+    const userStore = useUserStore();
 
     return {
       address,
       signer,
-      toast
+      toast,
+      userStore
     }
   }
 

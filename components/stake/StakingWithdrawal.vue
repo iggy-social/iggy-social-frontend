@@ -61,14 +61,14 @@ import { ethers } from 'ethers';
 import { useEthers } from 'vue-dapp';
 import { useToast } from "vue-toastification/dist/index.mjs";
 import WaitingToast from "~/components/WaitingToast";
+import { useUserStore } from '~/store/user';
 
 export default {
   name: 'StakingWithdrawal',
   props: [
-    "loadingStakingData", "lockedTimeLeft", "minDepositWei", "stakeTokenBalanceWei", 
-    "lpTokenAddress", "lpTokenDecimals"
+    "loadingStakingData", "lockedTimeLeft", "minDepositWei", "lpTokenDecimals"
   ],
-  emits: ["addBalance", "clearClaimAmount"],
+  emits: ["clearClaimAmount"],
 
   data() {
     return {
@@ -109,11 +109,7 @@ export default {
     },
 
     stakeTokenBalance() {
-      if (this.stakeTokenBalanceWei === null || this.stakeTokenBalanceWei === undefined || this.stakeTokenBalanceWei == 0) {
-        return 0;
-      }
-
-      return ethers.utils.formatEther(String(this.stakeTokenBalanceWei));
+      return ethers.utils.formatEther(this.userStore.getStakeTokenBalanceWei);
     },
 
     withdrawalAmountWei() {
@@ -134,15 +130,15 @@ export default {
       }
 
       // amount is too high
-      if (Number(this.withdrawalAmountWei) > Number(this.stakeTokenBalanceWei)) {
+      if (Number(this.withdrawalAmountWei) > Number(this.userStore.getStakeTokenBalanceWei)) {
         return {
           error: true,
           message: "The amount exceeds your staked token balance."
         };
       }
 
-      if (Number(this.withdrawalAmountWei) < Number(this.stakeTokenBalanceWei)) {
-        const remainingStakedAmountWei = Number(this.stakeTokenBalanceWei) - Number(this.withdrawalAmountWei);
+      if (Number(this.withdrawalAmountWei) < Number(this.userStore.getStakeTokenBalanceWei)) {
+        const remainingStakedAmountWei = Number(this.userStore.getStakeTokenBalanceWei) - Number(this.withdrawalAmountWei);
 
         if (Number(remainingStakedAmountWei) < Number(this.minDepositWei)) {
           return {
@@ -194,7 +190,8 @@ export default {
         const receipt = await tx.wait();
 
         if (receipt.status === 1) {
-          this.$emit("addBalance", this.withdrawalAmountWei); // add balance to (unstaked) tokens
+          this.userStore.setLpTokenBalanceWei(this.userStore.getLpTokenBalanceWei.add(this.withdrawalAmountWei));
+          this.userStore.setStakeTokenBalanceWei(this.userStore.getStakeTokenBalanceWei.sub(this.withdrawalAmountWei));
           this.$emit("clearClaimAmount"); // clear claim amount in parent component
 
           this.toast.dismiss(toastWait);
@@ -244,11 +241,13 @@ export default {
   setup() {
     const { address, signer } = useEthers();
     const toast = useToast();
+    const userStore = useUserStore();
 
     return {
       address,
       signer,
-      toast
+      toast,
+      userStore
     }
   }
 

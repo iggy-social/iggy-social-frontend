@@ -89,7 +89,7 @@ import { useUserStore } from '~/store/user';
 
 export default {
   name: 'StakingDeposit',
-  props: ["loadingStakingData", "minDepositWei", "maxDepositWei", "lpTokenAddress", "lpTokenAllowanceWei", "lpTokenDecimals"],
+  props: ["loadingStakingData", "minDepositWei", "maxDepositWei", "lpTokenAllowanceWei", "lpTokenDecimals"],
   emits: ["clearClaimAmount", "subtractBalance", "updateAllowance"],
 
   data() {
@@ -145,7 +145,7 @@ export default {
       ]);
 
       const lpToken = new ethers.Contract(
-        this.lpTokenAddress,
+        this.$config.lpTokenAddress,
         lpTokenInterface,
         this.signer
       );

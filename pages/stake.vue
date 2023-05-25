@@ -58,8 +58,7 @@
               <StakingDeposit 
                 :loadingStakingData="loadingStakingData" 
                 :minDepositWei="minDepositWei" 
-                :maxDepositWei="maxDepositWei" 
-                :lpTokenAddress="$config.lpTokenAddress" 
+                :maxDepositWei="maxDepositWei"
                 :lpTokenAllowanceWei="lpTokenAllowanceWei" 
                 :lpTokenDecimals="lpTokenDecimals" 
                 @clearClaimAmount="clearClaimAmount" 
@@ -82,7 +81,6 @@
                 :lastClaimPeriod="lastClaimPeriod" 
                 :minDepositWei="minDepositWei" 
                 :periodLength="periodLength" 
-                :stakeTokenBalanceWei="stakeTokenBalanceWei"  
                 @clearClaimAmount="clearClaimAmount" 
                 @updateLastClaimPeriod="updateLastClaimPeriod"
               />
@@ -98,11 +96,7 @@
                 :loadingStakingData="loadingStakingData" 
                 :lockedTimeLeft="lockedTimeLeft" 
                 :minDepositWei="minDepositWei" 
-                :lpTokenAddress="$config.lpTokenAddress" 
                 :lpTokenDecimals="lpTokenDecimals" 
-                :lpTokenSymbol="$config.lpTokenSymbol" 
-                :stakeTokenBalanceWei="stakeTokenBalanceWei" 
-                @addBalance="addBalance" 
                 @clearClaimAmount="clearClaimAmount" 
               />
             </div>
@@ -138,7 +132,6 @@ export default {
       minDepositWei: 0,
       maxDepositWei: 0,
       periodLength: 0,
-      stakeTokenBalanceWei: 0,
       stakingContract: null, // staking contract instance
       lpToken: null, // staking token contract/instance
       lpTokenAllowanceWei: 0,
@@ -166,11 +159,6 @@ export default {
   },
 
   methods: {
-    addBalance(aBalance) { // staking token balance
-      this.userStore.setLpTokenBalanceWei(this.userStore.getLpTokenBalanceWei.add(aBalance));
-      this.stakeTokenBalanceWei = Number(this.stakeTokenBalanceWei) - Number(aBalance);
-    },
-
     changeCurrentTab(tab) {
       this.currentTab = tab;
       localStorage.setItem("stakeCurrentTab", tab);
@@ -244,7 +232,7 @@ export default {
       );
 
       // fetch receipt token balance
-      this.stakeTokenBalanceWei = await this.stakingContract.balanceOf(this.address);
+      this.userStore.setStakeTokenBalanceWei(await this.stakingContract.balanceOf(this.address));
 
       // fetch getLockedTimeLeft
       this.fetchLockedTimeLeft();
@@ -277,7 +265,7 @@ export default {
 
     subtractBalance(subBalance) { // staking token balance
       this.userStore.setLpTokenBalanceWei(this.userStore.getLpTokenBalanceWei.sub(subBalance));
-      this.stakeTokenBalanceWei = Number(this.stakeTokenBalanceWei) + Number(subBalance);
+      this.userStore.setStakeTokenBalanceWei(this.userStore.getStakeTokenBalanceWei.add(subBalance));
       this.fetchLockedTimeLeft(); // update locked time left because deposit was made
     },
 
