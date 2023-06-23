@@ -44,6 +44,14 @@
       <li>Min stake: {{ minDeposit }} {{ $config.lpTokenSymbol }}</li>
       <li>Your stake: {{ stakeTokenBalance }} {{ $config.lpTokenSymbol }}</li>
     </ul>
+
+    <GenericNftDrop 
+      title="Claim the NFT for Early Stakers" 
+      description="Early stakers can claim this free commemorative NFT. Hurry up, limited time only!"
+      :claimersData="claimers" 
+      merkleClaimerAddress="0xc1F6464ba3bEF967b55f7831C9Ede56bCbE70Ae3" 
+      nftImage="https://bafybeic3fpbvtqj6kqpu77vy56efkasgbaviguc3qm4jgy3dy7fuk7fire.ipfs.w3s.link/early-staker-nft-sgb-chat.png"
+    />
   </div>
 </template>
 
@@ -52,7 +60,9 @@ import { ethers } from 'ethers';
 import { useEthers } from 'vue-dapp';
 import { useToast } from "vue-toastification/dist/index.mjs";
 import WaitingToast from "~/components/WaitingToast";
+import GenericNftDrop from "~/components/merkle/genericNftDrop";
 import { useUserStore } from '~/store/user';
+import earlyStakers from "~/assets/merkle/earlyStakers.json"; // TEMP: until claim period is over
 
 export default {
   name: 'StakingClaim',
@@ -64,8 +74,18 @@ export default {
 
   data() {
     return {
+      claimers: [],
       waiting: false
     }
+  },
+
+  components: {
+    GenericNftDrop, // TEMP: until claim period is over
+    WaitingToast
+  },
+
+  created() {
+    this.claimers = earlyStakers; // TEMP: until claim period is over
   },
 
   computed: {
