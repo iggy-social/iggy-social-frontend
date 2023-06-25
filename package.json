@@ -13,10 +13,11 @@
     "@pinia/nuxt": "^0.4.6",
     "@vueuse/core": "^9.2.0",
     "@vueuse/nuxt": "^9.2.0",
+    "@walletconnect/modal": "^2.5.2",
     "ethers": "^5.7.2",
     "pinia": "^2.0.28",
     "sanitize-html": "^2.7.2",
-    "vue-dapp": "^0.6.2",
+    "vue-dapp": "^0.9.0",
     "vue-toastification": "^2.0.0-rc.5"
   },
   "devDependencies": {

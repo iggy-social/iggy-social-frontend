@@ -48,11 +48,9 @@
               <img src="@/assets/img/wallets/bifrost.png" class="card-img-top card-img-wallet" alt="Bifrost">
             </div> 
 
-            <!--
             <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectWalletConnect">
               <img src="@/assets/img/wallets/wc.png" class="card-img-top card-img-wallet" alt="Wallet Connect">
             </div>
-            -->
 
             <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectCoinbase">
               <img src="@/assets/img/wallets/coinbase.png" class="card-img-top card-img-wallet" alt="Coinbase">
@@ -237,9 +235,9 @@ export default {
 		},
 
 		async connectWalletConnect() {
+      document.getElementById('closeConnectModal').click();
 			await this.connectWith(this.wcConnector);
 			localStorage.setItem("connected", "walletconnect"); // store in local storage to autoconnect next time
-			document.getElementById('closeConnectModal').click();
 		},
 
     async fetchUserDomain() {
@@ -284,9 +282,25 @@ export default {
 			appUrl: config.projectUrl,
 		});
 
+    // wallet connect v2
 		const wcConnector = new WalletConnectConnector({
-			qrcode: true,
-			rpc: rpcs,
+			projectId: '91859bae408b0bdaafd117f09f21f0ec',
+      chains: [80001],
+      showQrModal: true,
+      qrModalOptions: {
+        themeMode: 'dark',
+        themeVariables: undefined,
+        chainImages: undefined,
+        desktopWallets: undefined,
+        walletImages: undefined,
+        mobileWallets: undefined,
+        enableExplorer: true,
+        explorerAllowList: undefined,
+        tokenImages: undefined,
+        privacyPolicyUrl: undefined,
+        explorerDenyList: undefined,
+        termsOfServiceUrl: undefined,
+      }
 		});
     
     return { 
