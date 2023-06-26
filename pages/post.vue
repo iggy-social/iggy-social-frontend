@@ -4,7 +4,7 @@
     <Meta name="description" content="Chat general description" />
   </Head>
 
-  <!-- TODO: show component based on the chat type selection (Alien, Forum, smth else) -->
+  <!-- @TODO: show component based on the chat type selection (Alien, Forum, smth else) -->
   <AlienChatPost v-if="post" :post="post" :isUserConnectedOrbis="isUserConnectedOrbis" />
 
   <AlienChat v-if="post" :id="post.stream_id" />

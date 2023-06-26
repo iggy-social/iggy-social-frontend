@@ -45,13 +45,15 @@
       <li>Your stake: {{ stakeTokenBalance }} {{ $config.lpTokenSymbol }}</li>
     </ul>
 
+    <!-- START @TODO: check if needed -->
     <GenericNftDrop 
       title="Claim the NFT for Early Stakers" 
       description="Early stakers can claim this free commemorative NFT. Hurry up, limited time only!"
       :claimersData="claimers" 
-      merkleClaimerAddress="0xc1F6464ba3bEF967b55f7831C9Ede56bCbE70Ae3" 
+      merkleClaimerAddress="0x5E09AF1510c651787101cE57baFB735bC48005Af" 
       nftImage="https://bafybeic3fpbvtqj6kqpu77vy56efkasgbaviguc3qm4jgy3dy7fuk7fire.ipfs.w3s.link/early-staker-nft-sgb-chat.png"
     />
+    <!-- // END @TODO: check if needed -->
   </div>
 </template>
 
@@ -60,9 +62,9 @@ import { ethers } from 'ethers';
 import { useEthers } from 'vue-dapp';
 import { useToast } from "vue-toastification/dist/index.mjs";
 import WaitingToast from "~/components/WaitingToast";
-import GenericNftDrop from "~/components/merkle/genericNftDrop";
 import { useUserStore } from '~/store/user';
-import earlyStakers from "~/assets/merkle/earlyStakers.json"; // TEMP: until claim period is over
+import GenericNftDrop from "~/components/merkle/genericNftDrop"; // @TODO: check if needed
+import earlyStakers from "~/assets/merkle/earlyStakers.json"; // @TODO: check if needed
 
 export default {
   name: 'StakingClaim',
@@ -74,18 +76,18 @@ export default {
 
   data() {
     return {
-      claimers: [],
+      claimers: [], // @TODO: check if needed
       waiting: false
     }
   },
 
   components: {
-    GenericNftDrop, // TEMP: until claim period is over
+    GenericNftDrop, // @TODO: check if needed
     WaitingToast
   },
 
   created() {
-    this.claimers = earlyStakers; // TEMP: until claim period is over
+    this.claimers = earlyStakers; // @TODO: check if needed
   },
 
   computed: {

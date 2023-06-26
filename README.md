@@ -28,6 +28,7 @@ This template does not work properly on GitHub Pages. Use Netlify or Vercel inst
 - Project-specific settings in `nuxt.config.ts`
 - CSS files in the `/public/css/` folder
 - Favicon and cover/preview images in `/public/img/` folder
+- Search for "@todo" comments in the code
 
 ## Setup
 

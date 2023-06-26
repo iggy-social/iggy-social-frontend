@@ -283,8 +283,9 @@ export default {
 		});
 
     // wallet connect v2
+    // @TODO: make sure to add your own project ID (and verify your domain with wallet connect)
 		const wcConnector = new WalletConnectConnector({
-			projectId: '91859bae408b0bdaafd117f09f21f0ec',
+			projectId: '91859bae408b0bdaafd117f09f21f0ec', // @TODO: use your own project ID!!!
       chains: [80001],
       showQrModal: true,
       qrModalOptions: {
