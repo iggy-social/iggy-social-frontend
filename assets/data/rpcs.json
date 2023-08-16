@@ -12,5 +12,5 @@
   "1284": "https://1rpc.io/glmr",
   "42161": "https://1rpc.io/arb",
   "43114": "https://1rpc.io/avax/c",
-  "80001": "https://rpc.ankr.com/polygon_mumbai"
+  "80001": "https://polygon-testnet.public.blastapi.io"
 }

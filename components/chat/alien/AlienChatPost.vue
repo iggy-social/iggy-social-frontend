@@ -143,13 +143,21 @@ export default {
       this.fetchAuthorDomain();
     }
 
+    //console.log("this.post1: ", this.post.content.context);
+    console.log("this.post2: ", this.post.context);
+    //console.log("this.post3: ", this.post.context_details.context_id);
+
     this.parsePostText();
   },
 
   computed: {
     getOrbisContext() {
-      if (this.$config.orbisTest) {
-        return this.$config.orbisTestContext;
+      if (this.post?.context) {
+        return this.post.context;
+      } else if (this.post?.content.context) {
+        return this.post.content.context;
+      } else if (this.post?.context_details.context_id) {
+        return this.post.context_details.context_id;
       } else {
         return this.$config.orbisContext;
       }

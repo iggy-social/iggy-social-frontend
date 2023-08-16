@@ -55,7 +55,7 @@ export default defineNuxtPlugin(() => {
       } else if (networkId === 80001) {
         // Mumbai testnet (Polygon testnet)
         urls = [
-          "https://rpc.ankr.com/polygon_mumbai"
+          "https://polygon-testnet.public.blastapi.io"
         ]
       } else if (networkId === 10) {
         // Optimism
@@ -149,7 +149,7 @@ export default defineNuxtPlugin(() => {
         chainId: "0x13881",
         chainName: "Mumbai Testnet",
         nativeCurrency: { decimals: 18, name: "Matic", symbol: "MATIC" }, 
-        rpcUrls: ["https://rpc.ankr.com/polygon_mumbai"]
+        rpcUrls: ["https://polygon-testnet.public.blastapi.io"]
       }] 
     } else if (networkName == "Arbitrum Testnet") {
       method = "wallet_addEthereumChain"
