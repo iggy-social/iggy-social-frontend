@@ -1,7 +1,9 @@
 <template>
   <nav class="navbar navbar-expand-lg navbar-bg-custom">
     <div class="container-fluid mx-3">
-      <NuxtLink class="navbar-brand" to="/">{{$config.projectName}}</NuxtLink>
+      <NuxtLink class="navbar-brand" to="/">
+        <img src="/img/logo.svg" alt="Chat logo" height="45" />
+      </NuxtLink>
 
       <ul class="navbar-nav justify-content-end flex-grow-1">
         <li v-if="!isActivated" class="nav-item">
@@ -15,7 +17,20 @@
             {{showDomainOrAddress}}
           </a>
           <div class="dropdown-menu dropdown-menu-end">
+            <NuxtLink class="dropdown-item cursor-pointer" to="/profile">Profile</NuxtLink>
+            <span class="dropdown-item cursor-pointer" data-bs-toggle="modal" data-bs-target="#chatSettingsModal">Settings</span>
             <span class="dropdown-item cursor-pointer" @click="disconnectWallet">Disconnect</span>
+          </div>
+        </li>
+
+        <li v-if="isActivated && $config.chatTokenAddress" class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+            {{ userStore.getChatTokenBalance }} {{ $config.chatTokenSymbol }}
+          </a>
+          <div class="dropdown-menu dropdown-menu-end">
+            <NuxtLink class="dropdown-item cursor-pointer" to="/airdrop">Claim {{ $config.chatTokenSymbol }} airdrop</NuxtLink>
+            <NuxtLink class="dropdown-item cursor-pointer" to="/stake">Stake & earn weekly {{ $config.tokenSymbol }} rewards</NuxtLink>
+            <span class="dropdown-item cursor-pointer" @click="addToMetaMask">Add {{ $config.chatTokenSymbol }} to MetaMask</span>s
           </div>
         </li>
 
@@ -40,6 +55,8 @@ import { useSiteStore } from '~/store/site';
 import { useUserStore } from '~/store/user';
 import ConnectWalletButton from "~/components/ConnectWalletButton.vue";
 import SwitchChainButton from "~/components/SwitchChainButton.vue";
+import { addTokenToMetaMask } from '~/utils/tokenUtils';
+import { getTextWithoutBlankCharacters } from '~/utils/textUtils';
 
 export default {
   name: "Navbar",
@@ -52,7 +69,7 @@ export default {
   computed: {
     showDomainOrAddress() {
       if (this.userStore.getDefaultDomain) {
-        return this.userStore.getDefaultDomain;
+        return getTextWithoutBlankCharacters(this.userStore.getDefaultDomain);
       } else if (this.address) {
         return this.shortenAddress(this.address);
       }
@@ -62,6 +79,16 @@ export default {
   },
 
   methods: {
+    addToMetaMask() {
+      addTokenToMetaMask(
+        window.ethereum,
+        this.$config.chatTokenAddress, 
+        this.$config.chatTokenSymbol, 
+        18, // decimals
+        this.$config.chatTokenImage
+      );
+    },
+
     changeColorMode(newMode) {
       this.siteStore.setColorMode(newMode);
       document.documentElement.setAttribute("data-bs-theme", this.siteStore.getColorMode);
@@ -69,7 +96,6 @@ export default {
 
     async disconnectWallet() {
       this.disconnect();
-      await this.$orbis.logout();
     }
   },
 

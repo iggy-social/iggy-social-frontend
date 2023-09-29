@@ -1,13 +1,13 @@
 <template>
   <div>
     <p class="text-center">
-      Unstake {{ $config.lpTokenSymbol }} (it will also auto-claim any remaining rewards).
+      Unstake {{ $config.stakeTokenSymbol }} to receive back {{ $config.lpTokenSymbol }} (it will also auto-claim any remaining rewards).
     </p>
 
     <!-- Input field -->
     <div class="input-group mt-5">
       <button class="btn btn-primary" type="button" data-bs-toggle="dropdown" aria-expanded="false" disabled>
-        LP tokens
+        {{ $config.stakeTokenSymbol }}
       </button>
 
       <input 
@@ -32,7 +32,7 @@
       <em>
         Balance: 
         <span class="cursor-pointer hover-color" @click="setMaxInputTokenAmount">
-          {{ stakeTokenBalance }} staked tokens
+          {{ stakeTokenBalance }} {{ $config.stakeTokenSymbol }}
         </span>
       </em>
     </small>
@@ -50,7 +50,7 @@
       </button>
     </div>
 
-    <div v-if="withdrawalIncorrect.error" class="alert alert-warning text-center" role="alert">
+    <div v-if="withdrawalIncorrect.error" class="alert alert-warning text-center text-dark" role="alert">
       {{ withdrawalIncorrect.message }}
     </div>
 

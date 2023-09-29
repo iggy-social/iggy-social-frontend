@@ -47,6 +47,7 @@ import { ethers } from 'ethers';
 import { useEthers } from 'vue-dapp';
 import { useToast } from "vue-toastification/dist/index.mjs";
 import WaitingToast from "~/components/WaitingToast";
+import { useUserStore } from '~/store/user';
 
 export default {
   name: 'AirdropDomainHolders',
@@ -108,6 +109,8 @@ export default {
             onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
           });
 
+          this.userStore.addToChatTokenBalanceWei(this.domainChatRewardWei);
+
           this.waiting = false;
         } else {
           this.toast.dismiss(toastWait);
@@ -144,11 +147,13 @@ export default {
   setup() {
     const { address, signer } = useEthers();
     const toast = useToast();
+    const userStore = useUserStore();
 
     return {
       address,
       signer,
-      toast
+      toast,
+      userStore
     }
   }
 }

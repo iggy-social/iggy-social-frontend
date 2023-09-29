@@ -127,7 +127,22 @@ export default {
         }
       } catch (e) {
         console.error(e);
-        this.toast(e.message, {type: "error"});
+
+        try {
+          let extractMessage = e.message.split("reason=")[1];
+          extractMessage = extractMessage.split(", method=")[0];
+          extractMessage = extractMessage.replace('"', "");
+          extractMessage = extractMessage.replace('"', "");
+          extractMessage = extractMessage.replace('execution reverted:', "Error:");
+          extractMessage = extractMessage.replace('MerkleClaimerERC721: ', "");
+
+          console.log(extractMessage);
+          
+          this.toast(extractMessage, {type: "error"});
+        } catch (e) {
+          this.toast("Transaction has failed.", {type: "error"});
+        }
+
         this.waiting = false;
       }
     }

@@ -1,13 +1,16 @@
 <template>
 <div class="card m-2 bg-light">
-  <div class="card-header bg-light">Mint a {{$config.tldName}} name</div>
+  <div class="card-header bg-light">Get a {{$config.tldName}} name</div>
 
-  <div class="card-body">
+  <div class="card-body sidebar-card-body">
+    <p>
+      Get yourself a {{$config.tldName}} username and start chatting with other community members.
+    </p>
     
     <div class="input-group mb-3">
       <input 
         type="text" 
-        class="form-control" 
+        class="form-control text-end" 
         placeholder="enter name" 
         aria-describedby="mint-name"
         v-model="domainName"
@@ -25,11 +28,13 @@
       Minting price: {{ getNamePrice }} {{ $config.tokenSymbol }}
     </p>
 
-    <button v-if="isActivated" class="btn btn-outline-primary mt-2 mb-2" :disabled="paused || domainNotValid.invalid">
-      <span v-if="loadingMint || loadingData" class="spinner-border spinner-border-sm mx-1" role="status" aria-hidden="true"></span>
-      <span v-if="loadingData">Loading data...</span>
-      <span v-else @click="mintName">Mint name</span>
-    </button>
+    <div class="text-center">
+      <button v-if="isActivated" class="btn btn-outline-primary mt-2 mb-2" :disabled="paused || domainNotValid.invalid">
+        <span v-if="loadingMint || loadingData" class="spinner-border spinner-border-sm mx-1" role="status" aria-hidden="true"></span>
+        <span v-if="loadingData">Loading data...</span>
+        <span v-else @click="mintName">Mint username</span>
+      </button>
+    </div>
 
     <ConnectWalletButton v-if="!isActivated" class="btn btn-outline-primary mt-2 mb-2" btnText="Connect Wallet" />
     
@@ -44,6 +49,8 @@ import { useToast } from "vue-toastification/dist/index.mjs";
 import WaitingToast from "~/components/WaitingToast";
 import ConnectWalletButton from "~/components/ConnectWalletButton";
 import { useUserStore } from '~/store/user';
+import { getDomainName } from '~/utils/domainUtils';
+import { fetchUsername, storeUsername } from '~/utils/storageUtils';
 
 export default {
   name: 'NameMintWidget',
@@ -69,7 +76,7 @@ export default {
     WaitingToast
   },
 
-  created() {
+  mounted() {
     this.fetchDomainData();
   },
 
@@ -168,7 +175,7 @@ export default {
     getNamePrice() {
       if (this.$config.punkNumberOfPrices === 1) {
         return this.price;
-      } else {
+      } else if (this.domainName) {
         if (this.domainName.match(/./gu).length === 1) {
           return this.price1char;
         } else if (this.domainName.match(/./gu).length === 2) {
@@ -182,11 +189,15 @@ export default {
         } else {
           return this.price5char;
         }
+      } else {
+        return this.price5char;
       }
     }
   },
 
   methods: {
+    getDomainName, // imported from ~/utils/domainUtils.js
+
     async fetchDomainData() {
       this.loadingData = true;
 
@@ -247,18 +258,17 @@ export default {
 
     async fetchUserDomain() {
       if (this.isActivated) {
-        const tldInterface = new ethers.utils.Interface([
-          "function defaultNames(address) view returns (string)"
-        ]);
+        let userDomain;
 
-        const contract = new ethers.Contract(this.$config.punkTldAddress, tldInterface, this.signer);
-
-        // get user's default domain
-        const userDomain = await contract.defaultNames(this.address);
+        if (this.signer) {
+          userDomain = await this.getDomainName(this.address, this.signer);
+        } else {
+          userDomain = await this.getDomainName(this.address);
+        }
 
         if (userDomain) {
           this.userStore.setDefaultDomain(userDomain+this.$config.tldName);
-          sessionStorage.setItem(String(this.address).toLowerCase(), userDomain+this.$config.tldName);
+          storeUsername(window, this.address, userDomain+this.$config.tldName);
         } else {
           this.userStore.setDefaultDomain(null);
         }

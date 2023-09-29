@@ -1,14 +1,8 @@
-# Iggy Social
+# Iggy Social Template
 
-> Work-in-progress (WIP), not production ready yet.
+Iggy Social is a Web3 Social frontend website based on the Iggy Social template. It uses [Orbis SDK](https://github.com/OrbisWeb3/orbis-sdk) and Ceramic Network in the background.
 
-Iggy Social is a Web3 Social frontend website. It uses [Orbis SDK](https://github.com/OrbisWeb3/orbis-sdk) and Ceramic Network in the background.
-
-Development preview: https://iggy-social-frontend.vercel.app/
-
-Landing page: https://iggy.social
-
-If your web3 community has its own Punk Domains extension, it can be used as for usernames instead of addresses.
+Link: https://demo.iggy.social/
 
 What's included:
 
@@ -19,16 +13,37 @@ What's included:
 - [Pinia](https://pinia.vuejs.org/)
 - [Vue Toastification](https://github.com/Maronato/vue-toastification/tree/next)
 
+## .env
+
+Create a `.env` file from `.env.example`.
+
+> Make sure to also enter these vars in your hosting settings!
+
 ## Hosting
 
-This template does not work properly on GitHub Pages. Use Netlify or Vercel instead (make sure to use the `npm run generate` command instead of `npm run build` there).
+We recommend to use Netlify for hosting the site. Netlify allows you to easily deploy the site from this repo (or from a fork of this repository).
+
+Make sure to use the the `npm run generate` command instead of `npm run build` for build instructions on Netlify.
+
+If you want to use optional features such as GIFs and image upload, make sure to enter proper environment variables (see `.env.example`).
+
+## GIFs (Tenor)
+
+If you want to have GIF search implemented, create your own Tenor API Key on Google Cloud Console. Follow the instructions here: https://developers.google.com/tenor/guides/quickstart. 
+
+Then enter the key in environment variables (`TENOR_KEY`).
+
+## Image upload (Web3 Storage)
+
+To support image uploads on IPFS please create an API key on Web3 Storage: https://web3.storage/ 
+
+Then enter the key in environment variables (`WEB3_STORAGE_KEY`).
 
 ## Customize
 
 - Project-specific settings in `nuxt.config.ts`
 - CSS files in the `/public/css/` folder
 - Favicon and cover/preview images in `/public/img/` folder
-- Search for "@todo" comments in the code
 
 ## Setup
 

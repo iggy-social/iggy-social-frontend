@@ -5,8 +5,8 @@ const options = {
   hideProgressBar: true,
   closeButton: "button",
   position: "top-left",
-  toastClassName: "punk-toast-class",
   closeOnClick: false,
+  toastClassName: "custom-toast-bg",
 
   toastDefaults: {
     // ToastOptions object for each type of toast

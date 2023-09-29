@@ -1,7 +1,11 @@
 <template>
   <div>
     <p class="text-center">
-      Stake {{ $config.lpTokenSymbol }} to receive periodic staking rewards in {{ $config.tokenSymbol }} tokens.
+      Stake {{ $config.lpTokenSymbol }} to receive periodic staking rewards in {{ $config.tokenSymbol }} tokens 
+      (min deposit: {{ minDeposit }} {{ $config.lpTokenSymbol }}). 
+      <NuxtLink to="/post/?id=kjzl6cwe1jw147gcaq8o17j668j1vol8v4z0vmv0ris1g5qyqvmrxbn0bpif8wh">
+        Learn more here.
+      </NuxtLink>
     </p>
 
     <!-- Input field -->
@@ -132,6 +136,14 @@ export default {
 
     lpTokenBalance() {
       return ethers.utils.formatUnits(this.userStore.getLpTokenBalanceWei, this.lpTokenDecimals);
+    },
+
+    minDeposit() {
+      if (this.minDepositWei === null || this.minDepositWei === undefined || this.minDepositWei === "" || this.minDepositWei == 0) {
+        return 0;
+      };
+
+      return ethers.utils.formatEther(String(this.minDepositWei));
     },
   },
 

@@ -6,7 +6,9 @@
         <span v-if="sidebarStore.showLeftSidebar" class="bi bi-x-lg"></span>
       </button>
 
-      <NuxtLink class="navbar-brand mx-auto" to="/">{{$config.projectName}}</NuxtLink>
+      <NuxtLink class="navbar-brand mx-auto" to="/">
+        <img src="/img/logo.svg" alt="Chat logo" height="40">
+      </NuxtLink>
 
       <button @click="toggleRightSidebar" class="nav-item btn navbar-toggler nav-btn-right" type="button">
         <span v-if="!sidebarStore.showRightSidebar" class="navbar-toggler-icon"></span>

@@ -22,7 +22,6 @@
   --bs-gray-700: #5e5e5f;
   --bs-gray-800: #0b0a12;
   --bs-gray-900: #0b0a12;
-  --bs-primary: #5143d9;
   --bs-white: #fff;
   --bs-secondary: #85878a;
   --bs-success: #0cbc87;
@@ -33,7 +32,6 @@
   --bs-dark: #0b0a12;
   --bs-orange: #fd7e14;
   --bs-mode: #fff;
-  --bs-primary-rgb: 81, 67, 217;
   --bs-white-rgb: 255, 255, 255;
   --bs-secondary-rgb: 133, 135, 138;
   --bs-success-rgb: 12, 188, 135;
@@ -44,7 +42,6 @@
   --bs-dark-rgb: 11, 10, 18;
   --bs-orange-rgb: 253, 126, 20;
   --bs-mode-rgb: 255, 255, 255;
-  --bs-primary-text: #0a58ca;
   --bs-secondary-text: #6c757d;
   --bs-success-text: #146c43;
   --bs-info-text: #087990;
@@ -93,10 +90,7 @@
   --bs-body-bg: #fff;
   --bs-body-bg-rgb: 255, 255, 255;
   --bs-heading-color: var(--bs-gray-900);
-  --bs-link-color: #5143d9;
-  --bs-link-color-rgb: 81, 67, 217;
   --bs-link-decoration: none;
-  --bs-link-hover-color: #4136ae;
   --bs-link-hover-color-rgb: 65, 54, 174;
   --bs-code-color: #d63384;
   --bs-highlight-bg: #fff3cd;
@@ -124,6 +118,9 @@
   --bs-breakpoint-lg: 992px;
   --bs-breakpoint-xl: 1200px;
   --bs-breakpoint-xxl: 1400px;
-  --bs-nav-pills-link-active-bg: #3459e6;
   --bs-white-black-toggle: #000;
+}
+
+[data-bs-theme=light] .bg-mode {
+  background-color: var(--bs-mode) !important;
 }

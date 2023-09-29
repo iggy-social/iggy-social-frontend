@@ -1,10 +1,18 @@
 <template>
   <Head>
-    <Title>Airdrop</Title>
+    <Title>Airdrop | {{ $config.projectMetadataTitle }}</Title>
     <Meta property="og:title" content="Airdrop" />
+
+    <Meta name="description" :content="'Claim your ' + $config.chatTokenSymbol + ' token airdrop on ' + $config.projectName + '!'" />
+
+    <Meta property="og:image" :content="$config.projectUrl+$config.previewImageAirdrop" />
+    <Meta property="og:description" :content="'Claim your ' + $config.chatTokenSymbol + ' token airdrop on ' + $config.projectName + '!'" />
+
+    <Meta name="twitter:image" :content="$config.projectUrl+$config.previewImageAirdrop" />
+    <Meta name="twitter:description" :content="'Claim your ' + $config.chatTokenSymbol + ' token airdrop on ' + $config.projectName + '!'" />
   </Head>
 
-  <div class="card border">
+  <div class="card border scroll-500">
     <div class="card-body">
       <p class="fs-3">
         <i class="bi bi-arrow-left-circle cursor-pointer" @click="$router.back()"></i>

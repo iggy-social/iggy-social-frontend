@@ -1,13 +1,20 @@
 <template>
   <div>
     <Head>
-      <Title>{{ $config.projectName }}</Title>
+      <Title>{{ $config.projectMetadataTitle }}</Title>
       <Meta name="description" :content="$config.projectDescription" />
       <Link rel="icon" type="image/x-icon" :href="$config.favicon" />
 
-      <Meta property="og:title" :content="$config.projectName" />
+      <Meta property="og:title" :content="$config.projectMetadataTitle" />
       <Meta property="og:description" :content="$config.projectDescription" />
-      <Meta property="og:image" :content="$config.previewImage" />
+      <Meta property="og:image" :content="$config.projectUrl+$config.previewImage" />
+
+      <Meta name="twitter:card" content="summary_large_image" />
+      <Meta name="twitter:site" :content="$config.projectTwitter" />
+      <Meta name="twitter:creator" :content="$config.projectTwitter" />
+      <Meta name="twitter:title" :content="$config.projectMetadataTitle" />
+      <Meta name="twitter:description" :content="$config.projectDescription" />
+      <Meta name="twitter:image" :content="$config.projectUrl+$config.previewImage" />
     </Head>
 
     <NavbarDesktop v-if="!isMobile" />
@@ -23,7 +30,7 @@
           <slot></slot>
         </main>
 
-        <SidebarRight />
+        <SidebarRight :rSidebar="rSidebar" :isMobile="isMobile" />
         
       </div>
     </div>
@@ -48,9 +55,11 @@
               <img src="@/assets/img/wallets/bifrost.png" class="card-img-top card-img-wallet" alt="Bifrost">
             </div> 
 
+            <!--
             <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectWalletConnect">
               <img src="@/assets/img/wallets/wc.png" class="card-img-top card-img-wallet" alt="Wallet Connect">
             </div>
+            -->
 
             <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectCoinbase">
               <img src="@/assets/img/wallets/coinbase.png" class="card-img-top card-img-wallet" alt="Coinbase">
@@ -90,6 +99,9 @@
       </div>
     </div>
     <!-- END Connect Wallet modal -->
+
+    <ChatSettingsModal />
+
   </div>
 
   <!-- Do not delete: ugly hack to make "global" work with Vite -->
@@ -101,23 +113,24 @@
 <script>
 import { ethers } from 'ethers';
 import { MetaMaskConnector, WalletConnectConnector, CoinbaseWalletConnector, useEthers, useWallet } from 'vue-dapp';
+import { useNotificationsStore } from '~/store/notifications';
 import { useSidebarStore } from '~/store/sidebars';
 import { useSiteStore } from '~/store/site';
 import { useUserStore } from '~/store/user';
-//import { useLocalStorage } from '@vueuse/core';
-import ResolverAbi from "~/assets/abi/ResolverAbi.json";
-import resolvers from "~/assets/data/resolvers.json";
-import rpcs from "~/assets/data/rpcs.json";
+import { getRpcs } from "~/utils/rpcUtils";
 import NavbarDesktop from "~/components/navbars/NavbarDesktop.vue";
 import NavbarMobile from "~/components/navbars/NavbarMobile.vue";
 import SidebarLeft from "~/components/sidebars/SidebarLeft.vue";
 import SidebarRight from "~/components/sidebars/SidebarRight.vue";
+import ChatSettingsModal from "~/components/ChatSettingsModal.vue";
+import { getDomainName } from '~/utils/domainUtils';
+import { fetchUsername, storeUsername } from '~/utils/storageUtils';
 
 export default {
   data() {
     return {
       breakpoint: 1000,
-      isUserConnectedOrbis: false,
+      isMounted: false,
       lSidebar: null,
       rSidebar: null,
       width: null
@@ -125,30 +138,20 @@ export default {
   },
 
   components: {
+    ChatSettingsModal,
     NavbarDesktop,
     NavbarMobile,
     SidebarLeft,
     SidebarRight
   },
 
-  created() {
-		// if user already connected before, connect them automatically on the next visit
-		
-	},
-
   mounted() {
-    if (!this.isActivated) {
-			if (localStorage.getItem("connected") == "metamask") {
-				this.connectMetaMask();
-			} else if (localStorage.getItem("connected") == "walletconnect") {
-				this.connectWalletConnect();
-			} else if (localStorage.getItem("connected") == "coinbase") {
-				this.connectCoinbase();
-			}
-		}
+    this.isMounted = true;
 
+    // set color mode
     document.documentElement.setAttribute("data-bs-theme", this.siteStore.getColorMode);
 
+    // set sidebar collapse
     this.lSidebar = new bootstrap.Collapse('#sidebar1', {toggle: false});
     this.rSidebar = new bootstrap.Collapse('#sidebar2', {toggle: false});
     this.width = window.innerWidth;
@@ -166,6 +169,22 @@ export default {
     }
 
     window.addEventListener('resize', this.onWidthChange);
+
+    // connect to wallet if user was connected before
+    if (!this.isActivated) {
+			if (localStorage.getItem("connected") == "metamask") {
+				this.connectMetaMask();
+			} else if (localStorage.getItem("connected") == "walletconnect") {
+				this.connectWalletConnect();
+			} else if (localStorage.getItem("connected") == "coinbase") {
+				this.connectCoinbase();
+			}
+		}
+
+    // enable popovers everywhere
+    new bootstrap.Popover(document.body, {
+      selector: "[data-bs-toggle='popover']",
+    })
   },
 
   unmounted() {
@@ -173,15 +192,107 @@ export default {
   },
 
   computed: {
+    isConnectedToOrbis () {
+      return this.userStore.getIsConnectedToOrbis;
+    },
+
     isMobile() {
       if (this.width < this.breakpoint) {
         return true;
       }
       return false;
+    },
+
+    orbisAddress() {
+      // address which is signed with Orbis
+      if (this.userStore.getDidParent) {
+        // did parent example: did:pkh:eip155:137:0xb29050965a5ac70ab487aa47546cdcbc97dae45d
+        // get the last item (address) from did parent
+        return this.userStore.getDidParent.split(":").pop();
+      }
     }
   },
 
   methods: {
+    getDomainName, // imported function from utils/domainUtils.js
+
+    async connectCoinbase() {
+			await this.connectWith(this.coinbaseConnector);
+			localStorage.setItem("connected", "coinbase"); // store in local storage to autoconnect next time
+			document.getElementById('closeConnectModal').click();
+		},
+
+		async connectMetaMask() {
+			await this.connectWith(this.mmConnector);
+			localStorage.setItem("connected", "metamask"); // store in local storage to autoconnect next time
+			document.getElementById('closeConnectModal').click();
+		},
+
+		async connectWalletConnect() {
+			await this.connectWith(this.wcConnector);
+			localStorage.setItem("connected", "walletconnect"); // store in local storage to autoconnect next time
+			document.getElementById('closeConnectModal').click();
+		},
+
+    async orbisLogout() {
+      await this.$orbis.logout();
+      this.userStore.setIsConnectedToOrbis(false);
+      this.userStore.setDid(null);
+      this.userStore.setDidParent(null);
+      this.userStore.setOrbisImage(null);
+    },
+
+    async fetchChatTokenBalance() {
+      if (this.$config.chatTokenAddress) {
+        const chatTokenInterface = new ethers.utils.Interface([
+          "function balanceOf(address owner) view returns (uint256)",
+        ]);
+
+        const chatTokenContract = new ethers.Contract(this.$config.chatTokenAddress, chatTokenInterface, this.signer);
+
+        const balance = await chatTokenContract.balanceOf(this.address);
+
+        this.userStore.setChatTokenBalanceWei(balance);
+      }
+    },
+
+    async fetchOrbisNotifications() {
+      if (this.userStore.getIsConnectedToOrbis) {
+        this.notificationsStore.setLoadingNotifications(true);
+
+        // fetch new notifications count
+        let { data, error, status } = await this.$orbis.getNotificationsCount({type: "social", context: this.$config.orbisContext}); 
+
+        if (status === 200 && data?.count_new_notifications) {
+          this.notificationsStore.setUnreadNotificationsCount(data.count_new_notifications);
+        } else if (error) {
+          console.log("New notifications count error", error);
+        }
+
+        // fetch notifications
+        let { 
+          data: notifications, 
+          error: notificationsError, 
+          status: notificationsStatus 
+        } = await this.$orbis.getNotifications(
+          {
+            type: "social", 
+            context: this.$config.orbisContext
+          }
+        );
+
+        if (notificationsStatus === 200 && notifications) {
+          const newNotifications = notifications.filter(function(item) { return (item.status === "new"); });
+
+          this.notificationsStore.setNotifications(newNotifications);
+        } else if (notificationsError) {
+          console.log("Notifications fetching error", notificationsError);
+        }
+
+        this.notificationsStore.setLoadingNotifications(false);
+      }
+    },
+
     async fetchOrbisProfile() {
       if (this.isActivated) {
         let { data, error } = await this.$orbis.getDids(this.address);
@@ -198,58 +309,26 @@ export default {
             this.userStore.setFollowing(profile.data.count_following);
             this.userStore.setLastActivityTimestamp(profile.data.last_activity_timestamp);
           }
+
+          // fetch notifications
+          this.fetchOrbisNotifications();
         }
       }
     },
 
-    async fetchChatTokenBalance() {
-      if (this.$config.chatTokenAddress) {
-        const chatTokenInterface = new ethers.utils.Interface([
-          "function balanceOf(address owner) view returns (uint256)",
-        ]);
-        const chatTokenContract = new ethers.Contract(this.$config.chatTokenAddress, chatTokenInterface, this.signer);
-        const balance = await chatTokenContract.balanceOf(this.address);
-        this.userStore.setChatTokenBalanceWei(balance);
-      }
-    },
-
-    async getOrbisDids() {
-      this.isUserConnectedOrbis = await this.$orbis.isConnected();
-
-      if (this.$orbis.session) {
-        this.userStore.setDid(this.$orbis.session.did._id);
-        this.userStore.setDidParent(this.$orbis.session.did._parentId);
-      }
-    },
-
-    async connectCoinbase() {
-			await this.connectWith(this.coinbaseConnector);
-			localStorage.setItem("connected", "coinbase"); // store in local storage to autoconnect next time
-			document.getElementById('closeConnectModal').click();
-		},
-
-		async connectMetaMask() {
-			await this.connectWith(this.mmConnector);
-			localStorage.setItem("connected", "metamask"); // store in local storage to autoconnect next time
-			document.getElementById('closeConnectModal').click();
-		},
-
-		async connectWalletConnect() {
-      document.getElementById('closeConnectModal').click();
-			await this.connectWith(this.wcConnector);
-			localStorage.setItem("connected", "walletconnect"); // store in local storage to autoconnect next time
-		},
-
     async fetchUserDomain() {
       if (this.chainId === this.$config.supportedChainId) {
-        const contract = new ethers.Contract(resolvers[this.chainId], ResolverAbi, this.signer);
+        let userDomain;
 
-        // get user's default domain
-        const userDomain = await contract.getDefaultDomain(this.address, this.$config.tldName);
+        if (this.signer) {
+          userDomain = await this.getDomainName(this.address, this.signer);
+        } else {
+          userDomain = await this.getDomainName(this.address);
+        }
 
         if (userDomain) {
           this.userStore.setDefaultDomain(userDomain+this.$config.tldName);
-          sessionStorage.setItem(String(this.address).toLowerCase(), userDomain+this.$config.tldName);
+          storeUsername(window, this.address, userDomain+this.$config.tldName);
         } else {
           this.userStore.setDefaultDomain(null);
         }
@@ -258,6 +337,16 @@ export default {
       }
     },
 
+    async getOrbisDids() {
+      const isConn = await this.$orbis.isConnected();
+      this.userStore.setIsConnectedToOrbis(isConn);
+
+      if (this.$orbis.session) {
+        this.userStore.setDid(this.$orbis.session.did._id);
+        this.userStore.setDidParent(this.$orbis.session.did._parentId);
+      }
+    },
+    
     onWidthChange() {
       this.width = window.innerWidth;
     }
@@ -265,6 +354,7 @@ export default {
 
   setup() {
     const config = useRuntimeConfig();
+    const notificationsStore = useNotificationsStore();
     const sidebarStore = useSidebarStore();
     const siteStore = useSiteStore();
     const userStore = useUserStore();
@@ -275,43 +365,35 @@ export default {
 
     const coinbaseConnector = new CoinbaseWalletConnector({
 			appName: config.projectName,
-			jsonRpcUrl: rpcs[String(config.supportedChainId)],
+			jsonRpcUrl: getRpcs()[String(config.supportedChainId)],
 		});
 
 		const mmConnector = new MetaMaskConnector({
 			appUrl: config.projectUrl,
 		});
 
-    // wallet connect v2
-    // @TODO: make sure to add your own project ID (and verify your domain with wallet connect)
 		const wcConnector = new WalletConnectConnector({
-			projectId: '91859bae408b0bdaafd117f09f21f0ec', // @TODO: use your own project ID!!!
-      chains: [80001],
-      showQrModal: true,
-      qrModalOptions: {
-        themeMode: 'dark',
-        themeVariables: undefined,
-        chainImages: undefined,
-        desktopWallets: undefined,
-        walletImages: undefined,
-        mobileWallets: undefined,
-        enableExplorer: true,
-        explorerAllowList: undefined,
-        tokenImages: undefined,
-        privacyPolicyUrl: undefined,
-        explorerDenyList: undefined,
-        termsOfServiceUrl: undefined,
-      }
+			qrcode: true,
+			rpc: getRpcs(),
 		});
     
     return { 
       address, chainId, coinbaseConnector, connectWith, isActivated, mmConnector, signer, 
-      sidebarStore, siteStore, userStore, wcConnector 
+      notificationsStore, sidebarStore, siteStore, userStore, wcConnector 
     }
   },
 
   watch: {
     address(newVal, oldVal) {
+      // if address changes, clear local & session storage (needs further testing)
+      if (
+        newVal.startsWith("0x") &&
+        oldVal.startsWith("0x") &&
+        String(newVal).toLowerCase() !== String(oldVal).toLowerCase()
+      ) {
+        this.orbisLogout();
+      }
+
       if (newVal) {
         this.fetchUserDomain();
       }
@@ -325,16 +407,30 @@ export default {
 
     isActivated(newVal, oldVal) {
 			if (oldVal === true && newVal === false) { // if user disconnects, clear the local storage
-				localStorage.clear();
-				sessionStorage.clear();
+        console.log("user disconnected");
+        localStorage.setItem("connected", "");
+        this.orbisLogout();
 			} else {
         if (!this.userStore.getDid) {
           this.getOrbisDids();
         }
-
-        this.fetchOrbisProfile();
       }
 		},
+
+    isConnectedToOrbis(newVal, oldVal) {
+      if (newVal && oldVal === false) {
+        this.fetchOrbisProfile();
+      }
+    },
+
+    orbisAddress(newVal, oldVal) {
+      if (newVal && this.address) {
+        if (String(newVal).toLowerCase() != String(this.address).toLowerCase()) {
+          console.log("Logging out of Orbis because the address in signed Orbis credentials does not matched the current user's address.");
+          this.orbisLogout();
+        }
+      }
+    },
 
     width(newVal, oldVal) {
       if (newVal > this.breakpoint) {

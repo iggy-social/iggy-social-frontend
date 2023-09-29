@@ -46,6 +46,7 @@ import { ethers } from 'ethers';
 import { useEthers } from 'vue-dapp';
 import { useToast } from "vue-toastification/dist/index.mjs";
 import WaitingToast from "~/components/WaitingToast";
+import { useUserStore } from '~/store/user';
 
 export default {
   name: 'AirdropPostMinters',
@@ -99,6 +100,8 @@ export default {
         if (receipt.status === 1) {
           this.toast.dismiss(toastWait);
 
+          this.userStore.addToChatTokenBalanceWei(this.airdropPostMintingWei);
+
           this.$emit("setDomainChatRewardWeiToZero");
 
           this.toast("Airdrop for minting posts in the past has been successfully claimed!", {
@@ -142,11 +145,13 @@ export default {
   setup() {
     const { address, signer } = useEthers();
     const toast = useToast();
+    const userStore = useUserStore();
 
     return {
       address,
       signer,
-      toast
+      toast,
+      userStore
     }
   }
 }

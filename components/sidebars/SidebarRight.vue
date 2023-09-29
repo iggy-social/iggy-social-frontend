@@ -3,26 +3,39 @@
   <div id="sidebar2" class="collapse collapse-horizontal" :class="{ show: sidebarStore.showRightSidebar }">
     <div id="sidebar-nav" class="list-group border-0 rounded-0 text-sm-start min-vh-100">
 
+      <!-- Mint/register a domain name -->
       <NameMintWidget />
 
-      <!-- Swap Widget -->
+      <!-- Playlist 
       <div class="card m-2 bg-light">
-        <div class="card-header bg-light">Swap</div>
-        <div class="card-body">
+        <div class="card-header bg-light">{{ $config.projectName }} Playlist</div>
+        <div class="card-body sidebar-card-body">
+          <iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/37i9dQZF1DX3b9hbbPi5hD?utm_source=generator&theme=0" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+        </div>
+      </div>
+      -->
 
-          <div class="input-group mb-3">
-            <input type="text" class="form-control" placeholder="0.0" aria-describedby="swap-token-1" disabled>
-            <span class="input-group-text" id="swap-token-1">USDC</span>
-          </div>
+      <!-- Keys list -->
+      <KeysListWidget v-if="$config.keysAddress" />
 
-          <p class="text-center"><i class="bi bi-arrow-down-up"></i></p>
+      <!-- Swap tokens -->
+      <SimpleSwapWidget 
+        v-if="$config.swapRouterAddress" 
+        :routerAddress="$config.swapRouterAddress" 
+        :tokens="tokens" 
+        title="Swap tokens" />
 
-          <div class="input-group mb-3">
-            <input type="text" class="form-control" placeholder="0.0" aria-describedby="swap-token-2" disabled>
-            <span class="input-group-text" id="swap-token-2">ETH</span>
-          </div>
+      <!-- Random minted post(s) -->
+      <MintedPostsWidget @closeRightSidebar="closeRightSidebar" />
 
-          <button class="btn btn-outline-primary mt-2 mb-2" disabled>Swap</button>
+      <!-- Newsletter -->
+      <div v-if="$config.newsletterLink" class="card m-2 bg-light">
+        <div class="card-header bg-light">{{ $config.projectName }} Newsletter</div>
+        <div class="card-body sidebar-card-body">
+          <a class="btn btn-outline-primary mt-2 mb-2" target="_blank" :href="$config.newsletterLink">
+            Join our newsletter!
+            <i class="bi bi-box-arrow-up-right ms-1"></i>
+          </a>
         </div>
       </div>
       
@@ -32,19 +45,37 @@
 </template>
 
 <script>
+import tokens from '~/assets/data/tokens.json';
 import { useSidebarStore } from '~/store/sidebars';
+import MintedPostsWidget from '~/components/minted-posts/MintedPostsWidget.vue';
 import NameMintWidget from '~/components/names/NameMintWidget.vue';
+import SimpleSwapWidget from '~/components/swap/SimpleSwapWidget.vue';
+import KeysListWidget from '~/components/keys/KeysListWidget.vue';
 
 export default {
     name: "SidebarRight",
+    props: ["rSidebar", "isMobile"],
 
     components: { 
-      NameMintWidget 
+      KeysListWidget,
+      MintedPostsWidget,
+      NameMintWidget,
+      SimpleSwapWidget
+    },
+
+    methods: {
+      closeRightSidebar() {
+        if (this.isMobile) {
+          //this.rSidebar.hide();
+          this.sidebarStore.setRightSidebar(false);
+          this.sidebarStore.setMainContent(true);
+        }
+      }
     },
 
     setup() {
         const sidebarStore = useSidebarStore();
-        return { sidebarStore };
+        return { sidebarStore, tokens };
     }
 }
 </script>

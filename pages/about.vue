@@ -1,10 +1,10 @@
 <template>
   <Head>
-    <Title>About Iggy Social</Title>
-    <Meta property="og:title" content="About Iggy Social" />
+    <Title>About | {{ $config.projectMetadataTitle }}</Title>
+    <Meta property="og:title" :content="'About | ' + $config.projectMetadataTitle" />
   </Head>
 
-  <div class="card border">
+  <div class="card border scroll-500">
     <div class="card-body">
       <p class="fs-3" @click="$router.back()">
         <i class="bi bi-arrow-left-circle cursor-pointer"></i>
@@ -13,13 +13,42 @@
       <h3 class="mb-3 mt-3">Web3 Social is here.</h3>
 
       <p class="text-break mt-3">
-        Iggy Social helps DAOs and other web3 communities launch their own web3 social platform. Let's leave the old world of 
-        corporation-controled social media behind us and move towards a decentralized future. We promise, it's going to be a lot of fun!
+        Iggy Social Demo is <strong>the first web3 social network</strong> built on Mumbai.
       </p>
 
       <p class="text-break mt-3">
-        Built on top of Orbis, Ceramic Network, and the Punk Domains protocol.
+        Web3 Social is a place where social media is fully decentralized, permissionless and all the data is owned by users. 
+        The way it should be.
       </p>
+
+      <p class="text-break mt-3">
+        Let's leave the old world of corporation-controlled social media behind us and move towards a decentralized future. 
+        We promise, it's going to be a lot of fun!
+      </p>
+
+      <p class="text-break mt-3">
+        Brought to you by the 
+        <a target="_blank" href="https://punk.domains">Punk Domains</a> team.
+      </p>
+
+      <hr />
+
+      <h5>Feedback</h5>
+
+      <p class="text-break mt-3">
+        Feel free to post ideas, features suggestions, rants directly in the this chat. 
+        Or you can drop by 
+        <a target="_blank" href="https://discord.gg/8dSrwrAQeu">our Discord</a> 
+        and share your thoughts there.
+      </p>
+
+      <div class="d-flex justify-content-around flex-wrap">
+        <img class="img-fluid tech-stack mt-3" src="/img/tech/orbis.png" />
+
+        <img class="img-fluid tech-stack mt-3" src="/img/tech/ceramic.png" />
+
+        <img class="img-fluid tech-stack mt-3" src="/img/tech/punk.png" />
+      </div>
     </div>
   </div>
 </template>

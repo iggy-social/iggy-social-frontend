@@ -1,7 +1,7 @@
 <template>
   <div>
     <p class="text-center">
-      Claim {{ $config.tokenSymbol }} rewards for the previous period.
+      Claim {{ $config.tokenSymbol }} rewards for the previous period. Make sure to visit this page once per week to claim your rewards!
     </p>
 
     <!-- Input field -->
@@ -26,7 +26,7 @@
         type="button"
         @click="claim"
       >
-        <span v-if="loadingStakingData || waiting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        <span v-if="loadingStakingData || waiting" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
         <span v-if="!lastPeriodUpdateNeeded">Claim</span>
         <span v-if="lastPeriodUpdateNeeded">Update Claim Period</span>
       </button>
@@ -37,22 +37,44 @@
     <h4 class="text-center">Stats</h4>
 
     <ul>
-      <li>Previous period rewards: {{ claimRewardsTotal }} {{ $config.tokenSymbol }}</li>
-      <li>Previous period end date: {{ lastPeriodDateTime }}</li>
+      <li>Your stake: {{ getLessDecimals(stakeTokenBalance) }} {{ $config.lpTokenSymbol }} ({{ $config.stakeTokenSymbol }} tokens)</li>
+      <li>
+        Previous period rewards (total): {{ getLessDecimals(claimRewardsTotal) }} {{ $config.tokenSymbol }}
+
+        <i 
+          class="bi bi-info-circle-fill" 
+          data-bs-container="body" data-bs-toggle="popover" data-bs-placement="top" 
+          data-bs-content="Claimable now. Note that this is a total number for all stakers together."
+        ></i>
+      </li>
+      <li>
+        Current period rewards (so far): {{ getLessDecimals(futureRewards) }} {{ $config.tokenSymbol }} 
+
+        <i 
+          class="bi bi-info-circle-fill" 
+          data-bs-container="body" data-bs-toggle="popover" data-bs-placement="top" 
+          data-bs-content="Accrued rewards so far for all stakers together. Not claimable yet. Will be claimable in the next period."
+        ></i>
+      </li>
       <li>Period length: {{ periodLengthHumanReadable }}</li>
-      <li>This period rewards: {{ futureRewards }} {{ $config.tokenSymbol }} (so far)</li>
-      <li>Min stake: {{ minDeposit }} {{ $config.lpTokenSymbol }}</li>
-      <li>Your stake: {{ stakeTokenBalance }} {{ $config.lpTokenSymbol }}</li>
+      <li>Current period start date: {{ lastPeriodDateTime }}</li>
+      
     </ul>
 
-    <!-- START @TODO: check if needed -->
+    <p>
+      <small>
+        Important: Claim your rewards once per week, otherwise they will be forfeited.
+      </small>
+    </p>
+
+    <!-- START @TODO: check if needed 
     <GenericNftDrop 
       title="Claim the NFT for Early Stakers" 
-      description="Early stakers can claim this free commemorative NFT. Hurry up, limited time only!"
+      description="Early stakers can claim this free commemorative NFT. One NFT per address. Hurry up, limited time only!"
       :claimersData="claimers" 
-      merkleClaimerAddress="0x5E09AF1510c651787101cE57baFB735bC48005Af" 
+      merkleClaimerAddress="0x484cCFE329E4dbdB0C594d2401400D4Df3AaeDE9" 
       nftImage="https://bafybeic3fpbvtqj6kqpu77vy56efkasgbaviguc3qm4jgy3dy7fuk7fire.ipfs.w3s.link/early-staker-nft-sgb-chat.png"
-    />
+    /> -->
     <!-- // END @TODO: check if needed -->
   </div>
 </template>
@@ -63,6 +85,7 @@ import { useEthers } from 'vue-dapp';
 import { useToast } from "vue-toastification/dist/index.mjs";
 import WaitingToast from "~/components/WaitingToast";
 import { useUserStore } from '~/store/user';
+import { getLessDecimals } from '~/utils/numberUtils';
 import GenericNftDrop from "~/components/merkle/genericNftDrop"; // @TODO: check if needed
 import earlyStakers from "~/assets/merkle/earlyStakers.json"; // @TODO: check if needed
 
@@ -76,7 +99,7 @@ export default {
 
   data() {
     return {
-      claimers: [], // @TODO: check if needed
+      claimers: [],
       waiting: false
     }
   },
