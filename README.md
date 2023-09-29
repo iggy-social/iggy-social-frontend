@@ -2,7 +2,8 @@
 
 Iggy Social is a Web3 Social frontend website based on the Iggy Social template. It uses [Orbis SDK](https://github.com/OrbisWeb3/orbis-sdk) and Ceramic Network in the background.
 
-Link: https://demo.iggy.social/
+Demo 1 (Netlify): https://demo.iggy.social/
+Demo 2 (Vercel): https://demo2.iggy.social/
 
 What's included:
 
@@ -66,6 +67,12 @@ Start the development server on http://localhost:3000
 
 ```bash
 npm run dev
+```
+
+Or run Netlify dev server on http://localhost:8888 (to get link previews):
+
+```bash
+netlify dev
 ```
 
 ## Production
