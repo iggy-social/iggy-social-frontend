@@ -36,6 +36,12 @@
             </button>
             <ul class="dropdown-menu">
 
+              <li v-if="isCurrentAddressOwner && cType == 0">
+                <span class="dropdown-item cursor-pointer" data-bs-toggle="modal" data-bs-target="#addImageToCollectionModal">
+                  Add new image to collection
+                </span>
+              </li>
+
               <li v-if="isCurrentAddressOwner">
                 <span class="dropdown-item cursor-pointer" data-bs-toggle="modal" data-bs-target="#changeCollectionPreviewModal">
                   Change Collection Preview Image
@@ -166,7 +172,7 @@
   <ChangeCollectionPreviewModal :cAddress="cAddress" :cType="cType" :mdAddress="mdAddress" @saveCollection="saveCollection" />
 
   <!-- Change Metadata URL Modal -->
-  <ChangeNftTypeModal :mdAddress="mdAddress" :cAddress="cAddress" @saveCollection="saveCollection" />
+  <ChangeNftTypeModal :mdAddress="mdAddress" :cType="cType" :cAddress="cAddress" @saveCollection="saveCollection" />
 </template>
 
 <script>
@@ -419,6 +425,7 @@ export default {
 
       const metadataInterface = new ethers.utils.Interface([
         "function getCollectionDescription(address) public view returns (string memory)",
+        "function getCollectionMetadataType(address nftAddress_) external view returns (uint256)",
         "function getCollectionPreviewImage(address) public view returns (string memory)"
       ]);
       
@@ -440,6 +447,15 @@ export default {
         this.cDescription = collection.description;
       } else {
         this.cDescription = await metadataContract.getCollectionDescription(this.cAddress);
+        console.log("Collection description:", this.cDescription);
+      }
+
+      // get type
+      if (collection?.type >= 0) {
+        this.cType = collection.type;
+      } else {
+        this.cType = Number(await metadataContract.getCollectionMetadataType(this.cAddress));
+        console.log("Collection type 2:", this.cType);
       }
 
       // get name
@@ -482,15 +498,22 @@ export default {
         description: this.cDescription,
         image: this.cImage,
         mdAddress: this.mdAddress,
-        name: this.cName
+        name: this.cName,
+        type: this.cType
       };
       
       storeCollection(window, this.cAddress, collection);
     },
 
     saveCollection(nftType, editImagePreviewUrl) {
-      this.cType = nftType;
-      this.cImage = editImagePreviewUrl;
+
+      if (nftType !== null) {
+        this.cType = nftType;
+      }
+      
+      if (editImagePreviewUrl) {
+        this.cImage = editImagePreviewUrl;
+      }
 
       // create collection object, JSON.stringify it and save it to session storage
       const collection = {
@@ -500,7 +523,8 @@ export default {
         description: this.cDescription,
         image: this.cImage,
         mdAddress: this.mdAddress,
-        name: this.cName
+        name: this.cName,
+        type: this.cType
       };
 
       storeCollection(window, this.cAddress, collection);

@@ -8,6 +8,8 @@
         </div>
 
         <div class="modal-body">
+          <p>Current type of this NFT collection is: {{ editImageOptions[cType].description }}.</p>
+
           <p><strong>Pick one of these options:</strong></p>
 
           <div class="dropdown">
@@ -97,7 +99,7 @@ import WaitingToast from "~/components/WaitingToast";
 
 export default {
   name: 'ChangeNftTypeModal',
-  props: ["cAddress", "mdAddress"],
+  props: ["cAddress", "cType", "mdAddress"],
   emits: ["saveCollection"],
 
   data() {
