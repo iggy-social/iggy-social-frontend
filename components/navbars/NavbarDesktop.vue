@@ -30,7 +30,7 @@
           <div class="dropdown-menu dropdown-menu-end">
             <NuxtLink class="dropdown-item cursor-pointer" to="/airdrop">Claim {{ $config.chatTokenSymbol }} airdrop</NuxtLink>
             <NuxtLink class="dropdown-item cursor-pointer" to="/stake">Stake & earn weekly {{ $config.tokenSymbol }} rewards</NuxtLink>
-            <span class="dropdown-item cursor-pointer" @click="addToMetaMask">Add {{ $config.chatTokenSymbol }} to MetaMask</span>s
+            <span class="dropdown-item cursor-pointer" @click="addToMetaMask">Add {{ $config.chatTokenSymbol }} to MetaMask</span>
           </div>
         </li>
 
