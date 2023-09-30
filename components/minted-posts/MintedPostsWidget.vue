@@ -84,8 +84,6 @@ export default {
 
       const counter = await iggyContract.counter();
 
-      console.log("counter", Number(counter));
-
       if (Number(counter) > 1) {
         // generate unique random numbers between 1 and (counter-1)
         this.randomNumbers = [];

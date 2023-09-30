@@ -49,50 +49,61 @@
 
             <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectMetaMask">
               <img src="@/assets/img/wallets/metamask.png" class="card-img-top card-img-wallet" alt="MetaMask">
+              <small class="text-center mb-3 text-muted">MetaMask</small>
             </div>
 
             <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectMetaMask">
+              <img src="@/assets/img/wallets/rabby.png" class="card-img-top card-img-wallet" alt="Rabby">
+              <small class="text-center mb-3 text-muted">Rabby</small>
+            </div> 
+
+            <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectMetaMask">
               <img src="@/assets/img/wallets/bifrost.png" class="card-img-top card-img-wallet" alt="Bifrost">
+              <small class="text-center mb-3 text-muted">Bifrost</small>
             </div> 
 
             <!--
             <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectWalletConnect">
               <img src="@/assets/img/wallets/wc.png" class="card-img-top card-img-wallet" alt="Wallet Connect">
+              <small class="text-center mb-3 text-muted">Rabby</small>
             </div>
             -->
 
             <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectCoinbase">
               <img src="@/assets/img/wallets/coinbase.png" class="card-img-top card-img-wallet" alt="Coinbase">
+              <small class="text-center mb-3 text-muted">Coinbase</small>
             </div>
 
             <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectMetaMask">
-              <img src="@/assets/img/wallets/rabby.png" class="card-img-top card-img-wallet" alt="Rabby">
-            </div> 
-
-            <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectMetaMask">
               <img src="@/assets/img/wallets/brave.png" class="card-img-top card-img-wallet" alt="Brave">
+              <small class="text-center mb-3 text-muted">Brave</small>
             </div>
 
             <!--
             <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectWalletConnect">
               <img src="@/assets/img/wallets/minerva.png" class="card-img-top card-img-wallet" alt="Minerva">
+              <small class="text-center mb-3 text-muted">Minerva</small>
             </div>
 
             <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectWalletConnect">
               <img src="@/assets/img/wallets/argent.png" class="card-img-top card-img-wallet" alt="Argent">
+              <small class="text-center mb-3 text-muted">Argent</small>
             </div>
 
             <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectWalletConnect">
               <img src="@/assets/img/wallets/1inch.png" class="card-img-top card-img-wallet" alt="1inch">
+              <small class="text-center mb-3 text-muted">1inch</small>
             </div>
             -->
 
             <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectMetaMask">
               <img src="@/assets/img/wallets/trust.png" class="card-img-top card-img-wallet" alt="Trust Wallet">
+              <small class="text-center mb-3 text-muted">Trust Wallet</small>
             </div>
 
             <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectMetaMask">
               <img src="@/assets/img/wallets/imtoken.png" class="card-img-top card-img-wallet" alt="imToken">
+              <small class="text-center mb-3 text-muted">imToken</small>
             </div>
           </div>
         </div>
@@ -124,7 +135,7 @@ import SidebarLeft from "~/components/sidebars/SidebarLeft.vue";
 import SidebarRight from "~/components/sidebars/SidebarRight.vue";
 import ChatSettingsModal from "~/components/ChatSettingsModal.vue";
 import { getDomainName } from '~/utils/domainUtils';
-import { fetchUsername, storeUsername } from '~/utils/storageUtils';
+import { storeUsername } from '~/utils/storageUtils';
 
 export default {
   data() {
