@@ -36,6 +36,18 @@
             </button>
             <ul class="dropdown-menu">
 
+              <li v-if="isCurrentAddressOwner">
+                <span class="dropdown-item cursor-pointer" data-bs-toggle="modal" data-bs-target="#changeDescriptionModal">
+                  Change description
+                </span>
+              </li>
+
+              <li v-if="isCurrentAddressOwner">
+                <span class="dropdown-item cursor-pointer" data-bs-toggle="modal" data-bs-target="#changeCollectionPreviewModal">
+                  Change collection preview image
+                </span>
+              </li>
+
               <li v-if="isCurrentAddressOwner && cType == 0">
                 <span class="dropdown-item cursor-pointer" data-bs-toggle="modal" data-bs-target="#addImageToCollectionModal">
                   Add new image to collection
@@ -43,14 +55,8 @@
               </li>
 
               <li v-if="isCurrentAddressOwner">
-                <span class="dropdown-item cursor-pointer" data-bs-toggle="modal" data-bs-target="#changeCollectionPreviewModal">
-                  Change Collection Preview Image
-                </span>
-              </li>
-
-              <li v-if="isCurrentAddressOwner">
                 <span class="dropdown-item cursor-pointer" data-bs-toggle="modal" data-bs-target="#changeNftTypeModal">
-                  Change Collection Type
+                  Change collection type
                 </span>
               </li>
 
@@ -169,7 +175,10 @@
   />
 
   <!-- Change collection preview image modal -->
-  <ChangeCollectionPreviewModal :cAddress="cAddress" :cType="cType" :mdAddress="mdAddress" @saveCollection="saveCollection" />
+  <ChangeCollectionPreviewModal :cAddress="cAddress" :mdAddress="mdAddress" @saveCollection="saveCollection" />
+
+  <!-- Change description modal -->
+  <ChangeDescriptionModal :cAddress="cAddress" :cDescription="cDescription" :mdAddress="mdAddress" @saveCollection="saveCollection" />
 
   <!-- Change Metadata URL Modal -->
   <ChangeNftTypeModal :mdAddress="mdAddress" :cType="cType" :cAddress="cAddress" @saveCollection="saveCollection" />
@@ -183,6 +192,7 @@ import ChatFeed from "~/components/chat/ChatFeed.vue";
 import ConnectWalletButton from "~/components/ConnectWalletButton.vue";
 import WaitingToast from "~/components/WaitingToast";
 import ChangeCollectionPreviewModal from "~/components/nft/collection/ChangeCollectionPreviewModal";
+import ChangeDescriptionModal from "~/components/nft/collection/ChangeDescriptionModal";
 import ChangeNftTypeModal from "~/components/nft/collection/ChangeNftTypeModal";
 import { getDomainName } from '~/utils/domainUtils';
 import { fetchCollection, fetchUsername, storeCollection, storeUsername } from '~/utils/storageUtils';
@@ -213,6 +223,7 @@ export default {
 
   components: {
     ChangeCollectionPreviewModal,
+    ChangeDescriptionModal,
     ChangeNftTypeModal,
     ChatFeed,
     ConnectWalletButton,
@@ -447,7 +458,6 @@ export default {
         this.cDescription = collection.description;
       } else {
         this.cDescription = await metadataContract.getCollectionDescription(this.cAddress);
-        console.log("Collection description:", this.cDescription);
       }
 
       // get type
@@ -455,7 +465,6 @@ export default {
         this.cType = collection.type;
       } else {
         this.cType = Number(await metadataContract.getCollectionMetadataType(this.cAddress));
-        console.log("Collection type 2:", this.cType);
       }
 
       // get name
@@ -505,14 +514,18 @@ export default {
       storeCollection(window, this.cAddress, collection);
     },
 
-    saveCollection(nftType, editImagePreviewUrl) {
+    saveCollection(newCollectionData) {
 
-      if (nftType !== null) {
-        this.cType = nftType;
+      if (newCollectionData?.type) {
+        this.cType = newCollectionData.type;
+      }
+
+      if (newCollectionData?.description) {
+        this.cDescription = newCollectionData.description;
       }
       
-      if (editImagePreviewUrl) {
-        this.cImage = editImagePreviewUrl;
+      if (newCollectionData?.image) {
+        this.cImage = newCollectionData.image;
       }
 
       // create collection object, JSON.stringify it and save it to session storage

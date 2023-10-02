@@ -4,7 +4,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5" id="changeNftTypeModalLabel">Change NFT Type</h1>
-          <button id="closeChangeNftTypeModal" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button :id="'closeModal-'+componentId" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
         <div class="modal-body">
@@ -104,7 +104,7 @@ export default {
 
   data() {
     return {
-      typeChoice: 0, // 0 = static image URL, 1 = static metadata URL, 2 = generative metadata URL, 3 = generative metadata URL without .json extension
+      componentId: null,
       editImageMetadataUrl: null,
       editImageOptions: [
         { description: "0) Onchain image(s)" },
@@ -113,8 +113,13 @@ export default {
         { description: "3) Generative metadata" }
       ],
       editImagePreviewUrl: "", // important: should be empty string, not null
+      typeChoice: 0, // 0 = static image URL, 1 = static metadata URL, 2 = generative metadata URL, 3 = generative metadata URL without .json extension
       waitingMetadata: false
     }
+  },
+
+  mounted() {
+    this.componentId = this.$.uid;
   },
 
   methods: {
@@ -166,15 +171,16 @@ export default {
             onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
           });
 
-          if (this.editImagePreviewUrl) {
-            this.$emit("saveCollection", this.typeChoice, this.editImagePreviewUrl);
-          }
+          this.$emit("saveCollection", {
+            type: this.typeChoice,
+            image: this.editImagePreviewUrl
+          });
 
           this.editImageMetadataUrl = null;
           this.editImagePreviewUrl = ""; // important: should be empty string, not null
 
           // close the modal
-          document.getElementById('closeChangeNftTypeModal').click();
+          document.getElementById('closeModal-'+componentId).click();
 
           this.waitingMetadata = false;
         } else {

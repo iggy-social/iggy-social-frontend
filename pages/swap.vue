@@ -30,7 +30,7 @@
 
 <script>
 import tokens from '~/assets/data/tokens.json';
-import SimpleSwap from '~~/components/swap/SimpleSwap.vue';
+import SimpleSwap from '~/components/swap/SimpleSwap.vue';
 
 export default {
   name: 'Swap',

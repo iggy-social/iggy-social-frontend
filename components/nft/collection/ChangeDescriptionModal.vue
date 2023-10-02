@@ -1,23 +1,23 @@
 <template>
-  <div class="modal fade" id="changeCollectionPreviewModal" tabindex="-1" aria-labelledby="changeCollectionPreviewModalLabel" aria-hidden="true">
+  <div class="modal fade" id="changeDescriptionModal" tabindex="-1" aria-labelledby="changeDescriptionModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h1 class="modal-title fs-5" id="changeCollectionPreviewModalLabel">Change Collection Preview Image</h1>
+          <h1 class="modal-title fs-5" id="changeDescriptionModalLabel">Change description</h1>
           <button :id="'closeModal-'+componentId" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
         <div class="modal-body">
-          <p>Change your collection preview image.</p>
+          <p>Change your collection description.</p>
 
           <div class="mt-4">
             <label :for="'input-'+componentId" class="form-label">
               <strong>
-                Enter new preview image URL:
+                Enter new description:
               </strong>
             </label>
 
-            <input v-model="editImageUrl" type="text" class="form-control" :id="'input-'+componentId">
+            <input v-model="editDescription" type="text" class="form-control" :id="'input-'+componentId">
           </div>
 
         </div>
@@ -25,7 +25,7 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 
-          <button @click="updateImage" type="button" class="btn btn-primary" :disabled="!editImageUrl || waiting">
+          <button @click="update" type="button" class="btn btn-primary" :disabled="!editDescription || waiting">
             <span v-if="waiting" class="spinner-border spinner-border-sm mx-1" role="status" aria-hidden="true"></span>
             Submit
           </button>
@@ -42,34 +42,35 @@ import { useToast } from "vue-toastification/dist/index.mjs";
 import WaitingToast from "~/components/WaitingToast";
 
 export default {
-  name: 'ChangeCollectionPreviewModal',
-  props: ["cAddress", "mdAddress"],
+  name: 'ChangeDescriptionModal',
+  props: ["cAddress", "cDescription", "mdAddress"],
   emits: ["saveCollection"],
 
   data() {
     return {
       componentId: null,
-      editImageUrl: null,
+      editDescription: null,
       waiting: false
     }
   },
 
   mounted() {
     this.componentId = this.$.uid;
+    this.editDescription = this.cDescription;
   },
 
   methods: {
-    async updateImage() {
+    async update() {
       this.waiting = true;
 
       const metadataInterface = new ethers.utils.Interface([
-        "function setCollectionPreview(address nftAddress_, string memory collectionPreview_) external"
+        "function setDescription(address nftAddress_, string memory description_) external"
       ]);
       
       const metadataContract = new ethers.Contract(this.mdAddress, metadataInterface, this.signer);
 
       try {
-        const tx = await metadataContract.setCollectionPreview(this.cAddress, this.editImageUrl); 
+        const tx = await metadataContract.setDescription(this.cAddress, this.editDescription); 
 
         const toastWait = this.toast(
           {
@@ -89,16 +90,16 @@ export default {
         if (receipt.status === 1) {
           this.toast.dismiss(toastWait);
 
-          this.toast("You have updated the NFT collection preview image.", {
+          this.toast("You have updated the NFT description.", {
             type: "success",
             onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
           });
 
           this.$emit("saveCollection", {
-            image: this.editImageUrl
+            description: this.editDescription
           });
 
-          this.editImageUrl = null;
+          this.editDescription = null;
 
           // close the modal
           document.getElementById('closeModal-'+this.componentId).click();
@@ -140,6 +141,12 @@ export default {
     const toast = useToast();
 
     return { signer, toast };
+  },
+
+  watch: {
+    cDescription() {
+      this.editDescription = this.cDescription;
+    }
   }
 }
 </script>

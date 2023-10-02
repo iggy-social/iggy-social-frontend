@@ -39,7 +39,7 @@
 
 <script>
 import { useNotificationsStore } from '~/store/notifications';
-import OrbisNotification from '~~/components/notifications/OrbisNotification.vue';
+import OrbisNotification from '~/components/notifications/OrbisNotification.vue';
 import { useToast } from "vue-toastification/dist/index.mjs";
 
 export default {

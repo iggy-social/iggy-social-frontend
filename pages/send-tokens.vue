@@ -26,7 +26,7 @@
 
 <script>
 import tokens from '~/assets/data/tokens.json';
-import SendTokensComponent from '~~/components/send-tokens/SendTokensComponent.vue';
+import SendTokensComponent from '~/components/send-tokens/SendTokensComponent.vue';
 
 export default {
   name: 'SendTokens',
