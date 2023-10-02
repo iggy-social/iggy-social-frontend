@@ -74,6 +74,8 @@
 
       <div v-if="cImage" class="mb-4">
         <img :src="cImage" class="img-thumbnail img-fluid" style="max-width: 100px;" />
+        <br />
+        <small>If image didn't appear above, then something is wrong with the link you added.</small>
       </div>
 
       <!-- Description -->

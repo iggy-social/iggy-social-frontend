@@ -54,6 +54,12 @@
                 </span>
               </li>
 
+              <li v-if="isCurrentAddressOwner && cType == 0">
+                <span class="dropdown-item cursor-pointer" data-bs-toggle="modal" data-bs-target="#removeImageFromCollectionModal">
+                  Remove image from collection
+                </span>
+              </li>
+
               <li v-if="isCurrentAddressOwner">
                 <span class="dropdown-item cursor-pointer" data-bs-toggle="modal" data-bs-target="#changeNftTypeModal">
                   Change collection type
@@ -174,6 +180,9 @@
     :orbisContext="$config.nftOrbisContext+':'+cAddress" 
   />
 
+  <!-- Add image modal -->
+  <AddImageToCollectionModal :cAddress="cAddress" :mdAddress="mdAddress" />
+
   <!-- Change collection preview image modal -->
   <ChangeCollectionPreviewModal :cAddress="cAddress" :mdAddress="mdAddress" @saveCollection="saveCollection" />
 
@@ -182,6 +191,9 @@
 
   <!-- Change Metadata URL Modal -->
   <ChangeNftTypeModal :mdAddress="mdAddress" :cType="cType" :cAddress="cAddress" @saveCollection="saveCollection" />
+
+  <!-- Remove Image From Collection Modal -->
+  <RemoveImageFromCollectionModal :mdAddress="mdAddress" :cAddress="cAddress" />
 </template>
 
 <script>
@@ -191,9 +203,11 @@ import { useToast } from "vue-toastification/dist/index.mjs";
 import ChatFeed from "~/components/chat/ChatFeed.vue";
 import ConnectWalletButton from "~/components/ConnectWalletButton.vue";
 import WaitingToast from "~/components/WaitingToast";
+import AddImageToCollectionModal from "~/components/nft/collection/AddImageToCollectionModal";
 import ChangeCollectionPreviewModal from "~/components/nft/collection/ChangeCollectionPreviewModal";
 import ChangeDescriptionModal from "~/components/nft/collection/ChangeDescriptionModal";
 import ChangeNftTypeModal from "~/components/nft/collection/ChangeNftTypeModal";
+import RemoveImageFromCollectionModal from "~/components/nft/collection/RemoveImageFromCollectionModal";
 import { getDomainName } from '~/utils/domainUtils';
 import { fetchCollection, fetchUsername, storeCollection, storeUsername } from '~/utils/storageUtils';
 import { getTextWithoutBlankCharacters } from '~/utils/textUtils';
@@ -222,11 +236,13 @@ export default {
   },
 
   components: {
+    AddImageToCollectionModal,
     ChangeCollectionPreviewModal,
     ChangeDescriptionModal,
     ChangeNftTypeModal,
     ChatFeed,
     ConnectWalletButton,
+    RemoveImageFromCollectionModal,
     WaitingToast
   },
 

@@ -166,15 +166,19 @@ a:hover {
   --bs-btn-disabled-bg: var(--bs-primary);
 }
 
-.btn-primary-soft{
+.btn-primary-soft {
   color: var(--bs-primary);
   background-color: rgba(var(--bs-primary-rgb), 0.1);
 }
 
-.btn-primary-soft:hover, .btn-primary-soft:focus{
+.btn-primary-soft:hover, .btn-primary-soft:focus {
   color: white;
   background-color: var(--bs-primary);
   border-color: var(--bs-primary);
+}
+
+.btn-danger:disabled {
+  border-color: var(--bs-danger);
 }
 
 .nav-pills {

@@ -1,9 +1,9 @@
 <template>
-  <div class="modal fade" id="changeDescriptionModal" tabindex="-1" aria-labelledby="changeDescriptionModalLabel" aria-hidden="true">
+  <div class="modal fade" id="changeDescriptionModal" tabindex="-1" :aria-labelledby="'modalLabel-'+componentId" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h1 class="modal-title fs-5" id="changeDescriptionModalLabel">Change description</h1>
+          <h1 class="modal-title fs-5" :id="'modalLabel-'+componentId">Change description</h1>
           <button :id="'closeModal-'+componentId" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 

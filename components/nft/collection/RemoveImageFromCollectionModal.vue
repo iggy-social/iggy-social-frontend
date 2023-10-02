@@ -1,34 +1,48 @@
 <template>
-  <div class="modal fade" id="changeCollectionPreviewModal" tabindex="-1" :aria-labelledby="'modalLabel-'+componentId" aria-hidden="true">
+  <div class="modal fade" id="removeImageFromCollectionModal" tabindex="-1" :aria-labelledby="'modalLabel-'+componentId" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h1 class="modal-title fs-5" :id="'modalLabel-'+componentId">Change Collection Preview Image</h1>
+          <h1 class="modal-title fs-5" :id="'modalLabel-'+componentId">Remove Image From Collection</h1>
           <button :id="'closeModal-'+componentId" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
         <div class="modal-body">
-          <p>Change your collection preview image.</p>
 
-          <div class="mt-4">
+          <div class="row">
             <label :for="'input-'+componentId" class="form-label">
               <strong>
-                Enter new preview image URL:
+                Load images from collection:
               </strong>
             </label>
+          </div>
 
-            <input v-model="editImageUrl" type="text" class="form-control" :id="'input-'+componentId">
+          <div>
+            <button class="btn btn-primary" @click="loadImages" :disabled="waitingLoad">
+              <span v-if="waitingLoad" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              Load images
+            </button>
+          </div>
+
+          <div class="row mt-3" v-if="images">
+            <div v-for="(image, index) in images" :key="image" class="col-md-4 mb-3">
+              <div class="card">
+                <img :src="image" class="card-img-top">
+                <div class="card-body">
+                  <div class="row">
+                    <button class="btn btn-danger" @click="removeImage(index)" :disabled="waitingRemove || images.length == 1">
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
         </div>
 
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-
-          <button @click="updateImage" type="button" class="btn btn-primary" :disabled="!editImageUrl || waiting">
-            <span v-if="waiting" class="spinner-border spinner-border-sm mx-1" role="status" aria-hidden="true"></span>
-            Submit
-          </button>
         </div>
       </div>
     </div>
@@ -42,15 +56,16 @@ import { useToast } from "vue-toastification/dist/index.mjs";
 import WaitingToast from "~/components/WaitingToast";
 
 export default {
-  name: 'ChangeCollectionPreviewModal',
+  name: 'RemoveImageFromCollectionModal',
   props: ["cAddress", "mdAddress"],
-  emits: ["saveCollection"],
 
   data() {
     return {
       componentId: null,
-      editImageUrl: null,
-      waiting: false
+      images: [],
+      imageUrl: null,
+      waitingLoad: false,
+      waitingRemove: false
     }
   },
 
@@ -59,17 +74,35 @@ export default {
   },
 
   methods: {
-    async updateImage() {
-      this.waiting = true;
+    async loadImages() {
+      this.waitingLoad = true;
 
       const metadataInterface = new ethers.utils.Interface([
-        "function setCollectionPreview(address nftAddress_, string memory collectionPreview_) external"
+        "function getCollectionImages(address nftAddress_) external view returns (string[] memory)"
       ]);
       
       const metadataContract = new ethers.Contract(this.mdAddress, metadataInterface, this.signer);
 
       try {
-        const tx = await metadataContract.setCollectionPreview(this.cAddress, this.editImageUrl); 
+        this.images = await metadataContract.getCollectionImages(this.cAddress); 
+        this.waitingLoad = false;
+      } catch (e) {
+        console.error(e);
+        this.waitingLoad = false;
+      }
+    },
+
+    async removeImage(imageIndex) {
+      this.waitingRemove = true;
+
+      const metadataInterface = new ethers.utils.Interface([
+        "function removeImageFromCollectionByIndex(address nftAddress_, uint256 index_) external"
+      ]);
+      
+      const metadataContract = new ethers.Contract(this.mdAddress, metadataInterface, this.signer);
+
+      try {
+        const tx = await metadataContract.removeImageFromCollectionByIndex(this.cAddress, imageIndex); 
 
         const toastWait = this.toast(
           {
@@ -89,24 +122,22 @@ export default {
         if (receipt.status === 1) {
           this.toast.dismiss(toastWait);
 
-          this.toast("You have updated the NFT collection preview image.", {
+          this.toast("You have successfully removed an image from the NFT collection.", {
             type: "success",
             onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
           });
 
-          this.$emit("saveCollection", {
-            image: this.editImageUrl
-          });
+          this.imageUrl = null;
 
-          this.editImageUrl = null;
+          // remove image from array by index
+          const newImgArray = [...this.images];
+          newImgArray.splice(imageIndex, 1);
+          this.images = newImgArray;
 
-          // close the modal
-          document.getElementById('closeModal-'+this.componentId).click();
-
-          this.waiting = false;
+          this.waitingRemove = false;
         } else {
           this.toast.dismiss(toastWait);
-          this.waiting = false;
+          this.waitingRemove = false;
           this.toast("Transaction has failed.", {
             type: "error",
             onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
@@ -130,7 +161,7 @@ export default {
           this.toast("Transaction has failed.", {type: "error"});
         }
 
-        this.waiting = false;
+        this.waitingRemove = false;
       }
     },
   },
