@@ -120,7 +120,7 @@ export default {
 
   computed: {
     showLoadMoreButton() {
-      return this.allNftsArrayLength > this.allNftsIndexStart;
+      return this.allNftsIndexEnd > 0;
     }
   },
 
@@ -183,18 +183,16 @@ export default {
         this.allNftsArrayLength = await launchpadContract.getNftContractsArrayLength();
       }
 
-      // set the end index, if 0
+      // set the start and end index, if end index is 0
       if (this.allNftsIndexEnd === 0) {
-        this.allNftsIndexEnd = this.$config.nftLaunchpadLatestItems - 1;
+        this.allNftsIndexEnd = this.allNftsArrayLength - 1;
 
         if (this.allNftsArrayLength < this.$config.nftLaunchpadLatestItems) {
-          this.allNftsIndexEnd = this.allNftsArrayLength - 1;
+          this.allNftsIndexStart = 0;
+        } else {
+          this.allNftsIndexStart = this.allNftsArrayLength - this.$config.nftLaunchpadLatestItems;
         }
       }
-
-      console.log("allNftsArrayLength: " + this.allNftsArrayLength);
-      console.log("allNftsIndexStart: " + this.allNftsIndexStart);
-      console.log("allNftsIndexEnd: " + this.allNftsIndexEnd);
 
       // get last NFTs
       const lNfts = await launchpadContract.getNftContracts(this.allNftsIndexStart, this.allNftsIndexEnd);
@@ -205,11 +203,16 @@ export default {
 
       await this.parseNftsArray(lNftsWritable, this.lastNfts, provider);
 
-      this.allNftsIndexStart = this.allNftsIndexEnd + 1;
-      this.allNftsIndexEnd = this.allNftsIndexEnd + this.$config.nftLaunchpadLatestItems;
+      if (this.allNftsIndexEnd > this.$config.nftLaunchpadLatestItems) {
+        this.allNftsIndexEnd = this.allNftsIndexEnd - this.$config.nftLaunchpadLatestItems;
+      } else {
+        this.allNftsIndexEnd = 0;
+      }
 
-      if (this.allNftsIndexEnd >= this.allNftsArrayLength) {
-        this.allNftsIndexEnd = this.allNftsArrayLength - 1;
+      if (this.allNftsIndexStart > this.$config.nftLaunchpadLatestItems) {
+        this.allNftsIndexStart = this.allNftsIndexStart - this.$config.nftLaunchpadLatestItems;
+      } else {
+        this.allNftsIndexStart = 0;
       }
 
       this.waitingData = false;
