@@ -1,13 +1,13 @@
 <template>
   <div>
     <p class="text-center">
-      Claim {{ airdropPostMinting }} {{ $config.chatTokenSymbol }} airdrop for doing post minting in the past.
+      Claim {{ airdropAp }} {{ $config.chatTokenSymbol }} airdrop for past activity points.
     </p>
 
     <!-- Input field -->
     <div class="input-group mt-5">
       <input 
-        v-model="airdropPostMinting"
+        v-model="airdropAp"
         type="text"
         class="form-control" 
         disabled
@@ -21,7 +21,7 @@
     <!-- Claim button -->
     <div class="d-flex justify-content-center mt-4 mb-4">
       <button 
-        :disabled="waiting || loadingData || airdropPostMinting == 0"
+        :disabled="waiting || loadingData || airdropAp == 0"
         class="btn btn-outline-primary" 
         type="button"
         @click="claim"
@@ -49,8 +49,8 @@ import WaitingToast from "~/components/WaitingToast";
 import { useUserStore } from '~/store/user';
 
 export default {
-  name: 'AirdropPostMinters',
-  props: [ "airdropPostMintingWei", "loadingData" ],
+  name: 'AirdropActivityPoints',
+  props: [ "airdropApWei", "loadingData" ],
   emits: [ "setDomainChatRewardWeiToZero" ],
 
   data() {
@@ -60,8 +60,8 @@ export default {
   },
 
   computed: {
-    airdropPostMinting() {
-      return Math.floor(Number(ethers.utils.formatEther(this.airdropPostMintingWei)));
+    airdropAp() {
+      return Math.round(Number(ethers.utils.formatEther(this.airdropApWei)));
     }
   },
 
@@ -69,18 +69,18 @@ export default {
     async claim() {
       this.waiting = true;
 
-      const claimPostMintersInterface = new ethers.utils.Interface([
+      const claimApInterface = new ethers.utils.Interface([
         "function claim() external"
       ]);
 
-      const claimPostMintersContract = new ethers.Contract(
-        this.$config.airdropPostMintersAddress,
-        claimPostMintersInterface,
+      const claimApContract = new ethers.Contract(
+        this.$config.airdropApAddress,
+        claimApInterface,
         this.signer
       );
 
       try {
-        const tx = await claimPostMintersContract.claim();
+        const tx = await claimApContract.claim();
 
         const toastWait = this.toast(
           {
@@ -100,11 +100,11 @@ export default {
         if (receipt.status === 1) {
           this.toast.dismiss(toastWait);
 
-          this.userStore.addToChatTokenBalanceWei(this.airdropPostMintingWei);
+          this.userStore.addToChatTokenBalanceWei(this.airdropApWei);
 
           this.$emit("setDomainChatRewardWeiToZero");
 
-          this.toast("Airdrop for minting posts in the past has been successfully claimed!", {
+          this.toast("Airdrop for past APs has been successfully claimed!", {
             type: "success",
             onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
           });
@@ -128,7 +128,7 @@ export default {
           extractMessage = extractMessage.replace('"', "");
           extractMessage = extractMessage.replace('"', "");
           extractMessage = extractMessage.replace('execution reverted:', "Error:");
-          extractMessage = extractMessage.replace('ChatTokenClaimDomains: ', "");
+          extractMessage = extractMessage.replace('ChatTokenClaimActivityPoints: ', "");
 
           console.log(extractMessage);
           

@@ -396,9 +396,6 @@ export default {
 
       this.buyKeyPriceWei = await keysContract.getBuyPriceAfterFee(this.cleanDomainName, 1); // buy only 1 key at a time
 
-      console.log("buyKeyPriceWei", this.buyKeyPriceWei);
-      console.log("buyKeyPrice", ethers.utils.formatEther(this.buyKeyPriceWei));
-
       this.waitingBuy = false;
     },
 

@@ -32,9 +32,9 @@
         <li class="nav-item">
           <button 
             class="nav-link" 
-            :class="currentTab === 'post' ? 'active' : ''" 
-            @click="changeCurrentTab('post')" 
-          >Post Minters</button>
+            :class="currentTab === 'ap' ? 'active' : ''" 
+            @click="changeCurrentTab('ap')" 
+          >Activity Points</button>
         </li>
 
       </ul>
@@ -56,11 +56,11 @@
         </div>
 
         <!-- Second Tab -->
-        <div v-if="currentTab === 'post'">
+        <div v-if="currentTab === 'ap'">
           <div class="d-flex justify-content-center mt-5">
             <div class="col-12 col-lg-8">
-              <AirdropPostMinters
-                :airdropPostMintingWei="airdropPostMintingWei"
+              <AirdropActivityPoints
+                :airdropApWei="airdropApWei"
                 :loadingData="fetchingData" 
                 @setDomainChatRewardWeiToZero="setDomainChatRewardWeiToZero"
               />
@@ -78,14 +78,14 @@
 import { ethers } from 'ethers';
 import { useEthers } from 'vue-dapp';
 import AirdropDomainHolders from '~/components/airdrop/AirdropDomainHolders.vue';
-import AirdropPostMinters from '~/components/airdrop/AirdropPostMinters.vue';
+import AirdropActivityPoints from '~/components/airdrop/AirdropActivityPoints.vue';
 
 export default {
   name: 'Airdrop',
 
   data() {
     return {
-      airdropPostMintingWei: 0, // the amount of CHAT tokens that user will get for past post minting (unclaimed only)
+      airdropApWei: 0, // the amount of CHAT tokens that user will get for past APs
       currentTab: "domain",
       domainChatRewardWei: 100000000000000,
       fetchingData: false,
@@ -94,7 +94,7 @@ export default {
 
   components: {
     AirdropDomainHolders,
-    AirdropPostMinters
+    AirdropActivityPoints
   },
 
   mounted() {
@@ -133,18 +133,18 @@ export default {
 
       this.domainChatRewardWei = await chatTokenClaimDomainsContract.chatReward();
 
-      // preview airdrop claim for minting posts
-      const claimPostMintersInterface = new ethers.utils.Interface([
+      // preview airdrop claim for past APs
+      const claimApInterface = new ethers.utils.Interface([
         "function claimPreview(address _address) public view returns (uint256)"
       ]);
 
-      const claimPostMintersContract = new ethers.Contract(
-        this.$config.airdropPostMintersAddress,
-        claimPostMintersInterface,
+      const claimApContract = new ethers.Contract(
+        this.$config.airdropApAddress,
+        claimApInterface,
         this.signer
       );
 
-      this.airdropPostMintingWei = await claimPostMintersContract.claimPreview(this.address);
+      this.airdropApWei = await claimApContract.claimPreview(this.address);
 
       this.fetchingData = false;
     },

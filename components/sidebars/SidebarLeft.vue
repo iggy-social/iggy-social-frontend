@@ -127,7 +127,7 @@
           </li>
 
           <!-- Airdrop -->
-          <li class="nav-item p-1" @click="closeLeftSidebar" v-if="($config.airdropClaimDomainsAddress || $config.airdropPostMintersAddress) && $config.showFeatures.airdrop">
+          <li class="nav-item p-1" @click="closeLeftSidebar" v-if="($config.airdropClaimDomainsAddress || $config.airdropApAddress) && $config.showFeatures.airdrop">
             <NuxtLink class="nav-link" :class="$route.path.startsWith('/airdrop') ? 'active' : ''" aria-current="page" to="/airdrop">
               <i class="bi bi-gift"></i> Airdrop
             </NuxtLink>
@@ -157,7 +157,7 @@
 
             <ul class="dropdown-menu">
 
-              <li class="pt-1 pb-1" @click="closeLeftSidebar" v-if="$config.airdropClaimDomainsAddress || $config.airdropPostMintersAddress">
+              <li class="pt-1 pb-1" @click="closeLeftSidebar" v-if="$config.airdropClaimDomainsAddress || $config.airdropApAddress">
                 <NuxtLink class="dropdown-item" :class="$route.path.startsWith('/airdrop') ? 'active' : ''" aria-current="page" to="/airdrop">
                   <i class="bi bi-gift"></i> Airdrop
                 </NuxtLink>

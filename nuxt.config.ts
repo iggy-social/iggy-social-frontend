@@ -52,8 +52,8 @@ export default defineNuxtConfig({
     public: {
       activityPointsAddress: "0x7d20A0E75B1ac519f500a51351bcb01A07fE3D7d",
       activityPointsRatio: 1_000_000, 
-      airdropClaimDomainsAddress: "0x3ebDBc1D47d4bFe7D08A58123Ab3c85fC7358831", // chat token claim for domain holders contract address
-      airdropPostMintersAddress: "0x11608f93Ec226E173754262c04F98Df3Bfaad7Db", // chat token claim for post minters contract address
+      airdropApAddress: "0x9Fc55DbA8978406FE212B9C8b4672B4B7a110401", // chat token claim for APs
+      airdropClaimDomainsAddress: "0x3ebDBc1D47d4bFe7D08A58123Ab3c85fC7358831", // chat token claim for domain holders
       blockExplorerBaseUrl: "https://mumbai.polygonscan.com",
       chatTokenAddress: "0x83C0E6655Ea65363F8B85954afa29F05e257231b", // chat token address
       chatTokenImage: "https://bafkreigih3jk3d4fffzml27e7kqyn636t7v646ohxvhv3nzhkzfcmh4prq.ipfs.w3s.link", // chat token image
@@ -118,7 +118,7 @@ export default defineNuxtConfig({
       rpcCustom: process.env.RPC_CUSTOM || "", // Custom RPC URL
       showFeatures: { // show/hide features in sidebars (if you have too many "true", make the sidebar scrollable --> sidebarLeftSticky: false)
         "activityPoints": true, 
-        "airdrop": false, 
+        "airdrop": true, 
         "friendKeys": true, 
         "governance": false,
         "newsletter": false, 

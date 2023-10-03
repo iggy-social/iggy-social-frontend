@@ -59,10 +59,7 @@ export default {
 
     async fetchActivityPoints() {
       if (this.$config.activityPointsAddress && this.address) {
-        this.toast.info("Refreshing activity points...", { timeout: 2000 });
-
         const activityPoints = await this.getActivityPoints(this.address);
-
         this.userStore.setCurrentUserActivityPoints(activityPoints);
       }
     }
