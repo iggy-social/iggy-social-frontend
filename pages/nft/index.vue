@@ -40,10 +40,6 @@
     </div>
     -->
 
-    <div class="d-flex justify-content-center mb-3" v-if="waitingData">
-      <span class="spinner-border spinner-border-lg" role="status" aria-hidden="true"></span>
-    </div>
-
     <h4 class="mb-3" v-if="featuredNfts.length > 0">Featured</h4>
 
     <div class="row" v-if="featuredNfts.length > 0">
@@ -70,6 +66,10 @@
           </div>
         </div>
       </NuxtLink>
+    </div>
+
+    <div class="d-flex justify-content-center mb-3" v-if="waitingData">
+      <span class="spinner-border spinner-border-lg" role="status" aria-hidden="true"></span>
     </div>
 
     <div v-if="showLoadMoreButton" class="d-grid gap-2">

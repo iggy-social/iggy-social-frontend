@@ -63,8 +63,8 @@ export default defineNuxtConfig({
       getPostsLimit: 30, // number of posts to fetch from Orbis in the getPosts() function
       governanceUrl: "https://snapshot.org/#/sgbchat.eth", // governance url (snapshot, Tally, etc.)
       iggyPostAddress: "0x63FE8216a66737CFE474DF3949F9081EbD4Bd800",
-      iggyPostMinterAddress: "0x6c0228B87B541151E63f5a4C334457b60673FfD6",
-      iggyPostEnumerationAddress: "0xB96cc0BC26749b1589b565B18b81Cf7349e93D7d",
+      iggyPostMinterAddress: "0xF48D3812ceD80bC78C8553d7C3b702b0F0d63903",
+      iggyPostStatsAddress: "0xFCF878b629fF0Ef3bC033eFfCfFD39B00c9a68C5",
       keysAddress: "", // PunkKey contract address 
       keysContext: "kjzl6cwe1jw14akr2rh1j3fhup1ewfr2uyyd6l85qllbe2d5fxywt7d8rqnau6j",
       linkPreviews: "netlify", // "netlify" or "microlink" (or leave empty for no link previews)

@@ -196,13 +196,13 @@ export default {
 
             // make a post about the minting
             if (this.makePost && this.userStore.getIsConnectedToOrbis) {
-              const iggyEnumInterface = new ethers.utils.Interface([
+              const iggyStatsInterface = new ethers.utils.Interface([
                 "function getMintedPostIdsArray(address) external view returns (uint256[] memory)"
               ]);
 
-              const iggyEnumContract = new ethers.Contract(this.$config.iggyPostEnumerationAddress, iggyEnumInterface, this.signer);
+              const iggyStatsContract = new ethers.Contract(this.$config.iggyPostStatsAddress, iggyStatsInterface, this.signer);
 
-              const mintedIds = await iggyEnumContract.getMintedPostIdsArray(this.address);
+              const mintedIds = await iggyStatsContract.getMintedPostIdsArray(this.address);
               const lastMintedId = mintedIds[mintedIds.length - 1];
 
               const options = {

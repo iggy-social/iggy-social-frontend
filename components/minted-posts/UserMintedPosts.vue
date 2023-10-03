@@ -58,13 +58,13 @@ export default {
         }
       }
 
-      const iggyEnumInterface = new ethers.utils.Interface([
+      const iggyStatsInterface = new ethers.utils.Interface([
         "function getMintedPostIdsArray(address) external view returns (uint256[] memory)"
       ]);
 
-      const iggyEnumContract = new ethers.Contract(this.$config.iggyPostEnumerationAddress, iggyEnumInterface, provider);
+      const iggyStatsContract = new ethers.Contract(this.$config.iggyPostStatsAddress, iggyStatsInterface, provider);
 
-      let mintedIds = await iggyEnumContract.getMintedPostIdsArray(this.address);
+      let mintedIds = await iggyStatsContract.getMintedPostIdsArray(this.address);
       mintedIds = [...mintedIds].reverse();
 
       // get last n minted post IDs
