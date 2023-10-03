@@ -72,6 +72,13 @@
       </NuxtLink>
     </div>
 
+    <div v-if="showLoadMoreButton" class="d-grid gap-2">
+      <button class="btn btn-primary" @click="fetchLastNfts" :disabled="waitingData">
+        <span v-if="waitingData" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        Load more
+      </button>
+    </div>
+
   </div>
 </div>
 
@@ -91,6 +98,9 @@ export default {
 
   data() {
     return {
+      allNftsArrayLength: 0,
+      allNftsIndexStart: 0,
+      allNftsIndexEnd: 0,
       featuredNfts: [],
       lastNfts: [],
       waitingData: false
@@ -103,12 +113,19 @@ export default {
 
   mounted() {
     if (this.$config.nftLaunchpadBondingAddress) {
-      this.fetchData();
+      this.fetchFeaturedNfts();
+      this.fetchLastNfts();
+    }
+  },
+
+  computed: {
+    showLoadMoreButton() {
+      return this.allNftsArrayLength > this.allNftsIndexStart;
     }
   },
 
   methods: {
-    async fetchData() {
+    async fetchFeaturedNfts() {
       this.waitingData = true;
 
       // fetch provider from hardcoded RPCs
@@ -121,8 +138,7 @@ export default {
 
       // create launchpad contract object
       const launchpadInterface = new ethers.utils.Interface([
-        "function getFeaturedNftContracts(uint256 amount) external view returns(address[] memory)",
-        "function getLastNftContracts(uint256 amount) external view returns(address[] memory)"
+        "function getFeaturedNftContracts(uint256 amount) external view returns(address[] memory)"
       ]);
 
       const launchpadContract = new ethers.Contract(
@@ -136,14 +152,65 @@ export default {
 
       await this.parseNftsArray(fNfts, this.featuredNfts, provider);
 
+      this.waitingData = false;
+    },
+
+    async fetchLastNfts() {
+      this.waitingData = true;
+
+      // fetch provider from hardcoded RPCs
+      let provider = this.$getFallbackProvider(this.$config.supportedChainId);
+
+      if (this.isActivated && this.chainId === this.$config.supportedChainId) {
+        // fetch provider from user's MetaMask
+        provider = this.signer;
+      }
+
+      // create launchpad contract object
+      const launchpadInterface = new ethers.utils.Interface([
+        "function getNftContracts(uint256 fromIndex, uint256 toIndex) external view returns(address[] memory)",
+        "function getNftContractsArrayLength() external view returns(uint256)"
+      ]);
+
+      const launchpadContract = new ethers.Contract(
+        this.$config.nftLaunchpadBondingAddress,
+        launchpadInterface,
+        provider
+      );
+
+      // get all NFTs array length
+      if (this.allNftsArrayLength === 0) {
+        this.allNftsArrayLength = await launchpadContract.getNftContractsArrayLength();
+      }
+
+      // set the end index, if 0
+      if (this.allNftsIndexEnd === 0) {
+        this.allNftsIndexEnd = this.$config.nftLaunchpadLatestItems - 1;
+
+        if (this.allNftsArrayLength < this.$config.nftLaunchpadLatestItems) {
+          this.allNftsIndexEnd = this.allNftsArrayLength - 1;
+        }
+      }
+
+      console.log("allNftsArrayLength: " + this.allNftsArrayLength);
+      console.log("allNftsIndexStart: " + this.allNftsIndexStart);
+      console.log("allNftsIndexEnd: " + this.allNftsIndexEnd);
+
       // get last NFTs
-      const lNfts = await launchpadContract.getLastNftContracts(this.$config.nftLaunchpadLatestItems);
+      const lNfts = await launchpadContract.getNftContracts(this.allNftsIndexStart, this.allNftsIndexEnd);
       const lNftsWritable = [...lNfts]; // copy the lNfts array to make it writable (for reverse() method)
 
       // reverse the lNftsWritable array (to show the latest NFTs first)
       lNftsWritable.reverse();
 
       await this.parseNftsArray(lNftsWritable, this.lastNfts, provider);
+
+      this.allNftsIndexStart = this.allNftsIndexEnd + 1;
+      this.allNftsIndexEnd = this.allNftsIndexEnd + this.$config.nftLaunchpadLatestItems;
+
+      if (this.allNftsIndexEnd >= this.allNftsArrayLength) {
+        this.allNftsIndexEnd = this.allNftsArrayLength - 1;
+      }
 
       this.waitingData = false;
     },
