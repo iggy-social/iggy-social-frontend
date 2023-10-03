@@ -6,6 +6,8 @@ export const useUserStore = defineStore({
 
   state: () => {
     return {
+      activityPoints: 0, // not in wei
+      address: null,
       chatTokenBalanceWei: BigInt(0),
       defaultDomain: null,
       did: null,
@@ -21,6 +23,14 @@ export const useUserStore = defineStore({
   },
 
   getters: {
+    getCurentUserActivityPoints(state) {
+      return state.activityPoints;
+    },
+
+    getCurrentUserAddress(state) {
+      return state.address;
+    },
+
     getChatTokenBalance(state) {
       const balance = ethers.utils.formatEther(state.chatTokenBalanceWei);
 
@@ -89,6 +99,14 @@ export const useUserStore = defineStore({
 
     setChatTokenBalanceWei(balance: ethers.BigNumber) {
       this.chatTokenBalanceWei = balance.toBigInt();
+    },
+
+    setCurrentUserActivityPoints(points: any) {
+      this.activityPoints = points;
+    },
+
+    setCurrentUserAddress(address: any) {
+      this.address = address;
     },
 
     setDefaultDomain(domain: any) {

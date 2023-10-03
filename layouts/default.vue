@@ -134,6 +134,7 @@ import NavbarMobile from "~/components/navbars/NavbarMobile.vue";
 import SidebarLeft from "~/components/sidebars/SidebarLeft.vue";
 import SidebarRight from "~/components/sidebars/SidebarRight.vue";
 import ChatSettingsModal from "~/components/ChatSettingsModal.vue";
+import { getActivityPoints } from '~/utils/balanceUtils';
 import { getDomainName } from '~/utils/domainUtils';
 import { storeUsername } from '~/utils/storageUtils';
 
@@ -225,6 +226,7 @@ export default {
   },
 
   methods: {
+    getActivityPoints,
     getDomainName, // imported function from utils/domainUtils.js
 
     async connectCoinbase() {
@@ -245,12 +247,12 @@ export default {
 			document.getElementById('closeConnectModal').click();
 		},
 
-    async orbisLogout() {
-      await this.$orbis.logout();
-      this.userStore.setIsConnectedToOrbis(false);
-      this.userStore.setDid(null);
-      this.userStore.setDidParent(null);
-      this.userStore.setOrbisImage(null);
+    async fetchActivityPoints() {
+      if (this.$config.activityPointsAddress) {
+        const activityPoints = await this.getActivityPoints(this.address, this.signer);
+
+        this.userStore.setCurrentUserActivityPoints(activityPoints);
+      }
     },
 
     async fetchChatTokenBalance() {
@@ -328,7 +330,12 @@ export default {
     },
 
     async fetchUserDomain() {
-      if (this.chainId === this.$config.supportedChainId) {
+      if (
+        this.chainId === this.$config.supportedChainId &&
+        this.address != this.userStore.getCurrentUserAddress
+      ) {
+        this.userStore.setCurrentUserAddress(this.address);
+        
         let userDomain;
 
         if (this.signer) {
@@ -337,6 +344,8 @@ export default {
           userDomain = await this.getDomainName(this.address);
         }
 
+        
+
         if (userDomain) {
           this.userStore.setDefaultDomain(userDomain+this.$config.tldName);
           storeUsername(window, this.address, userDomain+this.$config.tldName);
@@ -344,6 +353,7 @@ export default {
           this.userStore.setDefaultDomain(null);
         }
 
+        this.fetchActivityPoints();
         this.fetchChatTokenBalance();
       }
     },
@@ -360,7 +370,15 @@ export default {
     
     onWidthChange() {
       this.width = window.innerWidth;
-    }
+    },
+
+    async orbisLogout() {
+      await this.$orbis.logout();
+      this.userStore.setIsConnectedToOrbis(false);
+      this.userStore.setDid(null);
+      this.userStore.setDidParent(null);
+      this.userStore.setOrbisImage(null);
+    },
   },
 
   setup() {

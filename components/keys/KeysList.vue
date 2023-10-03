@@ -32,7 +32,7 @@ export default {
 
   data() {
     return {
-      selectedDomains: ["techie", "tekr", "uwami", "nidz", "dbeastco"],
+      featuredKeys: this.$config.keysFeatured,
       domainObjects: [],
       waiting: false
     }
@@ -86,8 +86,8 @@ export default {
         provider
       );
 
-      for (let i = 0; i < this.selectedDomains.length; i++) {
-        const domainName = this.selectedDomains[i];
+      for (let i = 0; i < this.featuredKeys.length; i++) {
+        const domainName = this.featuredKeys[i];
 
         const priceWei = await keysContract.getBuyPriceAfterFee(domainName, 1);
 

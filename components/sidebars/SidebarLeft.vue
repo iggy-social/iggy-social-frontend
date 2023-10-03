@@ -19,11 +19,21 @@
             {{ getTextWithoutBlankCharacters(userStore.getDefaultDomain) }}
           </h6>
 
+          <!-- Chat tokens -->
           <!--
           <button v-if="userStore.getChatTokenBalanceWei > 0 && $config.chatTokenAddress" class="btn btn-outline-primary btn-sm mt-2 mb-2 disabled">
             {{ userStore.getChatTokenBalance }} {{ $config.chatTokenSymbol }}
           </button>
           -->
+
+          <!-- Activity Points -->
+          <button 
+            v-if="userStore.getCurentUserActivityPoints > 0 && $config.activityPointsAddress" 
+            class="btn btn-outline-primary btn-sm mt-2 mb-2" 
+            @click="fetchActivityPoints"
+          >
+            {{ userStore.getCurentUserActivityPoints }} AP
+          </button>
 
           <hr />
         </div>
@@ -78,6 +88,13 @@
           <li v-if="isActivated" class="nav-item p-1" @click="closeLeftSidebar">
             <NuxtLink class="nav-link" :class="$route.path.startsWith('/profile') ? 'active' : ''" aria-current="page" to="/profile">
               <i class="bi bi-person"></i> Profile
+            </NuxtLink>
+          </li>
+
+          <!-- Activity Points -->
+          <li class="nav-item p-1" @click="closeLeftSidebar" v-if="$config.showFeatures.activityPoints && $config.activityPointsAddress">
+            <NuxtLink class="nav-link" :class="$route.path.startsWith('/activity-points') ? 'active' : ''" aria-current="page" to="/activity-points">
+              <i class="bi bi-award"></i> Activity Points
             </NuxtLink>
           </li>
 
@@ -191,11 +208,13 @@
 
 <script>
 import { useEthers } from 'vue-dapp';
+import { useToast } from "vue-toastification/dist/index.mjs";
 import { useNotificationsStore } from '~/store/notifications';
 import { useChatStore } from '~/store/chat';
 import { useSidebarStore } from '~/store/sidebars';
 import { useUserStore } from '~/store/user';
 import ProfileImage from "~/components/profile/ProfileImage.vue";
+import { getActivityPoints } from '~/utils/balanceUtils';
 import { getTextWithoutBlankCharacters } from '~/utils/textUtils';
 
 export default {
@@ -227,11 +246,23 @@ export default {
   },
   
   methods: {
+    getActivityPoints,
+
     closeLeftSidebar() {
       if (this.isMobile) {
         this.lSidebar.hide();
         this.sidebarStore.setLeftSidebar(false);
         this.sidebarStore.setMainContent(true);
+      }
+    },
+
+    async fetchActivityPoints() {
+      if (this.$config.activityPointsAddress && this.address) {
+        this.toast.info("Refreshing activity points...", { timeout: 2000 });
+
+        const activityPoints = await this.getActivityPoints(this.address);
+
+        this.userStore.setCurrentUserActivityPoints(activityPoints);
       }
     },
 
@@ -244,12 +275,14 @@ export default {
   setup() {
     const { address, isActivated } = useEthers();
 
+    const toast = useToast();
+
     const chatStore = useChatStore();
     const notificationsStore = useNotificationsStore();
     const sidebarStore = useSidebarStore();
     const userStore = useUserStore();
 
-    return { address, chatStore, isActivated, notificationsStore, sidebarStore, userStore }
+    return { address, chatStore, isActivated, notificationsStore, sidebarStore, toast, userStore }
   },
 }
 </script>

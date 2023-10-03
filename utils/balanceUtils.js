@@ -1,6 +1,34 @@
 import { ethers } from "ethers";
 import Erc20Abi from "~/assets/abi/Erc20Abi.json";
 
+export async function getActivityPoints(userAddress, signer) {
+  const config = useRuntimeConfig();
+  
+  let provider = signer;
+
+  if (!signer) {
+    provider = this.$getFallbackProvider(config.supportedChainId);
+  }
+
+  const activityPointsInterface = new ethers.utils.Interface([
+    "function getTotalWeiSpent(address) view returns (uint256)",
+  ]);
+
+  const activityPointsContract = new ethers.Contract(config.activityPointsAddress, activityPointsInterface, provider);
+
+  const weiSpent = await activityPointsContract.getTotalWeiSpent(userAddress);
+  const ethSpent = ethers.utils.formatEther(weiSpent);
+  let activityPoints = Number(ethSpent) * config.activityPointsRatio;
+
+  if (activityPoints < 1) {
+    activityPoints = activityPoints.toFixed(2);
+  } else {
+    activityPoints = Math.round(activityPoints);
+  }
+
+  return activityPoints;
+}
+
 export async function getTokenAllowance(token, userAddress, beneficiary, signer) {
   const config = useRuntimeConfig();
   

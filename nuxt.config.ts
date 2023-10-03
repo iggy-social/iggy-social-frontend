@@ -50,6 +50,8 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
+      activityPointsAddress: "0x7d20A0E75B1ac519f500a51351bcb01A07fE3D7d",
+      activityPointsRatio: 1_000_000, 
       airdropClaimDomainsAddress: "0x3ebDBc1D47d4bFe7D08A58123Ab3c85fC7358831", // chat token claim for domain holders contract address
       airdropPostMintersAddress: "0x11608f93Ec226E173754262c04F98Df3Bfaad7Db", // chat token claim for post minters contract address
       blockExplorerBaseUrl: "https://mumbai.polygonscan.com",
@@ -65,8 +67,9 @@ export default defineNuxtConfig({
       iggyPostAddress: "0x63FE8216a66737CFE474DF3949F9081EbD4Bd800",
       iggyPostMinterAddress: "0xF48D3812ceD80bC78C8553d7C3b702b0F0d63903",
       iggyPostStatsAddress: "0xFCF878b629fF0Ef3bC033eFfCfFD39B00c9a68C5",
-      keysAddress: "", // PunkKey contract address 
+      keysAddress: "0x34E7D66455BE3f6f0cCbF3df3b7c56b482530C8E", // FriendKeys contract address 
       keysContext: "kjzl6cwe1jw14akr2rh1j3fhup1ewfr2uyyd6l85qllbe2d5fxywt7d8rqnau6j",
+      keysFeatured: ["tempe", "tekr"],
       linkPreviews: "netlify", // "netlify" or "microlink" (or leave empty for no link previews)
       lpTokenAddress: "0xF874f79eBfB8FEe898a289C4cAa5dc4383873431", // liquidity pool token (token to stake in the staking contract)
       lpTokenSymbol: "LP tokens", // LP token symbol
@@ -114,6 +117,7 @@ export default defineNuxtConfig({
       randomPostsNumber: 1, // number of random post NFTs to show in the sidebar widget
       rpcCustom: process.env.RPC_CUSTOM || "", // Custom RPC URL
       showFeatures: { // show/hide features in sidebars (if you have too many "true", make the sidebar scrollable --> sidebarLeftSticky: false)
+        "activityPoints": true, 
         "airdrop": false, 
         "friendKeys": true, 
         "governance": false,
