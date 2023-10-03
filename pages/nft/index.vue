@@ -26,7 +26,7 @@
         <NuxtLink class="btn btn-outline-primary btn-sm" to="/nft/create">
           <i class="bi bi-plus-circle"></i> Create
         </NuxtLink>
-        <button class="btn btn-outline-primary btn-sm ms-2" data-bs-toggle="modal" data-bs-target="#searchModal">
+        <button class="btn btn-outline-primary btn-sm ms-2" data-bs-toggle="modal" data-bs-target="#searchNftModal">
           <i class="bi bi-search"></i> Find
         </button>
       </div>
@@ -76,40 +76,13 @@
 </div>
 
 <!-- Search Modal -->
-<div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="searchModalLabel">Find NFT collection</h1>
-        <button id="closeSearchModal" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-
-      <div class="modal-body">
-
-        <div class="mb-3">
-          <label for="searchInputField" class="form-label">Enter NFT collection address or unique ID:</label>
-          <input v-model="searchText" type="text" class="form-control" id="searchInputField" />
-        </div>
-
-        <p v-if="findError">Error: Collection not found...</p>
-
-      </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button @click="findNft" type="button" class="btn btn-primary" :disabled="waitingFind">
-          <span v-if="waitingFind" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-          Find
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
+<SearchNftModal />
 </template>
 
 <script>
 import { ethers } from 'ethers';
 import { useEthers } from 'vue-dapp';
+import SearchNftModal from '~/components/nft/SearchNftModal.vue';
 import { fetchCollection, storeCollection } from '~/utils/storageUtils';
 
 export default {
@@ -119,12 +92,13 @@ export default {
   data() {
     return {
       featuredNfts: [],
-      findError: false,
       lastNfts: [],
-      searchText: null,
-      waitingData: false,
-      waitingFind: false
+      waitingData: false
     }
+  },
+
+  components: {
+    SearchNftModal
   },
 
   mounted() {
@@ -172,52 +146,6 @@ export default {
       await this.parseNftsArray(lNftsWritable, this.lastNfts, provider);
 
       this.waitingData = false;
-    },
-
-    async findNft() {
-      this.waitingFind = true;
-      this.findError = false;
-
-      if (this.searchText) {
-        if (String(this.searchText).toLowerCase().startsWith("0x")) {
-          document.getElementById("closeSearchModal").click();
-          this.$router.push({ path: '/nft/collection/', query: { id: this.searchText } });
-          this.searchText = null;
-          return this.waitingFind = false;
-        } else {
-          // search by unique ID
-          const launchpadInterface = new ethers.utils.Interface([
-            "function getNftContractAddress(string calldata _uniqueId) external view returns(address)"
-          ]);
-
-          // fetch provider from hardcoded RPCs
-          let provider = this.$getFallbackProvider(this.$config.supportedChainId);
-
-          if (this.isActivated && this.chainId === this.$config.supportedChainId) {
-            // fetch provider from user's MetaMask
-            provider = this.signer;
-          }
-
-          const launchpadContract = new ethers.Contract(
-            this.$config.nftLaunchpadBondingAddress,
-            launchpadInterface,
-            provider
-          );
-
-          const nftAddress = await launchpadContract.getNftContractAddress(this.searchText);
-
-          if (nftAddress !== ethers.constants.AddressZero) {
-            document.getElementById("closeSearchModal").click();
-            this.$router.push({ path: '/nft/collection/', query: { id: nftAddress } });
-            this.searchText = null;
-            return this.waitingFind = false;
-          }
-        }
-
-        this.findError = true;
-
-        return this.waitingFind = false;
-      }
     },
 
     formatPrice(priceWei) {
@@ -308,6 +236,6 @@ export default {
     const { address, chainId, isActivated, signer } = useEthers();
 
     return { address, chainId, isActivated, signer }
-  },
+  }
 }
 </script>
