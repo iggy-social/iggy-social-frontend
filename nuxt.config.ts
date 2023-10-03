@@ -61,6 +61,7 @@ export default defineNuxtConfig({
       expiryUsernames: 1000 * 60 * 60 * 24 * 7, // must be in milliseconds (0 means no expiration)
       favicon: "/img/favicon.svg",
       getPostsLimit: 30, // number of posts to fetch from Orbis in the getPosts() function
+      governanceUrl: "https://snapshot.org/#/sgbchat.eth", // governance url (snapshot, Tally, etc.)
       iggyPostAddress: "0x63FE8216a66737CFE474DF3949F9081EbD4Bd800",
       iggyPostMinterAddress: "0x6c0228B87B541151E63f5a4C334457b60673FfD6",
       iggyPostEnumerationAddress: "0xB96cc0BC26749b1589b565B18b81Cf7349e93D7d",
@@ -112,7 +113,21 @@ export default defineNuxtConfig({
       punkTldAddress: "0x2582EC420195Fefb091B098da6FAdEE49f490740", // punk domain TLD address
       randomPostsNumber: 1, // number of random post NFTs to show in the sidebar widget
       rpcCustom: process.env.RPC_CUSTOM || "", // Custom RPC URL
-      showRepliesOnHomepage: true, // show replies on the homepage     
+      showFeatures: { // show/hide features in sidebars (if you have too many "true", make the sidebar scrollable --> sidebarLeftSticky: false)
+        "airdrop": false, 
+        "friendKeys": true, 
+        "governance": false,
+        "newsletter": false, 
+        "nftLaunchpad": true, 
+        "randomMintedPosts": true, 
+        "swap": false, 
+        "stake": false, 
+        "sendTokens": false, 
+        "spotify": false
+      }, 
+      showRepliesOnHomepage: true, // show replies on the homepage  
+      sidebarLeftSticky: true, // make the left sidebar sticky (always visible)
+      spotifyPlaylistId: "5y7f2Wxfq49G5KuNQfMPbk", // enter just the ID of the playlist (not the full URL)  
       stakingContractAddress: "0x96Dc7548fD018d1E51d2d5e98B265411C3D0F22A", // this is also the stake/gov token address
       stakeTokenSymbol: "IGT", // stake token symbol (governance token symbol)
       supportedChainId: 80001,

@@ -13,7 +13,7 @@
       <h3 class="mb-3 mt-3">Web3 Social is here.</h3>
 
       <p class="text-break mt-3">
-        Iggy Social Demo is <strong>the first web3 social network</strong> built on Mumbai.
+        Iggy Social Demo is showcase of an open-source template that anyone can use to build their own web3 social app.
       </p>
 
       <p class="text-break mt-3">
@@ -31,24 +31,37 @@
         <a target="_blank" href="https://punk.domains">Punk Domains</a> team.
       </p>
 
+      <h5>Useful links</h5>
+
+      <ul>
+        <li><a href="https://github.com/iggy-social" target="_blank">Iggy Social GitHub</a></li>
+        <li><a href="https://github.com/punk-domains" target="_blank">Punk Domains GitHub</a></li>
+        <li><a href="https://discord.gg/8dSrwrAQeu" target="_blank">Discord</a></li>
+      </ul>
+
+      <h5>Tech stack</h5>
+
+      <p class="text-break mt-3">
+        This chat is built on top of various decentralized and open source technologies, such as:
+      </p>
+
+      <ul>
+        <li><a href="https://ipfs.tech/" target="_blank">IPFS</a></li>
+        <li><a href="https://ceramic.network/" target="_blank">Ceramic Network</a></li>
+        <li><a href="https://useorbis.com/" target="_blank">Orbis</a></li>
+        <li><a href="https://punk.domains/" target="_blank">Punk Domains</a></li>
+        <li><a href="https://iggy.social/" target="_blank">Iggy Social</a></li>
+        <li>... and others.</li>
+      </ul>
+
       <hr />
 
       <h5>Feedback</h5>
 
       <p class="text-break mt-3">
-        Feel free to post ideas, features suggestions, rants directly in the this chat. 
-        Or you can drop by 
-        <a target="_blank" href="https://discord.gg/8dSrwrAQeu">our Discord</a> 
-        and share your thoughts there.
+        Feel free to post ideas, features suggestions, rants directly in this chat. 
       </p>
 
-      <div class="d-flex justify-content-around flex-wrap">
-        <img class="img-fluid tech-stack mt-3" src="/img/tech/orbis.png" />
-
-        <img class="img-fluid tech-stack mt-3" src="/img/tech/ceramic.png" />
-
-        <img class="img-fluid tech-stack mt-3" src="/img/tech/punk.png" />
-      </div>
     </div>
   </div>
 </template>

@@ -17,7 +17,13 @@
               </strong>
             </label>
 
-            <input v-model="editImageUrl" type="text" class="form-control" :id="'input-'+componentId">
+            <input v-model="imageUrl" type="text" class="form-control" :id="'input-'+componentId">
+
+            <div v-if="imageUrl" class="mt-3">
+              <img :src="imageUrl" class="img-thumbnail img-fluid" style="max-width: 100px;" />
+              <br />
+              <small>If image didn't appear above, then something is wrong with the link you added.</small>
+            </div>
           </div>
 
         </div>
@@ -25,7 +31,7 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 
-          <button @click="updateImage" type="button" class="btn btn-primary" :disabled="!editImageUrl || waiting">
+          <button @click="updateImage" type="button" class="btn btn-primary" :disabled="!imageUrl || waiting">
             <span v-if="waiting" class="spinner-border spinner-border-sm mx-1" role="status" aria-hidden="true"></span>
             Submit
           </button>
@@ -49,7 +55,7 @@ export default {
   data() {
     return {
       componentId: null,
-      editImageUrl: null,
+      imageUrl: null,
       waiting: false
     }
   },
@@ -69,7 +75,7 @@ export default {
       const metadataContract = new ethers.Contract(this.mdAddress, metadataInterface, this.signer);
 
       try {
-        const tx = await metadataContract.setCollectionPreview(this.cAddress, this.editImageUrl); 
+        const tx = await metadataContract.setCollectionPreview(this.cAddress, this.imageUrl); 
 
         const toastWait = this.toast(
           {
@@ -95,10 +101,10 @@ export default {
           });
 
           this.$emit("saveCollection", {
-            image: this.editImageUrl
+            image: this.imageUrl
           });
 
-          this.editImageUrl = null;
+          this.imageUrl = null;
 
           // close the modal
           document.getElementById('closeModal-'+this.componentId).click();

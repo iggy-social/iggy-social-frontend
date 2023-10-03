@@ -1,6 +1,6 @@
 <template>
 <div class="col col-lg-auto px-0 mt-1">
-  <div id="sidebar1" class="collapse collapse-horizontal sticky-lg-top">
+  <div id="sidebar1" class="collapse collapse-horizontal" :class="$config.sidebarLeftSticky ? 'sticky-lg-top' : ''">
     <div class="sidebar-nav list-group border-0 rounded-0 text-sm-start min-vh-100">
       <div class="card m-2 p-2 bg-light">
 
@@ -54,7 +54,7 @@
           -->
 
           <!-- NFT Launchpad -->
-          <li class="nav-item p-1" @click="closeLeftSidebar" v-if="$config.nftLaunchpadBondingAddress">
+          <li class="nav-item p-1" @click="closeLeftSidebar" v-if="$config.nftLaunchpadBondingAddress && $config.showFeatures.nftLaunchpad">
             <NuxtLink class="nav-link" :class="$route.path.startsWith('/nft') ? 'active' : ''" aria-current="page" to="/nft">
               <i class="bi bi-rocket-takeoff"></i> NFT Launchpad
             </NuxtLink>
@@ -82,48 +82,47 @@
           </li>
 
           <!-- Send tokens -->
-          <li class="nav-item p-1" @click="closeLeftSidebar">
+          <li class="nav-item p-1" @click="closeLeftSidebar" v-if="$config.showFeatures.sendTokens">
             <NuxtLink class="nav-link" :class="$route.path.startsWith('/send-tokens') ? 'active' : ''" aria-current="page" to="/send-tokens">
               <i class="bi bi-send"></i> Send tokens
             </NuxtLink>
           </li>
 
           <!-- Stake & Earn -->
-          <li class="nav-item p-1" @click="closeLeftSidebar" v-if="$config.stakingContractAddress">
+          <li class="nav-item p-1" @click="closeLeftSidebar" v-if="$config.stakingContractAddress && $config.showFeatures.stake">
             <NuxtLink class="nav-link" :class="$route.path.startsWith('/stake') ? 'active' : ''" aria-current="page" to="/stake">
               <i class="bi bi-cash-stack"></i> Stake & Earn
             </NuxtLink>
           </li>
 
           <!-- Swap -->
-          <li class="nav-item p-1" @click="closeLeftSidebar" v-if="$config.swapRouterAddress">
+          <li class="nav-item p-1" @click="closeLeftSidebar" v-if="$config.swapRouterAddress && $config.showFeatures.swap">
             <NuxtLink class="nav-link" :class="$route.path.startsWith('/swap') ? 'active' : ''" aria-current="page" to="/swap">
               <i class="bi bi-arrow-down-up"></i> Swap
             </NuxtLink>
           </li>
           
           <!-- Friend Keys -->
-          <li class="nav-item p-1" @click="closeLeftSidebar" v-if="$config.keysAddress">
+          <li class="nav-item p-1" @click="closeLeftSidebar" v-if="$config.keysAddress && $config.showFeatures.friendKeys">
             <NuxtLink class="nav-link" :class="$route.path.startsWith('/keys') ? 'active' : ''" aria-current="page" to="/keys">
               <i class="bi bi-key"></i> Friend Keys
             </NuxtLink>
           </li>
 
-          <!-- Airdrop 
-          <li class="nav-item p-1" @click="closeLeftSidebar" v-if="$config.airdropClaimDomainsAddress || $config.airdropPostMintersAddress">
+          <!-- Airdrop -->
+          <li class="nav-item p-1" @click="closeLeftSidebar" v-if="($config.airdropClaimDomainsAddress || $config.airdropPostMintersAddress) && $config.showFeatures.airdrop">
             <NuxtLink class="nav-link" :class="$route.path.startsWith('/airdrop') ? 'active' : ''" aria-current="page" to="/airdrop">
               <i class="bi bi-gift"></i> Airdrop
             </NuxtLink>
           </li>
-          -->
 
-          <!-- Governance 
-          <li class="nav-item p-1" @click="closeLeftSidebar">
-            <a class="nav-link" href="https://snapshot.org/#/sgbchat.eth" target="_blank">
+          <!-- Governance -->
+          <li class="nav-item p-1" v-if="$config.showFeatures.governance" @click="closeLeftSidebar">
+            <a class="nav-link" :href="$config.governanceUrl" target="_blank">
               <i class="bi bi-box2"></i> Governance <small><i class="bi bi-box-arrow-up-right ms-1"></i></small>
             </a>
           </li>
-          -->
+          
 
           <!-- About -->    
           <li class="nav-item p-1" @click="closeLeftSidebar">

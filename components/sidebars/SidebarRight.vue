@@ -6,30 +6,29 @@
       <!-- Mint/register a domain name -->
       <NameMintWidget />
 
-      <!-- Playlist 
-      <div class="card m-2 bg-light">
+      <!-- Playlist -->
+      <div class="card m-2 bg-light" v-if="$config.showFeatures.spotify">
         <div class="card-header bg-light">{{ $config.projectName }} Playlist</div>
         <div class="card-body sidebar-card-body">
-          <iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/37i9dQZF1DX3b9hbbPi5hD?utm_source=generator&theme=0" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+          <iframe style="border-radius:12px" :src="'https://open.spotify.com/embed/playlist/'+$config.spotifyPlaylistId+'?utm_source=generator&theme=0'" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
         </div>
       </div>
-      -->
 
       <!-- Keys list -->
-      <KeysListWidget v-if="$config.keysAddress" />
+      <KeysListWidget v-if="$config.keysAddress && $config.showFeatures.friendKeys" />
 
       <!-- Swap tokens -->
       <SimpleSwapWidget 
-        v-if="$config.swapRouterAddress" 
+        v-if="$config.swapRouterAddress && $config.showFeatures.swap" 
         :routerAddress="$config.swapRouterAddress" 
         :tokens="tokens" 
         title="Swap tokens" />
 
       <!-- Random minted post(s) -->
-      <MintedPostsWidget @closeRightSidebar="closeRightSidebar" />
+      <MintedPostsWidget v-if="$config.showFeatures.randomMintedPosts" @closeRightSidebar="closeRightSidebar" />
 
       <!-- Newsletter -->
-      <div v-if="$config.newsletterLink" class="card m-2 bg-light">
+      <div v-if="$config.newsletterLink && $config.showFeatures.newsletter" class="card m-2 bg-light">
         <div class="card-header bg-light">{{ $config.projectName }} Newsletter</div>
         <div class="card-body sidebar-card-body">
           <a class="btn btn-outline-primary mt-2 mb-2" target="_blank" :href="$config.newsletterLink">
