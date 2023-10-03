@@ -151,8 +151,6 @@ export default {
       const fNfts = await launchpadContract.getFeaturedNftContracts(4);
 
       await this.parseNftsArray(fNfts, this.featuredNfts, provider);
-
-      this.waitingData = false;
     },
 
     async fetchLastNfts() {
