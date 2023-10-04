@@ -181,36 +181,38 @@ export default {
         this.allNftsArrayLength = await launchpadContract.getNftContractsArrayLength();
       }
 
-      // set the start and end index, if end index is 0
-      if (this.allNftsIndexEnd === 0) {
-        this.allNftsIndexEnd = this.allNftsArrayLength - 1;
+      if (this.allNftsArrayLength === 0) {
+        // set the start and end index, if end index is 0
+        if (this.allNftsIndexEnd === 0) {
+          this.allNftsIndexEnd = this.allNftsArrayLength - 1;
 
-        if (this.allNftsArrayLength < this.$config.nftLaunchpadLatestItems) {
-          this.allNftsIndexStart = 0;
-        } else {
-          this.allNftsIndexStart = this.allNftsArrayLength - this.$config.nftLaunchpadLatestItems;
+          if (this.allNftsArrayLength < this.$config.nftLaunchpadLatestItems) {
+            this.allNftsIndexStart = 0;
+          } else {
+            this.allNftsIndexStart = this.allNftsArrayLength - this.$config.nftLaunchpadLatestItems;
+          }
         }
-      }
 
-      // get last NFTs
-      const lNfts = await launchpadContract.getNftContracts(this.allNftsIndexStart, this.allNftsIndexEnd);
-      const lNftsWritable = [...lNfts]; // copy the lNfts array to make it writable (for reverse() method)
+        // get last NFTs
+        const lNfts = await launchpadContract.getNftContracts(this.allNftsIndexStart, this.allNftsIndexEnd);
+        const lNftsWritable = [...lNfts]; // copy the lNfts array to make it writable (for reverse() method)
 
-      // reverse the lNftsWritable array (to show the latest NFTs first)
-      lNftsWritable.reverse();
+        // reverse the lNftsWritable array (to show the latest NFTs first)
+        lNftsWritable.reverse();
 
-      await this.parseNftsArray(lNftsWritable, this.lastNfts, provider);
+        await this.parseNftsArray(lNftsWritable, this.lastNfts, provider);
 
-      if (this.allNftsIndexEnd > this.$config.nftLaunchpadLatestItems) {
-        this.allNftsIndexEnd = this.allNftsIndexEnd - this.$config.nftLaunchpadLatestItems;
-      } else {
-        this.allNftsIndexEnd = 0;
-      }
+        if (this.allNftsIndexEnd > this.$config.nftLaunchpadLatestItems) {
+          this.allNftsIndexEnd = this.allNftsIndexEnd - this.$config.nftLaunchpadLatestItems;
+        } else {
+          this.allNftsIndexEnd = 0;
+        }
 
-      if (this.allNftsIndexStart > this.$config.nftLaunchpadLatestItems) {
-        this.allNftsIndexStart = this.allNftsIndexStart - this.$config.nftLaunchpadLatestItems;
-      } else {
-        this.allNftsIndexStart = 0;
+        if (this.allNftsIndexStart > this.$config.nftLaunchpadLatestItems) {
+          this.allNftsIndexStart = this.allNftsIndexStart - this.$config.nftLaunchpadLatestItems;
+        } else {
+          this.allNftsIndexStart = 0;
+        }
       }
 
       this.waitingData = false;

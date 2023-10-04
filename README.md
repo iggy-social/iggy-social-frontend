@@ -1,18 +1,13 @@
 # Iggy Social Template
 
-Iggy Social is a Web3 Social frontend website based on the Iggy Social template. It uses [Orbis SDK](https://github.com/OrbisWeb3/orbis-sdk) and Ceramic Network in the background.
+Iggy Social is a Web3 Social frontend website based on the [Iggy Social](https://iggy.social) template. It uses [Orbis SDK](https://useorbis.com) and [Ceramic Network](https://ceramic.network/) in the background. For usernames it uses [Punk Domains](https://punk.domains/).
 
 Demo 1 (Netlify): https://demo.iggy.social/
 Demo 2 (Vercel): https://demo2.iggy.social/
 
-What's included:
+## Delete the .github folder
 
-- [Orbis SDK](https://github.com/OrbisWeb3/orbis-sdk)
-- [Nuxt 3](https://v3.nuxtjs.org/)
-- [Vue Dapp](https://vue-dapp-docs.netlify.app/)
-- [Ethers 5](https://ethers.org/)
-- [Pinia](https://pinia.vuejs.org/)
-- [Vue Toastification](https://github.com/Maronato/vue-toastification/tree/next)
+This folder (and the main.yml file) is just for the purpose of mirroring this repo to other git servers (for backup reasons). You don't need this in your cloned project.
 
 ## .env
 
