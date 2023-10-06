@@ -181,7 +181,7 @@ export default {
         this.allNftsArrayLength = await launchpadContract.getNftContractsArrayLength();
       }
 
-      if (this.allNftsArrayLength === 0) {
+      if (this.allNftsArrayLength > 0) {
         // set the start and end index, if end index is 0
         if (this.allNftsIndexEnd === 0) {
           this.allNftsIndexEnd = this.allNftsArrayLength - 1;

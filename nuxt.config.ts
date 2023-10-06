@@ -124,13 +124,13 @@ export default defineNuxtConfig({
         "newsletter": false, 
         "nftLaunchpad": true, 
         "randomMintedPosts": true, 
-        "swap": false, 
+        "swap": true, 
         "stake": false, 
         "sendTokens": false, 
         "spotify": false
       }, 
       showRepliesOnHomepage: true, // show replies on the homepage  
-      sidebarLeftSticky: true, // make the left sidebar sticky (always visible)
+      sidebarLeftSticky: false, // make the left sidebar sticky (always visible)
       spotifyPlaylistId: "5y7f2Wxfq49G5KuNQfMPbk", // enter just the ID of the playlist (not the full URL)  
       stakingContractAddress: "0x96Dc7548fD018d1E51d2d5e98B265411C3D0F22A", // this is also the stake/gov token address
       stakeTokenSymbol: "IGT", // stake token symbol (governance token symbol)

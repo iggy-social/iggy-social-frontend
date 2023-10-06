@@ -14,8 +14,9 @@
         </div>
       </div>
 
-      <!-- Keys list -->
+      <!-- Keys list 
       <KeysListWidget v-if="$config.keysAddress && $config.showFeatures.friendKeys" />
+      -->
 
       <!-- Swap tokens -->
       <SimpleSwapWidget 
