@@ -37,6 +37,8 @@ Then, when you create a project on 4everland, make sure you select the `build` b
 
 And in the build section delete the command and set build folder to empty (or `./`). The preset can be set to `Other`. No install command is needed either.
 
+![](https://bafkreid6mzglrk5hklraua267sker6gqsfpy2ezmjj7yc2oqmx2arbynru.ipfs.w3s.link)
+
 ## GIFs (Tenor)
 
 If you want to have GIF search implemented, create your own Tenor API Key on Google Cloud Console. Follow the instructions here: https://developers.google.com/tenor/guides/quickstart. 
