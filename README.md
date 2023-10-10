@@ -31,6 +31,8 @@ If you have your code on GitHub, the `build.yml` script will build your app via 
 
 Make sure you add all the necessary env vars (tenor, web3 storage etc.) to the organization variables for actions on GitHub.
 
+Also make sure you have Workflow permissions on the organization level on GitHub set to read & write.
+
 Then, when you create a project on 4everland, make sure you select the `build` branch. 
 
 And in the build section delete the command and set build folder to empty (or `./`). The preset can be set to `Other`. No install command is needed either.
