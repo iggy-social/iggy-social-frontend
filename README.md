@@ -23,6 +23,18 @@ Make sure to use the the `npm run generate` command instead of `npm run build` f
 
 If you want to use optional features such as GIFs and image upload, make sure to enter proper environment variables (see `.env.example`).
 
+### 4everland
+
+[4everland](https://4everland.org/) is a decentralized hosting provider which stores your website on IPFS.
+
+If you have your code on GitHub, the `build.yml` script will build your app via GitHub Actions and create a `build` branch.
+
+Make sure you add all the necessary env vars (tenor, web3 storage etc.) to the organization variables for actions on GitHub.
+
+Then, when you create a project on 4everland, make sure you select the `build` branch. 
+
+And in the build section delete the command and set build folder to empty (or `./`). The preset can be set to `Other`. No install command is needed either.
+
 ## GIFs (Tenor)
 
 If you want to have GIF search implemented, create your own Tenor API Key on Google Cloud Console. Follow the instructions here: https://developers.google.com/tenor/guides/quickstart. 
