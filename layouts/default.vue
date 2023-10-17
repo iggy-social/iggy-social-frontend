@@ -62,6 +62,11 @@
               <small class="text-center mb-3 text-muted">Bifrost</small>
             </div> 
 
+            <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectMetaMask">
+              <img src="@/assets/img/wallets/zerion.png" class="card-img-top card-img-wallet" alt="Zerion">
+              <small class="text-center mb-3 text-muted">Zerion</small>
+            </div> 
+
             <!--
             <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectWalletConnect">
               <img src="@/assets/img/wallets/wc.png" class="card-img-top card-img-wallet" alt="Wallet Connect">
