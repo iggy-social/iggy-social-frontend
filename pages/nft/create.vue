@@ -191,6 +191,12 @@ export default {
   },
 
   computed: {
+    cleanDescription() {
+      if (!this.cDescription) return null;
+
+      return this.cDescription.replace(/"/g, "'") // replace double quotes with single quotes
+    },
+
     createPrice() {
       if (!this.createPriceWei) return null;
 
@@ -251,7 +257,7 @@ export default {
         try {
           const tx = await launchpadContract.launch(
             this.address, // contract owner
-            this.cDescription, // collection description
+            this.cleanDescription, // collection description
             this.cImage, // collection image
             this.nftName, // NFT name
             this.cName, // collection name
@@ -380,7 +386,7 @@ export default {
               type: "nftCollectionCreated",
               authorAddress: String(this.address),
               collectionAddress: String(nftContractAddress),
-              collectionDescription: this.cDescription,
+              collectionDescription: this.cleanDescription,
               collectionImage: this.cImage.replace("?.img", ""),
               collectionName: this.cName,
               collectionRatio: this.ratio,

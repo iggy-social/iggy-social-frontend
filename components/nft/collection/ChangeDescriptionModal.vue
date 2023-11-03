@@ -70,7 +70,10 @@ export default {
       const metadataContract = new ethers.Contract(this.mdAddress, metadataInterface, this.signer);
 
       try {
-        const tx = await metadataContract.setDescription(this.cAddress, this.editDescription); 
+        const tx = await metadataContract.setDescription(
+          this.cAddress, 
+          this.editDescription.replace(/"/g, "'") // replace double quotes with single quotes
+        ); 
 
         const toastWait = this.toast(
           {
@@ -96,7 +99,7 @@ export default {
           });
 
           this.$emit("saveCollection", {
-            description: this.editDescription
+            description: this.editDescription.replace(/"/g, "'") // replace double quotes with single quotes
           });
 
           this.editDescription = null;
@@ -120,8 +123,7 @@ export default {
         try {
           let extractMessage = e.message.split("reason=")[1];
           extractMessage = extractMessage.split(", method=")[0];
-          extractMessage = extractMessage.replace('"', "");
-          extractMessage = extractMessage.replace('"', "");
+          extractMessage = extractMessage.replace(/"/g, "");
           extractMessage = extractMessage.replace('execution reverted:', "Error:");
 
           console.log(extractMessage);

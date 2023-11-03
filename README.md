@@ -5,9 +5,11 @@ Iggy Social is a Web3 Social frontend website based on the [Iggy Social](https:/
 Demo 1 (Netlify): https://demo.iggy.social/
 Demo 2 (Vercel): https://demo2.iggy.social/
 
-## Delete the .github folder
+## Delete mirror.yml in the .github folder
 
-This folder (and the main.yml file) is just for the purpose of mirroring this repo to other git servers (for backup reasons). You don't need this in your cloned project.
+The mirror.yml file is just for the purpose of mirroring this repo to other git servers (for backup reasons). You don't need this in your cloned project.
+
+Build.yml is optional, it builds the projects, and stores the built code on the `build` branch. You can then use this branch for cheap deployment on 4everland (for example) - see instructions below.
 
 ## .env
 

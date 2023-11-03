@@ -127,8 +127,7 @@ export default {
         try {
           let extractMessage = e.message.split("reason=")[1];
           extractMessage = extractMessage.split(", method=")[0];
-          extractMessage = extractMessage.replace('"', "");
-          extractMessage = extractMessage.replace('"', "");
+          extractMessage = extractMessage.replace(/"/g, "");
           extractMessage = extractMessage.replace('execution reverted:', "Error:");
           extractMessage = extractMessage.replace('ChatTokenClaimDomains: ', "");
 
