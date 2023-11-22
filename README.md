@@ -49,9 +49,7 @@ Then enter the key in environment variables (`TENOR_KEY`).
 
 ## Image upload (Web3 Storage)
 
-To support image uploads on IPFS please create an API key on Web3 Storage: https://web3.storage/ 
-
-Then enter the key in environment variables (`WEB3_STORAGE_KEY`).
+To support image uploads on IPFS please create a key/token on Spheron Storage: https://app.spheron.network/#/storage 
 
 ## Customize
 
