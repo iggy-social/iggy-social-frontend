@@ -385,7 +385,6 @@ export default {
           sessionStorage.setItem(String(this.address).toLowerCase()+"-img", this.newImageLink);
           this.toast("Image successfully updated!", {type: "success"});
           this.waitingImageUpdate = false;
-          document.getElementById('changeImageModalClose').click();
         }
       } else {
         this.toast("Please connect to chat first", {type: "error"});
@@ -562,7 +561,7 @@ export default {
     },
 
     async insertImage(imageUrl) {
-      // get image from Web3StorageImageUpload component and call the changeImage function
+      // get image from file upload modal component and call the changeImage function
       this.newImageLink = imageUrl;
       this.changeImage();
     },

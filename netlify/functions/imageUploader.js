@@ -1,4 +1,4 @@
-import { SpheronClient, ProtocolEnum } from "@spheron/storage";
+const { SpheronClient, ProtocolEnum } = require("@spheron/storage");
 
 exports.handler = async function (event, context) {
   try {
