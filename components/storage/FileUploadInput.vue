@@ -10,11 +10,15 @@
     type="button" 
     :class="btnCls" 
     @click="uploadFile"
-    :disabled="waitingUpload || !file"
+    :disabled="waitingUpload || !file || fileTooBig"
   >
     <span v-if="waitingUpload" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
     Upload
   </button>
+
+  <div v-if="fileTooBig" class="alert alert-danger mt-3" role="alert">
+    File is too big (max size is {{ maxFileSize / 1024 / 1024 }} MB).
+  </div>
 </template>
 
 <script>
@@ -30,6 +34,7 @@ export default {
       componentId: null,
       file: null,
       newFileName: null,
+      uploadedFileSize: null,
       uploadToken: null,
       waitingUpload: false
     }
@@ -37,6 +42,14 @@ export default {
 
   mounted() {
     this.componentId = this.$.uid;
+  },
+
+  computed: {
+    fileTooBig() {
+      if (this.uploadedFileSize) {
+        return this.maxFileSize && (this.uploadedFileSize > this.maxFileSize)
+      }
+    }
   },
 
   methods: {
@@ -79,9 +92,14 @@ export default {
 
     handleFileInput(event) {
       const uploadedFile = event.target.files[0];
+      this.uploadedFileSize = uploadedFile.size;
 
-      // print file extension (split at last dot)
-      const fileExtension1 = uploadedFile.name.split(".").pop();
+      // check file size
+      if (this.maxFileSize && uploadedFile.size > this.maxFileSize) {
+        const maxSizeMb = this.maxFileSize / 1024 / 1024;
+        console.error('File is too large (max size is ' + maxSizeMb + ' MB)');
+        return;
+      }
 
       // get file name
       const fileName = uploadedFile.name;

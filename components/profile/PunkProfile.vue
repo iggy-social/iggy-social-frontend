@@ -39,7 +39,7 @@
           <!-- Buttons -->
           <div class="mt-2" v-if="isCurrentUser">
 
-            <!-- Verify Account Ownership button -->
+            <!-- Verify Account Ownership button 
             <button 
               v-if="!userStore.getIsConnectedToOrbis"
               class="btn btn-primary mt-2 me-2 col-8 col-md-4" 
@@ -49,6 +49,7 @@
               <i class="bi bi-person-check-fill"></i>
               Verify Account
             </button>
+            -->
 
             <!-- Actions dropdown button -->
             <div class="dropdown mt-2">
@@ -59,8 +60,16 @@
               <div class="dropdown-menu">
 
                 <span 
-                  class="dropdown-item cursor-pointer" 
-                  :disabled="!userStore.getIsConnectedToOrbis"
+                  v-if="!userStore.getIsConnectedToOrbis"
+                  class="dropdown-item cursor-pointer"
+                  data-bs-toggle="modal" :data-bs-target="'#verifyAccountModal'"
+                >
+                  <i class="bi bi-person-check-fill"></i> Verify account ownership
+                </span>
+
+                <span 
+                  class="dropdown-item cursor-pointer"
+                  :class="!userStore.getIsConnectedToOrbis ? 'disabled' : ''" 
                   data-bs-toggle="modal" :data-bs-target="'#fileUploadModal'+$.uid"
                 >
                   <i class="bi bi-person-circle"></i> Change your profile picture
@@ -68,7 +77,6 @@
 
                 <span 
                   class="dropdown-item cursor-pointer" 
-                  :disabled="!userStore.getIsConnectedToOrbis"
                   data-bs-toggle="modal" data-bs-target="#setEmailModal"
                 >
                   <i class="bi bi-envelope-at-fill"></i> Set email notification for chat
@@ -174,7 +182,7 @@
       title="Change profile image"
       infoText="Upload a new profile picture."
       :componentId="$.uid"
-      :maxFileSize="$config.maxImageUploadSizeMb * 1024 * 1024"
+      :maxFileSize="$config.fileUploadSizeLimit"
     />
     <!-- END Change Image Modal -->
 
