@@ -10,8 +10,8 @@
         <div class="modal-body">
 
           <div class="mt-2">
-            <div v-if="!imageUrl">
-              <p v-if="$config.fileUploadEnabled">Upload new image (and then click Submit below):</p>
+            <div v-if="!imageUrl && $config.fileUploadEnabled">
+              <p>Upload new image (and then click Submit below):</p>
 
               <FileUploadInput 
                 btnCls="btn btn-primary"
@@ -20,7 +20,7 @@
               />
               
 
-              <p class="mt-3" v-if="$config.fileUploadEnabled">Or paste image link here:</p>
+              <p class="mt-3">Or paste image link here:</p>
             </div>
 
             <p v-if="!$config.fileUploadEnabled">Paste image link here:</p>
