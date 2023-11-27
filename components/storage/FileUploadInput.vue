@@ -61,8 +61,7 @@ export default {
       if (this.$config.fileUploadTokenService === "netlify") {
         fetcherService = thisAppUrl + "/.netlify/functions/imageUploader";
       } else if (this.$config.fileUploadTokenService === "vercel") {
-        // TODO: add vercel function URL
-        //fetcherService = "https://vercel...";
+        fetcherService = thisAppUrl + "/api/imageUploader";
       }
 
       if (fetcherService) {

@@ -25,6 +25,15 @@ Make sure to use the the `npm run generate` command instead of `npm run build` f
 
 If you want to use optional features such as GIFs and image upload, make sure to enter proper environment variables (see `.env.example`).
 
+Make sure to also select the proper serverless functions services in your environment variables, for example:
+
+```bash
+FILE_UPLOAD_SERVICE=netlify
+LINK_PREVIEW_SERVICE=netlify
+```
+
+You can also set these in the Nuxt config file (`nuxt.config.ts`).
+
 ### 4everland
 
 [4everland](https://4everland.org/) is a decentralized hosting provider which stores your website on IPFS.
