@@ -234,7 +234,6 @@ import { ethers } from 'ethers';
 import { useUserStore } from '~/store/user';
 import { useToast } from "vue-toastification/dist/index.mjs";
 import ProfileImage from "~/components/profile/ProfileImage.vue";
-import Web3StorageImageUpload from "~/components/storage/Web3StorageImageUpload.vue";
 import FileUploadModal from "~/components/storage/FileUploadModal.vue";
 import UserMintedPosts from "~/components/minted-posts/UserMintedPosts.vue";
 import ResolverAbi from "~/assets/abi/ResolverAbi.json";
@@ -273,8 +272,7 @@ export default {
     ChatFeed,
     FileUploadModal,
     ProfileImage,
-    UserMintedPosts,
-    Web3StorageImageUpload
+    UserMintedPosts
   },
 
   mounted() {

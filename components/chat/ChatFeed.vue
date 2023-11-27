@@ -46,12 +46,25 @@
             -->
 
             <!-- Upload IMG button -->
-            <Web3StorageImageUpload 
-              v-if="isActivated && $config.web3storageKey !== '' && userStore.getIsConnectedToOrbis && isSupportedChain && hasDomainOrNotRequired"  
-              @insertImage="insertImage"
-              buttonText="IMG"
-              cls="btn btn-outline-primary me-2 mt-2 btn-sm"
+            <button 
+              v-if="isActivated && $config.fileUploadEnabled !== '' && userStore.getIsConnectedToOrbis && isSupportedChain && hasDomainOrNotRequired"
+              class="btn btn-outline-primary me-2 mt-2 btn-sm" 
+              data-bs-toggle="modal" :data-bs-target="'#fileUploadModal'+$.uid"
+            >
+              <i class="bi bi-file-earmark-image-fill"></i>
+              IMG
+            </button>
+
+            <!-- Upload Image Modal -->
+            <FileUploadModal 
+              v-if="userStore.getIsConnectedToOrbis"
+              @processFileUrl="insertImage"
+              title="Upload image"
+              infoText="Upload an image."
+              :componentId="$.uid"
+              :maxFileSize="$config.fileUploadSizeLimit"
             />
+            <!-- END Upload Image Modal -->
 
             <!-- Emoji Picker -->
             <EmojiPicker  
@@ -147,7 +160,7 @@ import ConnectWalletButton from "~/components/ConnectWalletButton.vue";
 import SwitchChainButton from "~/components/SwitchChainButton.vue";
 import TenorGifSearch from "~/components/tenor/TenorGifSearch.vue";
 import TenorStickerSearch from "~/components/tenor/TenorStickerSearch.vue";
-import Web3StorageImageUpload from "~/components/storage/Web3StorageImageUpload.vue";
+import FileUploadModal from "~/components/storage/FileUploadModal.vue";
 
 import EmojiPicker from '~/components/EmojiPicker.vue'
 import 'emoji-mart-vue-fast/css/emoji-mart.css'
@@ -168,10 +181,10 @@ export default {
   components: {
     ChatPost,
     ConnectWalletButton,
+    FileUploadModal,
     SwitchChainButton,
     TenorGifSearch,
     TenorStickerSearch,
-    Web3StorageImageUpload,
     EmojiPicker
   },
 
