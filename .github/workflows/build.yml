@@ -8,7 +8,6 @@ jobs:
     runs-on: ubuntu-latest
     env:  # Environment variables from either organization or repository settings page (for GitHub Actions).
       TENOR_KEY: ${{ secrets.TENOR_KEY }}
-      WEB3_STORAGE_KEY: ${{ secrets.WEB3_STORAGE_KEY }}
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v2.3.1

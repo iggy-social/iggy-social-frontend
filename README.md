@@ -31,7 +31,7 @@ If you want to use optional features such as GIFs and image upload, make sure to
 
 If you have your code on GitHub, the `build.yml` script will build your app via GitHub Actions and create a `build` branch.
 
-Make sure you add all the necessary env vars (tenor, web3 storage etc.) to the organization variables for actions on GitHub.
+Make sure you add all the necessary env vars (tenor etc.) to the organization variables for actions on GitHub.
 
 Also make sure you have Workflow permissions on the organization level on GitHub set to read & write.
 
