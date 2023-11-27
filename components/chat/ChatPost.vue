@@ -527,6 +527,8 @@ export default {
 
           if (this.$config.linkPreviews === "netlify") {
             fetcherService = thisAppUrl + "/.netlify/functions/linkPreviews?url=" + this.firstLink;
+          } else if (this.$config.linkPreviews === "vercel") {
+            fetcherService = thisAppUrl + "/api/linkPreviews?url=" + this.firstLink;
           } else if (this.$config.linkPreviews === "microlink") {
             fetcherService = "https://api.microlink.io/?url=" + this.firstLink;
           }

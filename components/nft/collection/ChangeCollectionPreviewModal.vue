@@ -11,13 +11,22 @@
           <p>Change your collection preview image.</p>
 
           <div class="mt-4">
-            <label :for="'input-'+componentId" class="form-label">
-              <strong>
-                Enter new preview image URL:
-              </strong>
-            </label>
+            <div v-if="!imageUrl && $config.fileUploadEnabled">
+              <p>Upload new image (and then click Submit below):</p>
 
-            <input v-model="imageUrl" type="text" class="form-control" :id="'input-'+componentId">
+              <FileUploadInput 
+                btnCls="btn btn-primary"
+                :maxFileSize="$config.fileUploadSizeLimit" 
+                @processUploadedFileUrl="insertImageLink"
+              />
+              
+
+              <p class="mt-3">Or paste image link here:</p>
+            </div>
+
+            <p v-if="!$config.fileUploadEnabled">Paste image link here:</p>
+
+            <input v-model="imageUrl" type="text" class="form-control">
 
             <div v-if="imageUrl" class="mt-3">
               <img :src="imageUrl" class="img-thumbnail img-fluid" style="max-width: 100px;" />
@@ -29,11 +38,9 @@
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-
           <button @click="updateImage" type="button" class="btn btn-primary" :disabled="!imageUrl || waiting">
             <span v-if="waiting" class="spinner-border spinner-border-sm mx-1" role="status" aria-hidden="true"></span>
-            Submit
+            Submit to blockchain
           </button>
         </div>
       </div>
@@ -46,11 +53,13 @@ import { ethers } from 'ethers';
 import { useEthers } from 'vue-dapp';
 import { useToast } from "vue-toastification/dist/index.mjs";
 import WaitingToast from "~/components/WaitingToast";
+import FileUploadInput from '~/components/storage/FileUploadInput.vue';
 
 export default {
   name: 'ChangeCollectionPreviewModal',
   props: ["cAddress", "mdAddress"],
   emits: ["saveCollection"],
+  components: { FileUploadInput },
 
   data() {
     return {
@@ -137,6 +146,10 @@ export default {
 
         this.waiting = false;
       }
+    },
+
+    insertImageLink(fileUrl) {
+      this.imageUrl = fileUrl;
     },
   },
 

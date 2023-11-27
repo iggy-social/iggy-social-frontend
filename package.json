@@ -11,6 +11,8 @@
     "@openzeppelin/merkle-tree": "^1.0.5",
     "@orbisclub/orbis-sdk": "^0.4.70",
     "@pinia/nuxt": "^0.4.6",
+    "@spheron/browser-upload": "^2.0.1",
+    "@spheron/storage": "^2.0.4",
     "@vueuse/core": "^9.2.0",
     "@vueuse/nuxt": "^9.2.0",
     "emoji-mart-vue-fast": "^15.0.0",

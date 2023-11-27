@@ -7,6 +7,7 @@ export const useSiteStore = defineStore({
   state: () => {
     return {
       colorMode: "dark",
+      fileUploadEnabled: true,
       showOnlyMasterPosts: useLocalStorage('showOnlyMasterPosts', "false"),
       slippage: "0.5", // percentage (%)
       swapDeadline: "20" // minutes
@@ -22,6 +23,10 @@ export const useSiteStore = defineStore({
       }
 
       return state.colorMode;
+    },
+
+    getFileUploadEnabled(state) {
+      return state.fileUploadEnabled;
     },
 
     getShowOnlyMasterPosts(state) {
@@ -59,6 +64,10 @@ export const useSiteStore = defineStore({
     setColorMode(cm: string) {
       this.colorMode = cm;
       localStorage.setItem("colorMode", cm);
+    },
+
+    setFileUploadEnabled(enabled: boolean) {
+      this.fileUploadEnabled = enabled;
     },
 
     setShowOnlyMasterPosts(somp: string) {

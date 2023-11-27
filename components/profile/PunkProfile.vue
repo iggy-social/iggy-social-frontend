@@ -38,39 +38,60 @@
 
           <!-- Buttons -->
           <div class="mt-2" v-if="isCurrentUser">
-            <button 
-              v-if="$config.web3storageKey === ''"
-              :disabled="waitingDataLoad" 
-              class="btn btn-primary mt-2 me-2" data-bs-toggle="modal" data-bs-target="#changeImageModal"
-            >
-              <span v-if="waitingDataLoad" class="spinner-border spinner-border-sm mx-1" role="status" aria-hidden="true"></span>
-              <i class="bi bi-person-circle"></i>
-              Change image
-            </button>
 
-            <!-- Upload IMG button -->
-            <Web3StorageImageUpload 
-              v-if="$config.web3storageKey !== '' && userStore.getIsConnectedToOrbis"  
-              @insertImage="insertImage"
-              buttonText="Change image"
-              cls="btn btn-primary me-2 mt-2 col-8 col-md-4"
-              icon="bi bi-person-circle"
-            />
-
+            <!-- Verify Account Ownership button 
             <button 
-              :disabled="waitingSetEmail" 
+              v-if="!userStore.getIsConnectedToOrbis"
               class="btn btn-primary mt-2 me-2 col-8 col-md-4" 
-              data-bs-toggle="modal" data-bs-target="#setEmailModal"
+              data-bs-toggle="modal" 
+              data-bs-target="#verifyAccountModal"
             >
-              <span v-if="waitingSetEmail" class="spinner-border spinner-border-sm mx-1" role="status" aria-hidden="true"></span>
-              <i class="bi bi-envelope-at-fill"></i>
-              Email notifications
+              <i class="bi bi-person-check-fill"></i>
+              Verify Account
             </button>
+            -->
 
-            <button class="btn btn-primary mt-2 me-2 col-8 col-md-3" data-bs-toggle="modal" data-bs-target="#chatSettingsModal">
-              <i class="bi bi-gear-fill"></i>
-              Settings
-            </button>
+            <!-- Actions dropdown button -->
+            <div class="dropdown mt-2">
+              <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-sliders"></i>
+                Profile settings
+              </button>
+              <div class="dropdown-menu">
+
+                <span 
+                  v-if="!userStore.getIsConnectedToOrbis"
+                  class="dropdown-item cursor-pointer"
+                  data-bs-toggle="modal" :data-bs-target="'#verifyAccountModal'"
+                >
+                  <i class="bi bi-person-check-fill"></i> Verify account ownership
+                </span>
+
+                <span 
+                  class="dropdown-item cursor-pointer"
+                  :class="!userStore.getIsConnectedToOrbis ? 'disabled' : ''" 
+                  data-bs-toggle="modal" :data-bs-target="'#fileUploadModal'+$.uid"
+                >
+                  <i class="bi bi-person-circle"></i> Change your profile picture
+                </span>
+
+                <span 
+                  class="dropdown-item cursor-pointer" 
+                  data-bs-toggle="modal" data-bs-target="#setEmailModal"
+                >
+                  <i class="bi bi-envelope-at-fill"></i> Set email notification for chat
+                </span>
+
+                <span 
+                  class="dropdown-item cursor-pointer" 
+                  data-bs-toggle="modal" data-bs-target="#chatSettingsModal"
+                >
+                  <i class="bi bi-gear-fill"></i> Other settings
+                </span>
+
+                
+              </div>
+            </div>
           </div>
           <!-- END Buttons -->
 
@@ -155,42 +176,14 @@
     <!-- END Set Email Notifications Modal -->
 
     <!-- Change Image Modal -->
-    <div class="modal fade" id="changeImageModal" tabindex="-1" aria-labelledby="changeImageModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-5" id="changeImageModalLabel">Change image</h1>
-            <button type="button" id="changeImageModalClose" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-
-            <div v-if="!userStore.getIsConnectedToOrbis">
-              <p>First connect to Ceramic to change the profile picture:</p>
-
-              <button class="btn btn-primary" @click="connectToOrbis">Connect to Ceramic</button>
-            </div>
-            
-            <div class="mt-3" v-if="userStore.getIsConnectedToOrbis">
-              Enter the new image URL (use a square image):
-
-              <input v-model="newImageLink" type="text" class="form-control mt-2" placeholder="Enter image link" />
-
-              <small v-if="newImageLink && !isImage" class="text-danger">
-                Error: The entered link is not an image (it does not end with .jpg, .jpeg, .png, or similar image extension).
-              </small>
-            </div>
-
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary" @click="changeImage" :disabled="!userStore.getIsConnectedToOrbis || !isImage">
-              <span v-if="waitingImageUpdate" class="spinner-border spinner-border-sm mx-1" role="status" aria-hidden="true"></span>
-              Submit changes
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <FileUploadModal 
+      v-if="userStore.getIsConnectedToOrbis"
+      @processFileUrl="insertImage"
+      title="Change profile image"
+      infoText="Upload a new profile picture."
+      :componentId="$.uid"
+      :maxFileSize="$config.fileUploadSizeLimit"
+    />
     <!-- END Change Image Modal -->
 
   </div>
@@ -241,7 +234,7 @@ import { ethers } from 'ethers';
 import { useUserStore } from '~/store/user';
 import { useToast } from "vue-toastification/dist/index.mjs";
 import ProfileImage from "~/components/profile/ProfileImage.vue";
-import Web3StorageImageUpload from "~/components/storage/Web3StorageImageUpload.vue";
+import FileUploadModal from "~/components/storage/FileUploadModal.vue";
 import UserMintedPosts from "~/components/minted-posts/UserMintedPosts.vue";
 import ResolverAbi from "~/assets/abi/ResolverAbi.json";
 import resolvers from "~/assets/data/resolvers.json";
@@ -277,9 +270,9 @@ export default {
 
   components: {
     ChatFeed,
+    FileUploadModal,
     ProfileImage,
-    UserMintedPosts,
-    Web3StorageImageUpload
+    UserMintedPosts
   },
 
   mounted() {
@@ -398,7 +391,6 @@ export default {
           sessionStorage.setItem(String(this.address).toLowerCase()+"-img", this.newImageLink);
           this.toast("Image successfully updated!", {type: "success"});
           this.waitingImageUpdate = false;
-          document.getElementById('changeImageModalClose').click();
         }
       } else {
         this.toast("Please connect to chat first", {type: "error"});
@@ -575,7 +567,7 @@ export default {
     },
 
     async insertImage(imageUrl) {
-      // get image from Web3StorageImageUpload component and call the changeImage function
+      // get image from file upload modal component and call the changeImage function
       this.newImageLink = imageUrl;
       this.changeImage();
     },

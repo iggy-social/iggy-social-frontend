@@ -62,12 +62,14 @@
             placeholder="Enter image URL or click the upload button"
           >
 
-          <Web3StorageImageUpload 
-            v-if="isActivated && $config.web3storageKey !== ''"  
-            @insertImage="insertImage"
-            buttonText="Upload"
-            cls="btn btn-outline-secondary rounded-end-2" 
-          />
+          <button
+            v-if="isActivated && $config.fileUploadEnabled !== ''" 
+            class="btn btn-outline-secondary rounded-end-2" 
+            data-bs-toggle="modal" :data-bs-target="'#fileUploadModal'+$.uid"
+          >
+            <i class="bi bi-file-earmark-image-fill"></i>
+            Upload
+          </button>
         </div>
         <div id="cImageHelp" class="form-text">Even if you want a generative PFP collection, put a single preview image for now and you will change it to a metadata link later.</div>
       </div>
@@ -146,10 +148,20 @@
         
       </div>
 
+      <!-- Upload Image Modal -->
+      <FileUploadModal 
+        v-if="isMounted" 
+        @processFileUrl="insertImage"
+        title="Upload your NFT image"
+        infoText="Upload the NFT image."
+        :componentId="$.uid"
+        :maxFileSize="$config.fileUploadSizeLimit"
+      />
+      <!-- END Upload Image Modal -->
+
     </div>
   </div>
 </template>
-
 
 <script>
 import { ethers } from 'ethers';
@@ -157,7 +169,7 @@ import { useEthers } from 'vue-dapp';
 import { useToast } from "vue-toastification/dist/index.mjs";
 import ConnectWalletButton from "~/components/ConnectWalletButton.vue";
 import WaitingToast from "~/components/WaitingToast";
-import Web3StorageImageUpload from "~/components/storage/Web3StorageImageUpload.vue";
+import FileUploadModal from "~/components/storage/FileUploadModal.vue";
 import { useUserStore } from '~/store/user';
 
 export default {
@@ -169,6 +181,7 @@ export default {
       cImage: null,
       cName: null,
       cSymbol: null,
+      isMounted: false,
       launchpadPaused: null,
       nftName: null,
       createPriceWei: null,
@@ -181,11 +194,12 @@ export default {
 
   components: {
     ConnectWalletButton,
-    WaitingToast,
-    Web3StorageImageUpload
+    FileUploadModal,
+    WaitingToast
   },
 
   mounted() {
+    this.isMounted = true;
     this.ratio = this.$config.nftDefaultRatio;
     this.fetchData();
   },
