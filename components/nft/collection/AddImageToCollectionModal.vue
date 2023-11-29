@@ -25,10 +25,10 @@
 
             <p v-if="!$config.fileUploadEnabled">Paste image link here:</p>
 
-            <input v-model="imageUrl" type="text" class="form-control">
+            <input v-model="imageUrl" type="text" class="form-control" id="addImageToCollectionInput" />
 
             <div v-if="imageUrl" class="mt-3">
-              <img :src="imageUrl" class="img-thumbnail img-fluid" style="max-width: 100px;" />
+              <img :src="imageUrl" :key="imageUrl" class="img-thumbnail img-fluid" style="max-width: 100px;" />
               <br />
               <small>If image didn't appear above, then something is wrong with the link you added.</small>
             </div>

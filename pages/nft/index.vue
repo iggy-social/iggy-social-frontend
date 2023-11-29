@@ -166,6 +166,7 @@ export default {
 
       // create launchpad contract object
       const launchpadInterface = new ethers.utils.Interface([
+        "function getLastNftContracts(uint256 amount) external view returns(address[] memory)",
         "function getNftContracts(uint256 fromIndex, uint256 toIndex) external view returns(address[] memory)",
         "function getNftContractsArrayLength() external view returns(uint256)"
       ]);
@@ -177,11 +178,14 @@ export default {
       );
 
       // get all NFTs array length
-      if (this.allNftsArrayLength === 0) {
+      if (Number(this.allNftsArrayLength) === 0) {
         this.allNftsArrayLength = await launchpadContract.getNftContractsArrayLength();
       }
 
-      if (this.allNftsArrayLength > 0) {
+      if (Number(this.allNftsArrayLength) === 1) {
+        const lNfts = await launchpadContract.getLastNftContracts(1);
+        await this.parseNftsArray(lNfts, this.lastNfts, provider);
+      } else if (Number(this.allNftsArrayLength) > 1) {
         // set the start and end index, if end index is 0
         if (this.allNftsIndexEnd === 0) {
           this.allNftsIndexEnd = this.allNftsArrayLength - 1;
