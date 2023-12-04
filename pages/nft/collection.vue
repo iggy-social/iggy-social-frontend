@@ -468,6 +468,13 @@ export default {
         this.cImage = await metadataContract.getCollectionPreviewImage(this.cAddress);
       }
 
+      // check if collection image uses Spheron IPFS gateway (in that case replace it with the IPFS gateway defined in the config)
+      if (this.cImage.includes(".ipfs.sphn.link/")) {
+        const linkParts = this.cImage.split(".ipfs.sphn.link/");
+        const cid = linkParts[0].replace("https://", "");
+        this.cImage = this.$config.ipfsGateway + cid + "/" + linkParts[1];
+      }
+
       // get description
       if (collection?.description && collection.description !== "" && collection.description !== null) {
         this.cDescription = collection.description;
