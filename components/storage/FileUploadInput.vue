@@ -123,9 +123,10 @@ export default {
       if (this.uploadToken) {
         const token = this.uploadToken;
 
-        const { protocolLink } = await upload([this.file], { token });
+        const { protocolLink, cid } = await upload([this.file], { token });
 
-        const fullFileUrl = protocolLink + "/" + this.newFileName;
+        //const fullFileUrl = protocolLink + "/" + this.newFileName;
+        const fullFileUrl = this.$config.ipfsGateway + cid + "/" + this.newFileName;
 
         // emit file url
         this.$emit("processUploadedFileUrl", fullFileUrl);

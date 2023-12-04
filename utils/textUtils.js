@@ -338,12 +338,21 @@ export function hasTextBlankCharacters(text) {
 }
 
 export function imgParsing(text) {
+  const config = useRuntimeConfig();
+
   const imageRegex = /(?:https?:\/\/(?:www\.)?)?(?:[-\w]+\.)+[^\s]+\.(?:jpe?g|gif|png|img)/gi;
   //const imageRegex = /(https?:\/\/.*\.(?:png|jpg|jpeg|gif))/i;
 
   if (!imageRegex.test(text)) { return text };
 
   return text.replace(imageRegex, function(url) {
+    if (url.includes(".ipfs.sphn.link/")) {
+      // replace a link to Spheron IPFS Gateway with an IPFS Gateway set in config
+      const linkParts = url.split(".ipfs.sphn.link/");
+      const ipfsHash = linkParts[0].replace("https://", "");
+      const ipfsLink = config.ipfsGateway + ipfsHash + "/" + linkParts[1];
+      return '<div></div><img class="img-fluid rounded" style="max-height: 500px;" src="' + ipfsLink + '" />';
+    }
     return '<div></div><img class="img-fluid rounded" style="max-height: 500px;" src="' + url + '" />';
   })
 }

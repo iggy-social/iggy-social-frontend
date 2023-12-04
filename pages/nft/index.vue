@@ -293,6 +293,15 @@ export default {
           collection["image"] = cImage;
         }
 
+        // check if collection image uses Spheron IPFS gateway (in that case replace it with the IPFS gateway defined in the config)
+        if (collection.image.includes(".ipfs.sphn.link/")) {
+          const linkParts = collection.image.split(".ipfs.sphn.link/");
+          const cid = linkParts[0].replace("https://", "");
+          const newImageLink = this.$config.ipfsGateway + cid + "/" + linkParts[1];
+          collection["image"] = newImageLink;
+          cImage = newImageLink;
+        }
+
         // store collection object in storage
         storeCollection(window, inputArray[i], collection);
 
