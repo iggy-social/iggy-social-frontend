@@ -251,6 +251,7 @@ export default {
         const launchpadInterface = new ethers.utils.Interface([
           `function launch(
               address contractOwner_,
+              address referrer_,
               string memory mdDescription_,
               string memory mdImage_,
               string memory mdName_,
@@ -271,6 +272,7 @@ export default {
         try {
           const tx = await launchpadContract.launch(
             this.address, // contract owner
+            ethers.constants.AddressZero, // referrer
             this.cleanDescription, // collection description
             this.cImage, // collection image
             this.nftName, // NFT name

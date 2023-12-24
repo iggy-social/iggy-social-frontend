@@ -304,7 +304,7 @@ export default {
       this.cleanDomainName = this.clean(this.domainName);
 
       const keysInterface = new ethers.utils.Interface([
-        "function buyKeys(string memory domainName, uint256 amount) external payable"
+        "function buyKeys(string memory domainName, uint256 amount, address referrer) external payable"
       ]);
 
       const keysContract = new ethers.Contract(
@@ -314,9 +314,14 @@ export default {
       );
 
       try {
-        const tx = await keysContract.buyKeys(this.cleanDomainName, 1, {
-          value: this.buyKeyPriceWei
-        });
+        const tx = await keysContract.buyKeys(
+          this.cleanDomainName, // domain name
+          1, // amount
+          ethers.constants.AddressZero, // referrer
+          {
+            value: this.buyKeyPriceWei
+          }
+        );
 
         const toastWait = this.toast(
           {

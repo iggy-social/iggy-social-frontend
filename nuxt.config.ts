@@ -50,9 +50,8 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      activityPointsAddress: "0x7d20A0E75B1ac519f500a51351bcb01A07fE3D7d",
-      activityPointsRatio: 1_000_000, 
-      airdropApAddress: "0x9Fc55DbA8978406FE212B9C8b4672B4B7a110401", // chat token claim for APs
+      activityPointsAddress: "0xc78412f838A40e6B0df0A24c058A5608019dEc02",
+      airdropApAddress: "", // chat token claim for APs
       airdropClaimDomainsAddress: "0x3ebDBc1D47d4bFe7D08A58123Ab3c85fC7358831", // chat token claim for domain holders
       blockExplorerBaseUrl: "https://mumbai.polygonscan.com",
       chatTokenAddress: "0x83C0E6655Ea65363F8B85954afa29F05e257231b", // chat token address
@@ -67,11 +66,11 @@ export default defineNuxtConfig({
       fileUploadTokenService: process.env.FILE_UPLOAD_SERVICE || "netlify", // "netlify" or "vercel" (or leave empty for no file uploads)
       getPostsLimit: 30, // number of posts to fetch from Orbis in the getPosts() function
       governanceUrl: "https://snapshot.org/#/sgbchat.eth", // governance url (snapshot, Tally, etc.)
-      iggyPostAddress: "0x63FE8216a66737CFE474DF3949F9081EbD4Bd800",
-      iggyPostMinterAddress: "0xF48D3812ceD80bC78C8553d7C3b702b0F0d63903",
-      iggyPostStatsAddress: "0xFCF878b629fF0Ef3bC033eFfCfFD39B00c9a68C5",
+      iggyPostAddress: "0xb5A9c6096a2A5d761337ae29C018218BCfeeEf73",
+      iggyPostMinterAddress: "0xece8B88ee42E7d68160BbC192E125b5F63B32430",
+      iggyPostStatsAddress: "0xe336676aC859785CECe2659317176304DB2DF808",
       ipfsGateway: "https://cloudflare-ipfs.com/ipfs/",
-      keysAddress: "0x34E7D66455BE3f6f0cCbF3df3b7c56b482530C8E", // FriendKeys contract address 
+      keysAddress: "0x018402Df92a74d1FCE36AbF604D31e7C8D0ABb14", // FriendKeys contract address 
       keysContext: "kjzl6cwe1jw14akr2rh1j3fhup1ewfr2uyyd6l85qllbe2d5fxywt7d8rqnau6j",
       keysFeatured: ["tempe", "tekr"],
       linkPreviews: process.env.LINK_PREVIEW_SERVICE || "netlify", // "netlify", "vercel", or "microlink" (or leave empty for no link previews)
@@ -82,7 +81,7 @@ export default defineNuxtConfig({
       marketplaceNftCollectionBaseUrl: "https://testnets.opensea.io/assets/mumbai/", // url (append nft address to it)
       newsletterLink: "https://paragraph.xyz/@iggy?modal=subscribe",
       nftDefaultRatio: 1, // default ratio for the NFT price bonding curve
-      nftLaunchpadBondingAddress: "0x75A31C8CC0620a535F6d3A6b840D760a31BdBff5", // NFT launchpad with bonding curve contract address
+      nftLaunchpadBondingAddress: "0x8f603a26a6C286CB55ed9cC07F42fCc02bdE4821", // NFT launchpad with bonding curve contract address
       nftLaunchpadLatestItems: 4, // number of latest NFTs to show in the NFT launchpad
       nftOrbisContext: "kjzl6cwe1jw1490l9agydb0vh2x0mddzxbsmga7s3yhl86utbhwne6zkhpikytw", // Orbis context for NFT collection pages
       orbisCategories: [ // use only alphanumeric ASCII characters for slugs! (no spaces, only dash is allowed)
@@ -139,7 +138,7 @@ export default defineNuxtConfig({
       stakeTokenSymbol: "IGT", // stake token symbol (governance token symbol)
       supportedChainId: 80001,
       swapPriceImpactMaxBps: 1000, // max price impact in bips (1 bps = 0.01%, 1000bps = 10%) for the swap function
-      swapRouterAddress: "0x4C4E86135e80790a88cD4a2cA073503647650991", // iggy swap router contract address
+      swapRouterAddress: "0xeE554E54659B76A81E2B71142b63Bded98100eD8", // iggy swap router contract address
       tenorApiKey: process.env.TENOR_KEY || "",
       tldName: ".testnet",
       tokenAddress: null, // leave null if it's a native token of the chain

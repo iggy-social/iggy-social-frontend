@@ -71,8 +71,17 @@ async function fetchNftMetadata(url, addr, tokenId, rpcUrl, marketplace) {
       nftMetadataUri = nftMetadataUri.replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/");
     } 
 
-    const res = await axios.get(nftMetadataUri);
-    json = await res.data;
+    try {
+      const res = await axios.get(nftMetadataUri);
+      json = await res.data;
+    } catch (error) {
+      console.log("error fetching metadata from ipfs for " + url);
+    }
+    
+  }
+
+  if (!json) {
+    return null;
   }
 
   if (json["image"].startsWith("ipfs://")) {
