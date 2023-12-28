@@ -27,13 +27,14 @@
           -->
 
           <!-- Activity Points -->
-          <button 
-            v-if="userStore.getCurentUserActivityPoints > 0 && $config.activityPointsAddress" 
-            class="btn btn-outline-primary btn-sm mt-2 mb-2" 
-            @click="fetchActivityPoints"
-          >
-            {{ userStore.getCurentUserActivityPoints }} AP
-          </button>
+          <div v-if="$config.activityPointsAddress && $config.showFeatures.activityPoints" class="mt-2">
+            <NuxtLink 
+              to="/activity-points"
+              class="btn btn-outline-primary btn-sm mt-2 mb-2"
+            >
+              {{ getUserAp }} AP
+            </NuxtLink>
+          </div>
 
           <hr />
         </div>
@@ -226,6 +227,13 @@ export default {
   },
 
   computed: {
+    getUserAp() {
+      if (this.userStore.getCurentUserActivityPoints > 0) {
+        return this.userStore.getCurentUserActivityPoints;
+      } else {
+        return 0;
+      }
+    },
 
     filteredCategories() {
       let cats = [];
@@ -253,16 +261,6 @@ export default {
         this.lSidebar.hide();
         this.sidebarStore.setLeftSidebar(false);
         this.sidebarStore.setMainContent(true);
-      }
-    },
-
-    async fetchActivityPoints() {
-      if (this.$config.activityPointsAddress && this.address) {
-        this.toast.info("Refreshing activity points...", { timeout: 2000 });
-
-        const activityPoints = await this.getActivityPoints(this.address);
-
-        this.userStore.setCurrentUserActivityPoints(activityPoints);
       }
     },
 
