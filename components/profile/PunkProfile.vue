@@ -27,6 +27,11 @@
               {{ balanceChatToken }} {{ $config.chatTokenSymbol }}
             </p>
 
+            <p class="me-4" v-if="$config.activityPointsAddress && $config.showFeatures.activityPoints">
+              <i class="bi bi-wallet me-1"></i>
+              {{ balanceAp }} AP
+            </p>
+
             <p class="me-4">
               <i class="bi bi-box-arrow-up-right me-2"></i>
               <a :href="$config.blockExplorerBaseUrl+'/address/'+uAddress" target="_blank" style="text-decoration: none;">
@@ -241,6 +246,7 @@ import resolvers from "~/assets/data/resolvers.json";
 import ChatFeed from '../chat/ChatFeed.vue';
 import { fetchUsername, storeUsername } from '~/utils/storageUtils';
 import { getTextWithoutBlankCharacters } from '~/utils/textUtils';
+import { getActivityPoints } from '~/utils/balanceUtils';
 
 export default {
   name: "PunkProfile",
@@ -248,6 +254,7 @@ export default {
 
   data() {
     return {
+      balanceAp: 0,
       balanceChatTokenWei: 0,
       currentTab: "posts",
       domain: this.pDomain,
@@ -521,6 +528,11 @@ export default {
           const chatContract = new ethers.Contract(this.$config.chatTokenAddress, chatInterface, provider);
 
           this.balanceChatTokenWei = await chatContract.balanceOf(this.uAddress);
+        }
+
+        // fetch activity points balance
+        if (this.$config.activityPointsAddress && this.$config.showFeatures.activityPoints) {
+          this.balanceAp = await getActivityPoints(this.uAddress, provider);
         }
       }
     },
