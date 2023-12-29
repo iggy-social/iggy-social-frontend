@@ -216,6 +216,7 @@ import WaitingToast from "~/components/WaitingToast";
 import ChatFeed from "~/components/chat/ChatFeed.vue";
 import KeysList from "~/components/keys/KeysList.vue";
 import ConnectWalletButton from "~/components/ConnectWalletButton.vue";
+import { fetchReferrer } from '~/utils/storageUtils';
 
 export default {
   name: 'Keys',
@@ -317,7 +318,7 @@ export default {
         const tx = await keysContract.buyKeys(
           this.cleanDomainName, // domain name
           1, // amount
-          ethers.constants.AddressZero, // referrer
+          fetchReferrer(window), // referrer
           {
             value: this.buyKeyPriceWei
           }

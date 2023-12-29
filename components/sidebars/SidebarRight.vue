@@ -6,6 +6,15 @@
       <!-- Mint/register a domain name -->
       <NameMintWidget />
 
+      <!-- Referrals -->
+      <div class="card m-2 bg-light">
+        <div class="card-header bg-light">Your referral link</div>
+        <div class="card-body sidebar-card-body">
+          <p>Share your referral link and earn referral fees!</p>
+          <ShareReferralLink />
+        </div>
+      </div>
+
       <!-- Playlist -->
       <div class="card m-2 bg-light" v-if="$config.showFeatures.spotify">
         <div class="card-header bg-light">{{ $config.projectName }} Playlist</div>
@@ -51,6 +60,7 @@ import MintedPostsWidget from '~/components/minted-posts/MintedPostsWidget.vue';
 import NameMintWidget from '~/components/names/NameMintWidget.vue';
 import SimpleSwapWidget from '~/components/swap/SimpleSwapWidget.vue';
 import KeysListWidget from '~/components/keys/KeysListWidget.vue';
+import ShareReferralLink from '~/components/ShareReferralLink.vue';
 
 export default {
     name: "SidebarRight",
@@ -60,6 +70,7 @@ export default {
       KeysListWidget,
       MintedPostsWidget,
       NameMintWidget,
+      ShareReferralLink,
       SimpleSwapWidget
     },
 

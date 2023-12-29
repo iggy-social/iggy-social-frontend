@@ -171,6 +171,7 @@ import ConnectWalletButton from "~/components/ConnectWalletButton.vue";
 import WaitingToast from "~/components/WaitingToast";
 import FileUploadModal from "~/components/storage/FileUploadModal.vue";
 import { useUserStore } from '~/store/user';
+import { fetchReferrer } from '~/utils/storageUtils';
 
 export default {
   name: 'NftCreate',
@@ -272,7 +273,7 @@ export default {
         try {
           const tx = await launchpadContract.launch(
             this.address, // contract owner
-            ethers.constants.AddressZero, // referrer
+            fetchReferrer(window), // referrer
             this.cleanDescription, // collection description
             this.cImage, // collection image
             this.nftName, // NFT name

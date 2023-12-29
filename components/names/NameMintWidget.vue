@@ -50,7 +50,7 @@ import WaitingToast from "~/components/WaitingToast";
 import ConnectWalletButton from "~/components/ConnectWalletButton";
 import { useUserStore } from '~/store/user';
 import { getDomainName } from '~/utils/domainUtils';
-import { fetchUsername, storeUsername } from '~/utils/storageUtils';
+import { fetchReferrer, fetchUsername, storeUsername } from '~/utils/storageUtils';
 
 export default {
   name: 'NameMintWidget',
@@ -312,7 +312,7 @@ export default {
           const tx = await contract.mint(
             this.domainName.toLowerCase(), // domain name
             this.address, // domain receiver
-            ethers.constants.AddressZero, // @todo add referral address
+            fetchReferrer(window), // referrer
           {
             value: ethers.utils.parseUnits(this.getNamePrice, this.$config.tokenDecimals)
           });

@@ -6,8 +6,11 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     env:  # Environment variables from either organization or repository settings page (for GitHub Actions).
       TENOR_KEY: ${{ secrets.TENOR_KEY }}
+      SPHERON_BUCKET_NAME: ${{ secrets.SPHERON_BUCKET_NAME }}
+      SPHERON_STORAGE_TOKEN: ${{ secrets.SPHERON_STORAGE_TOKEN }}
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v2.3.1

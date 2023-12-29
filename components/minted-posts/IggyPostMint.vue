@@ -53,6 +53,7 @@ import WaitingToast from "~/components/WaitingToast";
 import sanitizeHtml from 'sanitize-html';
 import { useUserStore } from '~/store/user';
 import { getImageFromText, textLengthWithoutBlankCharacters } from '~/utils/textUtils';
+import { fetchReferrer } from '~/utils/storageUtils';
 
 export default {
   name: "IggyPostMint",
@@ -161,7 +162,7 @@ export default {
             this.post.stream_id, // post ID
             this.post.creator_details.metadata.address, // post author
             this.address, // NFT receiver
-            ethers.constants.AddressZero, // @todo: enable referrals
+            fetchReferrer(window), // referrer
             String(this.textPreview), // text preview
             String(this.textImage),
             this.quantity,

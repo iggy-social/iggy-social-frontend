@@ -54,6 +54,7 @@ import wrappedNativeTokens from "~/assets/data/wrappedNativeTokens.json";
 import { swapTokens } from '~/utils/simpleSwapUtils';
 import WaitingToast from "~/components/WaitingToast";
 import { useSiteStore } from '~/store/site';
+import { fetchReferrer } from '~/utils/storageUtils';
 
 export default {
   name: "SwapTokensModal",
@@ -131,7 +132,7 @@ export default {
           inputTokenAmountWei,
           this.outputTokenAmountWei,
           this.routerAddress,
-          ethers.constants.AddressZero // TODO: referrer address
+          fetchReferrer(window)
         );
 
         const toastWait = this.toast(

@@ -142,8 +142,8 @@ import SidebarLeft from "~/components/sidebars/SidebarLeft.vue";
 import SidebarRight from "~/components/sidebars/SidebarRight.vue";
 import ChatSettingsModal from "~/components/ChatSettingsModal.vue";
 import { getActivityPoints } from '~/utils/balanceUtils';
-import { getDomainName } from '~/utils/domainUtils';
-import { storeUsername } from '~/utils/storageUtils';
+import { getDomainHolder, getDomainName } from '~/utils/domainUtils';
+import { storeReferrer, storeUsername } from '~/utils/storageUtils';
 import VerifyAccountOwnership from '~/components/VerifyAccountOwnership.vue';
 
 export default {
@@ -152,6 +152,7 @@ export default {
       breakpoint: 1000,
       isMounted: false,
       lSidebar: null,
+      referrer: null,
       rSidebar: null,
       width: null
     }
@@ -209,6 +210,12 @@ export default {
 
     // check if file upload is enabled
     this.siteStore.setFileUploadEnabled(this.$config.fileUploadEnabled);
+
+    // check if referrer in the URL
+    this.referrer = this.$route.query.ref;
+    if (this.referrer) {
+      this.parseReferrer();
+    }
   },
 
   unmounted() {
@@ -239,6 +246,7 @@ export default {
 
   methods: {
     getActivityPoints,
+    getDomainHolder,
     getDomainName, // imported function from utils/domainUtils.js
 
     async connectCoinbase() {
@@ -391,6 +399,33 @@ export default {
       this.userStore.setDidParent(null);
       this.userStore.setOrbisImage(null);
     },
+
+    async parseReferrer() {
+      // check if referrer is a domain name
+      if (!this.referrer.startsWith("0x")) {
+        let domainName = this.referrer;
+
+        if (this.referrer.includes(this.$config.tldName)) {
+          // get the domain name without extension
+          domainName = this.referrer.split(".")[0];
+        }
+
+        // fetch the domain holder address
+        this.referrer = await this.getDomainHolder(domainName);
+      }
+
+      if (this.address) {
+        if (String(this.address).toLowerCase() === String(this.referrer).toLowerCase()) {
+          return; // cannot refer yourself
+        }
+      }
+
+      // check if referrer is a valid address and not a zero address
+      if (ethers.utils.isAddress(this.referrer) && this.referrer != ethers.constants.AddressZero) {
+        // store into local storage as referrer
+        storeReferrer(window, this.referrer);
+      }
+    }
   },
 
   setup() {

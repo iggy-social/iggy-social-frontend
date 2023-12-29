@@ -1,5 +1,8 @@
+import { ethers } from 'ethers';
+
 const usernameExtension = "-username";
 const collectionExtension = "-collection";
+const referrerKey = "referrer";
 
 export function fetchCollection(window, cAddress) {
   if (!window) {
@@ -36,17 +39,30 @@ export function fetchCollection(window, cAddress) {
   }
 }
 
-export function storeCollection(window, cAddress, collectionObject) {
+export function fetchReferrer(window) {
   if (!window) {
-    console.log("No window object in storeCollection");
-    return null;
+    console.log("No window object in fetchReferrer");
+    return ethers.constants.AddressZero;
   }
 
-  const timestamp = new Date().getTime();
+  try {
+    const referrerAddress = window.localStorage.getItem(referrerKey);
 
-  collectionObject["stored"] = timestamp;
+    if (!referrerAddress) {
+      return ethers.constants.AddressZero;
+    }
 
-  window.localStorage.setItem(String(cAddress).toLowerCase()+collectionExtension, JSON.stringify(collectionObject));
+    // if not a valid address, return 0x0
+    if (!ethers.utils.isAddress(referrerAddress)) {
+      return ethers.constants.AddressZero;
+    }
+
+    return referrerAddress;
+  } catch (error) {
+    console.log(error);
+    return ethers.constants.AddressZero;
+  }
+
 }
 
 export function fetchUsername(window, userAddress) {
@@ -82,6 +98,28 @@ export function fetchUsername(window, userAddress) {
     console.log(error);
     return null;
   }
+}
+
+export function storeCollection(window, cAddress, collectionObject) {
+  if (!window) {
+    console.log("No window object in storeCollection");
+    return null;
+  }
+
+  const timestamp = new Date().getTime();
+
+  collectionObject["stored"] = timestamp;
+
+  window.localStorage.setItem(String(cAddress).toLowerCase()+collectionExtension, JSON.stringify(collectionObject));
+}
+
+export function storeReferrer(window, referrerAddress) {
+  if (!window) {
+    console.log("No window object in storeReferrer");
+    return null;
+  }
+
+  window.localStorage.setItem(referrerKey, referrerAddress);
 }
 
 export function storeUsername(window, userAddress, username) {
