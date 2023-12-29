@@ -94,6 +94,12 @@
                   <i class="bi bi-gear-fill"></i> Other settings
                 </span>
 
+                <span 
+                  class="dropdown-item cursor-pointer" 
+                  data-bs-toggle="modal" data-bs-target="#referralModal"
+                >
+                  <i class="bi bi-person-plus-fill"></i> Share referral link
+                </span>
                 
               </div>
             </div>

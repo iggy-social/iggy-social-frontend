@@ -120,6 +120,8 @@
 
     <ChatSettingsModal />
 
+    <ReferralModal />
+
   </div>
 
   <!-- Do not delete: ugly hack to make "global" work with Vite -->
@@ -135,7 +137,6 @@ import { useNotificationsStore } from '~/store/notifications';
 import { useSidebarStore } from '~/store/sidebars';
 import { useSiteStore } from '~/store/site';
 import { useUserStore } from '~/store/user';
-import { getRpcs } from "~/utils/rpcUtils";
 import NavbarDesktop from "~/components/navbars/NavbarDesktop.vue";
 import NavbarMobile from "~/components/navbars/NavbarMobile.vue";
 import SidebarLeft from "~/components/sidebars/SidebarLeft.vue";
@@ -143,8 +144,10 @@ import SidebarRight from "~/components/sidebars/SidebarRight.vue";
 import ChatSettingsModal from "~/components/ChatSettingsModal.vue";
 import { getActivityPoints } from '~/utils/balanceUtils';
 import { getDomainHolder, getDomainName } from '~/utils/domainUtils';
+import { getRpcs } from "~/utils/rpcUtils";
 import { storeReferrer, storeUsername } from '~/utils/storageUtils';
 import VerifyAccountOwnership from '~/components/VerifyAccountOwnership.vue';
+import ReferralModal from '~/components/referrals/ReferralModal.vue';
 
 export default {
   data() {
@@ -162,6 +165,7 @@ export default {
     ChatSettingsModal,
     NavbarDesktop,
     NavbarMobile,
+    ReferralModal,
     SidebarLeft,
     SidebarRight,
     VerifyAccountOwnership
