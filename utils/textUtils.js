@@ -389,6 +389,14 @@ export function urlParsing(text) {
   if (!urlRegex.test(text)) { return text };
 
   return text.replace(urlRegex, function(url) {
+
+    // remove referrals from our website links
+    if (url.startsWith(window.location.origin)) {
+      if (url.includes("ref=")) {
+        url = url.replace("ref=", "noref="); // the easiest solution to not break a URL
+      }
+    }
+
     if (url.startsWith("https://www.youtube.com/embed/")) {
       // ignore youtube embeds
       return url;
