@@ -6,8 +6,8 @@
 
   <div class="card border scroll-500">
     <div class="card-body">
-      <p class="fs-3" @click="$router.back()">
-        <i class="bi bi-arrow-left-circle cursor-pointer"></i>
+      <p class="fs-3">
+        <i class="bi bi-arrow-left-circle cursor-pointer" @click="$router.back()"></i>
       </p>
 
       <h3 class="mb-3 mt-3">Activity Points</h3>
@@ -38,6 +38,22 @@
         By actively using {{ $config.projectName }} features, you can earn more Activity Points.
       </p>
 
+      <hr />
+
+      <h5 class="text-break mt-4 mb-3">
+        Share referral link to earn more APs
+      </h5>
+
+      <p class="text-break mt-2 mb-3">
+        Earn additional activity points (and referral fees) by sharing your referral link:
+      </p>
+
+      <div class="row mt-2">
+        <div class="col-md-6">
+          <ShareReferralLink />
+        </div>
+      </div>
+
     </div>
   </div>
 </template>
@@ -46,9 +62,14 @@
 import { useEthers } from 'vue-dapp';
 import { useUserStore } from '~/store/user';
 import { getActivityPoints } from '~/utils/balanceUtils';
+import ShareReferralLink from '~/components/referrals/ShareReferralLink.vue';
 
 export default {
   name: 'ActivityPoints',
+
+  components: {
+    ShareReferralLink,
+  },
 
   mounted() {
     this.fetchActivityPoints();

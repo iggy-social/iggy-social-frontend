@@ -11,6 +11,12 @@ The mirror.yml file is just for the purpose of mirroring this repo to other git 
 
 Build.yml is optional, it builds the projects, and stores the built code on the `build` branch. You can then use this branch for cheap deployment on 4everland (for example) - see instructions below.
 
+## Change GitHub settings (needed only for build.yml)
+
+In your repository, go to Settings -> Actions -> General. Select `Read and write permissions`. Also make sure you have the necessary env vars in your Settings.
+
+If you do not need `build.yml`, delete it and ignore these instructions.
+
 ## .env
 
 Create a `.env` file from `.env.example`.

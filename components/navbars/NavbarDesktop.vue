@@ -6,6 +6,13 @@
       </NuxtLink>
 
       <ul class="navbar-nav justify-content-end flex-grow-1">
+
+        <li v-if="isActivated" class="nav-item">
+          <span class="nav-link cursor-pointer" data-bs-toggle="modal" data-bs-target="#referralModal">
+            Earn referral fees! 🤑
+          </span>
+        </li>
+        
         <li v-if="!isActivated" class="nav-item">
           <ConnectWalletButton class="nav-link cursor-pointer" btnText="Connect wallet" />
         </li>
