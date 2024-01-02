@@ -12,7 +12,8 @@
         </div>
 
         <div class="col-md-9 mt-3">
-          <h3 v-if="domain" class="mb-3">{{ getTextWithoutBlankCharacters(domain) }}</h3>
+          <h3 v-if="domain && !isCurrentUser" class="mb-3">{{ getTextWithoutBlankCharacters(domain) }}</h3>
+          <h3 v-if="domain && isCurrentUser" class="mb-3">{{ getTextWithoutBlankCharacters(userStore.getDefaultDomain) }}</h3>
 
           <!-- Data -->
           <div class="mt-4 muted-text" style="font-size: 14px;">
@@ -78,6 +79,13 @@
                   data-bs-toggle="modal" :data-bs-target="'#fileUploadModal'+$.uid"
                 >
                   <i class="bi bi-person-circle"></i> Change your profile picture
+                </span>
+
+                <span 
+                  class="dropdown-item cursor-pointer"
+                  data-bs-toggle="modal" data-bs-target="#changeUsernameModal"
+                >
+                  <i class="bi bi-pencil-square"></i> Change your username
                 </span>
 
                 <span 

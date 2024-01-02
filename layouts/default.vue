@@ -122,6 +122,8 @@
 
     <ReferralModal />
 
+    <ChangeUsernameModal />
+
   </div>
 
   <!-- Do not delete: ugly hack to make "global" work with Vite -->
@@ -148,6 +150,7 @@ import { getRpcs } from "~/utils/rpcUtils";
 import { storeReferrer, storeUsername } from '~/utils/storageUtils';
 import VerifyAccountOwnership from '~/components/VerifyAccountOwnership.vue';
 import ReferralModal from '~/components/referrals/ReferralModal.vue';
+import ChangeUsernameModal from '~/components/names/ChangeUsernameModal.vue';
 
 export default {
   data() {
@@ -162,6 +165,7 @@ export default {
   },
 
   components: {
+    ChangeUsernameModal,
     ChatSettingsModal,
     NavbarDesktop,
     NavbarMobile,
