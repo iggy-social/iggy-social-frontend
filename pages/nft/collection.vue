@@ -50,7 +50,7 @@
 
               <li v-if="isCurrentAddressOwner && cType == 0">
                 <span class="dropdown-item cursor-pointer" data-bs-toggle="modal" data-bs-target="#addImageToCollectionModal">
-                  Add new image to collection
+                  Add additional image to collection
                 </span>
               </li>
 

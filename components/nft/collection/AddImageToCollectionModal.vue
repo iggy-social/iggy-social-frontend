@@ -11,7 +11,7 @@
 
           <div class="mt-2">
             <div v-if="!imageUrl && $config.fileUploadEnabled">
-              <p>Upload new image (and then click Submit below):</p>
+              <p>Upload additional image (and then click Submit below):</p>
 
               <FileUploadInput 
                 btnCls="btn btn-primary"

@@ -116,13 +116,15 @@
     </div>
     <!-- END Connect Wallet modal -->
 
-    <VerifyAccountOwnership />
-
     <ChatSettingsModal />
+
+    <ChangeUsernameModal />
+
+    <FindUserModal />
 
     <ReferralModal />
 
-    <ChangeUsernameModal />
+    <VerifyAccountOwnership />
 
   </div>
 
@@ -151,6 +153,7 @@ import { storeReferrer, storeUsername } from '~/utils/storageUtils';
 import VerifyAccountOwnership from '~/components/VerifyAccountOwnership.vue';
 import ReferralModal from '~/components/referrals/ReferralModal.vue';
 import ChangeUsernameModal from '~/components/names/ChangeUsernameModal.vue';
+import FindUserModal from '~/components/search/FindUserModal.vue';
 
 export default {
   data() {
@@ -167,6 +170,7 @@ export default {
   components: {
     ChangeUsernameModal,
     ChatSettingsModal,
+    FindUserModal,
     NavbarDesktop,
     NavbarMobile,
     ReferralModal,

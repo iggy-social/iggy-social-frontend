@@ -10,7 +10,7 @@
     <Meta name="twitter:description" :content="'Check out this profile on ' + $config.projectName + '!'" />
   </Head>
 
-  <PunkProfile class="mt-1" />
+  <PunkProfile :key="$route.query.id" class="mt-1" />
 </template>
 
 <script>
