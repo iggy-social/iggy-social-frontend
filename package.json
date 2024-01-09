@@ -18,6 +18,8 @@
     "axios": "^1.6.2",
     "emoji-mart-vue-fast": "^15.0.0",
     "ethers": "^5.7.2",
+    "imagekit": "^4.1.4",
+    "imagekit-javascript": "^2.0.0",
     "metascraper": "^5.36.0",
     "metascraper-description": "^5.36.0",
     "metascraper-image": "^5.36.0",

@@ -23,6 +23,7 @@
 
 <script>
 import { upload } from "@spheron/browser-upload";
+import ImageKit from "imagekit-javascript";
 
 export default {
   name: "FileUploadInput",
@@ -53,6 +54,37 @@ export default {
   },
 
   methods: {
+    async fallbackUpload() {
+      const thisAppUrl = window.location.origin;
+      const fetcherService = thisAppUrl + "/.netlify/functions/imageUploaderFallback";
+
+      const resp = await $fetch(fetcherService).catch((error) => error.data);
+
+      let authParams = resp;
+
+      if (typeof(resp) === "string") {
+        authParams = JSON.parse(resp);
+      }
+
+      const imagekit = new ImageKit({
+        publicKey: this.$config.imagekitPublicKey,
+        urlEndpoint: this.$config.imagekitEndpoint,
+      });
+
+      const result = await imagekit.upload({
+        file: this.file,
+        fileName: this.newFileName,
+        tags: [this.$config.projectName, this.$config.projectUrl],
+        token: authParams.data.token,
+        signature: authParams.data.signature,
+        expire: authParams.data.expire,
+      });
+
+      this.$emit("processUploadedFileUrl", result.url);
+      
+      this.waitingUpload = false;
+    },
+
     async fetchUploadToken() {
       const thisAppUrl = window.location.origin;
 
@@ -76,7 +108,7 @@ export default {
 
           if (response?.error) {
             console.log("Error fetching upload token: ", response["error"]);
-            return;
+            throw response["error"];
           }
 
           if (response?.data) {
@@ -85,6 +117,7 @@ export default {
           
         } catch (e) {
           console.log("Error fetching a file upload token: ", e);
+          throw e;
         }
       }
     },
@@ -116,20 +149,25 @@ export default {
 
     async uploadFile() {
       this.waitingUpload = true;
+      
+      try {
+        // get session token
+        await this.fetchUploadToken();
 
-      // get session token
-      await this.fetchUploadToken();
+        if (this.uploadToken) {
+          const token = this.uploadToken;
 
-      if (this.uploadToken) {
-        const token = this.uploadToken;
+          const { protocolLink, cid } = await upload([this.file], { token });
 
-        const { protocolLink, cid } = await upload([this.file], { token });
+          //const fullFileUrl = protocolLink + "/" + this.newFileName;
+          const fullFileUrl = this.$config.ipfsGateway + cid + "/" + this.newFileName;
 
-        //const fullFileUrl = protocolLink + "/" + this.newFileName;
-        const fullFileUrl = this.$config.ipfsGateway + cid + "/" + this.newFileName;
-
-        // emit file url
-        this.$emit("processUploadedFileUrl", fullFileUrl);
+          // emit file url
+          this.$emit("processUploadedFileUrl", fullFileUrl);
+        }
+      } catch (e) {
+        console.log("Error uploading file. Switching to fallback upload method.");
+        await this.fallbackUpload();
       }
 
       this.waitingUpload = false;

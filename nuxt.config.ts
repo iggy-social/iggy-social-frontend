@@ -69,6 +69,8 @@ export default defineNuxtConfig({
       iggyPostAddress: "0xb5A9c6096a2A5d761337ae29C018218BCfeeEf73",
       iggyPostMinterAddress: "0xece8B88ee42E7d68160BbC192E125b5F63B32430",
       iggyPostStatsAddress: "0xe336676aC859785CECe2659317176304DB2DF808",
+      imagekitEndpoint: process.env.IMAGEKIT_ENDPOINT,
+      imagekitPublicKey: process.env.IMAGEKIT_PUBLIC_KEY,
       ipfsGateway: "https://cloudflare-ipfs.com/ipfs/",
       keysAddress: "0x018402Df92a74d1FCE36AbF604D31e7C8D0ABb14", // FriendKeys contract address 
       keysContext: "kjzl6cwe1jw14akr2rh1j3fhup1ewfr2uyyd6l85qllbe2d5fxywt7d8rqnau6j",

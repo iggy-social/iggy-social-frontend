@@ -75,6 +75,18 @@ SPHERON_STORAGE_TOKEN=
 
 Image uploads via Spheron work only if you have Netlify/Vercel background functions enabled (see `netlify/functions/imageUploader.js`).
 
+## Image upload fallback
+
+It is recommended to use ImageKit as the fallback option, in case Spheron has technical issues.
+
+For this to work, create an account at [ImageKit.io](https://imagekit.io/) and add these environment variables to your project:
+
+```bash
+IMAGEKIT_ENDPOINT=
+IMAGEKIT_PUBLIC_KEY=
+IMAGEKIT_PRIVATE_KEY=
+```
+
 ## Customize
 
 - Project-specific settings in `nuxt.config.ts`
