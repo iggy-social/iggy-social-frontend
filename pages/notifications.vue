@@ -65,7 +65,7 @@ export default {
       let res = await this.$orbis.setNotificationsReadTime({
         type: "social", 
         timestamp: Number(timestampNow),
-        context: this.$config.orbisContext
+        context: this.$config.chatChannels.general
       });
       
       if (res.status === 200) {

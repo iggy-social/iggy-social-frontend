@@ -45,12 +45,32 @@
             <NuxtLink 
               to="/"
               class="list-group-item cursor-pointer hover-color bg-light border-0" 
-              :class="(chatStore.getSelectedTagIndex === index && $route.path === '/') ? 'active' : ''"
-              v-for="(tagObject, index) in filteredCategories"
-              :key="tagObject.slug" 
-              @click="selectTagIndex(index)"
+              :class="($route.path === '/') ? 'active' : ''"
+              @click="closeLeftSidebar"
             >
-              {{ tagObject.title }}
+              General discussion
+            </NuxtLink>
+          </ul>
+
+          <ul class="list-group">
+            <NuxtLink 
+              to="/memes-images"
+              class="list-group-item cursor-pointer hover-color bg-light border-0" 
+              :class="$route.path.startsWith('/memes-images') ? 'active' : ''" 
+              @click="closeLeftSidebar"
+            >
+              Share images & NFTs
+            </NuxtLink>
+          </ul>
+
+          <ul class="list-group">
+            <NuxtLink 
+              to="/shill"
+              class="list-group-item cursor-pointer hover-color bg-light border-0" 
+              :class="$route.path.startsWith('/shill') ? 'active' : ''" 
+              @click="closeLeftSidebar" 
+            >
+              Shill & discuss projects
             </NuxtLink>
           </ul>
 
@@ -99,6 +119,14 @@
             </NuxtLink>
           </li>
 
+          <!-- Shill 
+          <li class="nav-item p-1" @click="closeLeftSidebar">
+            <NuxtLink class="nav-link" :class="$route.path.startsWith('/shill') ? 'active' : ''" aria-current="page" to="/shill">
+              <i class="bi bi-megaphone"></i> Shill projects
+            </NuxtLink>
+          </li>
+          -->
+
           <!-- Send tokens -->
           <li class="nav-item p-1" @click="closeLeftSidebar" v-if="$config.showFeatures.sendTokens">
             <NuxtLink class="nav-link" :class="$route.path.startsWith('/send-tokens') ? 'active' : ''" aria-current="page" to="/send-tokens">
@@ -141,12 +169,13 @@
             </a>
           </li>
           
-          <!-- Find User -->
+          <!-- Find User 
           <li v-if="isActivated" class="nav-item p-1" @click="closeLeftSidebar">
             <NuxtLink class="nav-link" :class="$route.path.startsWith('/find-user') ? 'active' : ''" aria-current="page" to="/find-user">
               <i class="bi bi-search"></i> Find User
             </NuxtLink>
           </li>
+          -->
 
           <!-- About -->    
           <li class="nav-item p-1" @click="closeLeftSidebar">
@@ -208,7 +237,7 @@
         </ul>
       </div>
       
-   </div>
+    </div>
   </div>
 </div>
 </template>
@@ -217,7 +246,6 @@
 import { useEthers } from 'vue-dapp';
 import { useToast } from "vue-toastification/dist/index.mjs";
 import { useNotificationsStore } from '~/store/notifications';
-import { useChatStore } from '~/store/chat';
 import { useSidebarStore } from '~/store/sidebars';
 import { useUserStore } from '~/store/user';
 import ProfileImage from "~/components/profile/ProfileImage.vue";
@@ -240,22 +268,6 @@ export default {
         return 0;
       }
     },
-
-    filteredCategories() {
-      let cats = [];
-      
-      for (let i = 0; i < this.$config.orbisCategories.length; i++) {
-        // exclude categories that are marked as hidden
-        if (this.$config.orbisCategories[i].hidden === false) {
-          cats.push({
-            slug: this.$config.orbisCategories[i].slug,
-            title: this.$config.orbisCategories[i].title
-          });
-        }
-      }
-
-      return cats;
-    },
     
   },
   
@@ -270,9 +282,14 @@ export default {
       }
     },
 
-    selectTagIndex(index) {
-      this.chatStore.setSelectedTagIndex(index);
-      this.closeLeftSidebar();
+    async fetchActivityPoints() {
+      if (this.$config.activityPointsAddress && this.address) {
+        this.toast.info("Refreshing activity points...", { timeout: 2000 });
+
+        const activityPoints = await this.getActivityPoints(this.address);
+
+        this.userStore.setCurrentUserActivityPoints(activityPoints);
+      }
     }
   },
 
@@ -281,12 +298,11 @@ export default {
 
     const toast = useToast();
 
-    const chatStore = useChatStore();
     const notificationsStore = useNotificationsStore();
     const sidebarStore = useSidebarStore();
     const userStore = useUserStore();
 
-    return { address, chatStore, isActivated, notificationsStore, sidebarStore, toast, userStore }
+    return { address, isActivated, notificationsStore, sidebarStore, toast, userStore }
   },
 }
 </script>

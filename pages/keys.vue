@@ -149,10 +149,9 @@
   <ChatFeed 
     v-if="domainName && cleanDomainName && isKeyHolder && !waitingData && clean(domainName) === cleanDomainName" 
     :key="cleanDomainName"
-    :allPosts="true" 
     class="mt-3" 
     :showQuotedPost="$config.showRepliesOnHomepage" 
-    :orbisContext="$config.keysContext+':'+cleanDomainName" 
+    :orbisContext="$config.chatChannels.friendKeys+':'+cleanDomainName" 
   />
 
   <!-- Buy key modal -->

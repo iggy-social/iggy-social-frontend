@@ -172,12 +172,11 @@
 
   <!-- Chat feed -->
   <ChatFeed 
-    v-if="$config.nftOrbisContext && userTokenId" 
+    v-if="$config.chatChannels.nftLaunchpad && userTokenId" 
     :key="cAddress"
-    :allPosts="true" 
     class="mt-3 scroll-500" 
     :showQuotedPost="$config.showRepliesOnHomepage" 
-    :orbisContext="$config.nftOrbisContext+':'+cAddress" 
+    :orbisContext="$config.chatChannels.nftLaunchpad+':'+cAddress" 
   />
 
   <!-- Add image modal -->

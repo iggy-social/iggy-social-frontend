@@ -1,23 +1,6 @@
 <template>
   <div class="scroll-500">
 
-    <!-- Categories / Tags Big Button -->
-    <div v-if="!id && !allPosts" class="d-grid gap-2 mb-2">
-      <div class="btn-group dropdown-center">
-        <button class="btn btn-primary btn-block dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-          {{ getSelectedTagObject.title }}
-        </button>
-        <ul class="dropdown-menu">
-          <span 
-            v-for="(tagObject, index) in filteredCategories"
-            :key="tagObject.slug"
-            class="dropdown-item cursor-pointer"
-            @click="changeTag(index)"
-          >{{ tagObject.title }}</span>
-        </ul>
-      </div>
-    </div>
-
     <!-- Post/Comment Input Box -->
     <div class="card mb-2 border" v-if="!hideCommentBox">
       <div class="card-body">
@@ -105,25 +88,6 @@
       </div>
     </div>
 
-    <!-- Categories / Tags Small Button -->
-    <!--
-    <div v-if="!id" class="d-flex justify-content-end mb-2">
-      <div class="btn-group">
-        <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-          {{ getSelectedTagObject.title }}
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end">
-          <span 
-            v-for="(tagObject, index) in filteredCategories"
-            :key="tagObject.slug"
-            class="dropdown-item cursor-pointer"
-            @click="changeTag(index)"
-          >{{ tagObject.title }}</span>
-        </ul>
-      </div>
-    </div>
-    -->
-
     <div v-if="orbisPosts">
       <ChatPost 
         @insertReply="insertReply" 
@@ -153,7 +117,6 @@
 import { useEthers } from 'vue-dapp';
 import ChatPost from "~/components/chat/ChatPost.vue";
 import { useToast } from "vue-toastification/dist/index.mjs";
-import { useChatStore } from '~/store/chat';
 import { useSiteStore } from '~/store/site';
 import { useUserStore } from '~/store/user';
 import ConnectWalletButton from "~/components/ConnectWalletButton.vue";
@@ -168,7 +131,6 @@ import 'emoji-mart-vue-fast/css/emoji-mart.css'
 export default {
   name: "ChatFeed",
   props: [
-    "allPosts", // show all posts (all tags/categories)
     "byDid", // if looking for posts by a specific user (user's DID)
     "hideCommentBox", // if true, we'll hide the comment box
     "id", // id (optional) is the post id that this component looks for replies to
@@ -219,36 +181,8 @@ export default {
       }
     },
 
-    filteredCategories() {
-      let cats = [];
-      
-      for (let i = 0; i < this.$config.orbisCategories.length; i++) {
-        // exclude categories that are marked as hidden
-        if (this.$config.orbisCategories[i].hidden === false) {
-          cats.push({
-            slug: this.$config.orbisCategories[i].slug,
-            title: this.$config.orbisCategories[i].title
-          });
-        }
-      }
-
-      return cats;
-    },
-
     getOrbisContext() {
       return this.orbisContext;
-    },
-
-    getSelectedTagObject() {
-      if (this.chatStore.getSelectedTagIndex > 0 && this.chatStore.getSelectedTagIndex < this.filteredCategories.length) {
-        return this.filteredCategories[this.chatStore.getSelectedTagIndex];
-      } else {
-        return this.filteredCategories[0];
-      }
-    },
-
-    getTagFromChatStore() {
-      return this.chatStore.getSelectedTagIndex;
     },
 
     hasDomainOrNotRequired() {
@@ -288,10 +222,6 @@ export default {
       } else {
         this.postText += emoji;
       }
-    },
-
-    changeTag(index) {
-      this.chatStore.setSelectedTagIndex(index);
     },
 
     async checkConnectionToOrbis() {
@@ -345,25 +275,10 @@ export default {
           context: this.getOrbisContext
         }
 
-        // if post has tags, add them to the options
-        if (this.masterPost?.content?.tags) {
-          options["tags"] = this.masterPost.content.tags;
-        } else {
-          options["tags"] = [{ "slug": "general", "title": "General discussion" }]; // default to "General" tag
-        }
-
       } else {
         options = {
           body: this.postText, 
           context: this.getOrbisContext
-        }
-
-        // add tags
-        if (this.chatStore.getSelectedTagIndex > 0 && this.chatStore.getSelectedTagIndex < this.filteredCategories.length) {
-          options["tags"] = [this.filteredCategories[this.chatStore.getSelectedTagIndex]];
-        } else {
-          this.changeTag(0); // change tag selection to 0 (tag may be out of bounds)
-          options["tags"] = [{ "slug": "general", "title": "General discussion" }]; // default to "General" tag
         }
       }
 
@@ -414,7 +329,6 @@ export default {
         options = {
           master: this.id, // master is the post ID
           context: this.getOrbisContext, // context is the group ID
-          tag: this.masterPost.content.tags[0].slug, // tag is the tag of the master post
           only_master: false // only get master posts (not replies), or all posts
         }
       } else {
@@ -423,20 +337,6 @@ export default {
           //algorithm: "recommendations", // recommendations, all-posts, all-posts-non-filtered
           context: this.getOrbisContext, // context is the group ID
           only_master: this.showOnlyMasterPosts // only get master posts (not replies), or all posts
-        }
-
-        // search by tag/category (except on the Profile page where comment box is hidden)
-        if (!this.allPosts) {
-
-          if (this.chatStore.getSelectedTagIndex > 0 && this.chatStore.getSelectedTagIndex < this.filteredCategories.length) {
-            options["tag"] = this.filteredCategories[this.chatStore.getSelectedTagIndex].slug;
-          } else {
-            this.changeTag(0);
-
-            if (this.filteredCategories[0].slug !== "all") {
-              options["tag"] = this.filteredCategories[0].slug;
-            }
-          }
         }
       }
 
@@ -524,22 +424,10 @@ export default {
   setup() {
     const { address, chainId, isActivated, signer } = useEthers();
     const toast = useToast();
-    const chatStore = useChatStore();
     const siteStore = useSiteStore();
     const userStore = useUserStore();
 
-    return { address, chainId, isActivated, signer, toast, chatStore, siteStore, userStore }
-  },
-
-  watch: {
-    getTagFromChatStore() {
-      // reset posts and page counter
-      this.orbisPosts = [];
-      this.pageCounter = 0;
-
-      // fetch posts
-      this.getOrbisPosts();
-    }
+    return { address, chainId, isActivated, signer, toast, siteStore, userStore }
   }
 }
 </script>

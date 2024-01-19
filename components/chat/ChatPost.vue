@@ -622,11 +622,6 @@ export default {
           context: this.getOrbisContext
         }
 
-        // if post has tags, add them to the options
-        if (this.post?.content?.tags) {
-          options["tags"] = this.post.content.tags;
-        }
-
         // post on Orbis & Ceramic
         let res = await this.$orbis.createPost(options);
 

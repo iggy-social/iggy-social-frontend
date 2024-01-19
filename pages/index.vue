@@ -18,7 +18,7 @@ export default {
       if (this.$config.orbisTest) {
         return this.$config.orbisTestContext;
       } else {
-        return this.$config.orbisContext;
+        return this.$config.chatChannels.general;
       }
     }
   },

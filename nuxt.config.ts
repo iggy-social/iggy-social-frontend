@@ -54,6 +54,13 @@ export default defineNuxtConfig({
       airdropApAddress: "", // chat token claim for APs
       airdropClaimDomainsAddress: "0x3ebDBc1D47d4bFe7D08A58123Ab3c85fC7358831", // chat token claim for domain holders
       blockExplorerBaseUrl: "https://mumbai.polygonscan.com",
+      chatChannels: { // go to Orbis Dashboard (https://useorbis.com/dashboard), create a new Project and then create a new Context for each of the channels below
+        "general": "kjzl6cwe1jw14b86b0dwz8x7ribwcn9tsull1bphner0nyfdwxsqnohbtrrvgtl", // general discussion channel
+        "memesImages": "kjzl6cwe1jw148bbt70ddci5n3oj8b2b469g5qps43y8lejrwong9ztedzetoz0",
+        "shill": "kjzl6cwe1jw1499wavrb36wapyxix3yqkkq1enaxhsqhhtkaws2ss8vm3b5cixm",
+        "nftLaunchpad": "kjzl6cwe1jw1490l9agydb0vh2x0mddzxbsmga7s3yhl86utbhwne6zkhpikytw",
+        "friendKeys": "kjzl6cwe1jw14akr2rh1j3fhup1ewfr2uyyd6l85qllbe2d5fxywt7d8rqnau6j",
+      },
       chatTokenAddress: "0x83C0E6655Ea65363F8B85954afa29F05e257231b", // chat token address
       chatTokenImage: "https://bafkreigih3jk3d4fffzml27e7kqyn636t7v646ohxvhv3nzhkzfcmh4prq.ipfs.w3s.link", // chat token image
       chatTokenSymbol: "CHAT", // chat token symbol or name
@@ -73,7 +80,6 @@ export default defineNuxtConfig({
       imagekitPublicKey: process.env.IMAGEKIT_PUBLIC_KEY,
       ipfsGateway: "https://cloudflare-ipfs.com/ipfs/",
       keysAddress: "0x018402Df92a74d1FCE36AbF604D31e7C8D0ABb14", // FriendKeys contract address 
-      keysContext: "kjzl6cwe1jw14akr2rh1j3fhup1ewfr2uyyd6l85qllbe2d5fxywt7d8rqnau6j",
       keysFeatured: ["tempe", "tekr"],
       linkPreviews: process.env.LINK_PREVIEW_SERVICE || "netlify", // "netlify", "vercel", or "microlink" (or leave empty for no link previews)
       lpTokenAddress: "0xF874f79eBfB8FEe898a289C4cAa5dc4383873431", // liquidity pool token (token to stake in the staking contract)
@@ -85,19 +91,6 @@ export default defineNuxtConfig({
       nftDefaultRatio: 1, // default ratio for the NFT price bonding curve
       nftLaunchpadBondingAddress: "0x8f603a26a6C286CB55ed9cC07F42fCc02bdE4821", // NFT launchpad with bonding curve contract address
       nftLaunchpadLatestItems: 4, // number of latest NFTs to show in the NFT launchpad
-      nftOrbisContext: "kjzl6cwe1jw1490l9agydb0vh2x0mddzxbsmga7s3yhl86utbhwne6zkhpikytw", // Orbis context for NFT collection pages
-      orbisCategories: [ // use only alphanumeric ASCII characters for slugs! (no spaces, only dash is allowed)
-        { "slug": "all", "title": "All posts", "hidden": false }, // not a real tag, just denotes the absence of a tag (always keep it here)
-        { "slug": "general", "title": "General discussion", "hidden": false },
-        { "slug": "shill", "title": "Shill & discuss projects", "hidden": true },
-        { "slug": "nfts", "title": "Memes & NFTs", "hidden": false }, // keep this category for the purpose of the NFT launchpad
-        { "slug": "governance", "title": "Governance", "hidden": true },
-        { "slug": "food", "title": "Food & recipes", "hidden": true },
-        { "slug": "movie", "title": "Movies & Music", "hidden": false },
-        { "slug": "music", "title": "Music", "hidden": true },
-        { "slug": "random", "title": "Random", "hidden": false },
-      ],
-      orbisContext: "kjzl6cwe1jw14b86b0dwz8x7ribwcn9tsull1bphner0nyfdwxsqnohbtrrvgtl", // production context
       orbisTest: false, // if true, test context will be used instead of the production one
       orbisTestContext: "kjzl6cwe1jw145tfqv2eqv8tiz6puo27meyz4smz40atppuc13tulqca87k35z2", // test context
       previewImage: "/img/covers/cover.svg",
@@ -122,7 +115,7 @@ export default defineNuxtConfig({
       rpcCustom: process.env.RPC_CUSTOM || "", // Custom RPC URL
       showFeatures: { // show/hide features in sidebars (if you have too many "true", make the sidebar scrollable --> sidebarLeftSticky: false)
         "activityPoints": true, 
-        "airdrop": true, 
+        "airdrop": false, 
         "friendKeys": true, 
         "governance": false,
         "newsletter": false, 
@@ -130,7 +123,7 @@ export default defineNuxtConfig({
         "randomMintedPosts": true, 
         "swap": true, 
         "stake": false, 
-        "sendTokens": false, 
+        "sendTokens": true, 
         "spotify": false
       }, 
       showRepliesOnHomepage: true, // show replies on the homepage  

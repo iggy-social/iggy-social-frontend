@@ -87,7 +87,7 @@ export default {
       } else if (this.post?.context_details.context_id) {
         return this.post.context_details.context_id;
       } else {
-        return this.$config.orbisContext;
+        return this.$config.chatChannels.general;
       }
     }
   },
@@ -219,11 +219,6 @@ export default {
                 options["master"] = this.post.master;
               } else {
                 options["master"] = this.post.stream_id;
-              }
-
-              // if post has tags, add them to the options
-              if (this.post?.content?.tags) {
-                options["tags"] = this.post.content.tags;
               }
 
               options["data"] = {

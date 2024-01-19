@@ -306,7 +306,7 @@ export default {
         this.notificationsStore.setLoadingNotifications(true);
 
         // fetch new notifications count
-        let { data, error, status } = await this.$orbis.getNotificationsCount({type: "social", context: this.$config.orbisContext}); 
+        let { data, error, status } = await this.$orbis.getNotificationsCount({type: "social", context: this.$config.chatChannels.general}); 
 
         if (status === 200 && data?.count_new_notifications) {
           this.notificationsStore.setUnreadNotificationsCount(data.count_new_notifications);
@@ -322,7 +322,7 @@ export default {
         } = await this.$orbis.getNotifications(
           {
             type: "social", 
-            context: this.$config.orbisContext
+            context: this.$config.chatChannels.general
           }
         );
 
