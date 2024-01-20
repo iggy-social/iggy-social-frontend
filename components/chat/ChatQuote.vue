@@ -45,16 +45,13 @@
 </template>
 
 <script>
-import { ethers } from 'ethers';
 import sanitizeHtml from 'sanitize-html';
 import { useEthers, shortenAddress } from 'vue-dapp';
-import ResolverAbi from "~/assets/abi/ResolverAbi.json";
-import resolvers from "~/assets/data/resolvers.json";
 import { useUserStore } from '~/store/user';
 import ProfileImage from "~/components/profile/ProfileImage.vue";
-import { imgParsing, imgWithoutExtensionParsing, urlParsing, youtubeParsing } from '~/utils/textUtils';
+import { getDomainName } from '~/utils/domainUtils';
 import { fetchUsername, storeUsername } from '~/utils/storageUtils';
-import { getTextWithoutBlankCharacters } from '~/utils/textUtils';
+import { getTextWithoutBlankCharacters, imgParsing, imgWithoutExtensionParsing, urlParsing, youtubeParsing } from '~/utils/textUtils';
 
 export default {
   name: "ChatQuote",
@@ -132,13 +129,7 @@ export default {
             provider = this.signer;
           }
 
-          const contract = new ethers.Contract(resolvers[this.$config.supportedChainId], ResolverAbi, provider);
-
-          // get author's default domain
-          const domainName = await contract.getDefaultDomain(
-            String(this.authorAddress).toLowerCase(), 
-            String(this.$config.tldName).toLowerCase()
-          );
+          const domainName = await getDomainName(this.authorAddress, provider);
 
           if (domainName) {
             this.authorDomain = domainName + this.$config.tldName;

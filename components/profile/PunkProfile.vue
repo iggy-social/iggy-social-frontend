@@ -255,12 +255,11 @@ import { useToast } from "vue-toastification/dist/index.mjs";
 import ProfileImage from "~/components/profile/ProfileImage.vue";
 import FileUploadModal from "~/components/storage/FileUploadModal.vue";
 import UserMintedPosts from "~/components/minted-posts/UserMintedPosts.vue";
-import ResolverAbi from "~/assets/abi/ResolverAbi.json";
-import resolvers from "~/assets/data/resolvers.json";
 import ChatFeed from '../chat/ChatFeed.vue';
+import { getActivityPoints } from '~/utils/balanceUtils';
+import { getDomainName, getDomainHolder } from '~/utils/domainUtils';
 import { fetchUsername, storeUsername } from '~/utils/storageUtils';
 import { getTextWithoutBlankCharacters } from '~/utils/textUtils';
-import { getActivityPoints } from '~/utils/balanceUtils';
 
 export default {
   name: "PunkProfile",
@@ -487,14 +486,9 @@ export default {
         provider = this.signer;
       }
 
-      const contract = new ethers.Contract(resolvers[this.$config.supportedChainId], ResolverAbi, provider);
-
       // if domain is not provided, then fetch it
       if (!this.domain && this.uAddress) {
-        const domainName = await contract.getDefaultDomain(
-          String(this.uAddress).toLowerCase(), 
-          String(this.$config.tldName).toLowerCase()
-        );
+        const domainName = await getDomainName(this.uAddress, provider);
 
         if (domainName) {
           this.domain = domainName + this.$config.tldName;
@@ -503,9 +497,9 @@ export default {
       }
 
       if (this.domain && !this.uAddress) {
-        const domainHolder = await contract.getDomainHolder(
-          String(this.domain).toLowerCase().split(".")[0], 
-          String(this.$config.tldName).toLowerCase()
+        const domainHolder = await getDomainHolder(
+          String(this.domain).toLowerCase().split(".")[0],
+          provider
         );
 
         if (domainHolder !== ethers.constants.AddressZero) {

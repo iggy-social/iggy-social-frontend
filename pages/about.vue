@@ -28,7 +28,8 @@
 
       <p class="text-break mt-3">
         Brought to you by the 
-        <a target="_blank" href="https://punk.domains">Punk Domains</a> team.
+        <a target="_blank" href="https://punk.domains">Punk Domains</a> & 
+        <a target="_blank" href="https://iggy.social/">Iggy Social</a> team.
       </p>
 
       <h5>Useful links</h5>
