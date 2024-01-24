@@ -169,13 +169,12 @@
             </a>
           </li>
           
-          <!-- Find User 
-          <li v-if="isActivated" class="nav-item p-1" @click="closeLeftSidebar">
+          <!-- Find User -->
+          <li class="nav-item p-1" @click="closeLeftSidebar">
             <NuxtLink class="nav-link" :class="$route.path.startsWith('/find-user') ? 'active' : ''" aria-current="page" to="/find-user">
               <i class="bi bi-search"></i> Find User
             </NuxtLink>
           </li>
-          -->
 
           <!-- About -->    
           <li class="nav-item p-1" @click="closeLeftSidebar">

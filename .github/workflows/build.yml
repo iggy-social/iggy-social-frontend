@@ -11,6 +11,9 @@ jobs:
       TENOR_KEY: ${{ secrets.TENOR_KEY }}
       SPHERON_BUCKET_NAME: ${{ secrets.SPHERON_BUCKET_NAME }}
       SPHERON_STORAGE_TOKEN: ${{ secrets.SPHERON_STORAGE_TOKEN }}
+      IMAGEKIT_ENDPOINT: ${{ secrets.IMAGEKIT_ENDPOINT }}
+      IMAGEKIT_PUBLIC_KEY: ${{ secrets.IMAGEKIT_PUBLIC_KEY }}
+      IMAGEKIT_PRIVATE_KEY: ${{ secrets.IMAGEKIT_PRIVATE_KEY }}
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v2.3.1
