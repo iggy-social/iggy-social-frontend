@@ -87,8 +87,8 @@
   --bs-tertiary-color-rgb: 116, 117, 121;
   --bs-tertiary-bg: #f5f5f6;
   --bs-tertiary-bg-rgb: 245, 245, 246;
-  --bs-body-bg: #fff;
-  --bs-body-bg-rgb: 255, 255, 255;
+  --bs-body-bg: #f5f5f6;
+  --bs-body-bg-rgb: 245, 245, 246;
   --bs-heading-color: var(--bs-gray-900);
   --bs-link-decoration: none;
   --bs-link-hover-color-rgb: 65, 54, 174;
@@ -119,6 +119,10 @@
   --bs-breakpoint-xl: 1200px;
   --bs-breakpoint-xxl: 1400px;
   --bs-white-black-toggle: #000;
+}
+
+[data-bs-theme=light] body {
+  background-color: #f5f5f6;
 }
 
 [data-bs-theme=light] .bg-mode {
