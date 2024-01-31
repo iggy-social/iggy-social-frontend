@@ -9,6 +9,10 @@ export function getLessDecimals(anyNum) {
     return num
   }
 
+  if (num < 0.0001) {
+    return num.toFixed(8)
+  }
+
   if (num < 0.01) {
     return num.toFixed(6)
   }

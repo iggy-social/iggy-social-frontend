@@ -15,8 +15,8 @@
   <div class="card border scroll-500">
     <div class="card-body">
 
-      <p class="fs-3" @click="$router.back()">
-        <i class="bi bi-arrow-left-circle cursor-pointer"></i>
+      <p class="fs-3">
+        <i class="bi bi-arrow-left-circle cursor-pointer" @click="$router.back()"></i>
       </p>
 
       <h3 class="mb-4 mt-3">Create NFT Collection</h3>
@@ -120,7 +120,12 @@
           type="text" class="form-control" id="ratio" aria-describedby="ratioHelp" 
           v-model="ratio"
         />
-        <div id="ratioHelp" class="form-text">Leave at {{ $config.nftDefaultRatio }} unless you know what you're doing.</div>
+        <div id="ratioHelp" class="form-text">
+          Price for mint #1 will be {{ getLessDecimals(calculatePrice(2, ratio)) }} {{ $config.tokenSymbol }}, 
+          for mint #5 will be {{ getLessDecimals(calculatePrice(5, ratio)) }} {{ $config.tokenSymbol }},
+          for mint #15 will be {{ getLessDecimals(calculatePrice(15, ratio)) }} {{ $config.tokenSymbol }}, 
+          for mint #30 will be {{ getLessDecimals(calculatePrice(30, ratio)) }} {{ $config.tokenSymbol }}, etc.
+        </div>
       </div>
 
       <!-- Buttons div -->
@@ -171,6 +176,7 @@ import ConnectWalletButton from "~/components/ConnectWalletButton.vue";
 import WaitingToast from "~/components/WaitingToast";
 import FileUploadModal from "~/components/storage/FileUploadModal.vue";
 import { useUserStore } from '~/store/user';
+import { getLessDecimals } from '~/utils/numberUtils';
 import { fetchReferrer } from '~/utils/storageUtils';
 
 export default {
@@ -242,6 +248,12 @@ export default {
   },
 
   methods: {
+    calculatePrice(nftId, ratio) {
+      const supply = Number(nftId) - 1;
+
+      return (((supply * (supply + 1) * (2 * supply + 1)) - ((supply - 1) * supply * (2 * (supply - 1) + 1))) * 10000 / 42069) * Number(ratio) / 31337;
+    },
+
     async createCollection() {
       this.waitingCreate = true;
 
