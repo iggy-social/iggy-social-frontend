@@ -7,7 +7,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <p>Share your referral link and earn referral fees (and activity points)! 🤑</p>
+        <p>Share your referral link and earn referral fees<span v-if="$config.showFeatures.activityPoints"> (and activity points)</span>! 🤑</p>
 
         <ShareReferralLink />
       </div>
