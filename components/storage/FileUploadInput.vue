@@ -56,7 +56,13 @@ export default {
   methods: {
     async fallbackUpload() {
       const thisAppUrl = window.location.origin;
-      const fetcherService = thisAppUrl + "/.netlify/functions/imageUploaderFallback";
+      
+      let fetcherService;
+      if (this.$config.fileUploadTokenService === "netlify") {
+        fetcherService = thisAppUrl + "/.netlify/functions/imageUploaderFallback";
+      } else if (this.$config.fileUploadTokenService === "vercel") {
+        fetcherService = thisAppUrl + "/api/imageUploaderFallback";
+      }
 
       const resp = await $fetch(fetcherService).catch((error) => error.data);
 
