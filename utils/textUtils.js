@@ -390,10 +390,11 @@ export function urlParsing(text) {
 
   return text.replace(urlRegex, function(url) {
 
-    // remove referrals from our website links
-    if (url.startsWith(window.location.origin)) {
+    // remove this website referrals from the chat
+    if (url.startsWith(window.location.origin) || url.startsWith(String(window.location.origin).replace("https://", "http://"))) {
       if (url.includes("ref=")) {
-        url = url.replace("ref=", "noref="); // the easiest solution to not break a URL
+        //url = url.replace("ref=", "noref="); // the easiest solution to not break a URL
+        return "(referral links not allowed)";
       }
     }
 
