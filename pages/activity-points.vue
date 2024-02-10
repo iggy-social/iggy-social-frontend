@@ -34,9 +34,18 @@
       </div>
       </div>
 
-      <p class="text-break mt-4 mb-3">
-        By actively using {{ $config.projectName }} features, you can earn more Activity Points.
-      </p>
+      <div class="mt-4 mb-3">
+        <span>How to earn more Activity Points:</span>
+
+        <ul>
+          <li>Mint {{ $config.tldName }} domains</li>
+          <li v-if="$config.showFeatures.swap">Swap tokens (when the receiving token is {{ $config.tokenSymbol }})</li>
+          <li>Mint posts</li>
+          <li>Invite others to {{ $config.projectName }} using referral links</li>
+          <li v-if="$config.showFeatures.nftLaunchpad">Launch and mint NFTs via the NFT Launchpad</li>
+          <li>Other kinds of earning APs are coming soon, stay tuned!</li>
+        </ul>
+      </div>
 
       <hr />
 
