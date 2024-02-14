@@ -92,9 +92,20 @@
         ({{ siteStore.getSlippage }}% slippage).
       </em>
     </small>
+  
+    <!-- Wrong Network button -->
+    <div class="d-flex justify-content-center mt-4" v-if="!isSupportedChain">
+      <button
+        disabled="true"
+        class="btn btn-primary" 
+        type="button"
+      >
+        Wrong network
+      </button>
+    </div>
 
     <!-- BUTTONS -->
-    <div class="d-flex justify-content-center mt-4">
+    <div class="d-flex justify-content-center mt-4" v-if="isSupportedChain">
 
       <!-- Connect Wallet button -->
       <ConnectWalletButton v-if="!isActivated" class="btn btn-outline-primary" btnText="Connect wallet" />
@@ -328,6 +339,14 @@ export default {
       }
     },
 
+    isSupportedChain() {
+      if (this.chainId === this.$config.supportedChainId) {
+        return true;
+      } else {
+        return false;
+      }
+    },
+
     outputIsNativeCoin() {
       if (String(this.outputToken?.address).toLowerCase() == String(ethers.constants.AddressZero).toLowerCase()) {
         return true;
@@ -469,10 +488,10 @@ export default {
   },
 
   setup() {
-    const { address, isActivated, signer } = useEthers();
+    const { address, chainId, isActivated, signer } = useEthers();
     const siteStore = useSiteStore();
 
-    return { address, isActivated, signer, siteStore };
+    return { address, chainId, isActivated, signer, siteStore };
   },
 
   watch: {
