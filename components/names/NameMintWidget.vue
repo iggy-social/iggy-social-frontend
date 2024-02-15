@@ -29,10 +29,11 @@
     </p>
 
     <div class="text-center">
-      <button v-if="isActivated" class="btn btn-outline-primary mt-2 mb-2" :disabled="paused || domainNotValid.invalid">
+      <button v-if="isActivated" class="btn btn-outline-primary mt-2 mb-2" :disabled="paused || domainNotValid.invalid || balanceTooLow">
         <span v-if="loadingMint || loadingData" class="spinner-border spinner-border-sm mx-1" role="status" aria-hidden="true"></span>
         <span v-if="loadingData">Loading data...</span>
-        <span v-else @click="mintName">Mint username</span>
+        <span v-if="!loadingMint && !loadingData && balanceTooLow">Balance too low</span>
+        <span v-if="!loadingMint && !loadingData && !balanceTooLow" @click="mintName">Mint username</span>
       </button>
     </div>
 
@@ -81,6 +82,11 @@ export default {
   },
 
   computed: {
+    balanceTooLow() {
+      const balanceEth = ethers.utils.formatEther(this.balance);
+      return Number(balanceEth) < Number(this.getNamePrice);
+    },
+
     domainNotValid() {
       if (this.domainName === "") {
         return {invalid: true, message: null};
@@ -361,11 +367,11 @@ export default {
   }, 
 
   setup() {
-    const { address, isActivated, signer } = useEthers();
+    const { address, balance, isActivated, signer } = useEthers();
     const toast = useToast();
     const userStore = useUserStore();
 
-    return { address, isActivated, signer, toast, userStore };
+    return { address, balance, isActivated, signer, toast, userStore };
   }
 }
 </script>
