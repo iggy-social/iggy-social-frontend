@@ -89,6 +89,13 @@
                 </span>
 
                 <span 
+                  class="dropdown-item cursor-pointer"
+                  data-bs-toggle="modal" data-bs-target="#changeUserPostMintPriceModal"
+                >
+                  <i class="bi bi-pencil-square"></i> Change your post minting price
+                </span>
+
+                <span 
                   class="dropdown-item cursor-pointer" 
                   data-bs-toggle="modal" data-bs-target="#setEmailModal"
                 >
