@@ -120,7 +120,7 @@
 
     <ChangeUsernameModal />
 
-    <ChangeUserPostMintPrice />
+    <ChangeDefaultPostPriceModal />
 
     <FindUserModal />
 
@@ -155,7 +155,7 @@ import { storeReferrer, storeUsername } from '~/utils/storageUtils';
 import VerifyAccountOwnership from '~/components/VerifyAccountOwnership.vue';
 import ReferralModal from '~/components/referrals/ReferralModal.vue';
 import ChangeUsernameModal from '~/components/names/ChangeUsernameModal.vue';
-import ChangeUserPostMintPrice from '~~/components/minted-posts/ChangeUserPostMintPrice.vue';
+import ChangeDefaultPostPriceModal from '~~/components/minted-posts/ChangeDefaultPostPriceModal.vue';
 import FindUserModal from '~/components/search/FindUserModal.vue';
 
 export default {
@@ -172,7 +172,7 @@ export default {
 
   components: {
     ChangeUsernameModal,
-    ChangeUserPostMintPrice,
+    ChangeDefaultPostPriceModal,
     ChatSettingsModal,
     FindUserModal,
     NavbarDesktop,
