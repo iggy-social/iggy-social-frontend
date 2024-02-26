@@ -1,5 +1,6 @@
 <template>
 	<div
+		ref="modalRef"
 		class="modal fade"
 		id="changeDefaultPostPriceModal"
 		tabindex="-1"
@@ -30,6 +31,7 @@
 									class="form-control"
 									v-model="defaultPostPrice"
 									aria-describedby="addon-wrapping"
+									:disabled="inputDisabled"
 								/>
 								<!-- <span class="input-group-text" id="addon-wrapping">Token</span> -->
 							</div>
@@ -68,26 +70,64 @@ export default {
 		return {
 			defaultPostPrice: null,
 			loading: false,
+			inputDisabled: false,
+			isModalOpen: false,
+			observer: null,
 		}
 	},
 
-	computed: {},
+	mounted() {
+		// create observer to watch for modal open/close
+		this.observer = new MutationObserver(mutations => {
+			for (const m of mutations) {
+				const newValue = m.target.getAttribute(m.attributeName)
+				this.$nextTick(() => {
+					this.onModalOpen(newValue, m.oldValue)
+				})
+			}
+		})
+
+		this.observer.observe(this.$refs.modalRef, {
+			attributes: true,
+			attributeOldValue: true,
+			attributeFilter: ['class'],
+		})
+	},
+
+	// Can't be disconnected because the component is always mounted in default.vue
+	beforeUnmount() {
+		this.observer.disconnect()
+		// console.log('observer disconnected')
+	},
 
 	methods: {
 		async getDefaultPostPrice() {
 			if (this.isActivated) {
-				const iggyPostInterface = new ethers.utils.Interface([
-					'function getAuthorsDefaultPrice(address) public view returns (uint256)',
-				])
+				this.inputDisabled = true
 
-				const iggyContract = new ethers.Contract(this.$config.iggyPostAddress, iggyPostInterface, this.signer)
-				const postPriceWei = await iggyContract.getAuthorsDefaultPrice(this.address)
+				try {
+					const iggyPostInterface = new ethers.utils.Interface([
+						'function getAuthorsDefaultPrice(address) public view returns (uint256)',
+					])
 
-				this.defaultPostPrice = ethers.utils.formatUnits(postPriceWei, this.$config.tokenDecimals)
+					const iggyContract = new ethers.Contract(
+						this.$config.iggyPostAddress,
+						iggyPostInterface,
+						this.signer,
+					)
+					const postPriceWei = await iggyContract.getAuthorsDefaultPrice(this.address)
+
+					this.defaultPostPrice = ethers.utils.formatUnits(postPriceWei, this.$config.tokenDecimals)
+				} catch (err) {
+					console.log('Failed to get default post price: ' + err)
+				} finally {
+					this.inputDisabled = false
+				}
 			}
 		},
 		async changeDefaultPostPrice() {
 			this.loading = true
+			this.inputDisabled = true
 
 			if (this.isActivated) {
 				const iggyPostInterface = new ethers.utils.Interface([
@@ -98,6 +138,11 @@ export default {
 				const postPriceWei = ethers.utils.parseUnits(this.defaultPostPrice, this.$config.tokenDecimals)
 
 				try {
+					// feat: cannot set price to 0 or below
+					if (postPriceWei.isZero() || postPriceWei.isNegative()) {
+						this.toast('Error: Price cannot be set to 0 or below', { type: 'error' })
+						return
+					}
 					const tx = await iggyContract.authorSetDefaultPrice(postPriceWei)
 
 					const toastWait = this.toast(
@@ -124,7 +169,6 @@ export default {
 								window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
 						})
 						document.getElementById('closeChangeDefaultPostPriceModal').click()
-						this.getDefaultPostPrice() // update the default post price
 					} else {
 						this.toast.dismiss(toastWait)
 						this.toast('Transaction has failed.', {
@@ -139,8 +183,19 @@ export default {
 					this.toast('Error: ' + e, { type: 'error' })
 					return
 				} finally {
+					// update the price whenever tx is successful or not
+					this.getDefaultPostPrice()
 					this.loading = false
+					this.inputDisabled = false
 				}
+			}
+		},
+		onModalOpen(classAttrValue) {
+			const classList = classAttrValue.split(' ')
+			if (classList.includes('show')) {
+				this.isModalOpen = true
+			} else {
+				this.isModalOpen = false
 			}
 		},
 	},
@@ -153,9 +208,9 @@ export default {
 	},
 
 	watch: {
-		isActivated() {
-			if (this.isActivated) {
-				this.getDefaultPostPrice() // get the default post price when landing the /profile page
+		isModalOpen() {
+			if (this.isModalOpen) {
+				this.getDefaultPostPrice()
 			}
 		},
 	},
