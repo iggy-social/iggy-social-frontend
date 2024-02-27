@@ -20,22 +20,36 @@
 					></button>
 				</div>
 				<div class="modal-body">
-					<p><strong>Default Post Minting Price</strong></p>
+					
+					<p v-if="!userHasCustomPrice">
+						You currently do not have a custom price set up, so the price of minting your posts is the default post minting 
+						price of {{ defaultPostPrice }} {{ $config.tokenSymbol }}.
+					</p>
+
+					<p v-if="userHasCustomPrice">
+						Your current custom price for minting your posts is {{ selectedPostPrice }} {{ $config.tokenSymbol }}.
+					</p>
+
+					<p>
+						You can set a custom price for your posts via this form:
+					</p>
 
 					<div class="row">
 						<div class="col-sm-6 mb-2">
 							<div class="input-group flex-nowrap">
-								<span class="input-group-text" id="addon-wrapping">Price</span>
 								<input
 									type="text"
 									class="form-control"
-									v-model="defaultPostPrice"
+									v-model="selectedPostPrice"
 									aria-describedby="addon-wrapping"
 									:disabled="inputDisabled"
 								/>
-								<!-- <span class="input-group-text" id="addon-wrapping">Token</span> -->
+								<span class="input-group-text" id="addon-wrapping">{{ $config.tokenSymbol }}</span>
 							</div>
 						</div>
+
+						<small><em>If you set it to 0, the post mint price will be the 
+						default price of {{ defaultPostPrice }} {{ $config.tokenSymbol }}</em></small>
 					</div>
 				</div>
 
@@ -73,6 +87,8 @@ export default {
 			inputDisabled: false,
 			isModalOpen: false,
 			observer: null,
+			selectedPostPrice: null,
+			userHasCustomPrice: false,
 		}
 	},
 
@@ -108,6 +124,7 @@ export default {
 				try {
 					const iggyPostInterface = new ethers.utils.Interface([
 						'function getAuthorsDefaultPrice(address) public view returns (uint256)',
+						'function defaultPrice() external view returns (uint256)'
 					])
 
 					const iggyContract = new ethers.Contract(
@@ -115,9 +132,22 @@ export default {
 						iggyPostInterface,
 						this.signer,
 					)
-					const postPriceWei = await iggyContract.getAuthorsDefaultPrice(this.address)
 
-					this.defaultPostPrice = ethers.utils.formatUnits(postPriceWei, this.$config.tokenDecimals)
+					const userPostPriceWei = await iggyContract.getAuthorsDefaultPrice(this.address)
+					const defaultPostPriceWei = await iggyContract.defaultPrice()
+					this.defaultPostPrice = ethers.utils.formatUnits(defaultPostPriceWei, this.$config.tokenDecimals)
+
+					let postPriceWei;
+
+					if (userPostPriceWei.isZero()) {
+						postPriceWei = defaultPostPriceWei
+						this.userHasCustomPrice = false
+					} else {
+						postPriceWei = userPostPriceWei
+						this.userHasCustomPrice = true
+					}
+
+					this.selectedPostPrice = ethers.utils.formatUnits(postPriceWei, this.$config.tokenDecimals)
 				} catch (err) {
 					console.log('Failed to get default post price: ' + err)
 				} finally {
@@ -135,12 +165,12 @@ export default {
 				])
 
 				const iggyContract = new ethers.Contract(this.$config.iggyPostAddress, iggyPostInterface, this.signer)
-				const postPriceWei = ethers.utils.parseUnits(this.defaultPostPrice, this.$config.tokenDecimals)
+				const postPriceWei = ethers.utils.parseUnits(this.selectedPostPrice, this.$config.tokenDecimals)
 
 				try {
-					// feat: cannot set price to 0 or below
-					if (postPriceWei.isZero() || postPriceWei.isNegative()) {
-						this.toast('Error: Price cannot be set to 0 or below', { type: 'error' })
+					// feat: cannot set price below 0
+					if (postPriceWei.isNegative()) {
+						this.toast('Error: Cannot set a negative price', { type: 'error' })
 						return
 					}
 					const tx = await iggyContract.authorSetDefaultPrice(postPriceWei)
