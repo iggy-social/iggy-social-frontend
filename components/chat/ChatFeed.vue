@@ -10,6 +10,7 @@
             :disabled="!userStore.getIsConnectedToOrbis || !isSupportedChain || !hasDomainOrNotRequired" 
             class="form-control" id="exampleTextarea" rows="5" 
             :placeholder="createPostPlaceholder"
+            v-on:keydown.cmd.enter="createPost" 
           ></textarea>
         </div>
 
