@@ -148,3 +148,8 @@
 [data-bs-theme=light] div.card.m-2.bg-light {
   border: 1px ridge white;
 }
+
+[data-bs-theme=light] section.emoji-mart,.emoji-mart-static .emoji-mart-category-label{
+  background: #f5f5f6 !important;
+  color: #555 !important;
+}
