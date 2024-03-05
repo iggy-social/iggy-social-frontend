@@ -10,6 +10,17 @@
       >
     </div>
 
+    <div class="dropdown d-flex justify-content-center mb-4">
+      <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        {{ selectedContextName }}
+      </button>
+      <ul class="dropdown-menu">
+        <li><button class="dropdown-item" @click="chooseContext('general')">General discussion</button></li>
+        <li><button class="dropdown-item" @click="chooseContext('memesImages')">Share Images & NFTs</button></li>
+        <li><button class="dropdown-item" @click="chooseContext('shill')">Shill & discuss projects</button></li>
+      </ul>
+    </div>
+
     <div class="text-center">
       <button class="btn btn-primary mt-2 mb-4" :disabled="!queryTerm || waitingLoadPosts" @click="search">
         Search
@@ -52,6 +63,7 @@ export default {
       queryTerm: null,
       searched: false,
       selectedContext: this.$config.chatChannels.general,
+      selectedContextName: "General discussion",
       showLoadMore: false,
       waitingLoadPosts: false
     }
@@ -62,6 +74,27 @@ export default {
   },
 
   methods: {
+    chooseContext(contextId) {
+      this.orbisPosts = [];
+      this.pageCounter = 0;
+      this.searched = false;
+
+      this.selectedContext = this.$config.chatChannels[contextId];
+      console.log(this.selectedContext);
+
+      switch (contextId) {
+        case "general":
+          this.selectedContextName = "General discussion";
+          break;
+        case "memesImages":
+          this.selectedContextName = "Share Images & NFTs";
+          break;
+        case "shill":
+          this.selectedContextName = "Shill & discuss projects";
+          break;
+      }
+    },
+
     async search() {
       this.waitingLoadPosts = true;
 
