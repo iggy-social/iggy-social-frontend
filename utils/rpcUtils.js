@@ -43,7 +43,7 @@ export function getRpcs2() {
     "4002": "https://rpc.ankr.com/fantom_testnet",
     "42161": "https://rpc.ankr.com/arbitrum",
     "43114": "https://rpc.ankr.com/avalanche",
-    "80001": "https://polygon-testnet.public.blastapi.io",
+    "80001": "https://rpc-mumbai.maticvigil.com",
     "7777777": "https://rpc.zora.energy"
   }
 }
