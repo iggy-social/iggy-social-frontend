@@ -48,11 +48,7 @@ export default {
 
   methods: {
     changeNetwork(networkName) {
-      const networkData = this.$switchChain(networkName); 
-      window.ethereum.request({ 
-        method: networkData.method, 
-        params: networkData.params
-      });
+      this.$switchOrAddChain(window.ethereum, networkName);
     },
   },
 

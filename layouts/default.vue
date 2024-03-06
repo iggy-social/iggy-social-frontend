@@ -150,7 +150,6 @@ import SidebarRight from "~/components/sidebars/SidebarRight.vue";
 import ChatSettingsModal from "~/components/ChatSettingsModal.vue";
 import { getActivityPoints } from '~/utils/balanceUtils';
 import { getDomainHolder, getDomainName } from '~/utils/domainUtils';
-import { getRpcs } from "~/utils/rpcUtils";
 import { storeReferrer, storeUsername } from '~/utils/storageUtils';
 import VerifyAccountOwnership from '~/components/VerifyAccountOwnership.vue';
 import ReferralModal from '~/components/referrals/ReferralModal.vue';
@@ -274,12 +273,6 @@ export default {
 		async connectMetaMask() {
 			await this.connectWith(this.mmConnector);
 			localStorage.setItem("connected", "metamask"); // store in local storage to autoconnect next time
-			document.getElementById('closeConnectModal').click();
-		},
-
-		async connectWalletConnect() {
-			await this.connectWith(this.wcConnector);
-			localStorage.setItem("connected", "walletconnect"); // store in local storage to autoconnect next time
 			document.getElementById('closeConnectModal').click();
 		},
 
@@ -457,21 +450,16 @@ export default {
 
     const coinbaseConnector = new CoinbaseWalletConnector({
 			appName: config.projectName,
-			jsonRpcUrl: getRpcs()[String(config.supportedChainId)],
+			jsonRpcUrl: config.rpcCustom,
 		});
 
 		const mmConnector = new MetaMaskConnector({
 			appUrl: config.projectUrl,
 		});
-
-		const wcConnector = new WalletConnectConnector({
-			qrcode: true,
-			rpc: getRpcs(),
-		});
     
     return { 
       address, chainId, coinbaseConnector, connectWith, isActivated, mmConnector, signer, 
-      notificationsStore, sidebarStore, siteStore, userStore, wcConnector 
+      notificationsStore, sidebarStore, siteStore, userStore 
     }
   },
 
