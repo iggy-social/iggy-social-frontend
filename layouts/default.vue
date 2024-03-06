@@ -67,13 +67,6 @@
               <small class="text-center mb-3 text-muted">Zerion</small>
             </div> 
 
-            <!--
-            <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectWalletConnect">
-              <img src="@/assets/img/wallets/wc.png" class="card-img-top card-img-wallet" alt="Wallet Connect">
-              <small class="text-center mb-3 text-muted">Rabby</small>
-            </div>
-            -->
-
             <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectCoinbase">
               <img src="@/assets/img/wallets/coinbase.png" class="card-img-top card-img-wallet" alt="Coinbase">
               <small class="text-center mb-3 text-muted">Coinbase</small>
@@ -83,23 +76,6 @@
               <img src="@/assets/img/wallets/brave.png" class="card-img-top card-img-wallet" alt="Brave">
               <small class="text-center mb-3 text-muted">Brave</small>
             </div>
-
-            <!--
-            <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectWalletConnect">
-              <img src="@/assets/img/wallets/minerva.png" class="card-img-top card-img-wallet" alt="Minerva">
-              <small class="text-center mb-3 text-muted">Minerva</small>
-            </div>
-
-            <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectWalletConnect">
-              <img src="@/assets/img/wallets/argent.png" class="card-img-top card-img-wallet" alt="Argent">
-              <small class="text-center mb-3 text-muted">Argent</small>
-            </div>
-
-            <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectWalletConnect">
-              <img src="@/assets/img/wallets/1inch.png" class="card-img-top card-img-wallet" alt="1inch">
-              <small class="text-center mb-3 text-muted">1inch</small>
-            </div>
-            -->
 
             <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectMetaMask">
               <img src="@/assets/img/wallets/trust.png" class="card-img-top card-img-wallet" alt="Trust Wallet">
@@ -138,7 +114,7 @@
 
 <script>
 import { ethers } from 'ethers';
-import { MetaMaskConnector, WalletConnectConnector, CoinbaseWalletConnector, useEthers, useWallet } from 'vue-dapp';
+import { MetaMaskConnector, CoinbaseWalletConnector, useEthers, useWallet } from 'vue-dapp';
 import { useNotificationsStore } from '~/store/notifications';
 import { useSidebarStore } from '~/store/sidebars';
 import { useSiteStore } from '~/store/site';
@@ -211,8 +187,6 @@ export default {
     if (!this.isActivated) {
 			if (localStorage.getItem("connected") == "metamask") {
 				this.connectMetaMask();
-			} else if (localStorage.getItem("connected") == "walletconnect") {
-				this.connectWalletConnect();
 			} else if (localStorage.getItem("connected") == "coinbase") {
 				this.connectCoinbase();
 			}
