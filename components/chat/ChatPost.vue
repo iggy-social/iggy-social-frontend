@@ -1,7 +1,7 @@
 <template>
 <div class="card mb-3 border" v-if="post">
   <div class="card-body row">
-    <div class="col-2 col-md-1">
+    <div class="col-2 col-md-1 pfp-sizing">
       <NuxtLink :to="'/profile/?id='+String(showDomainOrFullAddress)">
         <ProfileImage 
           class="img-fluid rounded-circle"
@@ -12,7 +12,7 @@
       </NuxtLink>
     </div>
 
-    <div class="col-10 col-md-11">
+    <div class="col-10 col-md-11 post-sizing">
       
       <!-- post author and timestamp -->
       <p class="card-subtitle mb-2 text-muted">
