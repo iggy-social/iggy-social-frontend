@@ -390,6 +390,14 @@ a:hover {
   background-color: var(--bs-nav-pills-link-active-bg);
 }
 
+.pfp-sizing {
+  padding: calc(var(--bs-gutter-x)* .1);
+}
+
+.post-sizing {
+  padding-right: calc(var(--bs-gutter-x)* .4);
+}
+
 .quote-reply-to {
   font-size: 0.725rem;
   font-weight: 400;
