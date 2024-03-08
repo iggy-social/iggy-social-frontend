@@ -128,6 +128,10 @@ a:hover {
   color: var(--bs-link-hover-color);
 }
 
+.body-color {
+  color: var(--bs-body-color);
+}
+
 .bg-mode {
   background-color: var(--bs-mode) !important;
 }
