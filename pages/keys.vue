@@ -242,6 +242,10 @@ export default {
     KeysList
   },
 
+  mounted() {
+    this.domainName = this.$route.query.username;
+  },
+
   computed: {
     buyKeyPrice() {
       if (this.buyKeyPriceWei) {
@@ -267,6 +271,12 @@ export default {
       }
 
       return null;
+    },
+
+    getQueryUsername() {
+      if (!this.$route.query.username) return null;
+
+      return this.$route.query.username;
     },
 
     sellKeyPrice() {
@@ -573,6 +583,10 @@ export default {
       this.buyKeyToChat = false;
       this.buyKeyPriceWei = null;
       this.sellKeyPriceWei = null;
+    },
+
+    getQueryUsername: function (val) {
+      this.domainName = val;
     }
   }
 }

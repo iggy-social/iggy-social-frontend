@@ -33,9 +33,14 @@
               {{ balanceAp }} AP
             </p>
 
+            <p class="me-4" v-if="$config.keysAddress && $config.showFeatures.friendKeys && getChatName">
+              <i class="bi bi-key-fill me-2"></i>
+              <NuxtLink class="body-color hover-color" :to="'/keys/?username='+getChatName">Get Friend Key</NuxtLink>
+            </p>
+
             <p class="me-4">
               <i class="bi bi-box-arrow-up-right me-2"></i>
-              <a :href="$config.blockExplorerBaseUrl+'/address/'+uAddress" target="_blank" style="text-decoration: none;">
+              <a :href="$config.blockExplorerBaseUrl+'/address/'+uAddress" target="_blank" class="body-color hover-color" style="text-decoration: none;">
                 {{ shortenAddress(uAddress) }}
               </a>
             </p>
@@ -337,6 +342,16 @@ export default {
       } else {
         return Number(bal).toFixed(4)
       }
+    },
+
+    getChatName() {
+      if (this.domain) {
+        if (this.domain.endsWith(this.$config.tldName)) {
+          return this.domain.replace(this.$config.tldName, "");
+        }
+      }
+
+      return null;
     },
 
     getOrbisContext() {

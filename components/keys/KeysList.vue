@@ -10,7 +10,7 @@
       </thead>
       <tbody>
         <tr v-for="domain in domainObjects" :key="domain.name">
-          <td class="bg-transparent text-break">{{ domain.name }}{{ $config.tldName }}</td>
+          <td class="bg-transparent text-break"><NuxtLink :to="'/keys?username='+domain.name">{{ domain.name }}{{ $config.tldName }}</NuxtLink></td>
           <td class="bg-transparent text-nowrap">{{ domain.price }} {{ $config.tokenSymbol }}</td>
         </tr>
       </tbody>
