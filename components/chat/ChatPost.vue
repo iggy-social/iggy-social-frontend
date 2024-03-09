@@ -312,8 +312,10 @@ export default {
         return this.post.context;
       } else if (this.post?.content.context) {
         return this.post.content.context;
-      } else if (this.post?.context_details.context_id) {
+      } else if (this.post?.context_details?.context_id) {
         return this.post.context_details.context_id;
+      } else if (this.post?.stream_id) {
+        return this.post.stream_id;
       } else {
         return this.orbisContext;
       }
