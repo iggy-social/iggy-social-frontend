@@ -184,10 +184,6 @@ a:hover {
   border-color: var(--bs-danger);
 }
 
-.nav-pills {
-  --bs-nav-pills-link-active-bg: var(--bs-primary);
-}
-
 .card {
   --bs-card-spacer-y: 1.25rem;
   --bs-card-spacer-x: 1.25rem;
@@ -378,6 +374,7 @@ a:hover {
 }
 
 .nav-pills {
+  --bs-nav-pills-link-active-bg: var(--bs-primary);
   --bs-nav-pills-border-radius: 0.375rem;
 }
 
@@ -410,6 +407,10 @@ a:hover {
 
 .sidebar-card-body {
   padding-top: 0;
+}
+
+.sidebar-left-col {
+  width: 19%;
 }
 
 .sidebar-profile-image {
@@ -475,7 +476,7 @@ a:hover {
   }
 
   .sidebar-nav {
-    width: 260px;
+    width: 100%;
   }
 }
 
