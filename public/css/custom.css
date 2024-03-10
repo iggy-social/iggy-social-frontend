@@ -394,6 +394,10 @@ a:hover {
   background-color: var(--bs-nav-pills-link-active-bg);
 }
 
+.col-lg-auto {
+    width: 18.6%;
+}
+
 .pfp-sizing {
   padding: calc(var(--bs-gutter-x)* .1);
 }
