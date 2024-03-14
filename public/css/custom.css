@@ -408,11 +408,6 @@ a:hover {
     height: auto;
 }
 
-.img-fluid {
-    max-width: 102%;
-    height: auto;
-}
-
 .post-sizing {
   padding-left: calc(var(--bs-gutter-x)* .18);
   padding-right: calc(var(--bs-gutter-x)* .4);
