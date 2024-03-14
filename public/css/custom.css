@@ -399,11 +399,22 @@ a:hover {
 }
 
 .pfp-sizing {
-  padding: 0.2% calc(var(--bs-gutter-x)* .16);
+    padding-left: calc(var(--bs-gutter-x)* 0.05);
+    padding-right: calc(var(--bs-gutter-x)* 0.18);
+}
+
+.img-fluid {
+    max-width: 102% !important;
+    height: auto;
+}
+
+.img-fluid {
+    max-width: 102%;
+    height: auto;
 }
 
 .post-sizing {
-  padding-left: calc(var(--bs-gutter-x)* .16);
+  padding-left: calc(var(--bs-gutter-x)* .18);
   padding-right: calc(var(--bs-gutter-x)* .4);
 }
 
