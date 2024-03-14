@@ -395,10 +395,15 @@ a:hover {
 }
 
 .pfp-sizing {
-  padding: calc(var(--bs-gutter-x)* .1);
+  padding: 0.2% calc(var(--bs-gutter-x)* .16);
+}
+
+.img-fluid {
+    max-width: 102% !important;
 }
 
 .post-sizing {
+  padding-left: calc(var(--bs-gutter-x)* .16);
   padding-right: calc(var(--bs-gutter-x)* .4);
 }
 
