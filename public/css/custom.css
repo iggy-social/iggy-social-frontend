@@ -400,8 +400,8 @@ a:hover {
 }
 
 .pfp-sizing {
-    padding-left: calc(var(--bs-gutter-x)* 0.05);
-    padding-right: calc(var(--bs-gutter-x)* 0.18);
+  padding-left: calc(var(--bs-gutter-x)* 0.05);
+  padding-right: calc(var(--bs-gutter-x)* 0.18);
 }
 
 .post-sizing {
