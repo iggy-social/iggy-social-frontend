@@ -394,11 +394,18 @@ a:hover {
   background-color: var(--bs-nav-pills-link-active-bg);
 }
 
+.pfp-img {
+  max-width: 102% !important;
+  height: auto;
+}
+
 .pfp-sizing {
-  padding: calc(var(--bs-gutter-x)* .1);
+  padding-left: calc(var(--bs-gutter-x)* 0.05);
+  padding-right: calc(var(--bs-gutter-x)* 0.18);
 }
 
 .post-sizing {
+  padding-left: calc(var(--bs-gutter-x)* .18);
   padding-right: calc(var(--bs-gutter-x)* .4);
 }
 

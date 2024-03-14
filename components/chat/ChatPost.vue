@@ -4,7 +4,7 @@
     <div class="col-2 col-md-1 pfp-sizing">
       <NuxtLink :to="'/profile/?id='+String(showDomainOrFullAddress)">
         <ProfileImage 
-          class="img-fluid rounded-circle"
+          class="img-fluid rounded-circle pfp-img"
           :address="authorAddress" 
           :domain="authorDomain"
           :image="getOrbisImage"
