@@ -251,6 +251,10 @@ a:hover {
   color: #ffffff;
 }
 
+.force-circle {
+  clip-path: circle();
+}
+
 .form-control, .input-group-text {
   font-size: 1rem;
   padding: 0.5rem 1rem;
@@ -407,10 +411,6 @@ a:hover {
 .post-sizing {
   padding-left: calc(var(--bs-gutter-x)* .18);
   padding-right: calc(var(--bs-gutter-x)* .4);
-}
-
-.col-2.col-md-1.pfp-sizing .rounded-circle {
-    clip-path: circle();
 }
 
 .quote-reply-to {

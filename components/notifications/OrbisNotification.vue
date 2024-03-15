@@ -1,10 +1,10 @@
 <template>
 <div class="card mb-3 border">
   <div class="card-body row">
-    <div class="col-2 col-md-1">
+    <div class="col-2 col-md-1 pfp-sizing">
       <NuxtLink :to="'/profile/?id='+getUsernameOrAddress">
         <ProfileImage 
-          class="img-fluid rounded-circle"
+          class="img-fluid rounded-circle pfp-img force-circle"
           :address="authorAddress" 
           :domain="authorDomain"
           :image="authorImage"
@@ -13,7 +13,7 @@
       </NuxtLink>
     </div>
     
-    <div class="col-10 col-md-11">
+    <div class="col-10 col-md-11 post-sizing">
       <p class="mt-0 link-without-color">
         <NuxtLink class="link-without-color hover-color" :to="'/profile/?id='+getUsernameOrAddress">
           {{ getUsernameOrShortAddress }}
