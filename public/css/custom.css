@@ -409,6 +409,10 @@ a:hover {
   padding-right: calc(var(--bs-gutter-x)* .4);
 }
 
+.col-2.col-md-1.pfp-sizing .rounded-circle {
+    clip-path: circle();
+}
+
 .quote-reply-to {
   font-size: 0.725rem;
   font-weight: 400;
