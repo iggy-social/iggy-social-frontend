@@ -8,7 +8,7 @@
 
       <div class="row">
         <div class="col-md-3 mt-3">
-          <ProfileImage :key="orbisImage" v-if="uAddress" class="img-fluid img-thumbnail rounded-circle col-6 col-md-12" :address="uAddress" :domain="domain" :image="orbisImage" />
+          <ProfileImage :key="orbisImage" v-if="uAddress" class="img-fluid img-thumbnail rounded-circle force-circle col-6 col-md-12" :address="uAddress" :domain="domain" :image="orbisImage" />
         </div>
 
         <div class="col-md-9 mt-3">
