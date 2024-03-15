@@ -251,6 +251,10 @@ a:hover {
   color: #ffffff;
 }
 
+.force-circle {
+  clip-path: circle();
+}
+
 .form-control, .input-group-text {
   font-size: 1rem;
   padding: 0.5rem 1rem;
