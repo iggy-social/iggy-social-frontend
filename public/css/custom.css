@@ -242,7 +242,7 @@ img.card-img-top {
 }
 
 main .row .card {
-  border: solid 1px #5e00b54a !important;
+  border: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color)!important;
 }
 
 .card-body{
