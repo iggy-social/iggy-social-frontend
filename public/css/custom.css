@@ -237,6 +237,17 @@ a:hover {
   transform: scale(0.8);
 }
 
+img.card-img-top {
+    padding: 3%;
+}
+
+main .row .card {
+  border: solid 1px #5e00b54a !important;
+}
+
+.card-body{
+  border:none !important;
+}
 .cursor-pointer {
   cursor: pointer;
 }
