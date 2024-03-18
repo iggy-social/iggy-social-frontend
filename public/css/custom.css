@@ -238,16 +238,24 @@ a:hover {
 }
 
 img.card-img-top {
-    padding: 3%;
+    padding: 5%;
 }
 
 main .row .card {
   border: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color)!important;
+  padding:0
 }
 
 .card-body{
   border:none !important;
 }
+
+.card-body.bg-body {
+    height: auto;
+    width: 100%;
+    border: none !important;
+}
+
 .cursor-pointer {
   cursor: pointer;
 }
