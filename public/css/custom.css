@@ -413,6 +413,25 @@ a:hover {
   padding-right: calc(var(--bs-gutter-x)* .4);
 }
 
+.preview-card {
+  border: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color)!important;
+  padding:0
+}
+
+.preview-card-body {
+  border:none !important;
+}
+
+.preview-card-body.bg-body {
+  height: auto;
+  width: 100%;
+  border: none !important;
+}
+
+.preview-card-img {
+  padding: 5%;
+}
+
 .quote-reply-to {
   font-size: 0.725rem;
   font-weight: 400;
