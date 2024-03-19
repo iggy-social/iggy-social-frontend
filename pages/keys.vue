@@ -491,7 +491,7 @@ export default {
 
       const keysInterface = new ethers.utils.Interface([
         "function isKeyHolder(string memory domainName, address user) external view returns (bool)",
-        "function sellKeys(string memory domainName, uint256 amount) external payable"
+        "function sellKeys(string memory domainName, uint256 amount, address referrer) external payable"
       ]);
 
       const keysContract = new ethers.Contract(
@@ -501,7 +501,11 @@ export default {
       );
 
       try {
-        const tx = await keysContract.sellKeys(this.cleanDomainName, 1);
+        const tx = await keysContract.sellKeys(
+          this.cleanDomainName, // domain name
+          1, // amount
+          fetchReferrer(window) // referrer
+        );
 
         const toastWait = this.toast(
           {
