@@ -432,6 +432,10 @@ a:hover {
   padding: 5%;
 }
 
+.post-sizing .row {
+    margin-left: 0 !important;
+}
+
 .quote-reply-to {
   font-size: 0.725rem;
   font-weight: 400;
