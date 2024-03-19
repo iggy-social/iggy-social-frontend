@@ -39,11 +39,11 @@
       <!-- link preview -->
       <div v-if="linkPreview?.title" class="row mt-3 mb-3">
         
-          <div class="card col-md-6">
+          <div class="card col-md-6 preview-card">
             <a target="_blank" :href="linkPreview.url" class="text-decoration-none text-reset">
-              <img :src="linkPreview.image.url" class="card-img-top" />
+              <img :src="linkPreview.image.url" class="card-img-top preview-card-img" />
 
-              <div class="card-body bg-body rounded-bottom-3 border-end border-bottom border-start">
+              <div class="card-body bg-body rounded-bottom-3 border-end border-bottom border-start preview-card-body">
                 <h5 class="card-title text-break">{{linkPreview.title}}</h5>
                 <p class="card-text text-break text-reset">{{linkPreview.description}}</p>
               </div>
@@ -56,11 +56,11 @@
       <!-- New NFT collection created -->
       <div v-if="customDataType === 'nftCollectionCreated' && collection" class="row mt-3 mb-3">
         
-          <div class="card col-md-6">
+          <div class="card col-md-6 preview-card">
             <NuxtLink :to="'/nft/collection?id='+collection.address" class="text-decoration-none text-reset">
-              <img :src="collection?.image" class="card-img-top" />
+              <img :src="collection?.image" class="card-img-top preview-card-img" />
 
-              <div class="card-body bg-body rounded-bottom-3 border-end border-bottom border-start">
+              <div class="card-body bg-body rounded-bottom-3 border-end border-bottom border-start preview-card-body">
                 <h5 class="card-title text-break">{{ collection?.name }}</h5>
                 <p v-if="collection?.description" class="card-text text-break text-reset">{{ getNftCollectionDescription }}</p>
               </div>
@@ -68,7 +68,7 @@
           </div>
         
       </div>
-      <!-- New NFT collection created -->
+      <!-- END: New NFT collection created -->
 
       <!-- Minted Post Image -->
       <div v-if="customDataType === 'mintedPost'" class="row mt-2">

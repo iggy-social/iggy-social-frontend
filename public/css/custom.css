@@ -237,25 +237,6 @@ a:hover {
   transform: scale(0.8);
 }
 
-img.card-img-top {
-    padding: 5%;
-}
-
-main .row .card {
-  border: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color)!important;
-  padding:0
-}
-
-.card-body{
-  border:none !important;
-}
-
-.card-body.bg-body {
-    height: auto;
-    width: 100%;
-    border: none !important;
-}
-
 .cursor-pointer {
   cursor: pointer;
 }
@@ -430,6 +411,25 @@ main .row .card {
 .post-sizing {
   padding-left: calc(var(--bs-gutter-x)* .18);
   padding-right: calc(var(--bs-gutter-x)* .4);
+}
+
+.preview-card {
+  border: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color)!important;
+  padding:0
+}
+
+.preview-card-body {
+  border:none !important;
+}
+
+.preview-card-body.bg-body {
+  height: auto;
+  width: 100%;
+  border: none !important;
+}
+
+.preview-card-img {
+  padding: 5%;
 }
 
 .quote-reply-to {
