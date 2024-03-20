@@ -413,6 +413,10 @@ a:hover {
   padding-right: calc(var(--bs-gutter-x)* .4);
 }
 
+.post-sizing > .row {
+  margin-left: 0 !important;
+}
+
 .preview-card {
   border: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color)!important;
   padding:0
@@ -430,10 +434,6 @@ a:hover {
 
 .preview-card-img {
   padding: 5%;
-}
-
-.post-sizing .row {
-    margin-left: 0 !important;
 }
 
 .quote-reply-to {
