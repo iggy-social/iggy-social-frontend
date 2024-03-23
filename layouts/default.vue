@@ -420,8 +420,6 @@ export default {
     const { address, chainId, isActivated, signer } = useEthers();
     const { connectWith } = useWallet();
 
-    //const localStorageConnected = useLocalStorage('connected', null); // when localStorageConnected.value is updated, localStorage is updated too
-
     const coinbaseConnector = new CoinbaseWalletConnector({
 			appName: config.projectName,
 			jsonRpcUrl: config.rpcCustom,

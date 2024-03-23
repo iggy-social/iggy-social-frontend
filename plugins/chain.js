@@ -21,10 +21,7 @@ export default defineNuxtPlugin(() => {
       mainRpc = chain.rpc1;
     }
 
-    let urls = [
-      mainRpc, // main rpc
-      //chain.rpc2 // alternative rpc
-    ];
+    let urls = [mainRpc];
 
     if (urls) {
       const providers = urls.map(url => new ethers.providers.JsonRpcProvider(url));
