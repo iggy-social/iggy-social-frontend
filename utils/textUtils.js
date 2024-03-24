@@ -68,7 +68,26 @@ export function findFirstUrl(text) {
   return null;
 }
 
+export function getAllImagesFromText(text) {
+  if (!text) { return [] };
+
+  // find multiple image links in the text and return them as an array
+  let imageRegex = /(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp))/gi;
+  let imageLinks = text.match(imageRegex);
+
+  if (!imageLinks) {
+    imageRegex = /(http|https|ipfs):\/\/\S+\?.img/g;
+    imageLinks = text.match(imageRegex);
+  }
+
+  if (!imageLinks) { return [] };
+
+  return imageLinks;
+}
+
 export function getImageFromText(text) {
+  if (!text) { return null };
+
   let imageRegex = /(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp))/i;
   let imageLinks = text.match(imageRegex);
 
