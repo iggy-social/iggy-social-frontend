@@ -89,8 +89,9 @@
 
         <div class="d-flex mt-2 row">
           <img 
-            v-for="imgLink in getAllImagesFromText(postText)" 
+            v-for="(imgLink, index) in getAllImagesFromText(postText)" 
             :src="imgLink" 
+            :key="index"
             class="img-fluid img-thumbnail m-1 col-2" 
           />
         </div>
