@@ -180,7 +180,7 @@ export default {
           this.editImagePreviewUrl = ""; // important: should be empty string, not null
 
           // close the modal
-          document.getElementById('closeModal-'+componentId).click();
+          document.getElementById('closeModal-'+this.componentId).click();
 
           this.waitingMetadata = false;
         } else {
