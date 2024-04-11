@@ -29,16 +29,16 @@
     </p>
 
     <div class="text-center">
-      <button v-if="isActivated" class="btn btn-outline-primary mt-2 mb-2" :disabled="paused || domainNotValid.invalid || balanceTooLow">
+      <button v-if="isActivated && isSupportedChain" class="btn btn-outline-primary mt-2 mb-2" :disabled="paused || domainNotValid.invalid || balanceTooLow">
         <span v-if="loadingMint || loadingData" class="spinner-border spinner-border-sm mx-1" role="status" aria-hidden="true"></span>
         <span v-if="loadingData">Loading data...</span>
         <span v-if="!loadingMint && !loadingData && balanceTooLow">Balance too low</span>
         <span v-if="!loadingMint && !loadingData && !balanceTooLow" @click="mintName">Mint username</span>
       </button>
-    </div>
 
-    <ConnectWalletButton v-if="!isActivated" class="btn btn-outline-primary mt-2 mb-2" btnText="Connect Wallet" />
-    
+      <ConnectWalletButton v-if="!isActivated" class="btn btn-outline-primary mt-2 mb-2" btnText="Connect Wallet" />
+      <SwitchChainButton v-if="isActivated && !isSupportedChain" />
+    </div>
   </div>
 </div>
 </template>
@@ -49,6 +49,7 @@ import { ethers } from 'ethers';
 import { useToast } from "vue-toastification/dist/index.mjs";
 import WaitingToast from "~/components/WaitingToast";
 import ConnectWalletButton from "~/components/ConnectWalletButton";
+import SwitchChainButton from '~/components//SwitchChainButton.vue';
 import { useUserStore } from '~/store/user';
 import { getDomainName } from '~/utils/domainUtils';
 import { fetchReferrer, fetchUsername, storeUsername } from '~/utils/storageUtils';
@@ -74,6 +75,7 @@ export default {
 
   components: { 
     ConnectWalletButton,
+    SwitchChainButton,
     WaitingToast
   },
 
@@ -198,7 +200,15 @@ export default {
       } else {
         return this.price5char;
       }
-    }
+    },
+
+    isSupportedChain() {
+      if (this.chainId === this.$config.supportedChainId) {
+        return true;
+      } else {
+        return false;
+      }
+    },
   },
 
   methods: {
@@ -367,11 +377,11 @@ export default {
   }, 
 
   setup() {
-    const { address, balance, isActivated, signer } = useEthers();
+    const { address, balance, chainId, isActivated, signer } = useEthers();
     const toast = useToast();
     const userStore = useUserStore();
 
-    return { address, balance, isActivated, signer, toast, userStore };
+    return { address, balance, chainId, isActivated, signer, toast, userStore };
   }
 }
 </script>

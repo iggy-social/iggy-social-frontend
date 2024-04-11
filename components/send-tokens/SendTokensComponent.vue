@@ -98,14 +98,7 @@
       </button>
 
       <!-- Wrong network button -->
-      <button
-        v-if="isActivated && !isSupportedNetwork"
-        :disabled="true" 
-        class="btn btn-outline-primary" 
-        type="button"
-      >
-        Wrong network
-      </button>
+      <SwitchChainButton v-if="isActivated && !isSupportedChain" />
 
     </div>
 
@@ -120,6 +113,7 @@ import { getTokenBalance } from '~/utils/balanceUtils';
 import { hasTextBlankCharacters } from '~/utils/textUtils';
 import WaitingToast from "~/components/WaitingToast";
 import ConnectWalletButton from '~/components/ConnectWalletButton.vue';
+import SwitchChainButton from '~/components/SwitchChainButton.vue';
 import Erc20Abi from "~/assets/abi/Erc20Abi.json";
 
 export default {
@@ -141,7 +135,8 @@ export default {
   },
 
   components: {
-    ConnectWalletButton
+    ConnectWalletButton,
+    SwitchChainButton
   },
 
   mounted() {

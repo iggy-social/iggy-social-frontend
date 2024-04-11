@@ -92,27 +92,19 @@
         ({{ siteStore.getSlippage }}% slippage).
       </em>
     </small>
-  
-    <!-- Wrong Network button -->
-    <div class="d-flex justify-content-center mt-4" v-if="!isSupportedChain">
-      <button
-        disabled="true"
-        class="btn btn-primary" 
-        type="button"
-      >
-        Wrong network
-      </button>
-    </div>
 
     <!-- BUTTONS -->
-    <div class="d-flex justify-content-center mt-4" v-if="isSupportedChain">
+    <div class="d-flex justify-content-center mt-4">
 
       <!-- Connect Wallet button -->
-      <ConnectWalletButton v-if="!isActivated" class="btn btn-outline-primary" btnText="Connect wallet" />
+      <ConnectWalletButton v-if="!isActivated && !isSupportedChain" class="btn btn-outline-primary" btnText="Connect wallet" />
+
+      <!-- Switch Chain button -->
+      <SwitchChainButton v-if="isActivated && !isSupportedChain" />
 
       <!-- Disabled Swap tokens button (if not input amount is entered) -->
       <button
-        v-if="isActivated && !inputTokenAmount"
+        v-if="isActivated && isSupportedChain && !inputTokenAmount"
         :disabled="true" 
         class="btn btn-outline-primary" 
         type="button"
@@ -122,7 +114,7 @@
 
       <!-- Approve token button -->
       <button
-        v-if="isActivated && inputTokenAmount && inputAmountLessThanBalance && !bothTokensAreTheSame && allowanceTooLow && !unwrappingWrappedNativeCoin && !priceImpactTooHigh" 
+        v-if="isActivated && isSupportedChain && inputTokenAmount && inputAmountLessThanBalance && !bothTokensAreTheSame && allowanceTooLow && !unwrappingWrappedNativeCoin && !priceImpactTooHigh" 
         class="btn btn-outline-primary" 
         type="button"
         data-bs-toggle="modal" 
@@ -142,7 +134,7 @@
 
       <!-- Swap tokens button (and fetch the output token amount again) -->
       <button
-        v-if="isActivated && inputTokenAmount && inputAmountLessThanBalance && !bothTokensAreTheSame && !priceImpactTooHigh && !priceImpactTooHigh && (!allowanceTooLow || unwrappingWrappedNativeCoin)"
+        v-if="isActivated && isSupportedChain && inputTokenAmount && inputAmountLessThanBalance && !bothTokensAreTheSame && !priceImpactTooHigh && !priceImpactTooHigh && (!allowanceTooLow || unwrappingWrappedNativeCoin)"
         :disabled="!inputToken || !outputToken || !inputTokenAmount || !outputTokenAmount || !isActivated || bothTokensAreTheSame || !inputAmountLessThanBalance" 
         class="btn btn-outline-primary" 
         type="button"
@@ -167,7 +159,7 @@
 
       <!-- Balance too low button -->
       <button
-        v-if="isActivated && inputTokenAmount && !inputAmountLessThanBalance && !bothTokensAreTheSame && !priceImpactTooHigh"
+        v-if="isActivated && isSupportedChain && inputTokenAmount && !inputAmountLessThanBalance && !bothTokensAreTheSame && !priceImpactTooHigh"
         :disabled="true" 
         class="btn btn-outline-primary" 
         type="button"
@@ -177,7 +169,7 @@
 
       <!-- Both tokens are the same button -->
       <button
-        v-if="isActivated && inputTokenAmount && bothTokensAreTheSame && !priceImpactTooHigh"
+        v-if="isActivated && isSupportedChain && inputTokenAmount && bothTokensAreTheSame && !priceImpactTooHigh"
         :disabled="true" 
         class="btn btn-outline-primary" 
         type="button"
@@ -187,7 +179,7 @@
 
       <!-- Price impact too high -->
       <button
-        v-if="isActivated && inputTokenAmount && priceImpactTooHigh"
+        v-if="isActivated && isSupportedChain && inputTokenAmount && priceImpactTooHigh"
         :disabled="true" 
         class="btn btn-outline-primary" 
         type="button"
@@ -213,6 +205,7 @@ import { getTokenAllowance, getTokenBalance } from '~/utils/balanceUtils';
 import { getOutputTokenAmount, getPriceImpactBps } from '~/utils/simpleSwapUtils';
 import { ethers } from 'ethers';
 import ConnectWalletButton from '~/components/ConnectWalletButton.vue';
+import SwitchChainButton from '~/components/SwitchChainButton.vue';
 import TokenApprovalModal from '~/components/approvals/TokenApprovalModal.vue';
 import SwapTokensModal from '~/components/swap/SwapTokensModal.vue';
 import { useSiteStore } from '~/store/site';
@@ -243,6 +236,7 @@ export default {
   components: {
     ConnectWalletButton,
     SwapTokensModal,
+    SwitchChainButton,
     TokenApprovalModal
   },
 

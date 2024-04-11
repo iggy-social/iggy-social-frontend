@@ -15,15 +15,40 @@
         <span v-if="sidebarStore.showRightSidebar" class="bi bi-x-lg"></span>
       </button>
     </div>
-    </nav>
+  </nav>
+
+  <div v-if="!isSupportedChain || !isActivated" class="card border m-3">
+    <div class="card-body d-flex justify-content-center">
+      <ConnectWalletButton v-if="!isActivated" class="btn btn-primary" btnText="Connect wallet" />
+      <SwitchChainButton v-if="isActivated && !isSupportedChain" />
+    </div>
+  </div>
 </template>
 
 <script>
+import { useEthers } from 'vue-dapp';
 import { useSidebarStore } from '~/store/sidebars';
+import ConnectWalletButton from '~/components/ConnectWalletButton.vue';
+import SwitchChainButton from '~/components/SwitchChainButton.vue';
 
 export default {
   name: "NavbarMobile",
   props: ["lSidebar", "rSidebar"],
+
+  components: {
+    ConnectWalletButton,
+    SwitchChainButton,
+  },
+
+  computed: {
+    isSupportedChain() {
+      if (this.chainId === this.$config.supportedChainId) {
+        return true;
+      } else {
+        return false;
+      }
+    },
+  },
 
   methods: {
     toggleLeftSidebar() {
@@ -58,8 +83,9 @@ export default {
   },
 
   setup() {
+    const { chainId, isActivated } = useEthers();
     const sidebarStore = useSidebarStore();
-    return { sidebarStore }
+    return { chainId, isActivated, sidebarStore }
   },
 }
 </script>

@@ -34,12 +34,13 @@
             </button>
           </div>
 
-          <div v-if="!isActivated" class="d-flex justify-content-center mt-4">
+          <div v-if="!isActivated || !isSupportedChain" class="d-flex justify-content-center mt-4">
             <ConnectWalletButton v-if="!isActivated" class="btn btn-outline-primary" btnText="Connect wallet" />
+            <SwitchChainButton v-if="isActivated && !isSupportedChain" />
           </div>
 
           <!-- Get Data button -->
-          <div v-if="isActivated && !showBuySellButtons" class="d-flex justify-content-center mt-4">
+          <div v-if="isActivated && isSupportedChain && !showBuySellButtons" class="d-flex justify-content-center mt-4">
             <button 
               :disabled="waitingData || !domainName"
               class="btn btn-outline-primary" 
@@ -53,7 +54,7 @@
           </div>
 
           <!-- Buy & Sell buttons -->
-          <div v-if="isActivated && showBuySellButtons && !domainNotExists" class="d-flex justify-content-center mt-4 mb-4">
+          <div v-if="isActivated && isSupportedChain && showBuySellButtons && !domainNotExists" class="d-flex justify-content-center mt-4 mb-4">
 
             <button 
               :disabled="waitingBuy || !domainName"
@@ -215,6 +216,7 @@ import WaitingToast from "~/components/WaitingToast";
 import ChatFeed from "~/components/chat/ChatFeed.vue";
 import KeysList from "~/components/keys/KeysList.vue";
 import ConnectWalletButton from "~/components/ConnectWalletButton.vue";
+import SwitchChainButton from '~/components/SwitchChainButton.vue';
 import { fetchReferrer } from '~/utils/storageUtils';
 
 export default {
@@ -239,7 +241,8 @@ export default {
   components: {
     ChatFeed,
     ConnectWalletButton,
-    KeysList
+    KeysList,
+    SwitchChainButton
   },
 
   mounted() {
@@ -277,6 +280,14 @@ export default {
       if (!this.$route.query.username) return null;
 
       return this.$route.query.username;
+    },
+
+    isSupportedChain() {
+      if (this.chainId === this.$config.supportedChainId) {
+        return true;
+      } else {
+        return false;
+      }
     },
 
     sellKeyPrice() {
@@ -567,11 +578,12 @@ export default {
   },
 
   setup() {
-    const { address, isActivated, signer } = useEthers();
+    const { address, chainId, isActivated, signer } = useEthers();
     const toast = useToast();
 
     return {
       address,
+      chainId,
       isActivated,
       signer,
       toast

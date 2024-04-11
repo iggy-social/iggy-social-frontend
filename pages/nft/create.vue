@@ -134,7 +134,7 @@
         <!-- Create Collection button -->
         <button 
           :disabled="waitingCreate || !fieldsValid"
-          v-if="isActivated && !launchpadPaused"
+          v-if="isActivated && isSupportedChain && !launchpadPaused"
           class="btn btn-primary" 
           type="button"
           @click="createCollection" 
@@ -144,12 +144,13 @@
         </button>
 
         <!-- Paused button -->
-        <button :disabled="true" v-if="isActivated && launchpadPaused" class="btn btn-primary">
+        <button :disabled="true" v-if="isActivated && isSupportedChain && launchpadPaused" class="btn btn-primary">
           Paused
         </button>
 
         <!-- Connect Wallet button -->
-        <ConnectWalletButton v-if="!isActivated" class="btn btn-primary" btnText="Connect wallet" />
+        <ConnectWalletButton v-if="!isActivated && !isSupportedChain" class="btn btn-primary" btnText="Connect wallet" />
+        <SwitchChainButton v-if="isActivated && !isSupportedChain" />
         
       </div>
 
@@ -173,6 +174,7 @@ import { ethers } from 'ethers';
 import { useEthers } from 'vue-dapp';
 import { useToast } from "vue-toastification/dist/index.mjs";
 import ConnectWalletButton from "~/components/ConnectWalletButton.vue";
+import SwitchChainButton from '~/components/SwitchChainButton.vue';
 import WaitingToast from "~/components/WaitingToast";
 import FileUploadModal from "~/components/storage/FileUploadModal.vue";
 import { useUserStore } from '~/store/user';
@@ -202,6 +204,7 @@ export default {
   components: {
     ConnectWalletButton,
     FileUploadModal,
+    SwitchChainButton,
     WaitingToast
   },
 
@@ -244,6 +247,14 @@ export default {
 
     fieldsValid() {
       return this.cName && this.cSymbol && this.cImage && this.cDescription && this.nftName && this.ratio;
+    },
+
+    isSupportedChain() {
+      if (this.chainId === this.$config.supportedChainId) {
+        return true;
+      } else {
+        return false;
+      }
     },
   },
 
@@ -338,7 +349,20 @@ export default {
           }
         } catch (e) {
           console.error(e);
-          this.toast(e.message, {type: "error"});
+
+          try {
+            let extractMessage = e.message.split("reason=")[1];
+            extractMessage = extractMessage.split(", method=")[0];
+            extractMessage = extractMessage.replace(/"/g, "");
+            extractMessage = extractMessage.replace('execution reverted:', "Error:");
+
+            console.log(extractMessage);
+            
+            this.toast(extractMessage, {type: "error"});
+          } catch (e) {
+            this.toast("Transaction has failed.", {type: "error"});
+          }
+          
           this.waitingCreate = false;
         }
       }

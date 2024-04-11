@@ -118,18 +118,19 @@
           <!-- Buttons -->
           <div class="row mb-3">
 
-            <div v-if="!isActivated" class="d-grid gap-2 col">
-              <ConnectWalletButton class="btn btn-primary" btnText="Connect wallet" />
+            <div v-if="!isActivated || !isSupportedChain" class="d-grid gap-2 col">
+              <ConnectWalletButton v-if="!isActivated" class="btn btn-primary" btnText="Connect wallet" />
+              <SwitchChainButton v-if="isActivated && !isSupportedChain" />
             </div>
 
-            <div v-if="isActivated" class="d-grid gap-2 col">
+            <div v-if="isActivated && isSupportedChain" class="d-grid gap-2 col">
               <button @click="buyNft" class="btn btn-primary" type="button" :disabled="waitingData || waitingBuy" >
                 <span v-if="waitingBuy" class="spinner-border spinner-border-sm mx-1" role="status" aria-hidden="true"></span>
                 Buy for {{ formatPrice(priceBuyWei) }} {{ $config.tokenSymbol }}
               </button>
             </div>
 
-            <div v-if="isActivated" class="d-grid gap-2 col">
+            <div v-if="isActivated && isSupportedChain" class="d-grid gap-2 col">
               <button @click="sellNft" class="btn btn-primary" type="button" :disabled="waitingData || waitingSell || !userTokenId || priceSellWei == 0" >
                 <span v-if="waitingSell" class="spinner-border spinner-border-sm mx-1" role="status" aria-hidden="true"></span>
                 Sell for {{ formatPrice(priceSellWei) }} {{ $config.tokenSymbol }}
@@ -138,7 +139,7 @@
             
           </div>
 
-          <small v-if="isActivated">
+          <small v-if="isActivated && isSupportedChain">
             <em>
               (Price may still change after pressing the button, so make sure to check the {{ $config.tokenSymbol }} amount in wallet.)
             </em>
@@ -201,6 +202,7 @@ import { useEthers, shortenAddress } from 'vue-dapp';
 import { useToast } from "vue-toastification/dist/index.mjs";
 import ChatFeed from "~/components/chat/ChatFeed.vue";
 import ConnectWalletButton from "~/components/ConnectWalletButton.vue";
+import SwitchChainButton from '~/components/SwitchChainButton.vue';
 import WaitingToast from "~/components/WaitingToast";
 import AddImageToCollectionModal from "~/components/nft/collection/AddImageToCollectionModal";
 import ChangeCollectionPreviewModal from "~/components/nft/collection/ChangeCollectionPreviewModal";
@@ -242,6 +244,7 @@ export default {
     ChatFeed,
     ConnectWalletButton,
     RemoveImageFromCollectionModal,
+    SwitchChainButton,
     WaitingToast
   },
 
@@ -282,7 +285,15 @@ export default {
       }
 
       return false;
-    }
+    },
+
+    isSupportedChain() {
+      if (this.chainId === this.$config.supportedChainId) {
+        return true;
+      } else {
+        return false;
+      }
+    },
   },
 
   methods: {
