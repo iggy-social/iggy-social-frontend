@@ -218,7 +218,6 @@ export default {
 
   data() {
     return {
-      cAddress: null,
       cAuthorAddress: null,
       cAuthorDomain: null,
       cDescription: null,
@@ -249,14 +248,26 @@ export default {
   },
 
   mounted() {
-    this.cAddress = this.$route.query.id;
-
     if (this.cAddress) {
+      // check if address is valid
+      if (!ethers.utils.isAddress(this.cAddress)) {
+        this.toast("Invalid NFT address.", {type: "error"});
+        return this.$router.push({ path: '/' });
+      }
+
       this.getCollectionDetails();
     }
   },
 
   computed: {
+    cAddress() {
+      if (this.$route.query?.id) {
+        return this.$route.query.id;
+      }
+
+      return null;
+    },
+
     getUsernameOrFullAddress() {
       if (this.cAuthorDomain) {
         let cleanName = String(this.cAuthorDomain).replace(this.$config.tldName, "");
@@ -662,5 +673,32 @@ export default {
 
     return { address, chainId, isActivated, shortenAddress, signer, toast }
   },
+
+  watch: {
+    address(newValue, oldValue) {
+      if (oldValue && oldValue !== newValue && !this.waitingData) {
+        this.getCollectionDetails();
+      }
+    },
+
+    chainId(newValue, oldValue) {
+      if (newValue == this.$config.supportedChainId && oldValue !== newValue && !this.waitingData) {
+        this.getCollectionDetails();
+      }
+    },
+
+    cAddress(newValue, oldValue) {
+      // if cAddress and also if path is /nft/collection?id=...
+      if (newValue && oldValue && newValue !== oldValue && this.cAddress && this.$route.path === "/nft/collection") {
+        // check if address is valid
+        if (!ethers.utils.isAddress(this.cAddress)) {
+          this.toast("Invalid NFT address.", {type: "error"});
+          return this.$router.push({ path: '/' });
+        }
+
+        this.getCollectionDetails();
+      }
+    }
+  }
 };
 </script>

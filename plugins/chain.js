@@ -94,7 +94,8 @@ const chains = [
   { chainId: 34443, name: "Mode", currency: "ETH", rpc1: "https://mainnet.mode.network", rpc2: "https://1rpc.io/mode", blockExplorer: "https://explorer.mode.network"},
   { chainId: 42161, name: "Arbitrum", currency: "ETH", rpc1: "https://rpc.ankr.com/arbitrum", rpc2: "https://rpc.ankr.com/arbitrum", blockExplorer: "https://arbiscan.io"},
   { chainId: 43114, name: "Avalanche", currency: "AVAX", rpc1: "https://rpc.ankr.com/avalanche", rpc2: "https://rpc.ankr.com/avalanche", blockExplorer: "https://snowtrace.io"},
-  { chainId: 80001, name: "Polygon Testnet Mumbai", currency: "MATIC", rpc1: "https://rpc-mumbai.maticvigil.com", rpc2: "https://polygon-mumbai-bor.publicnode.com", blockExplorer: "https://mumbai.polygonscan.com"},
+  { chainId: 80001, name: "Polygon Testnet Mumbai", currency: "MATIC", rpc1: "https://polygon-mumbai-pokt.nodies.app", rpc2: "https://polygon-mumbai-pokt.nodies.app", blockExplorer: "https://mumbai.polygonscan.com"},
   { chainId: 81457, name: "Blast", currency: "ETH", rpc1: "https://rpc.blast.io", rpc2: "https://rpc.ankr.com/blast", blockExplorer: "https://blastscan.io"},
   { chainId: 534352, name: "Scroll", currency: "ETH", rpc1: "https://rpc.scroll.io", rpc2: "https://1rpc.io/scroll", blockExplorer: "https://scrollscan.com"},
+  { chainId: 11155111, name: "Sepolia", currency: "ETH", rpc1: "https://eth-sepolia.public.blastapi.io", rpc2: "https://1rpc.io/sepolia", blockExplorer: "https://sepolia.etherscan.io"},
 ];

@@ -50,20 +50,20 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      activityPointsAddress: "0xc78412f838A40e6B0df0A24c058A5608019dEc02",
-      airdropApAddress: "", // chat token claim for APs
-      airdropClaimDomainsAddress: "0x3ebDBc1D47d4bFe7D08A58123Ab3c85fC7358831", // chat token claim for domain holders
-      blockExplorerBaseUrl: "https://mumbai.polygonscan.com",
+      activityPointsAddress: "0xC3623737209Cc141592B20bcEBCA6052AFCcD183",
+      airdropApAddress: "0x519Cc13253d5bd6bC0b635B9f337230B34B3b1e7", // chat token claim for APs
+      airdropClaimDomainsAddress: "0x8c54EAEA2DDAA8491a32F3A0D9B308d810aEA4fc", // chat token claim for domain holders
+      blockExplorerBaseUrl: "https://sepolia.etherscan.io",
       chatChannels: { // go to Orbis Dashboard (https://useorbis.com/dashboard), create a new Project and then create a new Context for each of the channels below
-        "general": "kjzl6cwe1jw14b86b0dwz8x7ribwcn9tsull1bphner0nyfdwxsqnohbtrrvgtl", // general discussion channel
+        "general": "kjzl6cwe1jw146oflxjkdze94vniq4r79g01rmy8ylezya6p8xqu3zw63t4jesp", // general discussion channel
         "memesImages": "kjzl6cwe1jw148bbt70ddci5n3oj8b2b469g5qps43y8lejrwong9ztedzetoz0",
         "shill": "kjzl6cwe1jw1499wavrb36wapyxix3yqkkq1enaxhsqhhtkaws2ss8vm3b5cixm",
         "nftLaunchpad": "kjzl6cwe1jw1490l9agydb0vh2x0mddzxbsmga7s3yhl86utbhwne6zkhpikytw",
         "friendKeys": "kjzl6cwe1jw14akr2rh1j3fhup1ewfr2uyyd6l85qllbe2d5fxywt7d8rqnau6j",
       },
-      chatTokenAddress: "0x83C0E6655Ea65363F8B85954afa29F05e257231b", // chat token address
+      chatTokenAddress: "0x305912c0d03C22e6eB7D37E06A47ab899e48B9Af", // chat token address
       chatTokenImage: "https://bafkreigih3jk3d4fffzml27e7kqyn636t7v646ohxvhv3nzhkzfcmh4prq.ipfs.w3s.link", // chat token image
-      chatTokenSymbol: "CHAT", // chat token symbol or name
+      chatTokenSymbol: "DEMO", // chat token symbol or name
       domainRequiredToPost: true,
       expiryCollections: 1000 * 60 * 60 * 24 * 7, // must be in milliseconds (0 means no expiration)
       expiryUsernames: 1000 * 60 * 60 * 24 * 7, // must be in milliseconds (0 means no expiration)
@@ -73,23 +73,23 @@ export default defineNuxtConfig({
       fileUploadTokenService: process.env.FILE_UPLOAD_SERVICE || "netlify", // "netlify" or "vercel" (or leave empty for no file uploads)
       getPostsLimit: 30, // number of posts to fetch from Orbis in the getPosts() function
       governanceUrl: "https://snapshot.org/#/sgbchat.eth", // governance url (snapshot, Tally, etc.)
-      iggyPostAddress: "0xb5A9c6096a2A5d761337ae29C018218BCfeeEf73",
-      iggyPostMinterAddress: "0xece8B88ee42E7d68160BbC192E125b5F63B32430",
-      iggyPostStatsAddress: "0xe336676aC859785CECe2659317176304DB2DF808",
+      iggyPostAddress: "0x0BF6333Fc85159663A30Ac89FD02c5031B97c5ee",
+      iggyPostMinterAddress: "0xc486B08Ed47fFe5c1b4b1A2ff5c671EA0083D9bA",
+      iggyPostStatsAddress: "0x3Fa0EaC3058828Cc4BA97F51A33597C695bF6F9e",
       imagekitEndpoint: process.env.IMAGEKIT_ENDPOINT,
       imagekitPublicKey: process.env.IMAGEKIT_PUBLIC_KEY,
       ipfsGateway: "https://cloudflare-ipfs.com/ipfs/",
-      keysAddress: "0x018402Df92a74d1FCE36AbF604D31e7C8D0ABb14", // FriendKeys contract address 
+      keysAddress: "0x0c6A6030121FB3071cB2347DEAC127037785436C", // FriendKeys contract address 
       keysFeatured: ["tempe", "tekr"],
       linkPreviews: process.env.LINK_PREVIEW_SERVICE || "netlify", // "netlify", "vercel", or "microlink" (or leave empty for no link previews)
-      lpTokenAddress: "0xF874f79eBfB8FEe898a289C4cAa5dc4383873431", // liquidity pool token (token to stake in the staking contract)
+      lpTokenAddress: "", // liquidity pool token (token to stake in the staking contract)
       lpTokenSymbol: "LP tokens", // LP token symbol
-      marketplacePostNftUrl: "https://testnets.opensea.io/assets/mumbai/0xb5A9c6096a2A5d761337ae29C018218BCfeeEf73",
-      marketplacePostNftItemUrl: "https://testnets.opensea.io/assets/mumbai/0xb5A9c6096a2A5d761337ae29C018218BCfeeEf73/", // url (append nft id to it)
-      marketplaceNftCollectionBaseUrl: "https://testnets.opensea.io/assets/mumbai/", // url (append nft address to it)
+      marketplacePostNftUrl: "https://testnets.opensea.io/assets/sepolia/0x0BF6333Fc85159663A30Ac89FD02c5031B97c5ee",
+      marketplacePostNftItemUrl: "https://testnets.opensea.io/assets/sepolia/0x0BF6333Fc85159663A30Ac89FD02c5031B97c5ee/", // url (append nft id to it)
+      marketplaceNftCollectionBaseUrl: "https://testnets.opensea.io/assets/sepolia/", // url (append nft address to it)
       newsletterLink: "https://paragraph.xyz/@iggy?modal=subscribe",
       nftDefaultRatio: 1, // default ratio for the NFT price bonding curve
-      nftLaunchpadBondingAddress: "0x8f603a26a6C286CB55ed9cC07F42fCc02bdE4821", // NFT launchpad with bonding curve contract address
+      nftLaunchpadBondingAddress: "0x50045895e1983F39FDC149C9a5AC29C39BEA18fe", // NFT launchpad with bonding curve contract address
       nftLaunchpadLatestItems: 4, // number of latest NFTs to show in the NFT launchpad
       orbisTest: false, // if true, test context will be used instead of the production one
       orbisTestContext: "kjzl6cwe1jw145tfqv2eqv8tiz6puo27meyz4smz40atppuc13tulqca87k35z2", // test context
@@ -110,12 +110,12 @@ export default defineNuxtConfig({
       projectUrl: "https://demo.iggy.social", // without trailing slash!
       punkMinterAddress: "", // punk domain minter contract address
       punkNumberOfPrices: 1, // number of different prices (based on domain length), usually 1 (price()) or 5 (price1char() - price5char())
-      punkTldAddress: "0x2582EC420195Fefb091B098da6FAdEE49f490740", // punk domain TLD address
+      punkTldAddress: "0x1DD820F4f48eBC2B8e7F666F34fbC5820808074e", // punk domain TLD address
       randomPostsNumber: 1, // number of random post NFTs to show in the sidebar widget
-      rpcCustom: process.env.RPC_CUSTOM || "", // Custom RPC URL
+      rpcCustom: process.env.RPC_CUSTOM || "https://eth-sepolia.public.blastapi.io", // Custom RPC URL
       showFeatures: { // show/hide features in sidebars (if you have too many "true", make the sidebar scrollable --> sidebarLeftSticky: false)
         "activityPoints": true, 
-        "airdrop": false, 
+        "airdrop": true, 
         "friendKeys": true, 
         "governance": false,
         "newsletter": false, 
@@ -130,16 +130,16 @@ export default defineNuxtConfig({
       showRepliesOnHomepage: true, // show replies on the homepage  
       sidebarLeftSticky: false, // make the left sidebar sticky (always visible)
       spotifyPlaylistId: "5y7f2Wxfq49G5KuNQfMPbk", // enter just the ID of the playlist (not the full URL)  
-      stakingContractAddress: "0x96Dc7548fD018d1E51d2d5e98B265411C3D0F22A", // this is also the stake/gov token address
+      stakingContractAddress: "", // this is also the stake/gov token address
       stakeTokenSymbol: "IGT", // stake token symbol (governance token symbol)
-      supportedChainId: 80001,
+      supportedChainId: 11155111,
       swapPriceImpactMaxBps: 1000, // max price impact in bips (1 bps = 0.01%, 1000bps = 10%) for the swap function
-      swapRouterAddress: "0xeE554E54659B76A81E2B71142b63Bded98100eD8", // iggy swap router contract address
+      swapRouterAddress: "", // iggy swap router contract address
       tenorApiKey: process.env.TENOR_KEY || "",
-      tldName: ".testnet",
+      tldName: ".sepolia",
       tokenAddress: null, // leave null if it's a native token of the chain
       tokenDecimals: 18,
-      tokenSymbol: "MATIC"
+      tokenSymbol: "ETH"
     }
   },
   vite: {
