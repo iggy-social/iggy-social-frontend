@@ -1,11 +1,11 @@
-import { Orbis } from "@orbisclub/orbis-sdk"
+import { Orbis } from '@orbisclub/orbis-sdk'
 
-const orbis = new Orbis();
+const orbis = new Orbis()
 
 export default defineNuxtPlugin(() => {
-  return {
-    provide: {
-      orbis
-    }
-  }
+	return {
+		provide: {
+			orbis,
+		},
+	}
 })
