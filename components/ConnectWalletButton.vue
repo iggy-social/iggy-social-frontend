@@ -1,10 +1,19 @@
 <template>
-	<span data-bs-toggle="modal" data-bs-target="#connectModal">{{ btnText }}</span>
+	<span @click="open">{{ btnText }}</span>
 </template>
 
 <script>
+import { useVueDappModal } from '@vue-dapp/modal'
+
 export default {
 	name: 'ConnectWalletButton',
 	props: ['btnText'],
+
+	setup() {
+		const { open } = useVueDappModal()
+		return {
+			open,
+		}
+	},
 }
 </script>

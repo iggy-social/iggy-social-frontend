@@ -70,7 +70,7 @@
 
 <script>
 import { ethers } from 'ethers'
-import { useEthers } from 'vue-dapp'
+import { useEthers } from '~/store/ethers'
 import { useToast } from 'vue-toastification/dist/index.mjs'
 import WaitingToast from '~/components/WaitingToast'
 import FileUploadInput from '~/components/storage/FileUploadInput.vue'

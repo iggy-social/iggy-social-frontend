@@ -160,7 +160,7 @@
 </template>
 
 <script>
-import { useEthers } from 'vue-dapp'
+import { useEthers } from '~/store/ethers'
 import ChatPost from '~/components/chat/ChatPost.vue'
 import { useToast } from 'vue-toastification/dist/index.mjs'
 import { useSiteStore } from '~/store/site'

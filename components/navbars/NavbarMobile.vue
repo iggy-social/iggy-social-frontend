@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import { useEthers } from 'vue-dapp'
+import { useEthers } from '~/store/ethers'
 import { useSidebarStore } from '~/store/sidebars'
 import ConnectWalletButton from '~/components/ConnectWalletButton.vue'
 import SwitchChainButton from '~/components/SwitchChainButton.vue'

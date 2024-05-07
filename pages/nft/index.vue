@@ -115,7 +115,7 @@
 
 <script>
 import { ethers } from 'ethers'
-import { useEthers } from 'vue-dapp'
+import { useEthers } from '~/store/ethers'
 import SearchNftModal from '~/components/nft/SearchNftModal.vue'
 import { fetchCollection, storeCollection } from '~/utils/storageUtils'
 

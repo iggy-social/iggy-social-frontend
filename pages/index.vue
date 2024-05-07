@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import { useEthers } from 'vue-dapp'
+import { useEthers } from '~/store/ethers'
 import ChatFeed from '../components/chat/ChatFeed.vue'
 
 export default {

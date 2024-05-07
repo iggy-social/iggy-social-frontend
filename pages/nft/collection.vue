@@ -253,7 +253,7 @@
 
 <script>
 import { ethers } from 'ethers'
-import { useEthers, shortenAddress } from 'vue-dapp'
+import { useEthers, shortenAddress } from '~/store/ethers'
 import { useToast } from 'vue-toastification/dist/index.mjs'
 import ChatFeed from '~/components/chat/ChatFeed.vue'
 import ConnectWalletButton from '~/components/ConnectWalletButton.vue'

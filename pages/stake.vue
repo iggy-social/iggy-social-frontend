@@ -121,7 +121,7 @@
 
 <script>
 import { ethers } from 'ethers'
-import { useEthers } from 'vue-dapp'
+import { useEthers } from '~/store/ethers'
 import StakingClaim from '~/components/stake/StakingClaim.vue'
 import StakingDeposit from '~/components/stake/StakingDeposit.vue'
 import StakingWithdrawal from '~/components/stake/StakingWithdrawal.vue'

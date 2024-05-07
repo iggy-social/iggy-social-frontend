@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import { shortenAddress } from 'vue-dapp'
+import { shortenAddress } from '~/store/ethers'
 import ProfileImage from '../profile/ProfileImage.vue'
 import { getDomainName } from '~/utils/domainUtils'
 import { fetchUsername, storeUsername } from '~/utils/storageUtils'

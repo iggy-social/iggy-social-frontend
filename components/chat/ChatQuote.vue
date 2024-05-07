@@ -50,7 +50,7 @@
 
 <script>
 import sanitizeHtml from 'sanitize-html'
-import { useEthers, shortenAddress } from 'vue-dapp'
+import { useEthers, shortenAddress } from '~/store/ethers'
 import { useUserStore } from '~/store/user'
 import ProfileImage from '~/components/profile/ProfileImage.vue'
 import { getDomainName } from '~/utils/domainUtils'
