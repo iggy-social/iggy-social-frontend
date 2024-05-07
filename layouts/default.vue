@@ -482,6 +482,7 @@ export default {
 			connectTo,
 			watchConnect,
 			watchDisconnect,
+			fetchBalance,
 		} = useEthers()
 
 		if (process.client) {
@@ -492,6 +493,7 @@ export default {
 
 		watchConnect(async wallet => {
 			setWallet(wallet.provider)
+			await fetchBalance()
 
 			fetchUserDomain()
 
