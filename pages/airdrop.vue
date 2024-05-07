@@ -84,7 +84,7 @@
 
 <script>
 import { ethers } from 'ethers'
-import { useEthers } from 'vue-dapp'
+import { useEthers } from '~/store/ethers'
 import AirdropDomainHolders from '~/components/airdrop/AirdropDomainHolders.vue'
 import AirdropActivityPoints from '~/components/airdrop/AirdropActivityPoints.vue'
 

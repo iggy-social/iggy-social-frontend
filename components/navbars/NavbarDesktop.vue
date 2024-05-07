@@ -98,7 +98,7 @@
 </template>
 
 <script>
-import { useEthers, useWallet, shortenAddress } from 'vue-dapp'
+import { useEthers, shortenAddress } from '~/store/ethers'
 import { useSiteStore } from '~/store/site'
 import { useUserStore } from '~/store/user'
 import ConnectWalletButton from '~/components/ConnectWalletButton.vue'
@@ -148,8 +148,7 @@ export default {
 	},
 
 	setup() {
-		const { disconnect } = useWallet()
-		const { address, isActivated } = useEthers()
+		const { address, isActivated, disconnect } = useEthers()
 		const siteStore = useSiteStore()
 		const userStore = useUserStore()
 

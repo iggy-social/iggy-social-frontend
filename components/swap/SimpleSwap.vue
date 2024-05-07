@@ -224,7 +224,7 @@
 </template>
 
 <script>
-import { useEthers } from 'vue-dapp'
+import { useEthers } from '~/store/ethers'
 import wrappedNativeTokens from '~/assets/data/wrappedNativeTokens.json'
 import { getTokenAllowance, getTokenBalance } from '~/utils/balanceUtils'
 import { getOutputTokenAmount, getPriceImpactBps } from '~/utils/simpleSwapUtils'

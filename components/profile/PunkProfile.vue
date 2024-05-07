@@ -316,7 +316,7 @@
 </template>
 
 <script>
-import { useEthers, shortenAddress } from 'vue-dapp'
+import { useEthers, shortenAddress } from '~/store/ethers'
 import { ethers } from 'ethers'
 import { useUserStore } from '~/store/user'
 import { useToast } from 'vue-toastification/dist/index.mjs'

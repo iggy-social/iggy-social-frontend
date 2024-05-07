@@ -6,7 +6,7 @@
 
 <script>
 import { ethers } from 'ethers'
-import { useEthers } from 'vue-dapp'
+import { useEthers } from '~/store/ethers'
 
 export default {
 	name: 'MintedPostImage',

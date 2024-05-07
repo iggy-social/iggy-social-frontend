@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import { useEthers } from 'vue-dapp'
+import { useEthers } from '~/store/ethers'
 import KeysList from '~/components/keys/KeysList.vue'
 
 export default {

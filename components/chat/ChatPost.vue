@@ -237,7 +237,7 @@
 <script>
 import { ethers } from 'ethers'
 import sanitizeHtml from 'sanitize-html'
-import { useEthers, shortenAddress } from 'vue-dapp'
+import { useEthers, shortenAddress } from '~/store/ethers'
 import { useToast } from 'vue-toastification/dist/index.mjs'
 import { useUserStore } from '~/store/user'
 import ProfileImage from '~/components/profile/ProfileImage.vue'

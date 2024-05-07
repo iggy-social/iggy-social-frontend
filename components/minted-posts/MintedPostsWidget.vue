@@ -29,7 +29,7 @@
 
 <script>
 import { ethers } from 'ethers'
-import { useEthers } from 'vue-dapp'
+import { useEthers } from '~/store/ethers'
 import MintedPostImage from './MintedPostImage.vue'
 
 export default {

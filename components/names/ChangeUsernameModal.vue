@@ -60,7 +60,7 @@
 </template>
 
 <script>
-import { useEthers } from 'vue-dapp'
+import { useEthers } from '~/store/ethers'
 import { ethers } from 'ethers'
 import { useToast } from 'vue-toastification/dist/index.mjs'
 import WaitingToast from '~/components/WaitingToast'
