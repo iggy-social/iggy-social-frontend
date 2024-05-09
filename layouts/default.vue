@@ -34,7 +34,7 @@
 		</div>
 
 		<!-- Connect Wallet modal -->
-		<VueDappModal auto-connect auto-connect-browser-wallet-if-solo />
+		<VueDappModal :dark="siteStore.getColorMode === 'dark'" auto-connect auto-connect-browser-wallet-if-solo />
 		<!-- <div
 			class="modal modal-sm fade"
 			id="connectModal"
@@ -480,7 +480,7 @@ export default {
 			resetWallet,
 			addConnectors,
 			connectTo,
-			watchConnect,
+			watchWalletChanged,
 			watchDisconnect,
 			fetchBalance,
 		} = useEthers()
@@ -491,7 +491,7 @@ export default {
 
 		const { $orbis, $config } = useNuxtApp()
 
-		watchConnect(async wallet => {
+		watchWalletChanged(async wallet => {
 			setWallet(wallet.provider)
 			await fetchBalance()
 
