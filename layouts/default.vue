@@ -482,6 +482,7 @@ export default {
 			connectTo,
 			watchWalletChanged,
 			watchDisconnect,
+			watchAddressChanged,
 			fetchBalance,
 		} = useEthers()
 
@@ -511,11 +512,9 @@ export default {
 			orbisLogout()
 		})
 
-		watch(address, (val, oldVal) => {
-			if (oldVal && val) {
-				// if address changes, clear local & session storage (needs further testing)
-				orbisLogout()
-			}
+		watchAddressChanged(() => {
+			// if address changes, clear local & session storage (needs further testing)
+			orbisLogout()
 		})
 
 		async function orbisLogout() {
