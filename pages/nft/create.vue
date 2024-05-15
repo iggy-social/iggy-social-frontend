@@ -113,7 +113,7 @@
 				</div>
 			</div>
 
-			<!-- NFT Name -->
+			<!-- NFT Name 
 			<div class="mb-4">
 				<label for="nftName" class="form-label">NFT Name (can be changed later)</label>
 				<input
@@ -128,6 +128,7 @@
 					The first minted NFTs will be {{ nftName }} #1, {{ nftName }} #2, {{ nftName }} #3 etc.
 				</div>
 			</div>
+			-->
 
 			<!-- Unique ID -->
 			<div class="mb-4">
@@ -287,7 +288,7 @@ export default {
 		},
 
 		fieldsValid() {
-			return this.cName && this.cSymbol && this.cImage && this.cDescription && this.nftName && this.ratio
+			return this.cName && this.cSymbol && this.cImage && this.cDescription && this.ratio
 		},
 
 		isSupportedChain() {
@@ -346,7 +347,7 @@ export default {
 						fetchReferrer(window), // referrer
 						this.cleanDescription, // collection description
 						this.cImage, // collection image
-						this.nftName, // NFT name
+						this.cName, // this.nftName, // NFT name
 						this.cName, // collection name
 						this.cSymbol, // collection symbol
 						this.uniqueId, // unique ID to easily find the NFT contract address

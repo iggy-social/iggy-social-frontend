@@ -139,7 +139,7 @@
 						</p>
 
 						<p class="me-4">
-							<i class="bi bi-box-arrow-up-right me-2"></i>
+							<i class="bi bi-box-arrow-up-right me-1"></i>
 							<a
 								:href="$config.marketplaceNftCollectionBaseUrl + cAddress"
 								target="_blank"

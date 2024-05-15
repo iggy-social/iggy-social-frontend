@@ -133,8 +133,8 @@ export default {
 				console.error(e)
 
 				try {
-					let extractMessage = e.message.split('reason=')[1]
-					extractMessage = extractMessage.split(', method=')[0]
+					let extractMessage = e.message.split('Details:')[1]
+					extractMessage = extractMessage.split('Version: viem@2.9.4')[0]
 					extractMessage = extractMessage.replace(/"/g, '')
 					extractMessage = extractMessage.replace('execution reverted:', 'Error:')
 					extractMessage = extractMessage.replace('ChatTokenClaimDomains: ', '')

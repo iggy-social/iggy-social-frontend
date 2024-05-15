@@ -35,104 +35,6 @@
 
 		<!-- Connect Wallet modal -->
 		<VueDappModal :dark="siteStore.getColorMode === 'dark'" auto-connect auto-connect-browser-wallet-if-solo />
-		<!-- <div
-			class="modal modal-sm fade"
-			id="connectModal"
-			tabindex="-1"
-			aria-labelledby="connectModalLabel"
-			aria-hidden="true"
-		>
-			<div class="modal-dialog" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h5 class="modal-title">Connect your wallet</h5>
-						<button
-							id="closeConnectModal"
-							type="button"
-							class="btn-close"
-							data-bs-dismiss="modal"
-							aria-label="Close"
-						>
-							<span aria-hidden="true"></span>
-						</button>
-					</div>
-					<div class="modal-body row">
-						<div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectMetaMask">
-							<img
-								src="@/assets/img/wallets/metamask.png"
-								class="card-img-top card-img-wallet"
-								alt="MetaMask"
-							/>
-							<small class="text-center mb-3 text-muted">MetaMask</small>
-						</div>
-
-						<div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectMetaMask">
-							<img
-								src="@/assets/img/wallets/rabby.png"
-								class="card-img-top card-img-wallet"
-								alt="Rabby"
-							/>
-							<small class="text-center mb-3 text-muted">Rabby</small>
-						</div>
-
-						<div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectMetaMask">
-							<img
-								src="@/assets/img/wallets/bifrost.png"
-								class="card-img-top card-img-wallet"
-								alt="Bifrost"
-							/>
-							<small class="text-center mb-3 text-muted">Bifrost</small>
-						</div>
-
-						<div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectMetaMask">
-							<img
-								src="@/assets/img/wallets/zerion.png"
-								class="card-img-top card-img-wallet"
-								alt="Zerion"
-							/>
-							<small class="text-center mb-3 text-muted">Zerion</small>
-						</div>
-
-						<div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectCoinbase">
-							<img
-								src="@/assets/img/wallets/coinbase.png"
-								class="card-img-top card-img-wallet"
-								alt="Coinbase"
-							/>
-							<small class="text-center mb-3 text-muted">Coinbase</small>
-						</div>
-
-						<div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectMetaMask">
-							<img
-								src="@/assets/img/wallets/brave.png"
-								class="card-img-top card-img-wallet"
-								alt="Brave"
-							/>
-							<small class="text-center mb-3 text-muted">Brave</small>
-						</div>
-
-						<div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectMetaMask">
-							<img
-								src="@/assets/img/wallets/trust.png"
-								class="card-img-top card-img-wallet"
-								alt="Trust Wallet"
-							/>
-							<small class="text-center mb-3 text-muted">Trust Wallet</small>
-						</div>
-
-						<div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectMetaMask">
-							<img
-								src="@/assets/img/wallets/imtoken.png"
-								class="card-img-top card-img-wallet"
-								alt="imToken"
-							/>
-							<small class="text-center mb-3 text-muted">imToken</small>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div> -->
-		<!-- END Connect Wallet modal -->
 
 		<ChatSettingsModal />
 
@@ -584,15 +486,6 @@ export default {
 				userStore.setDidParent($orbis.session.did._parentId)
 			}
 		}
-
-		// const coinbaseConnector = new CoinbaseWalletConnector({
-		// 	appName: config.projectName,
-		// 	jsonRpcUrl: config.rpcCustom,
-		// })
-
-		// const mmConnector = new MetaMaskConnector({
-		// 	appUrl: config.projectUrl,
-		// })
 
 		return {
 			address,
