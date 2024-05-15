@@ -1,32 +1,32 @@
 <template>
-  <ChatFeed class="mt-1" :showQuotedPost="$config.showRepliesOnHomepage" :orbisContext="getOrbisContext" />
+	<ChatFeed class="mt-1" :showQuotedPost="$config.showRepliesOnHomepage" :orbisContext="getOrbisContext" />
 </template>
 
 <script>
-import { useEthers } from 'vue-dapp'
-import ChatFeed from "../components/chat/ChatFeed.vue"
+import { useEthers } from '~/store/ethers'
+import ChatFeed from '../components/chat/ChatFeed.vue'
 
 export default {
-  name: "index",
+	name: 'index',
 
-  components: {
-    ChatFeed
-  },
+	components: {
+		ChatFeed,
+	},
 
-  computed: {
-    getOrbisContext() {
-      if (this.$config.orbisTest) {
-        return this.$config.orbisTestContext;
-      } else {
-        return this.$config.chatChannels.general;
-      }
-    }
-  },
+	computed: {
+		getOrbisContext() {
+			if (this.$config.orbisTest) {
+				return this.$config.orbisTestContext
+			} else {
+				return this.$config.chatChannels.general
+			}
+		},
+	},
 
-  setup() {
-    const { address, chainId } = useEthers()
+	setup() {
+		const { address, chainId } = useEthers()
 
-    return { address, chainId }
-  }
+		return { address, chainId }
+	},
 }
 </script>

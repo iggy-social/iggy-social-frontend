@@ -20,19 +20,17 @@
 					></button>
 				</div>
 				<div class="modal-body">
-					
 					<p v-if="!userHasCustomPrice">
-						You currently do not have a custom price set up, so the price of minting your posts is the default post minting 
-						price of {{ defaultPostPrice }} {{ $config.tokenSymbol }}.
+						You currently do not have a custom price set up, so the price of minting your posts is the
+						default post minting price of {{ defaultPostPrice }} {{ $config.tokenSymbol }}.
 					</p>
 
 					<p v-if="userHasCustomPrice">
-						Your current custom price for minting your posts is {{ selectedPostPrice }} {{ $config.tokenSymbol }}.
+						Your current custom price for minting your posts is {{ selectedPostPrice }}
+						{{ $config.tokenSymbol }}.
 					</p>
 
-					<p>
-						You can set a custom price for your posts via this form:
-					</p>
+					<p>You can set a custom price for your posts via this form:</p>
 
 					<div class="row">
 						<div class="col-sm-6 mb-2">
@@ -48,8 +46,12 @@
 							</div>
 						</div>
 
-						<small><em>If you set it to 0, the post mint price will be the 
-						default price of {{ defaultPostPrice }} {{ $config.tokenSymbol }}</em></small>
+						<small
+							><em
+								>If you set it to 0, the post mint price will be the default price of
+								{{ defaultPostPrice }} {{ $config.tokenSymbol }}</em
+							></small
+						>
 					</div>
 				</div>
 
@@ -72,7 +74,7 @@
 </template>
 
 <script>
-import { useEthers } from 'vue-dapp'
+import { useEthers } from '~/store/ethers'
 import { ethers } from 'ethers'
 import { useToast } from 'vue-toastification/dist/index.mjs'
 import WaitingToast from '~/components/WaitingToast'
@@ -124,7 +126,7 @@ export default {
 				try {
 					const iggyPostInterface = new ethers.utils.Interface([
 						'function getAuthorsDefaultPrice(address) public view returns (uint256)',
-						'function defaultPrice() external view returns (uint256)'
+						'function defaultPrice() external view returns (uint256)',
 					])
 
 					const iggyContract = new ethers.Contract(
@@ -137,7 +139,7 @@ export default {
 					const defaultPostPriceWei = await iggyContract.defaultPrice()
 					this.defaultPostPrice = ethers.utils.formatUnits(defaultPostPriceWei, this.$config.tokenDecimals)
 
-					let postPriceWei;
+					let postPriceWei
 
 					if (userPostPriceWei.isZero()) {
 						postPriceWei = defaultPostPriceWei

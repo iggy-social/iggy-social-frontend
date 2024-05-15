@@ -1,47 +1,45 @@
-import { ethers } from "ethers";
+import { ethers } from 'ethers'
 
 export async function getDomainName(userAddress, signer) {
-  const config = useRuntimeConfig();
-  
-  let provider = signer;
+	const config = useRuntimeConfig()
 
-  if (!provider) {
-    provider = this.$getFallbackProvider(config.supportedChainId);
-  }
+	let provider = signer
 
-  const tldInterface = new ethers.utils.Interface([
-    "function defaultNames(address) view returns (string)"
-  ]);
+	if (!provider) {
+		provider = this.$getFallbackProvider(config.supportedChainId)
+	}
 
-  const contract = new ethers.Contract(config.punkTldAddress, tldInterface, provider);
+	const tldInterface = new ethers.utils.Interface(['function defaultNames(address) view returns (string)'])
 
-  // get user's default domain
-  const userDomain = await contract.defaultNames(userAddress);
+	const contract = new ethers.Contract(config.punkTldAddress, tldInterface, provider)
 
-  return userDomain;
+	// get user's default domain
+	const userDomain = await contract.defaultNames(userAddress)
+
+	return userDomain
 }
 
 export async function getDomainHolder(domainName, signer) {
-  const config = useRuntimeConfig();
-  
-  let provider = signer;
+	const config = useRuntimeConfig()
 
-  if (!provider) {
-    provider = this.$getFallbackProvider(config.supportedChainId);
-  }
+	let provider = signer
 
-  if (domainName.includes(config.tldName)) {
-    domainName = domainName.replace(config.tldName, "");
-  }
+	if (!provider) {
+		provider = this.$getFallbackProvider(config.supportedChainId)
+	}
 
-  const tldInterface = new ethers.utils.Interface([
-    "function getDomainHolder(string memory) public view returns(address)"
-  ]);
+	if (domainName.includes(config.tldName)) {
+		domainName = domainName.replace(config.tldName, '')
+	}
 
-  const contract = new ethers.Contract(config.punkTldAddress, tldInterface, provider);
+	const tldInterface = new ethers.utils.Interface([
+		'function getDomainHolder(string memory) public view returns(address)',
+	])
 
-  // get user's default domain
-  const userAddress = await contract.getDomainHolder(domainName);
+	const contract = new ethers.Contract(config.punkTldAddress, tldInterface, provider)
 
-  return userAddress;
+	// get user's default domain
+	const userAddress = await contract.getDomainHolder(domainName)
+
+	return userAddress
 }

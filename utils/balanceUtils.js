@@ -1,70 +1,70 @@
-import { ethers } from "ethers";
-import Erc20Abi from "~/assets/abi/Erc20Abi.json";
+import { ethers } from 'ethers'
+import Erc20Abi from '~/assets/abi/Erc20Abi.json'
 
 export async function getActivityPoints(userAddress, signer) {
-  const config = useRuntimeConfig();
-  
-  let provider = signer;
+	const config = useRuntimeConfig()
 
-  if (!signer) {
-    provider = this.$getFallbackProvider(config.supportedChainId);
-  }
+	let provider = signer
 
-  const activityPointsInterface = new ethers.utils.Interface([
-    "function getPoints(address user_) external view returns (uint256)",
-  ]);
+	if (!signer) {
+		provider = this.$getFallbackProvider(config.supportedChainId)
+	}
 
-  const activityPointsContract = new ethers.Contract(config.activityPointsAddress, activityPointsInterface, provider);
+	const activityPointsInterface = new ethers.utils.Interface([
+		'function getPoints(address user_) external view returns (uint256)',
+	])
 
-  const pointsWei = await activityPointsContract.getPoints(userAddress);
+	const activityPointsContract = new ethers.Contract(config.activityPointsAddress, activityPointsInterface, provider)
 
-  let activityPoints = Number(ethers.utils.formatEther(pointsWei));
+	const pointsWei = await activityPointsContract.getPoints(userAddress)
 
-  if (activityPoints < 1) {
-    activityPoints = activityPoints.toFixed(2);
-  } else {
-    activityPoints = Math.round(activityPoints);
-  }
+	let activityPoints = Number(ethers.utils.formatEther(pointsWei))
 
-  return activityPoints;
+	if (activityPoints < 1) {
+		activityPoints = activityPoints.toFixed(2)
+	} else {
+		activityPoints = Math.round(activityPoints)
+	}
+
+	return activityPoints
 }
 
 export async function getTokenAllowance(token, userAddress, beneficiary, signer) {
-  const config = useRuntimeConfig();
-  
-  let provider = signer;
+	const config = useRuntimeConfig()
 
-  if (!provider) {
-    provider = this.$getFallbackProvider(config.supportedChainId);
-  }
+	let provider = signer
 
-  const contract = new ethers.Contract(token.address, Erc20Abi, provider);
-  const allowanceWei = await contract.allowance(userAddress, beneficiary);
+	if (!provider) {
+		provider = this.$getFallbackProvider(config.supportedChainId)
+	}
 
-  return ethers.utils.formatUnits(allowanceWei, token.decimals);
+	const contract = new ethers.Contract(token.address, Erc20Abi, provider)
+	const allowanceWei = await contract.allowance(userAddress, beneficiary)
+
+	return ethers.utils.formatUnits(allowanceWei, token.decimals)
 }
 
 export async function getTokenBalance(token, userAddress, signer) {
-  const config = useRuntimeConfig();
-  
-  let provider = signer;
+	const config = useRuntimeConfig()
 
-  if (!provider) {
-    provider = this.$getFallbackProvider(config.supportedChainId);
-  }
+	let provider = signer
 
-  let balanceWei;
+	if (!provider) {
+		provider = this.$getFallbackProvider(config.supportedChainId)
+	}
 
-  if (token.address === ethers.constants.AddressZero) {
-    if (!signer) {
-      balanceWei = await provider.getBalance(userAddress);
-    } else {
-      balanceWei = await signer.getBalance();
-    }
-  } else {
-    const contract = new ethers.Contract(token.address, Erc20Abi, provider);
-    balanceWei = await contract.balanceOf(userAddress);
-  }
+	let balanceWei
 
-  return ethers.utils.formatUnits(balanceWei, token.decimals);
+	if (token.address === ethers.constants.AddressZero) {
+		if (!signer) {
+			balanceWei = await provider.getBalance(userAddress)
+		} else {
+			balanceWei = await signer.getBalance()
+		}
+	} else {
+		const contract = new ethers.Contract(token.address, Erc20Abi, provider)
+		balanceWei = await contract.balanceOf(userAddress)
+	}
+
+	return ethers.utils.formatUnits(balanceWei, token.decimals)
 }

@@ -1,37 +1,42 @@
 {
-  "name": "iggy-social-frontend",
-  "private": true,
-  "scripts": {
-    "build": "nuxt build",
-    "dev": "nuxt dev",
-    "generate": "nuxt generate",
-    "preview": "nuxt preview"
-  },
-  "dependencies": {
-    "@openzeppelin/merkle-tree": "^1.0.5",
-    "@orbisclub/orbis-sdk": "^0.4.70",
-    "@pinia/nuxt": "^0.4.6",
-    "@spheron/browser-upload": "^2.0.1",
-    "@spheron/storage": "^2.0.4",
-    "@vueuse/core": "^9.2.0",
-    "@vueuse/nuxt": "^9.2.0",
-    "axios": "^1.6.2",
-    "emoji-mart-vue-fast": "^15.0.0",
-    "ethers": "^5.7.2",
-    "imagekit": "^4.1.4",
-    "imagekit-javascript": "^2.0.0",
-    "metascraper": "^5.36.0",
-    "metascraper-description": "^5.36.0",
-    "metascraper-image": "^5.36.0",
-    "metascraper-title": "^5.36.0",
-    "pinia": "^2.0.28",
-    "sanitize-html": "^2.7.2",
-    "vue-dapp": "^0.6.2",
-    "vue-toastification": "^2.0.0-rc.5"
-  },
-  "devDependencies": {
-    "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
-    "@esbuild-plugins/node-modules-polyfill": "^0.1.4",
-    "nuxt": "3.0.0"
-  }
+	"name": "iggy-social-frontend",
+	"private": true,
+	"scripts": {
+		"build": "nuxt build",
+		"dev": "nuxt dev",
+		"generate": "nuxt generate",
+		"preview": "nuxt preview",
+		"format": "prettier --write \"**/*.{vue,ts,js,json}\""
+	},
+	"dependencies": {
+		"@openzeppelin/merkle-tree": "^1.0.5",
+		"@orbisclub/orbis-sdk": "^0.4.70",
+		"@pinia/nuxt": "^0.4.6",
+		"@spheron/browser-upload": "^2.0.1",
+		"@spheron/storage": "^2.0.4",
+		"@vue-dapp/core": "^1.4.3",
+		"@vue-dapp/modal": "^1.4.3",
+		"@vueuse/core": "^9.2.0",
+		"@vueuse/nuxt": "^9.2.0",
+		"axios": "^1.6.2",
+		"emoji-mart-vue-fast": "^15.0.0",
+		"ethers": "^5.7.2",
+		"imagekit": "^4.1.4",
+		"imagekit-javascript": "^2.0.0",
+		"metascraper": "^5.36.0",
+		"metascraper-description": "^5.36.0",
+		"metascraper-image": "^5.36.0",
+		"metascraper-title": "^5.36.0",
+		"pinia": "^2.0.28",
+		"sanitize-html": "^2.7.2",
+		"vue": "^3.4.27",
+		"vue-dapp": "^0.6.2",
+		"vue-toastification": "^2.0.0-rc.5"
+	},
+	"devDependencies": {
+		"@esbuild-plugins/node-globals-polyfill": "^0.1.1",
+		"@esbuild-plugins/node-modules-polyfill": "^0.1.4",
+		"nuxt": "3.0.0",
+		"prettier": "^3.2.5"
+	}
 }
