@@ -67,7 +67,7 @@ export default defineNuxtConfig({
 			expiryCollections: 1000 * 60 * 60 * 24 * 7, // must be in milliseconds (0 means no expiration)
 			expiryUsernames: 1000 * 60 * 60 * 24 * 7, // must be in milliseconds (0 means no expiration)
 			favicon: '/img/favicon.svg',
-			fileUploadEnabled: true, // enable/disable file uploads (enable only if external file storage is used, e.g. IPFS via Spheron)
+			fileUploadEnabled: true, // enable/disable file uploads (enable only if external file storage is used, e.g. IPFS via ThirdWeb)
 			fileUploadSizeLimit: 1 * 1024 * 1024, // max file upload size in bytes (1 * 1024 * 1024 = 1 MB)
 			fileUploadTokenService: process.env.FILE_UPLOAD_SERVICE || 'netlify', // "netlify" or "vercel" (or leave empty for no file uploads)
 			getPostsLimit: 30, // number of posts to fetch from Orbis in the getPosts() function
@@ -77,7 +77,9 @@ export default defineNuxtConfig({
 			iggyPostStatsAddress: '0x3Fa0EaC3058828Cc4BA97F51A33597C695bF6F9e',
 			imagekitEndpoint: process.env.IMAGEKIT_ENDPOINT,
 			imagekitPublicKey: process.env.IMAGEKIT_PUBLIC_KEY,
-			ipfsGateway: 'https://cloudflare-ipfs.com/ipfs/',
+			ipfsGateway: "https://cloudflare-ipfs.com/ipfs/", 
+      ipfsGateway2: "https://ipfs.io/ipfs/", 
+      ipfsGateway3: "https://nftdegeniggy.myfilebase.com/ipfs/",
 			keysAddress: '0x0c6A6030121FB3071cB2347DEAC127037785436C', // FriendKeys contract address
 			keysFeatured: ['tempe', 'tekr'],
 			linkPreviews: process.env.LINK_PREVIEW_SERVICE || 'netlify', // "netlify", "vercel", or "microlink" (or leave empty for no link previews)
@@ -138,6 +140,7 @@ export default defineNuxtConfig({
 			swapPriceImpactMaxBps: 1000, // max price impact in bips (1 bps = 0.01%, 1000bps = 10%) for the swap function
 			swapRouterAddress: '', // iggy swap router contract address
 			tenorApiKey: process.env.TENOR_KEY || '',
+			thirdwebClientId: process.env.THIRDWEB_CLIENT_ID || "",
 			tldName: '.sepolia',
 			tokenAddress: null, // leave null if it's a native token of the chain
 			tokenDecimals: 18,

@@ -28,6 +28,7 @@
 
 							<FileUploadInput
 								btnCls="btn btn-primary"
+								storageType="ipfs" 
 								:maxFileSize="$config.fileUploadSizeLimit"
 								@processUploadedFileUrl="insertImageLink"
 							/>
@@ -40,10 +41,10 @@
 						<input v-model="imageUrl" type="text" class="form-control" />
 
 						<div v-if="imageUrl" class="mt-3">
-							<img :src="imageUrl" class="img-thumbnail img-fluid" style="max-width: 100px" />
+							<Image :url="imageUrl" cls="img-thumbnail img-fluid" style="max-width: 100px" />
 							<br />
 							<small
-								>If image didn't appear above, then something is wrong with the link you added.</small
+								>If image didn't appear above, then something is wrong with the link you added (wait until the loading indicator completes).</small
 							>
 						</div>
 					</div>
@@ -69,6 +70,7 @@
 import { ethers } from 'ethers'
 import { useEthers } from '~/store/ethers'
 import { useToast } from 'vue-toastification/dist/index.mjs'
+import Image from '~/components/Image.vue'
 import WaitingToast from '~/components/WaitingToast'
 import FileUploadInput from '~/components/storage/FileUploadInput.vue'
 
@@ -76,7 +78,7 @@ export default {
 	name: 'ChangeCollectionPreviewModal',
 	props: ['cAddress', 'mdAddress'],
 	emits: ['saveCollection'],
-	components: { FileUploadInput },
+	components: { FileUploadInput, Image },
 
 	data() {
 		return {
@@ -89,6 +91,18 @@ export default {
 	mounted() {
 		this.componentId = this.$.uid
 	},
+
+	computed: {
+    parseImageLink() {
+      let parsedImage = this.imageUrl;
+
+      if (parsedImage && parsedImage.includes("ipfs://")) {
+        parsedImage = parsedImage.replace("ipfs://", this.$config.ipfsGateway);
+      }
+
+      return parsedImage;
+    }
+  },
 
 	methods: {
 		async updateImage() {

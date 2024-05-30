@@ -59,7 +59,7 @@
 					:to="'/nft/collection?id=' + nft.address"
 				>
 					<div class="card border mb-3">
-						<img :src="nft.image" class="card-img-top" :alt="nft.name" />
+						<Image :url="nft.image" :alt="nft.name" cls="card-img-top" />
 						<div class="card-body rounded-bottom-3">
 							<p class="card-text mb-1">
 								<strong>{{ nft.name }}</strong>
@@ -80,7 +80,7 @@
 					:to="'/nft/collection?id=' + nft.address"
 				>
 					<div class="card border mb-3">
-						<img :src="nft.image" class="card-img-top" :alt="nft.name" />
+						<Image :url="nft.image" :alt="nft.name" cls="card-img-top" />
 						<div class="card-body rounded-bottom-3">
 							<p class="card-text mb-1">
 								<strong>{{ nft.name }}</strong>
@@ -116,6 +116,7 @@
 <script>
 import { ethers } from 'ethers'
 import { useEthers } from '~/store/ethers'
+import Image from '~/components/Image.vue'
 import SearchNftModal from '~/components/nft/SearchNftModal.vue'
 import { fetchCollection, storeCollection } from '~/utils/storageUtils'
 
@@ -135,6 +136,7 @@ export default {
 	},
 
 	components: {
+		Image,
 		SearchNftModal,
 	},
 

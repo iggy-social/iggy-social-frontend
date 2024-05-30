@@ -62,22 +62,21 @@ If you want to have GIF search implemented, create your own Tenor API Key on Goo
 
 Then enter the key in environment variables (`TENOR_KEY`).
 
-## Image upload (Spheron/IPFS)
+## Image upload (ThirdWeb/IPFS)
 
-To support image uploads on IPFS please create a key/token on Spheron Storage: https://app.spheron.network/#/storage 
+To support image uploads on IPFS please create an API key on ThirdWeb: https://thirdweb.com/dashboard/settings/api-keys 
 
-Then add this key (and your bucket ID/name) to your environment variables:
+Make sure to whitelist only your website domain/URL. And also restrict (toggle off) the API key usage for other services apart from Storage Upload service (even Storage Download is not needed).
+
+Then add the Client ID of your API key to your environment variables:
 
 ```bash
-SPHERON_BUCKET_NAME=
-SPHERON_STORAGE_TOKEN=
+THIRDWEB_CLIENT_ID=
 ```
-
-Image uploads via Spheron work only if you have Netlify/Vercel background functions enabled (see `netlify/functions/imageUploader.js`).
 
 ## Image upload fallback
 
-It is recommended to use ImageKit as the fallback option, in case Spheron has technical issues.
+It is recommended to use ImageKit as the fallback option, in case ThirdWeb has technical issues.
 
 For this to work, create an account at [ImageKit.io](https://imagekit.io/) and add these environment variables to your project:
 

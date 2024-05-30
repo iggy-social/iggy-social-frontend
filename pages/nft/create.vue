@@ -92,9 +92,9 @@
 			</div>
 
 			<div v-if="cImage" class="mb-4">
-				<img :src="cImage" class="img-thumbnail img-fluid" style="max-width: 100px" />
+				<Image :url="cImage" alt="Image" cls="img-thumbnail img-fluid" style="max-width: 100px" />
 				<br />
-				<small>If image didn't appear above, then something is wrong with the link you added.</small>
+				<small>If image didn't appear above, then something is wrong with the link you added (wait until the loading indicator completes).</small>
 			</div>
 
 			<!-- Description -->
@@ -203,6 +203,7 @@
 				@processFileUrl="insertImage"
 				title="Upload your NFT image"
 				infoText="Upload the NFT image."
+				storageType="ipfs"
 				:componentId="$.uid"
 				:maxFileSize="$config.fileUploadSizeLimit"
 			/>
@@ -216,6 +217,7 @@ import { ethers } from 'ethers'
 import { useEthers } from '~/store/ethers'
 import { useToast } from 'vue-toastification/dist/index.mjs'
 import ConnectWalletButton from '~/components/ConnectWalletButton.vue'
+import Image from '~/components/Image.vue'
 import SwitchChainButton from '~/components/SwitchChainButton.vue'
 import WaitingToast from '~/components/WaitingToast'
 import FileUploadModal from '~/components/storage/FileUploadModal.vue'
@@ -246,6 +248,7 @@ export default {
 	components: {
 		ConnectWalletButton,
 		FileUploadModal,
+		Image,
 		SwitchChainButton,
 		WaitingToast,
 	},
@@ -298,6 +301,16 @@ export default {
 				return false
 			}
 		},
+
+		parseImageLink() {
+      let parsedImage = this.cImage;
+
+      if (parsedImage && parsedImage.includes("ipfs://")) {
+        parsedImage = parsedImage.replace("ipfs://", this.$config.ipfsGateway);
+      }
+
+      return parsedImage;
+    }
 	},
 
 	methods: {

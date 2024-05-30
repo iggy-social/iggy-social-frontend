@@ -17,12 +17,12 @@
 </template>
 
 <script>
-import { upload } from '@spheron/browser-upload'
 import ImageKit from 'imagekit-javascript'
+import { uploadFileToThirdWeb } from '~/utils/ipfsUtils'
 
 export default {
 	name: 'FileUploadInput',
-	props: ['btnCls', 'maxFileSize'],
+	props: ['btnCls', 'maxFileSize', 'storageType'],
 	emits: ['processUploadedFileUrl'],
 
 	data() {
@@ -86,42 +86,6 @@ export default {
 			this.waitingUpload = false
 		},
 
-		async fetchUploadToken() {
-			const thisAppUrl = window.location.origin
-
-			let fetcherService
-
-			if (this.$config.fileUploadTokenService === 'netlify') {
-				fetcherService = thisAppUrl + '/.netlify/functions/imageUploader'
-			} else if (this.$config.fileUploadTokenService === 'vercel') {
-				fetcherService = thisAppUrl + '/api/imageUploader'
-			}
-
-			if (fetcherService) {
-				try {
-					const resp = await $fetch(fetcherService).catch(error => error.data)
-
-					let response = resp
-
-					if (typeof resp === 'string') {
-						response = JSON.parse(resp)
-					}
-
-					if (response?.error) {
-						console.log('Error fetching upload token: ', response['error'])
-						throw response['error']
-					}
-
-					if (response?.data) {
-						this.uploadToken = response['data']
-					}
-				} catch (e) {
-					console.log('Error fetching a file upload token: ', e)
-					throw e
-				}
-			}
-		},
-
 		handleFileInput(event) {
 			const uploadedFile = event.target.files[0]
 			this.uploadedFileSize = uploadedFile.size
@@ -152,30 +116,27 @@ export default {
 		},
 
 		async uploadFile() {
-			this.waitingUpload = true
+      this.waitingUpload = true;
 
-			try {
-				// get session token
-				await this.fetchUploadToken()
-
-				if (this.uploadToken) {
-					const token = this.uploadToken
-
-					const { protocolLink, cid } = await upload([this.file], { token })
-
-					//const fullFileUrl = protocolLink + "/" + this.newFileName;
-					const fullFileUrl = this.$config.ipfsGateway + cid + '/' + this.newFileName
+      if (this.storageType === "ipfs") {
+				try {
+					// upload to IPFS
+					const fileUri = await uploadFileToThirdWeb(this.file);
 
 					// emit file url
-					this.$emit('processUploadedFileUrl', fullFileUrl)
-				}
-			} catch (e) {
-				console.log('Error uploading file. Switching to fallback upload method.')
-				await this.fallbackUpload()
-			}
+					this.$emit("processUploadedFileUrl", fileUri);
+				} catch (error) {
+					console.error("Error uploading file to IPFS", error);
+					console.log("Falling back to centralized storage service");
+					await this.fallbackUpload();
+				}							
+      } else {
+        // upload to a centralized storage service (imagekit)
+        await this.fallbackUpload();
+      }
 
-			this.waitingUpload = false
-		},
+      this.waitingUpload = false;
+    }
 	},
 }
 </script>

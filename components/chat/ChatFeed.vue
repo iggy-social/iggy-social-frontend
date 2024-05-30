@@ -59,6 +59,7 @@
 							@processFileUrl="insertImage"
 							title="Upload image"
 							infoText="Upload an image."
+							storageType="ipfs"
 							:componentId="$.uid"
 							:maxFileSize="$config.fileUploadSizeLimit"
 						/>
@@ -420,6 +421,14 @@ export default {
 		},
 
 		async insertImage(imageUrl) {
+			if (imageUrl.startsWith("ipfs://")) {
+        imageUrl = imageUrl.replace("ipfs://", this.$config.ipfsGateway);
+      }
+
+      if (imageUrl.endsWith(".JPG") || imageUrl.endsWith(".PNG") || imageUrl.endsWith(".JPEG") || imageUrl.endsWith(".GIF")) {
+        imageUrl = imageUrl.replace(".JPG", ".jpg").replace(".PNG", ".png").replace(".JPEG", ".jpeg").replace(".GIF", ".gif");
+      }
+			
 			// add image url to postText
 			if (!this.postText) {
 				this.postText = imageUrl + ' '

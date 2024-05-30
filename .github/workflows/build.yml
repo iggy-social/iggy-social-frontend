@@ -9,8 +9,7 @@ jobs:
     timeout-minutes: 20
     env:  # Environment variables from either organization or repository settings page (for GitHub Actions).
       TENOR_KEY: ${{ secrets.TENOR_KEY }}
-      SPHERON_BUCKET_NAME: ${{ secrets.SPHERON_BUCKET_NAME }}
-      SPHERON_STORAGE_TOKEN: ${{ secrets.SPHERON_STORAGE_TOKEN }}
+      THIRDWEB_CLIENT_ID: ${{ secrets.THIRDWEB_CLIENT_ID }}
       IMAGEKIT_ENDPOINT: ${{ secrets.IMAGEKIT_ENDPOINT }}
       IMAGEKIT_PUBLIC_KEY: ${{ secrets.IMAGEKIT_PUBLIC_KEY }}
       IMAGEKIT_PRIVATE_KEY: ${{ secrets.IMAGEKIT_PRIVATE_KEY }}

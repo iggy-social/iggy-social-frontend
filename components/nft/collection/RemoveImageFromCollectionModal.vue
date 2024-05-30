@@ -41,7 +41,7 @@
 					<div class="row mt-3" v-if="images">
 						<div v-for="(image, index) in images" :key="image" class="col-md-4 mb-3">
 							<div class="card">
-								<img :src="image" class="card-img-top" />
+								<Image :url="image" alt="Image" cls="card-img-top" />
 								<div class="card-body">
 									<div class="row">
 										<button
@@ -70,6 +70,7 @@
 import { ethers } from 'ethers'
 import { useEthers } from '~/store/ethers'
 import { useToast } from 'vue-toastification/dist/index.mjs'
+import Image from '~/components/Image.vue'
 import WaitingToast from '~/components/WaitingToast'
 
 export default {
@@ -84,6 +85,10 @@ export default {
 			waitingLoad: false,
 			waitingRemove: false,
 		}
+	},
+
+	components: {
+		Image,
 	},
 
 	mounted() {

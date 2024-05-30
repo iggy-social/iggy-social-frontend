@@ -26,6 +26,7 @@
 
 							<FileUploadInput
 								btnCls="btn btn-primary"
+								storageType="ipfs" 
 								:maxFileSize="$config.fileUploadSizeLimit"
 								@processUploadedFileUrl="insertImageLink"
 							/>
@@ -38,15 +39,15 @@
 						<input v-model="imageUrl" type="text" class="form-control" id="addImageToCollectionInput" />
 
 						<div v-if="imageUrl" class="mt-3">
-							<img
-								:src="imageUrl"
+							<Image
+								:url="imageUrl"
 								:key="imageUrl"
-								class="img-thumbnail img-fluid"
+								cls="img-thumbnail img-fluid"
 								style="max-width: 100px"
 							/>
 							<br />
 							<small
-								>If image didn't appear above, then something is wrong with the link you added.</small
+								>If image didn't appear above, then something is wrong with the link you added (wait until the loading indicator completes).</small
 							>
 						</div>
 					</div>
@@ -72,13 +73,14 @@
 import { ethers } from 'ethers'
 import { useEthers } from '~/store/ethers'
 import { useToast } from 'vue-toastification/dist/index.mjs'
+import Image from '~/components/Image.vue'
 import WaitingToast from '~/components/WaitingToast'
 import FileUploadInput from '~/components/storage/FileUploadInput.vue'
 
 export default {
 	name: 'AddImageToCollectionModal',
 	props: ['cAddress', 'mdAddress'],
-	components: { FileUploadInput },
+	components: { FileUploadInput, Image },
 
 	data() {
 		return {
