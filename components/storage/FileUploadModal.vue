@@ -54,7 +54,7 @@
 							<FileUploadInput
 								btnCls="btn btn-primary"
 								:maxFileSize="maxFileSize"
-								storageType="ipfs"
+								:storageType="storageType"
 								@processUploadedFileUrl="processUploadedFileUrl"
 							/>
 						</div>

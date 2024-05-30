@@ -300,17 +300,7 @@ export default {
 			} else {
 				return false
 			}
-		},
-
-		parseImageLink() {
-      let parsedImage = this.cImage;
-
-      if (parsedImage && parsedImage.includes("ipfs://")) {
-        parsedImage = parsedImage.replace("ipfs://", this.$config.ipfsGateway);
-      }
-
-      return parsedImage;
-    }
+		}
 	},
 
 	methods: {

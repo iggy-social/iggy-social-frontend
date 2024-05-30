@@ -92,18 +92,6 @@ export default {
 		this.componentId = this.$.uid
 	},
 
-	computed: {
-    parseImageLink() {
-      let parsedImage = this.imageUrl;
-
-      if (parsedImage && parsedImage.includes("ipfs://")) {
-        parsedImage = parsedImage.replace("ipfs://", this.$config.ipfsGateway);
-      }
-
-      return parsedImage;
-    }
-  },
-
 	methods: {
 		async updateImage() {
 			this.waiting = true
