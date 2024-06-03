@@ -100,8 +100,8 @@
 
 				<div class="col-md-7">
 					<!--
-          <h3 class="mb-3">Collection: {{ cName }}</h3>
-          -->
+					<h3 class="mb-3">Collection: {{ cName }}</h3>
+					-->
 
 					<!-- Data -->
 					<div class="mt-1 mb-4 muted-text" style="font-size: 14px">

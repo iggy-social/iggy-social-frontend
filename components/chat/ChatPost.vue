@@ -71,7 +71,7 @@
 							:to="'/nft/collection?id=' + collection.address"
 							class="text-decoration-none text-reset"
 						>
-							<img :src="collection?.image" class="card-img-top preview-card-img" />
+							<Image :url="collection?.image" :alt="collection?.name" cls="card-img-top preview-card-img" />
 
 							<div
 								class="card-body bg-body rounded-bottom-3 border-end border-bottom border-start preview-card-body"
@@ -240,6 +240,7 @@ import sanitizeHtml from 'sanitize-html'
 import { useEthers, shortenAddress } from '~/store/ethers'
 import { useToast } from 'vue-toastification/dist/index.mjs'
 import { useUserStore } from '~/store/user'
+import Image from '~/components/Image.vue'
 import ProfileImage from '~/components/profile/ProfileImage.vue'
 import IggyPostMint from '~/components/minted-posts/IggyPostMint.vue'
 import MintedPostImage from '~/components/minted-posts/MintedPostImage.vue'
@@ -264,6 +265,7 @@ export default {
 	components: {
 		ChatQuote,
 		IggyPostMint,
+		Image,
 		MintedPostImage,
 		ProfileImage,
 	},
