@@ -51,7 +51,7 @@
 				<div v-if="linkPreview?.title" class="row mt-3 mb-3">
 					<div class="card col-md-6 preview-card">
 						<a target="_blank" :href="linkPreview.url" class="text-decoration-none text-reset">
-							<img :src="linkPreview.image.url" class="card-img-top preview-card-img" />
+							<Image :url="linkPreview.image.url" :alt="linkPreview.title" cls="card-img-top preview-card-img" />
 
 							<div
 								class="card-body bg-body rounded-bottom-3 border-end border-bottom border-start preview-card-body"
