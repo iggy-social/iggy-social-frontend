@@ -1,21 +1,21 @@
 import { defineStore } from 'pinia'
 
 export const useExampleStore = defineStore({
-	id: 'example',
+  id: 'example',
 
-	state: () => {
-		return {
-			exampleNum: 1337,
-		}
-	},
+  state: () => {
+    return {
+      exampleNum: 1337,
+    }
+  },
 
-	getters: {
-		getExampleNum: state => state.exampleNum,
-	},
+  getters: {
+    getExampleNum: state => state.exampleNum,
+  },
 
-	actions: {
-		changeNum() {
-			this.exampleNum = 69420
-		},
-	},
+  actions: {
+    changeNum() {
+      this.exampleNum = 69420
+    },
+  },
 })
