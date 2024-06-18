@@ -199,7 +199,7 @@ const chains = [
     chainId: 11155111,
     name: 'Sepolia',
     currency: 'ETH',
-    rpc1: 'https://eth-sepolia.public.blastapi.io',
+    rpc1: 'https://rpc.sepolia.org',
     rpc2: 'https://1rpc.io/sepolia',
     blockExplorer: 'https://sepolia.etherscan.io',
   },
