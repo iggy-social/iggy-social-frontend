@@ -1,53 +1,51 @@
 <template>
-  <div>
-    <Head>
-      <Title>{{ $config.projectMetadataTitle }}</Title>
-      <Meta name="description" :content="$config.projectDescription" />
-      <Link rel="icon" type="image/x-icon" :href="$config.favicon" />
+  <Head>
+    <Title>{{ $config.projectMetadataTitle }}</Title>
+    <Meta name="description" :content="$config.projectDescription" />
+    <Link rel="icon" type="image/x-icon" :href="$config.favicon" />
 
-      <Meta property="og:title" :content="$config.projectMetadataTitle" />
-      <Meta property="og:description" :content="$config.projectDescription" />
-      <Meta property="og:image" :content="$config.projectUrl + $config.previewImage" />
+    <Meta property="og:title" :content="$config.projectMetadataTitle" />
+    <Meta property="og:description" :content="$config.projectDescription" />
+    <Meta property="og:image" :content="$config.projectUrl + $config.previewImage" />
 
-      <Meta name="twitter:card" content="summary_large_image" />
-      <Meta name="twitter:site" :content="$config.projectTwitter" />
-      <Meta name="twitter:creator" :content="$config.projectTwitter" />
-      <Meta name="twitter:title" :content="$config.projectMetadataTitle" />
-      <Meta name="twitter:description" :content="$config.projectDescription" />
-      <Meta name="twitter:image" :content="$config.projectUrl + $config.previewImage" />
-    </Head>
+    <Meta name="twitter:card" content="summary_large_image" />
+    <Meta name="twitter:site" :content="$config.projectTwitter" />
+    <Meta name="twitter:creator" :content="$config.projectTwitter" />
+    <Meta name="twitter:title" :content="$config.projectMetadataTitle" />
+    <Meta name="twitter:description" :content="$config.projectDescription" />
+    <Meta name="twitter:image" :content="$config.projectUrl + $config.previewImage" />
+  </Head>
 
-    <NavbarDesktop v-if="!isMobile" />
-    <NavbarMobile v-if="isMobile" :lSidebar="lSidebar" :rSidebar="rSidebar" />
+  <NavbarDesktop v-if="!isMobile" />
+  <NavbarMobile v-if="isMobile" :lSidebar="lSidebar" :rSidebar="rSidebar" />
 
-    <!-- Main content with sidebars -->
-    <div class="container-fluid page-container">
-      <div class="row flex-nowrap">
-        <SidebarLeft :lSidebar="lSidebar" :isMobile="isMobile" />
+  <!-- Main content with sidebars -->
+  <div class="container-fluid page-container">
+    <div class="row flex-nowrap">
+      <SidebarLeft :lSidebar="lSidebar" :isMobile="isMobile" />
 
-        <main class="col col-lg-4 ps-md-2 pt-2 main-containter" v-show="sidebarStore.showMainContent">
-          <slot></slot>
-        </main>
+      <main class="col col-lg-4 ps-md-2 pt-2 main-containter" v-show="sidebarStore.showMainContent">
+        <slot></slot>
+      </main>
 
-        <SidebarRight :rSidebar="rSidebar" :isMobile="isMobile" />
-      </div>
+      <SidebarRight :rSidebar="rSidebar" :isMobile="isMobile" />
     </div>
-
-    <!-- Connect Wallet modal -->
-    <VueDappModal :dark="siteStore.getColorMode === 'dark'" auto-connect auto-connect-browser-wallet-if-solo />
-
-    <ChatSettingsModal />
-
-    <ChangeUsernameModal />
-
-    <ChangeUserPostMintPriceModal />
-
-    <FindUserModal />
-
-    <ReferralModal />
-
-    <VerifyAccountOwnership />
   </div>
+
+  <!-- Connect Wallet modal -->
+  <VueDappModal :dark="siteStore.getColorMode === 'dark'" auto-connect auto-connect-browser-wallet-if-solo />
+
+  <ChatSettingsModal />
+
+  <ChangeUsernameModal />
+
+  <ChangeUserPostMintPriceModal />
+
+  <FindUserModal />
+
+  <ReferralModal />
+
+  <VerifyAccountOwnership />
 
   <!-- Do not delete: ugly hack to make "global" work with Vite -->
   <component :is="'script'"> var global = global || window; </component>
