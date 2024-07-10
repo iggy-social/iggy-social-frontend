@@ -151,7 +151,8 @@ export default {
     getDomainName,
 
     async fetchUserDomain() {
-      const userDomain = await this.getDomainName(this.authorAddress)
+      const provider = this.$getFallbackProvider(this.$config.supportedChainId)
+      const userDomain = await this.getDomainName(this.authorAddress, provider)
 
       if (userDomain) {
         this.authorDomain = userDomain

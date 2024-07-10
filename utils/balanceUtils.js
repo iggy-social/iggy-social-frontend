@@ -6,10 +6,6 @@ export async function getActivityPoints(userAddress, signer) {
 
   let provider = signer
 
-  if (!signer) {
-    provider = this.$getFallbackProvider(config.supportedChainId)
-  }
-
   const activityPointsInterface = new ethers.utils.Interface([
     'function getPoints(address user_) external view returns (uint256)',
   ])
@@ -30,13 +26,7 @@ export async function getActivityPoints(userAddress, signer) {
 }
 
 export async function getTokenAllowance(token, userAddress, beneficiary, signer) {
-  const config = useRuntimeConfig()
-
   let provider = signer
-
-  if (!provider) {
-    provider = this.$getFallbackProvider(config.supportedChainId)
-  }
 
   const contract = new ethers.Contract(token.address, Erc20Abi, provider)
   const allowanceWei = await contract.allowance(userAddress, beneficiary)
@@ -45,13 +35,7 @@ export async function getTokenAllowance(token, userAddress, beneficiary, signer)
 }
 
 export async function getTokenBalance(token, userAddress, signer) {
-  const config = useRuntimeConfig()
-
   let provider = signer
-
-  if (!provider) {
-    provider = this.$getFallbackProvider(config.supportedChainId)
-  }
 
   let balanceWei
 

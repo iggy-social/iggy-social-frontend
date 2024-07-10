@@ -79,7 +79,8 @@ export default {
 
     async fetchActivityPoints() {
       if (this.$config.activityPointsAddress && this.address) {
-        const activityPoints = await this.getActivityPoints(this.address)
+        const provider = this.$getFallbackProvider(this.$config.supportedChainId)
+        const activityPoints = await this.getActivityPoints(this.address, provider)
         this.userStore.setCurrentUserActivityPoints(activityPoints)
       }
     },

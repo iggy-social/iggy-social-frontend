@@ -370,7 +370,9 @@ export default {
       if (this.$config.activityPointsAddress && this.address) {
         this.toast.info('Refreshing activity points...', { timeout: 2000 })
 
-        const activityPoints = await this.getActivityPoints(this.address)
+        const provider = this.$getFallbackProvider(this.$config.supportedChainId)
+
+        const activityPoints = await this.getActivityPoints(this.address, provider)
 
         this.userStore.setCurrentUserActivityPoints(activityPoints)
       }

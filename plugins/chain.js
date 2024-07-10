@@ -14,14 +14,12 @@ export default defineNuxtPlugin(() => {
   }
 
   function getFallbackProvider(networkId) {
-    let mainRpc = config.rpcCustom
     let chain = chains.find(chain => chain.chainId == networkId)
 
-    if (!mainRpc) {
-      mainRpc = chain.rpc1
-    }
+    // choose random rpc from chain.rpcs array
+    const randomRpc = chain.rpcs[Math.floor(Math.random() * chain.rpcs.length)]
 
-    let urls = [mainRpc]
+    let urls = [ randomRpc ]
 
     if (urls) {
       const providers = urls.map(url => new ethers.providers.JsonRpcProvider(url))
@@ -33,12 +31,14 @@ export default defineNuxtPlugin(() => {
 
   function getRpcByChainId(chainId) {
     let chain = chains.find(chain => chain.chainId == chainId)
-    return chain.rpc1
+    const randomRpc = chain.rpcs[Math.floor(Math.random() * chain.rpcs.length)]
+    return randomRpc
   }
 
   async function switchOrAddChain(ethereum, networkName) {
     // get network id from chains
     let chain = chains.find(chain => chain.name == networkName)
+    const randomRpc = chain.rpcs[Math.floor(Math.random() * chain.rpcs.length)]
     let chainId = chain.chainId
 
     try {
@@ -63,7 +63,7 @@ export default defineNuxtPlugin(() => {
                 symbol: chain.currency,
                 decimals: 18,
               },
-              rpcUrls: [chain.rpc2],
+              rpcUrls: [randomRpc],
               blockExplorerUrls: [chain.blockExplorer],
             },
           ],
@@ -87,120 +87,105 @@ const chains = [
     chainId: 10,
     name: 'Optimism',
     currency: 'ETH',
-    rpc1: 'https://optimism-mainnet.public.blastapi.io',
-    rpc2: 'https://rpc.ankr.com/optimism',
+    rpcs: ['https://optimism-mainnet.public.blastapi.io', 'https://rpc.ankr.com/optimism'],
     blockExplorer: 'https://optimistic.etherscan.io',
   },
   {
     chainId: 14,
     name: 'Flare',
     currency: 'FLR',
-    rpc1: 'https://flare-api.flare.network/ext/C/rpc',
-    rpc2: 'https://flare-api.flare.network/ext/C/rpc',
+    rpcs: ['https://flare-api.flare.network/ext/C/rpc'],
     blockExplorer: 'https://flare-explorer.flare.network',
   },
   {
     chainId: 19,
     name: 'Songbird',
     currency: 'SGB',
-    rpc1: 'https://songbird-api.flare.network/ext/C/rpc',
-    rpc2: 'https://sgb.ftso.com.au/ext/bc/C/rpc',
+    rpcs: ['https://songbird-api.flare.network/ext/C/rpc'],
     blockExplorer: 'https://songbird-explorer.flare.network',
   },
   {
     chainId: 56,
     name: 'BNB Smart Chain',
     currency: 'BNB',
-    rpc1: 'https://rpc.ankr.com/bsc',
-    rpc2: 'https://bsc-dataseed.binance.org',
+    rpcs: ['https://rpc.ankr.com/bsc', 'https://bsc-dataseed.binance.org'],
     blockExplorer: 'https://bscscan.com',
   },
   {
     chainId: 100,
     name: 'Gnosis Chain',
     currency: 'XDAI',
-    rpc1: 'https://rpc.ankr.com/gnosis',
-    rpc2: 'https://rpc.ankr.com/gnosis',
+    rpcs: ['https://rpc.ankr.com/gnosis'],
     blockExplorer: 'https://gnosisscan.io',
   },
   {
     chainId: 137,
     name: 'Polygon',
     currency: 'MATIC',
-    rpc1: 'https://rpc.ankr.com/polygon',
-    rpc2: 'https://rpc.ankr.com/polygon',
+    rpcs: ['https://rpc.ankr.com/polygon'],
     blockExplorer: 'https://polygonscan.com',
   },
   {
     chainId: 250,
     name: 'Fantom',
     currency: 'FTM',
-    rpc1: 'https://rpc.ankr.com/fantom',
-    rpc2: 'https://rpc.ankr.com/fantom',
+    rpcs: ['https://rpc.ankr.com/fantom'],
     blockExplorer: 'https://ftmscan.com',
   },
   {
     chainId: 8453,
     name: 'Base',
     currency: 'ETH',
-    rpc1: 'https://mainnet.base.org',
-    rpc2: 'https://mainnet.base.org',
+    rpcs: ['https://mainnet.base.org'],
     blockExplorer: 'https://basescan.org',
   },
   {
     chainId: 34443,
     name: 'Mode',
     currency: 'ETH',
-    rpc1: 'https://mainnet.mode.network',
-    rpc2: 'https://1rpc.io/mode',
+    rpcs: ['https://mainnet.mode.network', 'https://1rpc.io/mode'],
     blockExplorer: 'https://explorer.mode.network',
   },
   {
     chainId: 42161,
     name: 'Arbitrum',
     currency: 'ETH',
-    rpc1: 'https://rpc.ankr.com/arbitrum',
-    rpc2: 'https://rpc.ankr.com/arbitrum',
+    rpcs: ['https://rpc.ankr.com/arbitrum'],
     blockExplorer: 'https://arbiscan.io',
   },
   {
     chainId: 43114,
     name: 'Avalanche',
     currency: 'AVAX',
-    rpc1: 'https://rpc.ankr.com/avalanche',
-    rpc2: 'https://rpc.ankr.com/avalanche',
+    rpcs: ['https://rpc.ankr.com/avalanche'],
     blockExplorer: 'https://snowtrace.io',
-  },
-  {
-    chainId: 80001,
-    name: 'Polygon Testnet Mumbai',
-    currency: 'MATIC',
-    rpc1: 'https://polygon-mumbai-pokt.nodies.app',
-    rpc2: 'https://polygon-mumbai-pokt.nodies.app',
-    blockExplorer: 'https://mumbai.polygonscan.com',
   },
   {
     chainId: 81457,
     name: 'Blast',
     currency: 'ETH',
-    rpc1: 'https://rpc.blast.io',
-    rpc2: 'https://rpc.ankr.com/blast',
+    rpcs: ['https://rpc.blast.io', 'https://rpc.ankr.com/blast'],
     blockExplorer: 'https://blastscan.io',
   },
   {
     chainId: 534352,
     name: 'Scroll',
     currency: 'ETH',
-    rpc1: 'https://rpc.scroll.io',
-    rpc2: 'https://1rpc.io/scroll',
+    rpcs: ['https://rpc.scroll.io', 'https://1rpc.io/scroll'],
     blockExplorer: 'https://scrollscan.com',
   },
   {
     chainId: 11155111,
     name: 'Sepolia',
     currency: 'ETH',
-    rpc1: 'https://rpc.sepolia.org',
-    rpc2: 'https://1rpc.io/sepolia',
+    rpcs: [
+      'https://eth-sepolia.public.blastapi.io', 
+      'https://1rpc.io/sepolia', 
+      'https://ethereum-sepolia-rpc.publicnode.com', 
+      //'https://sepolia.gateway.tenderly.co',
+      'https://rpc.sepolia.ethpandaops.io',
+      'https://sepolia.drpc.org',
+    ],
     blockExplorer: 'https://sepolia.etherscan.io',
   },
 ]

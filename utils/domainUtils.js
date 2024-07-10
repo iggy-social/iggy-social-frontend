@@ -5,10 +5,6 @@ export async function getDomainName(userAddress, signer) {
 
   let provider = signer
 
-  if (!provider) {
-    provider = this.$getFallbackProvider(config.supportedChainId)
-  }
-
   const tldInterface = new ethers.utils.Interface(['function defaultNames(address) view returns (string)'])
 
   const contract = new ethers.Contract(config.punkTldAddress, tldInterface, provider)
@@ -23,10 +19,6 @@ export async function getDomainHolder(domainName, signer) {
   const config = useRuntimeConfig()
 
   let provider = signer
-
-  if (!provider) {
-    provider = this.$getFallbackProvider(config.supportedChainId)
-  }
 
   if (domainName.includes(config.tldName)) {
     domainName = domainName.replace(config.tldName, '')

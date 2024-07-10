@@ -300,7 +300,8 @@ export default {
     // 		if (this.signer) {
     // 			userDomain = await this.getDomainName(this.address, this.signer)
     // 		} else {
-    // 			userDomain = await this.getDomainName(this.address)
+    //      const provider = this.$getFallbackProvider(this.$config.supportedChainId)
+    // 			userDomain = await this.getDomainName(this.address, provider)
     // 		}
 
     // 		if (userDomain) {
@@ -348,7 +349,8 @@ export default {
         }
 
         // fetch the domain holder address
-        this.referrer = await this.getDomainHolder(domainName)
+        const provider = this.$getFallbackProvider(this.$config.supportedChainId)
+        this.referrer = await this.getDomainHolder(domainName, provider)
       }
 
       if (this.address) {
@@ -390,7 +392,7 @@ export default {
       addConnectors([new BrowserWalletConnector()])
     }
 
-    const { $orbis, $config } = useNuxtApp()
+    const { $config, $getFallbackProvider, $orbis } = useNuxtApp()
 
     watchWalletChanged(async wallet => {
       setWallet(wallet.provider)
@@ -434,7 +436,8 @@ export default {
         if (signer.value) {
           userDomain = await getDomainName(address.value, signer.value)
         } else {
-          userDomain = await getDomainName(address.value)
+          const provider = $getFallbackProvider($config.supportedChainId)
+          userDomain = await getDomainName(address.value, provider)
         }
 
         if (userDomain) {

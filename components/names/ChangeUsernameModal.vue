@@ -228,7 +228,8 @@ export default {
         if (this.signer) {
           userDomain = await this.getDomainName(this.address, this.signer)
         } else {
-          userDomain = await this.getDomainName(this.address)
+          const provider = this.$getFallbackProvider(this.$config.supportedChainId)
+          userDomain = await this.getDomainName(this.address, provider)
         }
 
         if (userDomain) {

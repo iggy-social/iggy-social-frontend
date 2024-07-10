@@ -3,13 +3,7 @@ import wrappedNativeTokens from '~/assets/data/wrappedNativeTokens.json'
 import { useSiteStore } from '~/store/site'
 
 export async function getPriceImpactBps(signer, inputToken, outputToken, amountIn, routerAddress) {
-  const config = useRuntimeConfig()
-
   let provider = signer
-
-  if (!provider) {
-    provider = this.$getFallbackProvider(config.supportedChainId)
-  }
 
   // router interface
   const routerAbi = [
@@ -29,10 +23,6 @@ export async function getOutputTokenAmount(signer, inputToken, outputToken, amou
   const config = useRuntimeConfig()
 
   let provider = signer
-
-  if (!provider) {
-    provider = this.$getFallbackProvider(config.supportedChainId)
-  }
 
   const amountInWei = ethers.utils.parseUnits(amountIn, inputToken.decimals)
 
