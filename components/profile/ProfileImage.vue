@@ -1,8 +1,10 @@
 <template>
-  <img :src="parseImageLink" />
+  <img :src="imgPath" :alt="domainName" />
 </template>
 
 <script>
+import { getWorkingUrl } from '~/utils/ipfsUtils'
+
 export default {
   name: 'ProfileImage',
   props: ['address', 'domain', 'image'],
@@ -23,31 +25,46 @@ export default {
 
     if (storedImage) {
       this.imgPath = storedImage
-    } else if (this.image) {
-      this.imgPath = this.image
-      sessionStorage.setItem(String(this.address).toLowerCase() + '-img', this.image)
     }
+    
+    this.fetchProfilePicture()
   },
 
   computed: {
-    parseImageLink() {
-      let parsedImage = this.imgPath
-
-      if (parsedImage && parsedImage.includes('ipfs://')) {
-        parsedImage = parsedImage.replace('ipfs://', this.$config.ipfsGateway)
+    domainName() {
+      if (!this.domain) {
+        return null
       }
 
-      return parsedImage
+      return this.domain.replace(this.$config.tldName, '')
     },
   },
 
+  methods: {
+
+    async fetchProfilePicture() {
+      this.imgPath = this.defaultImage
+
+      if (this.image) {
+        const prefetchRes = await getWorkingUrl(this.image)
+
+        if (prefetchRes.success) {
+          sessionStorage.setItem(String(this.address).toLowerCase() + '-img', prefetchRes.url)
+          return this.imgPath = prefetchRes.url
+        }
+      }
+    }
+
+  },
+
   watch: {
+    /*
     image(oldValue, newValue) {
       if (newValue) {
-        this.imgPath = newValue
-        sessionStorage.setItem(String(this.address).toLowerCase() + '-img', this.image)
+        this.fetchProfilePicture()
       }
     },
+    */
   },
 }
 </script>

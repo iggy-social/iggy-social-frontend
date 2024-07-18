@@ -180,7 +180,7 @@ const chains = [
     currency: 'ETH',
     rpcs: [
       'https://eth-sepolia.public.blastapi.io', 
-      'https://1rpc.io/sepolia', 
+      //'https://1rpc.io/sepolia', 
       'https://ethereum-sepolia-rpc.publicnode.com', 
       //'https://sepolia.gateway.tenderly.co',
       'https://rpc.sepolia.ethpandaops.io',

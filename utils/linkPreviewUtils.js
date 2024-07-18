@@ -68,7 +68,7 @@ async function fetchNftMetadata(url, addr, tokenId, rpcUrl, marketplace) {
       // https://dweb.link/ipfs/QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/2614
       // https://cloudflare-ipfs.com/ipfs/QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/2614
 
-      nftMetadataUri = nftMetadataUri.replace('ipfs://', 'https://cloudflare-ipfs.com/ipfs/')
+      nftMetadataUri = nftMetadataUri.replace('ipfs://', 'https://ipfs.io/ipfs/')
     }
 
     try {
@@ -84,7 +84,7 @@ async function fetchNftMetadata(url, addr, tokenId, rpcUrl, marketplace) {
   }
 
   if (json['image'].startsWith('ipfs://')) {
-    json['image'] = json['image'].replace('ipfs://', 'https://cloudflare-ipfs.com/ipfs/')
+    json['image'] = json['image'].replace('ipfs://', 'https://ipfs.io/ipfs/')
   }
 
   if (!json['description']) {

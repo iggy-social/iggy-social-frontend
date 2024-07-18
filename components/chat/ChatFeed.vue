@@ -156,6 +156,7 @@ import FileUploadModal from '~/components/storage/FileUploadModal.vue'
 import { getAllImagesFromText } from '~/utils/textUtils'
 import EmojiPicker from '~/components/EmojiPicker.vue'
 import 'emoji-mart-vue-fast/css/emoji-mart.css'
+import { getWorkingUrl } from '~/utils/ipfsUtils'
 
 export default {
   name: 'ChatFeed',
@@ -399,7 +400,11 @@ export default {
 
     async insertImage(imageUrl) {
       if (imageUrl.startsWith('ipfs://')) {
-        imageUrl = imageUrl.replace('ipfs://', this.$config.ipfsGateway)
+        const imgRes = await getWorkingUrl(imageUrl)
+
+        if (imgRes.success) {
+          imageUrl = imgRes.url
+        }
       }
 
       if (

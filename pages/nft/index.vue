@@ -109,6 +109,7 @@ import { ethers } from 'ethers'
 import { useEthers } from '~/store/ethers'
 import Image from '~/components/Image.vue'
 import SearchNftModal from '~/components/nft/SearchNftModal.vue'
+import { getIpfsUrl } from '~/utils/ipfsUtils'
 import { fetchCollection, storeCollection } from '~/utils/storageUtils'
 
 export default {
@@ -313,13 +314,12 @@ export default {
           collection['image'] = cImage
         }
 
-        // check if collection image uses Spheron IPFS gateway (in that case replace it with the IPFS gateway defined in the config)
-        if (collection.image.includes('.ipfs.sphn.link/')) {
-          const linkParts = collection.image.split('.ipfs.sphn.link/')
-          const cid = linkParts[0].replace('https://', '')
-          const newImageLink = this.$config.ipfsGateway + cid + '/' + linkParts[1]
-          collection['image'] = newImageLink
-          cImage = newImageLink
+        // get IPFS link
+        const imageIpfsUrl = getIpfsUrl(cImage)
+
+        if (imageIpfsUrl) {
+          cImage = imageIpfsUrl
+          collection['image'] = cImage
         }
 
         // store collection object in storage

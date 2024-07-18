@@ -1,4 +1,5 @@
 //import { isBlank, zeroWidthCharacters } from 'printable-characters';
+import { getWorkingUrl } from '~/utils/ipfsUtils'
 
 export function findFirstCollectionUrl(text) {
   // if there is an NFT collection url (from our website) in the text, return it as address string
@@ -380,13 +381,13 @@ export function imgParsing(text) {
     return text
   }
 
-  return text.replace(imageRegex, function (url) {
-    if (url.includes('.ipfs.sphn.link/')) {
-      // replace a link to Spheron IPFS Gateway with an IPFS Gateway set in config
-      const linkParts = url.split('.ipfs.sphn.link/')
-      const ipfsHash = linkParts[0].replace('https://', '')
-      const ipfsLink = config.ipfsGateway + ipfsHash + '/' + linkParts[1]
-      return '<div></div><img class="img-fluid rounded" style="max-height: 500px;" src="' + ipfsLink + '" />'
+  return text.replace(imageRegex, async function (url) {
+    if (url.includes('.ipfs.sphn.link/') || url.startsWith('ipfs://')) {
+      const imgRes = await getWorkingUrl(url)
+
+      if (imgRes.success) {
+        return '<div></div><img class="img-fluid rounded" style="max-height: 500px;" src="' + imgRes.url + '" />'
+      }
     }
     return '<div></div><img class="img-fluid rounded" style="max-height: 500px;" src="' + url + '" />'
   })
