@@ -139,6 +139,7 @@
               </span>
             </p>
 
+            <!--
             <p class="me-4">
               <i class="bi bi-box-arrow-up-right me-1"></i>
               <a
@@ -149,6 +150,25 @@
                 See on NFT marketplace
               </a>
             </p>
+            -->
+
+            <div v-if="cAddress" class="dropdown">
+              <i class="bi bi-box-arrow-up-right me-2"></i>
+              <span class="dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                <span>See all NFTs in the collection</span>
+              </span>
+              <div class="dropdown-menu dropdown-menu-end">
+                <a class="dropdown-item cursor-pointer" target="_blank" :href="collectionMarketplaceLink">
+                  <i class="bi bi-box-arrow-up-right me-1"></i>
+                  See NFTs on NFT marketplace
+                </a>
+                <a class="dropdown-item cursor-pointer" target="_blank" :href="collectionExplorerLink">
+                  <i class="bi bi-box-arrow-up-right me-1"></i>
+                  See NFTs on block explorer
+                </a>
+              </div>
+            </div>
+            
           </div>
           <!-- END Data -->
 
@@ -323,6 +343,14 @@ export default {
       return null
     },
 
+    collectionExplorerLink() {
+      return this.$config.blockExplorerBaseUrl+"/token/"+this.cAddress;
+    },
+
+    collectionMarketplaceLink() {
+      return this.$config.marketplaceNftCollectionBaseUrl + this.cAddress
+    },
+
     getUsernameOrFullAddress() {
       if (this.cAuthorDomain) {
         let cleanName = String(this.cAuthorDomain).replace(this.$config.tldName, '')
@@ -360,6 +388,7 @@ export default {
         return false
       }
     },
+
   },
 
   methods: {
