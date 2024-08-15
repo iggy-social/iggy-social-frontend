@@ -92,6 +92,12 @@
                 </span>
               </li>
 
+              <li v-if="address">
+                <span class="dropdown-item cursor-pointer" data-bs-toggle="modal" data-bs-target="#sendNftModal">
+                  Send your NFT to another address
+                </span>
+              </li>
+
               <li>
                 <span class="dropdown-item cursor-pointer" @click="getCollectionDetails(true)">Refresh metadata</span>
               </li>
@@ -265,6 +271,9 @@
 
   <!-- Remove Image From Collection Modal -->
   <RemoveImageFromCollectionModal :mdAddress="mdAddress" :cAddress="cAddress" />
+
+  <!-- Send NFT Modal -->
+  <SendNftModal v-if="address" :address="address" :cAddress="cAddress" :signer="signer" />
 </template>
 
 <script>
@@ -281,6 +290,7 @@ import ChangeCollectionPreviewModal from '~/components/nft/collection/ChangeColl
 import ChangeDescriptionModal from '~/components/nft/collection/ChangeDescriptionModal'
 import ChangeNftTypeModal from '~/components/nft/collection/ChangeNftTypeModal'
 import RemoveImageFromCollectionModal from '~/components/nft/collection/RemoveImageFromCollectionModal'
+import SendNftModal from '~/components/nft/collection/SendNftModal.vue';
 import { getDomainName } from '~/utils/domainUtils'
 import { getIpfsUrl } from '~/utils/ipfsUtils'
 import { fetchCollection, fetchUsername, storeCollection, storeUsername } from '~/utils/storageUtils'
@@ -318,6 +328,7 @@ export default {
     ConnectWalletButton,
     Image,
     RemoveImageFromCollectionModal,
+    SendNftModal,
     SwitchChainButton,
     WaitingToast,
   },
