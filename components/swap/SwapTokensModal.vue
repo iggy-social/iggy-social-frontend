@@ -146,8 +146,7 @@ export default {
 
       const inputTokenAmountWei = ethers.utils.parseUnits(this.inputTokenAmount, this.inputToken?.decimals)
 
-      // TODO: address zero because IggySwapRouter has an error if referrer is passed
-      const referrer = ethers.constants.AddressZero // fetchReferrer(window);
+      const referrer = fetchReferrer(window);
 
       try {
         const tx = await swapTokens(

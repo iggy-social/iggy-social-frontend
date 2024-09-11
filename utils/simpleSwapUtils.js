@@ -88,11 +88,11 @@ export function swapTokens(signer, receiver, inputToken, outputToken, amountIn, 
     // else if at least one of the tokens is ERC-20 token (but not wrapped native token)
     const routerAbi = [
       'function swapExactTokensForTokens(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline) external returns (uint[] memory amounts)',
-      'function swapExactTokensForTokensWithReferrer(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline) external returns (uint[] memory amounts)',
+      'function swapExactTokensForTokensWithReferrer(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline, address referrer) external returns (uint[] memory amounts)',
       'function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline) external payable returns (uint[] memory amounts)',
-      'function swapExactETHForTokensWithReferrer(uint amountOutMin, address[] calldata path, address to, uint deadline) external payable returns (uint[] memory amounts)',
+      'function swapExactETHForTokensWithReferrer(uint amountOutMin, address[] calldata path, address to, uint deadline, address referrer) external payable returns (uint[] memory amounts)',
       'function swapExactTokensForETH(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline) external returns (uint[] memory amounts)',
-      'function swapExactTokensForETHWithReferrer(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline) external returns (uint[] memory amounts)',
+      'function swapExactTokensForETHWithReferrer(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline, address referrer) external returns (uint[] memory amounts)',
     ]
 
     const routerContract = new ethers.Contract(routerAddress, routerAbi, provider)
