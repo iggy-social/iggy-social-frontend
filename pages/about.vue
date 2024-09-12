@@ -47,7 +47,7 @@
       </p>
 
       <ul>
-        <li><a href="https://ipfs.tech/" target="_blank">IPFS</a></li>
+        <li><a href="https://arweave.org/" target="_blank">Arweave</a></li>
         <li><a href="https://ceramic.network/" target="_blank">Ceramic Network</a></li>
         <li><a href="https://useorbis.com/" target="_blank">Orbis</a></li>
         <li><a href="https://punk.domains/" target="_blank">Punk Domains</a></li>

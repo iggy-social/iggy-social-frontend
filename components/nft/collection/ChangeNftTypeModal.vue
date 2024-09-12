@@ -54,21 +54,21 @@
 
             <p v-if="typeChoice == 1">
               The "Static metadata URL" option means that all the NFTs in the collection have the same (static) image
-              and meta data. The metadata is stored offchain, usually on IPFS or on a centralized server. Use this
+              and meta data. The metadata is stored offchain, usually on Arweave, IPFS or on a centralized server. Use this
               option if you have a URL of a single metadata
               <strong>file</strong> (all NFTs have the same metadata and image).
             </p>
 
             <p v-if="typeChoice == 2">
               The "Generative metadata (.json)" option means that all the NFTs in the collection have a different image
-              and different meta data. The metadata is stored offchain, usually on IPFS or on a centralized server. Use
+              and different meta data. The metadata is stored offchain, usually on Arweave, IPFS or on a centralized server. Use
               this option if you have a metadata <strong>folder</strong> URL with multiple metadata files in it, where
               these files HAVE a .json extension.
             </p>
 
             <p v-if="typeChoice == 3">
               The "Generative metadata" option means that all the NFTs in the collection have a different image and
-              different meta data. The metadata is stored offchain, usually on IPFS or on a centralized server. Use this
+              different meta data. The metadata is stored offchain, usually on Arweave, IPFS or on a centralized server. Use this
               option if you have a metadata <strong>folder</strong> URL with multiple metadata files in it, where these
               files DO NOT HAVE a .json extension.
             </p>

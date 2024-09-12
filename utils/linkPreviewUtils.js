@@ -58,17 +58,16 @@ async function fetchNftMetadata(url, addr, tokenId, rpcUrl, marketplace) {
   if (
     !nftMetadataUri.startsWith('https://') &&
     !nftMetadataUri.startsWith('http://') &&
-    !nftMetadataUri.startsWith('ipfs://')
+    !nftMetadataUri.startsWith('ipfs://') &&
+    !nftMetadataUri.startsWith('ar://')
   ) {
     const result = atob(nftMetadataUri.substring(29))
     json = JSON.parse(result)
   } else {
     if (nftMetadataUri.startsWith('ipfs://')) {
-      // ipfs://QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/2614
-      // https://dweb.link/ipfs/QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/2614
-      // https://cloudflare-ipfs.com/ipfs/QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/2614
-
       nftMetadataUri = nftMetadataUri.replace('ipfs://', 'https://ipfs.io/ipfs/')
+    } else if (nftMetadataUri.startsWith('ar://')) {
+      nftMetadataUri = nftMetadataUri.replace('ar://', 'https://arweave.net/')
     }
 
     try {
@@ -85,6 +84,8 @@ async function fetchNftMetadata(url, addr, tokenId, rpcUrl, marketplace) {
 
   if (json['image'].startsWith('ipfs://')) {
     json['image'] = json['image'].replace('ipfs://', 'https://ipfs.io/ipfs/')
+  } else if (json['image'].startsWith('ar://')) {
+    json['image'] = json['image'].replace('ar://', 'https://arweave.net/')
   }
 
   if (!json['description']) {

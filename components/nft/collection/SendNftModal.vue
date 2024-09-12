@@ -160,10 +160,12 @@ export default {
           return;
         }
 
-        const tokenURI = await nftContract.tokenURI(this.tokenId);
+        let tokenURI = await nftContract.tokenURI(this.tokenId);
 
         if (tokenURI.startsWith("ipfs://")) {
           tokenURI = tokenURI.replace("ipfs://", this.$config.ipfsGateway);
+        } else if (tokenURI.startsWith("ar://")) {
+          tokenURI = tokenURI.replace("ar://", this.$config.arweaveGateway);
         }
 
         let json; // NFT metadata JSON
@@ -173,7 +175,7 @@ export default {
             const res = await axios.get(tokenURI);
             json = await res.data;
           } catch (error) {
-            console.log("error fetching metadata from ipfs for token id: ", String(this.tokenId));
+            console.log("error fetching metadata for token id: ", String(this.tokenId));
           }
         } else {
           const result = atob(tokenURI.substring(29));
@@ -182,7 +184,9 @@ export default {
 
         if (json["image"].startsWith("ipfs://")) {
           json["image"] = json["image"].replace("ipfs://", this.$config.ipfsGateway);
-        } 
+        } else if (json["image"].startsWith("ar://")) {
+          json["image"] = json["image"].replace("ar://", this.$config.arweaveGateway);
+        }
 
         this.nftImage = json["image"];
         this.nftDataLoaded = true;

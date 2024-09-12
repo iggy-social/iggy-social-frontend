@@ -1,19 +1,6 @@
 import axios from "axios";
-import { ThirdwebStorage } from "@thirdweb-dev/storage";
 
 const abortTimeout = 5000
-
-export async function uploadFileToThirdWeb(file) {
-  const config = useRuntimeConfig();
-
-  const storage = new ThirdwebStorage({
-    clientId: config.thirdwebClientId,
-  });
-
-  const fileUri = await storage.upload(file);
-
-  return fileUri;
-}
 
 export function getIpfsUrl(url) {
   let cid;
