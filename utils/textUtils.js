@@ -85,12 +85,23 @@ export function getAllImagesFromText(text) {
   let imageLinks = text.match(imageRegex)
 
   if (!imageLinks) {
-    imageRegex = /(http|https|ipfs):\/\/\S+\?.img/g
+    imageRegex = /(http|https|ipfs|ar):\/\/\S+\?.img/g
     imageLinks = text.match(imageRegex)
+
+    if (!imageLinks) {
+      imageRegex = /(http|https|ipfs|ar):\/\/\S+\?img/g
+      imageLinks = text.match(imageRegex)
+    }
   }
 
   if (!imageLinks) {
     return []
+  } else {
+    for (let i = 0; i < imageLinks.length; i++) {
+      if (imageLinks[i].startsWith('ar://')) {
+        imageLinks[i] = imageLinks[i].replace('ar://', 'https://arweave.net/')
+      }
+    }
   }
 
   return imageLinks
@@ -105,12 +116,23 @@ export function getImageFromText(text) {
   let imageLinks = text.match(imageRegex)
 
   if (!imageLinks) {
-    imageRegex = /(http|https|ipfs):\/\/\S+\?.img/
+    imageRegex = /(http|https|ipfs|ar):\/\/\S+\?.img/
     imageLinks = text.match(imageRegex)
+
+    if (!imageLinks) {
+      imageRegex = /(http|https|ipfs|ar):\/\/\S+\?img/
+      imageLinks = text.match(imageRegex)
+    }
   }
 
   if (!imageLinks) {
     return ''
+  } else {
+    for (let i = 0; i < imageLinks.length; i++) {
+      if (imageLinks[i].startsWith('ar://')) {
+        imageLinks[i] = imageLinks[i].replace('ar://', 'https://arweave.net/')
+      }
+    }
   }
 
   return imageLinks[0]
@@ -389,6 +411,11 @@ export function imgParsing(text) {
         return '<div></div><img class="img-fluid rounded" style="max-height: 500px;" src="' + imgRes.url + '" />'
       }
     }
+
+    if (url.startsWith('ar://')) {
+      url = url.replace('ar://', 'https://arweave.net/')
+    }
+
     return '<div></div><img class="img-fluid rounded" style="max-height: 500px;" src="' + url + '" />'
   })
 }
@@ -396,14 +423,22 @@ export function imgParsing(text) {
 export function imgWithoutExtensionParsing(text) {
   // if image doesn't have an extension, it won't be parsed by imgParsing
   // so we need to parse it here
-  // but image link needs to end with "?img" to be parsed (otherwise frontend will think it's a link)
-  const imageRegex = /(http|https|ipfs):\/\/\S+\?img/
+  // but image link needs to end with "?.img" to be parsed (otherwise frontend will think it's a link)
+  let imageRegex = /(http|https|ipfs|ar):\/\/\S+\?.img/
 
   if (!imageRegex.test(text)) {
-    return text
+    imageRegex = /(http|https|ipfs|ar):\/\/\S+\?img/
+
+    if (!imageRegex.test(text)) {
+      return text
+    }
   }
 
   return text.replace(imageRegex, function (url) {
+    if (url.startsWith('ar://')) {
+      url = url.replace('ar://', 'https://arweave.net/')
+    }
+
     return '<img class="img-fluid rounded" style="max-height: 500px;" src="' + url + '" />'
   })
 }

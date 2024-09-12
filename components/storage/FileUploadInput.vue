@@ -17,8 +17,8 @@
 </template>
 
 <script>
+import axios from 'axios'
 import ImageKit from 'imagekit-javascript'
-import { uploadFileToThirdWeb } from '~/utils/ipfsUtils'
 
 export default {
   name: 'FileUploadInput',
@@ -49,7 +49,7 @@ export default {
   },
 
   methods: {
-    async fallbackUpload() {
+    async imageKitUpload() {
       const thisAppUrl = window.location.origin
 
       let fetcherService
@@ -115,24 +115,66 @@ export default {
     async uploadFile() {
       this.waitingUpload = true
 
-      if (this.storageType === 'ipfs') {
+      if (this.storageType === 'arweave') {
         try {
-          // upload to IPFS
-          const fileUri = await uploadFileToThirdWeb(this.file)
+          const thisAppUrl = window.location.origin
+
+          let fetcherService
+          if (this.$config.fileUploadTokenService === 'netlify') {
+            fetcherService = thisAppUrl + '/.netlify/functions/arweaveUploader'
+          } else if (this.$config.fileUploadTokenService === 'vercel') {
+            fetcherService = thisAppUrl + '/api/arweaveUploader'
+          }
+
+          console.log(fetcherService)
+
+          // Convert file to base64
+          const fileData = await this.fileToBase64(this.file)
+
+          const fileType = this.file.type
+
+          const resp = await axios.post(fetcherService, {
+            fileData,
+            fileName: this.file.name,
+            fileType: this.file.type
+          })
+          console.log(resp)
+          
+          const transactionId = resp.data.transactionId
+          let fileUri = `ar://${transactionId}`
+
+          // add file type to file uri so we can use it in the frontend
+          if (fileType.startsWith('image/')) {
+            fileUri += `?img`
+          } else if (fileType.startsWith('video/') || fileType.startsWith('audio/')) {
+            fileUri += `?${fileType}`
+          } else if (fileType.startsWith('text/plain')) {
+            fileUri += `?txt`
+          }
 
           // emit file url
           this.$emit('processUploadedFileUrl', fileUri)
         } catch (error) {
-          console.error('Error uploading file to IPFS', error)
+          console.error('Error uploading file to decentralized storage service', error)
           console.log('Falling back to centralized storage service')
-          await this.fallbackUpload()
+          await this.imageKitUpload()
         }
       } else {
-        // upload to a centralized storage service (imagekit)
-        await this.fallbackUpload()
+        // use centralized storage service
+        await this.imageKitUpload()
       }
 
       this.waitingUpload = false
+    },
+
+    // Add this new method to convert file to base64
+    fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.readAsDataURL(file)
+        reader.onload = () => resolve(reader.result.split(',')[1])
+        reader.onerror = error => reject(error)
+      })
     },
   },
 }

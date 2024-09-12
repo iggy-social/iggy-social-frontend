@@ -17,6 +17,7 @@
     "@vue-dapp/modal": "^1.5.1",
     "@vueuse/core": "^9.2.0",
     "@vueuse/nuxt": "^9.2.0",
+    "arweave": "^1.15.1",
     "axios": "^1.6.2",
     "emoji-mart-vue-fast": "^15.0.0",
     "ethers": "^5.7.2",

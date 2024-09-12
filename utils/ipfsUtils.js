@@ -100,6 +100,17 @@ export async function getWorkingUrl(url) {
         continue
       }
     }
+  } else if (url.startsWith("ar://")) {
+    const arweaveUrl = url.replace("ar://", "https://arweave.net/")
+    
+    try {
+      const response = await axios.head(arweaveUrl, { signal: AbortSignal.timeout(abortTimeout) })
+      if (response.status === 200) {
+        return { success: true, url: arweaveUrl, format: response.headers['content-type'] }
+      }
+    } catch (error) {
+      return url
+    }
   }
 
   return url
