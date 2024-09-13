@@ -64,7 +64,7 @@ Then enter the key in environment variables (`TENOR_KEY`).
 
 ## Image upload (Arweave)
 
-To support image uploads, create an Arweave Wallet (e.g. here:https://arweave.app/) and send some AR to it.
+To support image uploads, create an Arweave Wallet (e.g. here: https://arweave.app/) and send some AR to it.
 
 Then go to the wallet settings and download Backup Keyfile.
 

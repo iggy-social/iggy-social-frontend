@@ -238,23 +238,6 @@ function getTwitterPreview(url) {
   }
 }
 
-function marketplaceFallback(marketplace) {
-  if (marketplace === 'opensea') {
-    return {
-      name: 'Check this NFT on OpenSea',
-      description:
-        "OpenSea is the world's first and largest web3 marketplace for NFTs and crypto collectibles. Browse, create, buy, sell, and auction NFTs using OpenSea today.",
-      image: 'https://static.opensea.io/og-images/Metadata-Image.png',
-    }
-  } else if (marketplace === 'sparkles') {
-    return {
-      name: 'Check this NFT on Sparkles',
-      description: 'Sparkles NFT Marketplace',
-      image: 'https://i.postimg.cc/QMCd8ynT/sparkles.png',
-    }
-  }
-}
-
 module.exports = {
   fetchMetadata,
 }
