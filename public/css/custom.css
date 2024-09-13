@@ -241,6 +241,10 @@ a:hover {
   cursor: pointer;
 }
 
+p.card-text.text-break {
+    cursor: pointer;
+}
+
 /* EmojiPicker.vue + <Picker class="emoji-mart-category" */
 .emoji-mart-category {
   color: #0f1110;
