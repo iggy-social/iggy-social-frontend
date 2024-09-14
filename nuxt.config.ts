@@ -51,7 +51,9 @@ export default defineNuxtConfig({
       activityPointsAddress: '0xC3623737209Cc141592B20bcEBCA6052AFCcD183',
       airdropApAddress: '0x519Cc13253d5bd6bC0b635B9f337230B34B3b1e7', // chat token claim for APs
       airdropClaimDomainsAddress: '0x8c54EAEA2DDAA8491a32F3A0D9B308d810aEA4fc', // chat token claim for domain holders
+      arweaveAddress: process.env.ARWEAVE_ADDRESS,
       arweaveGateway: 'https://arweave.net/',
+      arweaveMinBalance: 0.02, // minimum AR balance to upload files
       blockExplorerBaseUrl: 'https://sepolia.etherscan.io',
       chatChannels: {
         // go to Orbis Dashboard (https://useorbis.com/dashboard), create a new Project and then create a new Context for each of the channels below

@@ -82,6 +82,12 @@ ARWEAVE_DQ=
 ARWEAVE_QI=
 ```
 
+And add the arweave address too:
+
+```bash
+ARWEAVE_ADDRESS=
+```
+
 Also make sure these variables are set on your hosting provider (Netlify, Vercel, etc).
 
 ## Image upload fallback

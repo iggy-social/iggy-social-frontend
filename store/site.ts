@@ -6,6 +6,7 @@ export const useSiteStore = defineStore({
 
   state: () => {
     return {
+      arweaveBalance: 0,
       colorMode: 'dark',
       fileUploadEnabled: true,
       showOnlyMasterPosts: useLocalStorage('showOnlyMasterPosts', 'false'),
@@ -15,6 +16,10 @@ export const useSiteStore = defineStore({
   },
 
   getters: {
+    getArweaveBalance(state) {
+      return state.arweaveBalance
+    },
+
     getColorMode(state) {
       const pStorage = useLocalStorage('colorMode', null)
 
@@ -61,6 +66,10 @@ export const useSiteStore = defineStore({
   },
 
   actions: {
+    setArweaveBalance(balance: number) {
+      this.arweaveBalance = balance
+    },
+    
     setColorMode(cm: string) {
       this.colorMode = cm
       localStorage.setItem('colorMode', cm)

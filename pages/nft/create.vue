@@ -263,22 +263,12 @@ export default {
 
       const price = Number(ethers.utils.formatEther(this.createPriceWei))
 
-      if (price > 1) {
-        return price.toFixed(0)
-      } else if (price > 0.1) {
-        return price.toFixed(4)
-      } else if (price > 0.01) {
-        return price.toFixed(5)
-      } else if (price > 0.001) {
-        return price.toFixed(6)
+      if (price > 0.01) {
+        return Number.parseFloat(price.toFixed(5))
       } else if (price > 0.0001) {
-        return price.toFixed(7)
-      } else if (price > 0.00001) {
-        return price.toFixed(8)
-      } else if (price > 0.000001) {
-        return price.toFixed(9)
+        return Number.parseFloat(price.toFixed(7))
       } else {
-        return price
+        return Number.parseFloat(price)
       }
     },
 

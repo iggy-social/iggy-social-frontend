@@ -4,9 +4,10 @@
     type="file"
     class="form-control form-control-lg mb-3"
     :id="'file-input-' + componentId"
+    :disabled="waitingUpload || disable"
   />
 
-  <button type="button" :class="btnCls" @click="uploadFile" :disabled="waitingUpload || !file || fileTooBig">
+  <button type="button" :class="btnCls" @click="uploadFile" :disabled="waitingUpload || !file || fileTooBig || disable">
     <span v-if="waitingUpload" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
     Upload
   </button>
@@ -22,7 +23,7 @@ import ImageKit from 'imagekit-javascript'
 
 export default {
   name: 'FileUploadInput',
-  props: ['btnCls', 'maxFileSize', 'storageType'],
+  props: ['btnCls', 'disable', 'maxFileSize', 'storageType'],
   emits: ['processUploadedFileUrl'],
 
   data() {
