@@ -125,6 +125,10 @@ export default {
     },
 
     arweaveBalanceTooLow() {
+      if (this.storageType !== 'arweave') {
+        return false
+      }
+      
       return this.arweaveBalance < this.$config.arweaveMinBalance
     },
 
