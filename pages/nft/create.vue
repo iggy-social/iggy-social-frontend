@@ -195,7 +195,7 @@
         @processFileUrl="insertImage"
         title="Upload your NFT image"
         infoText="Upload the NFT image."
-        storageType="arweave"
+        :storageType="$config.fileUploadStorageType"
         :componentId="$.uid"
         :maxFileSize="$config.fileUploadSizeLimit"
       />

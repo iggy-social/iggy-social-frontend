@@ -50,14 +50,51 @@ export default {
   },
 
   methods: {
+    async arweaveUpload() {
+      const thisAppUrl = window.location.origin
+
+      let fetcherService
+      if (this.$config.fileUploadTokenService === 'netlify') {
+        fetcherService = thisAppUrl + '/.netlify/functions/arweaveUploader'
+      } else if (this.$config.fileUploadTokenService === 'vercel') {
+        fetcherService = thisAppUrl + '/api/arweaveUploader'
+      }
+
+      // Convert file to base64
+      const fileData = await this.fileToBase64(this.file)
+
+      const fileType = this.file.type
+
+      const resp = await axios.post(fetcherService, {
+        fileData,
+        fileName: this.file.name,
+        fileType: this.file.type
+      })
+
+      const transactionId = resp.data.transactionId
+      let fileUri = `ar://${transactionId}`
+
+      // add file type to file uri so we can use it in the frontend
+      if (fileType.startsWith('image/')) {
+        fileUri += `?img`
+      } else if (fileType.startsWith('video/') || fileType.startsWith('audio/')) {
+        fileUri += `?${fileType}`
+      } else if (fileType.startsWith('text/plain')) {
+        fileUri += `?txt`
+      }
+
+      // emit file url
+      this.$emit('processUploadedFileUrl', fileUri)
+    },
+
     async imageKitUpload() {
       const thisAppUrl = window.location.origin
 
       let fetcherService
       if (this.$config.fileUploadTokenService === 'netlify') {
-        fetcherService = thisAppUrl + '/.netlify/functions/imageUploaderFallback'
+        fetcherService = thisAppUrl + '/.netlify/functions/imageKitUploader'
       } else if (this.$config.fileUploadTokenService === 'vercel') {
-        fetcherService = thisAppUrl + '/api/imageUploaderFallback'
+        fetcherService = thisAppUrl + '/api/imageKitUploader'
       }
 
       const resp = await $fetch(fetcherService).catch(error => error.data)
@@ -118,51 +155,21 @@ export default {
 
       if (this.storageType === 'arweave') {
         try {
-          const thisAppUrl = window.location.origin
-
-          let fetcherService
-          if (this.$config.fileUploadTokenService === 'netlify') {
-            fetcherService = thisAppUrl + '/.netlify/functions/arweaveUploader'
-          } else if (this.$config.fileUploadTokenService === 'vercel') {
-            fetcherService = thisAppUrl + '/api/arweaveUploader'
-          }
-
-          console.log(fetcherService)
-
-          // Convert file to base64
-          const fileData = await this.fileToBase64(this.file)
-
-          const fileType = this.file.type
-
-          const resp = await axios.post(fetcherService, {
-            fileData,
-            fileName: this.file.name,
-            fileType: this.file.type
-          })
-          console.log(resp)
-          
-          const transactionId = resp.data.transactionId
-          let fileUri = `ar://${transactionId}`
-
-          // add file type to file uri so we can use it in the frontend
-          if (fileType.startsWith('image/')) {
-            fileUri += `?img`
-          } else if (fileType.startsWith('video/') || fileType.startsWith('audio/')) {
-            fileUri += `?${fileType}`
-          } else if (fileType.startsWith('text/plain')) {
-            fileUri += `?txt`
-          }
-
-          // emit file url
-          this.$emit('processUploadedFileUrl', fileUri)
+          await this.arweaveUpload()
         } catch (error) {
           console.error('Error uploading file to decentralized storage service', error)
           console.log('Falling back to centralized storage service')
           await this.imageKitUpload()
         }
       } else {
-        // use centralized storage service
-        await this.imageKitUpload()
+        // use centralized storage service ImageKit
+        try {
+          await this.imageKitUpload()
+        } catch (error) {
+          console.error('Error uploading file to centralized storage service', error)
+          console.log('Falling back to decentralized storage service')
+          await this.arweaveUpload()
+        }
       }
 
       this.waitingUpload = false

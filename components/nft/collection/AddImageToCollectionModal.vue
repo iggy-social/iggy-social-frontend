@@ -26,7 +26,7 @@
 
               <FileUploadInput
                 btnCls="btn btn-primary"
-                storageType="arweave"
+                :storageType="$config.fileUploadStorageType"
                 :maxFileSize="$config.fileUploadSizeLimit"
                 @processUploadedFileUrl="insertImageLink"
               />

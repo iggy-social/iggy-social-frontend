@@ -59,7 +59,7 @@
               @processFileUrl="insertImage"
               title="Upload image"
               infoText="Upload an image."
-              storageType="arweave"
+              :storageType="$config.fileUploadStorageType"
               :componentId="$.uid"
               :maxFileSize="$config.fileUploadSizeLimit"
             />

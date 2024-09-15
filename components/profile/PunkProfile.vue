@@ -239,7 +239,7 @@
         @processFileUrl="insertImage"
         title="Change profile image"
         infoText="Upload a new profile picture."
-        storageType="arweave"
+        :storageType="$config.fileUploadStorageType"
         :componentId="$.uid"
         :maxFileSize="$config.fileUploadSizeLimit"
       />

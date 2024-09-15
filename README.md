@@ -90,7 +90,7 @@ ARWEAVE_ADDRESS=
 
 Also make sure these variables are set on your hosting provider (Netlify, Vercel, etc).
 
-## Image upload fallback
+## ImageKit upload
 
 It is recommended to use ImageKit as the fallback option, in case Arweave has technical issues.
 
@@ -101,6 +101,8 @@ IMAGEKIT_ENDPOINT=
 IMAGEKIT_PUBLIC_KEY=
 IMAGEKIT_PRIVATE_KEY=
 ```
+
+You can also use ImageKit as your main image upload, if you set the `fileUploadStorageType` variable in nuxt config to "imagekit".
 
 ## Customize
 
