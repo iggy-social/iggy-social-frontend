@@ -442,6 +442,10 @@ a:hover {
   font-style: italic;
 }
 
+.quote-text {
+  cursor: pointer;
+}
+
 .sidebar-card-body {
   padding-top: 0;
 }
