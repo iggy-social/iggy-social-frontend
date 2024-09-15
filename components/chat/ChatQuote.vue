@@ -23,14 +23,14 @@
 
         <!-- post text -->
         <div v-if="post.body" @click="openPostDetails">
-          <p class="card-text text-break" v-if="parsedText.length > postLengthLimit && !showFullText">
+          <p class="card-text text-break quote-text" v-if="parsedText.length > postLengthLimit && !showFullText">
             <span v-html="parsedText.substring(0, postLengthLimit) + ' ... '"> </span>
             <span class="cursor-pointer hover-color" @click="showFullText = true">Read more</span>
           </p>
 
           <p
             v-if="parsedText.length < postLengthLimit || showFullText"
-            class="card-text text-break"
+            class="card-text text-break quote-text"
             v-html="parsedText"
           ></p>
         </div>

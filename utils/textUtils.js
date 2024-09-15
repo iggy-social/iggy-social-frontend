@@ -100,7 +100,7 @@ export function getAllImagesFromText(text) {
   } else {
     for (let i = 0; i < imageLinks.length; i++) {
       if (imageLinks[i].startsWith('ar://')) {
-        imageLinks[i] = imageLinks[i].replace('ar://', 'https://arweave.net/')
+        imageLinks[i] = imageLinks[i].replace('ar://', this.$config.arweaveGateway)
       } else if (imageLinks[i].startsWith('ipfs://')) {
         imageLinks[i] = imageLinks[i].replace('ipfs://', 'https://ipfs.io/ipfs/')
       }
@@ -137,7 +137,7 @@ export function getImageFromText(text) {
   } else {
     for (let i = 0; i < imageLinks.length; i++) {
       if (imageLinks[i].startsWith('ar://')) {
-        imageLinks[i] = imageLinks[i].replace('ar://', 'https://arweave.net/')
+        imageLinks[i] = imageLinks[i].replace('ar://', this.$config.arweaveGateway)
       } else if (imageLinks[i].startsWith('ipfs://')) {
         imageLinks[i] = imageLinks[i].replace('ipfs://', 'https://ipfs.io/ipfs/')
       }
@@ -412,7 +412,7 @@ export function imgParsing(text) {
   return text.replace(imageRegex, function (url) {
     let newUrl = url
     if (url.startsWith('ar://')) {
-      newUrl = url.replace('ar://', 'https://arweave.net/')
+      newUrl = url.replace('ar://', this.$config.arweaveGateway)
     } else if (url.startsWith('ipfs://')) {
       newUrl = url.replace('ipfs://', 'https://ipfs.io/ipfs/')
     }
@@ -437,7 +437,7 @@ export function imgWithoutExtensionParsing(text) {
 
   return text.replace(imageRegex, function (url) {
     if (url.startsWith('ar://')) {
-      url = url.replace('ar://', 'https://arweave.net/')
+      url = url.replace('ar://', this.$config.arweaveGateway)
     } else if (url.startsWith('ipfs://')) {
       url = url.replace('ipfs://', 'https://ipfs.io/ipfs/')
     }

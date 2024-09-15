@@ -88,7 +88,7 @@ export async function getWorkingUrl(url) {
       }
     }
   } else if (url.startsWith("ar://")) {
-    const arweaveUrl = url.replace("ar://", "https://arweave.net/")
+    const arweaveUrl = url.replace("ar://", this.$config.arweaveGateway)
     
     try {
       const response = await axios.head(arweaveUrl, { signal: AbortSignal.timeout(abortTimeout) })
