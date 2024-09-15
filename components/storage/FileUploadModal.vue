@@ -52,7 +52,8 @@
                   Error: Arweave is used as file storage. Current balance in the Arweave wallet is insufficient to do the upload. 
                 </p>
                 <p>
-                  Please send AR tokens to this wallet (min. {{ $config.arweaveMinBalance }} AR): <a :href="'https://arscan.io/address/' + this.$config.arweaveAddress" target="_blank">{{ this.$config.arweaveAddress }}</a>.
+                  <span class="text-danger">Please send AR tokens to this wallet (min. {{ $config.arweaveMinBalance }} AR) to enable uploads: </span> 
+                  <a :href="'https://arscan.io/address/' + this.$config.arweaveAddress" target="_blank">{{ this.$config.arweaveAddress }}</a>.
                 </p>
               </div>
 

@@ -73,6 +73,8 @@ export function findFirstUrl(text) {
 }
 
 export function getAllImagesFromText(text) {
+  const config = useRuntimeConfig()
+
   if (!text) {
     return []
   }
@@ -100,7 +102,7 @@ export function getAllImagesFromText(text) {
   } else {
     for (let i = 0; i < imageLinks.length; i++) {
       if (imageLinks[i].startsWith('ar://')) {
-        imageLinks[i] = imageLinks[i].replace('ar://', this.$config.arweaveGateway)
+        imageLinks[i] = imageLinks[i].replace('ar://', config.arweaveGateway)
       } else if (imageLinks[i].startsWith('ipfs://')) {
         imageLinks[i] = imageLinks[i].replace('ipfs://', 'https://ipfs.io/ipfs/')
       }
@@ -111,6 +113,8 @@ export function getAllImagesFromText(text) {
 }
 
 export function getImageFromText(text) {
+  const config = useRuntimeConfig()
+
   if (!text) {
     return null
   }
@@ -137,7 +141,7 @@ export function getImageFromText(text) {
   } else {
     for (let i = 0; i < imageLinks.length; i++) {
       if (imageLinks[i].startsWith('ar://')) {
-        imageLinks[i] = imageLinks[i].replace('ar://', this.$config.arweaveGateway)
+        imageLinks[i] = imageLinks[i].replace('ar://', config.arweaveGateway)
       } else if (imageLinks[i].startsWith('ipfs://')) {
         imageLinks[i] = imageLinks[i].replace('ipfs://', 'https://ipfs.io/ipfs/')
       }
@@ -403,6 +407,8 @@ export function hasTextBlankCharacters(text) {
 }
 
 export function imgParsing(text) {
+  const config = useRuntimeConfig()
+
   const imageRegex = /(?:https?:\/\/|ipfs:\/\/|ar:\/\/)(?:[^\/\s]+\/)+[^\s]+\.(?:jpe?g|gif|webp|png|img)/gi
 
   if (!imageRegex.test(text)) {
@@ -412,7 +418,7 @@ export function imgParsing(text) {
   return text.replace(imageRegex, function (url) {
     let newUrl = url
     if (url.startsWith('ar://')) {
-      newUrl = url.replace('ar://', this.$config.arweaveGateway)
+      newUrl = url.replace('ar://', config.arweaveGateway)
     } else if (url.startsWith('ipfs://')) {
       newUrl = url.replace('ipfs://', 'https://ipfs.io/ipfs/')
     }
@@ -422,6 +428,8 @@ export function imgParsing(text) {
 }
 
 export function imgWithoutExtensionParsing(text) {
+  const config = useRuntimeConfig()
+
   // if image doesn't have an extension, it won't be parsed by imgParsing
   // so we need to parse it here
   // but image link needs to end with "?.img" to be parsed (otherwise frontend will think it's a link)
@@ -437,7 +445,7 @@ export function imgWithoutExtensionParsing(text) {
 
   return text.replace(imageRegex, function (url) {
     if (url.startsWith('ar://')) {
-      url = url.replace('ar://', this.$config.arweaveGateway)
+      url = url.replace('ar://', config.arweaveGateway)
     } else if (url.startsWith('ipfs://')) {
       url = url.replace('ipfs://', 'https://ipfs.io/ipfs/')
     }
