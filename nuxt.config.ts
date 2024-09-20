@@ -58,8 +58,8 @@ export default defineNuxtConfig({
       chat: {
         contexts: {
           general: '0x9C3BaeAd881BDAAB0Cd0BB112ce2a17Aba390Aba', // general discussion channel
-          memesImages: '',
-          shill: '',
+          memesImages: '0x9C3BaeAd881BDAAB0Cd0BB112ce2a17Aba390Aba',
+          shill: '0x9C3BaeAd881BDAAB0Cd0BB112ce2a17Aba390Aba',
           nftLaunchpad: '',
         },
         moderationTokenAddress: '0x63F36191b3660A70059661083C2189a71be5FBdE', // chat moderation token address

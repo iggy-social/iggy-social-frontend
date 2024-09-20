@@ -109,10 +109,10 @@
       <ChatMessage
         @removePost="removePost"
         v-for="message in messages"
+        :chatContext="chatContext"
+        :isMainMessage="true"
         :key="message.url"
         :message="message"
-        :messageId="message.url.split('://')[1]"
-        :isMainMessage="true"
       />
     </div>
 

@@ -10,24 +10,167 @@
       <Meta name="twitter:description" :content="'Check out this chat post on ' + $config.projectName + '!'" />
     </Head>
   </div>
+
+  <!-- Main message -->
+  <ChatMessage v-if="message" :message="message" :isMainMessage="true" />
+
+  <!-- reply -->
+  <ChatMessage v-if="reply" :message="reply" :isMainMessage="false" />
+
+  <!-- Chat feed of replies -->
+  <ChatFeed v-if="!isReply" :chatContext="getChatContext" :mainMessageIndex="getMessageId" />
+
+  <!-- See other replies button -->
+  <NuxtLink v-if="isReply" :to="mainMessagePage" class="btn btn-primary">See other replies</NuxtLink>
+  
 </template>
 
 <script>
-import ChatPost from '~/components/chat/ChatPost.vue'
-import ChatFeed from '~/components/chat/ChatFeed.vue'
+import { ethers } from 'ethers'
 import { useToast } from 'vue-toastification/dist/index.mjs'
+import ChatFeed from '~/components/chat/ChatFeed.vue'
+import ChatMessage from '~/components/chat/ChatMessage.vue'
 
 export default {
+  data() {
+    return {
+      message: null,
+      reply: null,
+    }
+  },
 
   components: {
     ChatFeed,
-    ChatPost,
+    ChatMessage,
+  },
+
+  created() {
+    this.getMessage()
   },
 
   computed: {
-    getQueryId() {
+    getChatContext() {
+      return this.route.query.context
+    },
+
+    getMessageId() {
       return this.route.query.id
     },
+
+    getReplyId() {
+      return this.route.query.reply
+    },
+
+    isReply() {
+      if (this.route.query.reply) {
+        return true
+      } else {
+        return false
+      }
+    },
+
+    mainMessagePage() {
+      return `/post/?id=${this.getMessageId}&context=${this.getChatContext}`
+    }
+  },
+
+  methods: {
+    async getMessage() {
+      try {
+        const provider = this.$getFallbackProvider(this.$config.supportedChainId);
+
+        const intrfc = new ethers.utils.Interface([
+          {
+            "inputs": [{"internalType": "uint256", "name": "mainMsgIndex_", "type": "uint256"}],
+            "name": "getMainMessage",
+            "outputs": [
+              {
+                "components": [
+                  {"internalType": "address", "name": "author", "type": "address"},
+                  {"internalType": "uint256", "name": "createdAt", "type": "uint256"},
+                  {"internalType": "bool", "name": "deleted", "type": "bool"},
+                  {"internalType": "uint256", "name": "index", "type": "uint256"},
+                  {"internalType": "uint256", "name": "repliesCount", "type": "uint256"},
+                  {"internalType": "string", "name": "url", "type": "string"}
+                ],
+                "internalType": "struct ChatFeed.Message",
+                "name": "",
+                "type": "tuple"
+              }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+          },
+          {
+            "inputs": [
+              {"internalType": "uint256", "name": "mainMsgIndex_", "type": "uint256"},
+              {"internalType": "uint256", "name": "replyMsgIndex_", "type": "uint256"}
+            ],
+            "name": "getReply",
+            "outputs": [
+              {
+                "components": [
+                  {"internalType": "address", "name": "author", "type": "address"},
+                  {"internalType": "uint256", "name": "createdAt", "type": "uint256"},
+                  {"internalType": "bool", "name": "deleted", "type": "bool"},
+                  {"internalType": "uint256", "name": "index", "type": "uint256"},
+                  {"internalType": "uint256", "name": "repliesCount", "type": "uint256"},
+                  {"internalType": "string", "name": "url", "type": "string"}
+                ],
+                "internalType": "struct ChatFeed.Message",
+                "name": "",
+                "type": "tuple"
+              }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+          }
+        ]);
+
+        const contract = new ethers.Contract(this.getChatContext, intrfc, provider);
+
+        let msg;
+        let replyObj;
+
+        msg = await contract.getMainMessage(this.getMessageId);
+        
+        if (this.isReply) {
+          replyObj = await contract.getReply(this.getMessageId, this.getReplyId);
+        }
+
+        if (!msg.deleted) {
+          this.message = {
+            author: msg.author,
+            url: msg.url,
+            createdAt: msg.createdAt.toNumber(),
+            deleted: msg.deleted,
+            repliesCount: msg.repliesCount.toNumber(),
+            index: msg.index.toNumber(),
+          };
+        } else {
+          this.toast('This message has been deleted.', { type: 'info' });
+        }
+
+        if (replyObj) {
+          if (!replyObj.deleted) {
+            this.reply = {
+              author: replyObj.author,
+              url: replyObj.url,
+              createdAt: replyObj.createdAt.toNumber(),
+              deleted: replyObj.deleted,
+              repliesCount: replyObj.repliesCount.toNumber(),
+              index: replyObj.index.toNumber(),
+            };
+          } else {
+            this.toast('This reply has been deleted.', { type: 'info' });
+          }
+        }
+
+      } catch (error) {
+        console.error(error);
+        this.toast('Failed to load the message', { type: 'error' });
+      }
+    }
   },
 
   setup() {
@@ -41,9 +184,19 @@ export default {
   },
 
   watch: {
-    getQueryId(val, oldVal) {
+    getChatContext(val, oldVal) {
       // TODO: refresh post object if id in query has changed
-      
+      this.getMessage()
+    },
+
+    getMessageId(val, oldVal) {
+      // TODO: refresh post object if id in query has changed
+      this.getMessage()
+    },
+
+    getReplyId(val, oldVal) {
+      // TODO: refresh post object if id in query has changed
+      this.getMessage()
     },
   },
 }

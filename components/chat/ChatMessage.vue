@@ -21,7 +21,7 @@
           </NuxtLink>
           <span v-if="message?.createdAt">
             ·
-            <NuxtLink class="link-without-color hover-color" :to="'/post/?id=' + message.id">
+            <NuxtLink class="link-without-color hover-color" :to="getPostUrl">
               {{ timeSince }}
             </NuxtLink>
           </span>
@@ -64,7 +64,7 @@
         <p class="card-subtitle mt-3 text-muted">
 
           <!-- Replies count -->
-          <NuxtLink v-if="isMainMessage" class="link-without-color hover-color" :to="'/post/?id=' + message.id">
+          <NuxtLink v-if="isMainMessage" class="link-without-color hover-color" :to="getPostUrl">
             <i class="bi bi-chat"></i>
             {{ message.repliesCount }} replies
           </NuxtLink>
@@ -74,7 +74,7 @@
             v-if="isCurrentUserAuthor"
             class="cursor-pointer hover-color ms-3"
             data-bs-toggle="modal"
-            :data-bs-target="'#deleteModal' + message.id"
+            :data-bs-target="'#deleteModal' + storageId"
           >
             <i class="bi bi-trash" /> Delete
           </span>
@@ -87,27 +87,27 @@
     <!-- Delete Modal -->
     <div
       class="modal fade"
-      :id="'deleteModal' + message.id"
+      :id="'deleteModal' + storageId"
       tabindex="-1"
-      :aria-labelledby="'deleteModalLabel' + message.id"
+      :aria-labelledby="'deleteModalLabel' + storageId"
       aria-hidden="true"
     >
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5" :id="'deleteModalLabel' + message.id">Delete post</h1>
+            <h1 class="modal-title fs-5" :id="'deleteModalLabel' + storageId">Delete post</h1>
             <button
               type="button"
               class="btn-close"
-              :id="'closeDeleteModal' + message.id"
+              :id="'closeDeleteModal' + storageId"
               data-bs-dismiss="modal"
               aria-label="Close"
             ></button>
           </div>
-          <div class="modal-body">Do you really want to delete this post?</div>
+          <div class="modal-body">Do you really want to delete this post? (currently disabled)</div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary" @click="deleteMessage" :disabled="waitingDeleteMessage">
+            <button type="button" class="btn btn-primary disabled" @click="deleteMessage" :disabled="waitingDeleteMessage">
               <span
                 v-if="waitingDeleteMessage"
                 class="spinner-border spinner-border-sm"
@@ -147,7 +147,7 @@ import { fetchUsername, storeUsername } from '~/utils/storageUtils'
 export default {
   name: 'ChatMessage',
   emits: ['removePost'],
-  props: ['isMainMessage', 'message', 'messageId'],
+  props: ['isMainMessage', 'message', 'chatContext'],
 
   components: {
     Image,
@@ -161,14 +161,21 @@ export default {
       firstLink: null,
       linkPreview: null,
       messageFromStorage: null,
+      messageIndex: null,
       messageLengthLimit: 550,
       parsedText: null,
       showFullText: false,
+      storageId: null,
       waitingDeleteMessage: false,
     }
   },
 
   created() {
+    this.messageIndex = this.message.index
+    console.log('messageIndex', this.messageIndex)
+    this.storageId = this.message.url.split('://')[1]
+    console.log('storageId', this.storageId)
+
     this.fetchMessageFromStorage()
 
     if (this.message.author) {
@@ -177,8 +184,8 @@ export default {
 
     // TODO: change this when you have the correct route
     if (
-      this.route.href === '/post/?id=' + this.messageId ||
-      this.route.href === '/post?id=' + this.messageId
+      this.route.href.includes('/post/?id=') ||
+      this.route.href.includes('/post?id=')
     ) {
       this.showFullText = true
     }
@@ -192,6 +199,14 @@ export default {
     getArweaveUrl() {
       if (this.message?.url) {
         return this.message.url.replace("ar://", this.$config.arweaveGateway)
+      }
+    },
+
+    getPostUrl() {
+      if (this.replyIndex) {
+        return `/post/?id=${this.messageIndex}&reply=${this.replyIndex}&context=${this.chatContext}`
+      } else {
+        return `/post/?id=${this.messageIndex}&context=${this.chatContext}`
       }
     },
 
@@ -233,6 +248,9 @@ export default {
     async deleteMessage() {
       this.waitingDeleteMessage = true
       // TODO: delete post and call removePost event
+
+      //this.$emit('removePost')
+
       this.waitingDeleteMessage = false
     },
 
@@ -326,9 +344,9 @@ export default {
 
       let response;
       if (this.message.url.startsWith('ar://')) {
-        response = await axios.get(`${this.$config.arweaveGateway}${this.messageId}`)
+        response = await axios.get(`${this.$config.arweaveGateway}${this.storageId}`)
       } else if (this.message.url.startsWith('ipfs://')) {
-        response = await axios.get(`${this.$config.ipfsGateway}${this.messageId}`)
+        response = await axios.get(`${this.$config.ipfsGateway}${this.storageId}`)
       } else if (this.message.url.startsWith('http')) {
         response = await axios.get(this.message.url)
       }
@@ -341,21 +359,8 @@ export default {
     },
 
     openPostDetails() {
-      // navigate to post details page if you're not already there
-      /*
-      if (
-        this.route.path !== "/post/" && // no post on any /post page is clickable
-        this.route.path !== "/post" && // no post on any /post page is clickable
-        this.route.href !== "/post?id=" + this.messageId &&
-        this.route.href !== "/post/?id=" + this.messageId
-      ) {
-        console.log("navigate to post details page")
-        this.$router.push({ name: 'post', query: { id: this.messageId } });
-      }
-      */
-
-      // TODO: change this when you have the correct route
-      //this.$router.push({ name: 'post', query: { id: this.messageId } }) // commented out so that user needs to click the replies button to see the post page
+      // commented out so that user needs to click the replies button to see the post page
+      //this.$router.push(this.getPostUrl)
     },
 
     parseMessageText() {
