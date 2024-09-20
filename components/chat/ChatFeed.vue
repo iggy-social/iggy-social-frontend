@@ -172,9 +172,9 @@ export default {
     return {
       deletedCount: 0,
       fullThreadLength: 0,
+      lastFetchedIndex: 0,
       messages: [],
       messageText: null,
-      pageCounter: 0,
       pageLength: 10,
       showLoadMore: true,
       waitingCreateMessage: false,
@@ -232,7 +232,7 @@ export default {
 
       const storageUrl = await this.uploadToChatStorage(this.messageText)
 
-      console.log(storageUrl)
+      //console.log(storageUrl)
       //return this.waitingCreateMessage = false // TODO: remove
 
       if (!storageUrl) {
@@ -252,7 +252,7 @@ export default {
 
         let tx;
 
-        console.log("mainMessageIndex:", this.mainMessageIndex)
+        //console.log("mainMessageIndex:", this.mainMessageIndex)
 
         if (this.mainMessageIndex) {
           tx = await contract.createReply(this.mainMessageIndex, storageUrl)
@@ -292,6 +292,9 @@ export default {
             repliesCount: 0,
             index: this.fullThreadLength,
           })
+
+          // empty messageText
+          this.messageText = null
         } else {
           this.toast.dismiss(toastWait)
           this.toast('Transaction has failed.', {
@@ -327,9 +330,9 @@ export default {
                   {"internalType": "address", "name": "author", "type": "address"},
                   {"internalType": "uint256", "name": "createdAt", "type": "uint256"},
                   {"internalType": "bool", "name": "deleted", "type": "bool"},
+                  {"internalType": "uint256", "name": "index", "type": "uint256"},
                   {"internalType": "uint256", "name": "repliesCount", "type": "uint256"},
-                  {"internalType": "string", "name": "url", "type": "string"},
-                  {"internalType": "uint256", "name": "index", "type": "uint256"}
+                  {"internalType": "string", "name": "url", "type": "string"}
                 ],
                 "internalType": "struct ChatFeed.Message[]",
                 "name": "",
@@ -353,9 +356,9 @@ export default {
                   {"internalType": "address", "name": "author", "type": "address"},
                   {"internalType": "uint256", "name": "createdAt", "type": "uint256"},
                   {"internalType": "bool", "name": "deleted", "type": "bool"},
+                  {"internalType": "uint256", "name": "index", "type": "uint256"},
                   {"internalType": "uint256", "name": "repliesCount", "type": "uint256"},
-                  {"internalType": "string", "name": "url", "type": "string"},
-                  {"internalType": "uint256", "name": "index", "type": "uint256"}
+                  {"internalType": "string", "name": "url", "type": "string"}
                 ],
                 "internalType": "struct ChatFeed.Message[]",
                 "name": "",
@@ -407,10 +410,11 @@ export default {
           this.lastFetchedIndex = msgsToAdd[msgsToAdd.length - 1].index;
         }
 
-        console.log(this.messages);
+        //console.log(this.messages);
       } catch (error) {
         console.error(error);
         this.toast('Failed to load additional messages', { type: 'error' });
+        this.showLoadMore = false;
       } finally {
         this.waitingLoadMessages = false;
       }
@@ -435,9 +439,9 @@ export default {
                   {"internalType": "address", "name": "author", "type": "address"},
                   {"internalType": "uint256", "name": "createdAt", "type": "uint256"},
                   {"internalType": "bool", "name": "deleted", "type": "bool"},
+                  {"internalType": "uint256", "name": "index", "type": "uint256"},
                   {"internalType": "uint256", "name": "repliesCount", "type": "uint256"},
-                  {"internalType": "string", "name": "url", "type": "string"},
-                  {"internalType": "uint256", "name": "index", "type": "uint256"}
+                  {"internalType": "string", "name": "url", "type": "string"}
                 ],
                 "internalType": "struct ChatFeed.Message[]",
                 "name": "",
@@ -460,9 +464,9 @@ export default {
                   {"internalType": "address", "name": "author", "type": "address"},
                   {"internalType": "uint256", "name": "createdAt", "type": "uint256"},
                   {"internalType": "bool", "name": "deleted", "type": "bool"},
+                  {"internalType": "uint256", "name": "index", "type": "uint256"},
                   {"internalType": "uint256", "name": "repliesCount", "type": "uint256"},
-                  {"internalType": "string", "name": "url", "type": "string"},
-                  {"internalType": "uint256", "name": "index", "type": "uint256"}
+                  {"internalType": "string", "name": "url", "type": "string"}
                 ],
                 "internalType": "struct ChatFeed.Message[]",
                 "name": "",
@@ -514,7 +518,7 @@ export default {
           this.lastFetchedIndex = msgsToAdd[msgsToAdd.length - 1].index;
         }
 
-        console.log(this.messages)
+        //console.log(this.messages)
       } catch (error) {
         console.error(error)
       } finally {

@@ -66,7 +66,7 @@
           <!-- Replies count -->
           <NuxtLink v-if="isMainMessage" class="link-without-color hover-color" :to="'/post/?id=' + message.id">
             <i class="bi bi-chat"></i>
-            {{ message.repliesCount }}
+            {{ message.repliesCount }} replies
           </NuxtLink>
 
           <!-- Delete message -->
@@ -355,7 +355,7 @@ export default {
       */
 
       // TODO: change this when you have the correct route
-      this.$router.push({ name: 'post', query: { id: this.messageId } })
+      //this.$router.push({ name: 'post', query: { id: this.messageId } }) // commented out so that user needs to click the replies button to see the post page
     },
 
     parseMessageText() {
