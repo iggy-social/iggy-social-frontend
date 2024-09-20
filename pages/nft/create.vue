@@ -365,8 +365,6 @@ export default {
             // after successful launch, fetch the collection address and redirect to the collection page
             const nftContractAddress = await launchpadContract.getNftContractAddress(this.uniqueId)
 
-            this.makeOrbisPost(nftContractAddress)
-
             this.$router.push({ path: '/nft/collection', query: { id: nftContractAddress } })
 
             this.waitingCreate = false
@@ -449,44 +447,6 @@ export default {
       this.cImage = imageUrl.replace('?.img', '')
     },
 
-    async makeOrbisPost(nftContractAddress) {
-      if (this.userStore.getIsConnectedToOrbis) {
-        try {
-          if (
-            !String(this.cImage).toLowerCase().endsWith('?.img') &&
-            !String(this.cImage).toLowerCase().endsWith('.png') &&
-            !String(this.cImage).toLowerCase().endsWith('.jpg') &&
-            !String(this.cImage).toLowerCase().endsWith('.jpeg') &&
-            !String(this.cImage).toLowerCase().endsWith('.gif') &&
-            !String(this.cImage).toLowerCase().endsWith('.webp')
-          ) {
-            this.cImage = this.cImage + '?.img'
-          }
-
-          const options = {
-            body: 'I have launched a new NFT collection: ' + this.cName + ' <br /><br />Check it out here 👇',
-            context: this.$config.chatChannels.general,
-            data: {
-              type: 'nftCollectionCreated',
-              authorAddress: String(this.address),
-              collectionAddress: String(nftContractAddress),
-              collectionDescription: this.cleanDescription,
-              collectionImage: this.cImage.replace('?.img', ''),
-              collectionName: this.cName,
-              collectionRatio: this.ratio,
-              collectionSymbol: this.cSymbol,
-              collectionUniqueId: this.uniqueId,
-              pricePaidWei: this.createPriceWei,
-            },
-          }
-
-          // post on Orbis (shoot and forget)
-          await this.$orbis.createPost(options)
-        } catch (e) {
-          console.log(e)
-        }
-      }
-    },
   },
 
   setup() {

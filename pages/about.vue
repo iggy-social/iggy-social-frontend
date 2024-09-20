@@ -48,8 +48,6 @@
 
       <ul>
         <li><a href="https://arweave.org/" target="_blank">Arweave</a></li>
-        <li><a href="https://ceramic.network/" target="_blank">Ceramic Network</a></li>
-        <li><a href="https://useorbis.com/" target="_blank">Orbis</a></li>
         <li><a href="https://punk.domains/" target="_blank">Punk Domains</a></li>
         <li><a href="https://iggy.social/" target="_blank">Iggy Social</a></li>
         <li>... and others.</li>

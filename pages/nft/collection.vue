@@ -250,12 +250,12 @@
       :audioUrl="audioUrl" :videoUrl="videoUrl" :youtubeUrl="youtubeUrl" 
     />
 
-    <!-- Chat feed -->
+    <!-- Chat feed - TODO:replace with Comments component
     <ChatFeed
       :key="cAddress"
       class="mt-3 scroll-500"
-      :showQuotedPost="$config.showRepliesOnHomepage"
-      :orbisContext="$config.chatChannels.nftLaunchpad + ':' + cAddress"
+      :chatContext=""
+      -->
     />
   </div>
 

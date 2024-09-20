@@ -6,8 +6,7 @@
 
   <ChatFeed
     class="mt-1"
-    :showQuotedPost="$config.showRepliesOnHomepage"
-    :orbisContext="$config.chatChannels.memesImages"
+    :chatContext="$config.chat.contexts.memesImages"
   />
 </template>
 

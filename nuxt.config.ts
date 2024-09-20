@@ -55,37 +55,35 @@ export default defineNuxtConfig({
       arweaveGateway: 'https://arweave.net/',
       arweaveMinBalance: 0.02, // minimum AR balance to upload files
       blockExplorerBaseUrl: 'https://sepolia.etherscan.io',
-      chatChannels: {
-        // go to Orbis Dashboard (https://useorbis.com/dashboard), create a new Project and then create a new Context for each of the channels below
-        general: 'kjzl6cwe1jw146oflxjkdze94vniq4r79g01rmy8ylezya6p8xqu3zw63t4jesp', // general discussion channel
-        memesImages: 'kjzl6cwe1jw148bbt70ddci5n3oj8b2b469g5qps43y8lejrwong9ztedzetoz0',
-        shill: 'kjzl6cwe1jw1499wavrb36wapyxix3yqkkq1enaxhsqhhtkaws2ss8vm3b5cixm',
-        nftLaunchpad: 'kjzl6cwe1jw1490l9agydb0vh2x0mddzxbsmga7s3yhl86utbhwne6zkhpikytw',
-        friendKeys: 'kjzl6cwe1jw14akr2rh1j3fhup1ewfr2uyyd6l85qllbe2d5fxywt7d8rqnau6j',
+      chat: {
+        contexts: {
+          general: '0x9C3BaeAd881BDAAB0Cd0BB112ce2a17Aba390Aba', // general discussion channel
+          memesImages: '',
+          shill: '',
+          nftLaunchpad: '',
+        },
+        moderationTokenAddress: '0x63F36191b3660A70059661083C2189a71be5FBdE', // chat moderation token address
+        storage: 'arweave', // storage type: 'arweave' or 'ipfs'
       },
       chatTokenAddress: '0x305912c0d03C22e6eB7D37E06A47ab899e48B9Af', // chat token address
       chatTokenImage: '', // chat token image
       chatTokenSymbol: 'DEMO', // chat token symbol or name
       domainRequiredToPost: true,
       expiryCollections: 1000 * 60 * 60 * 24 * 7, // must be in milliseconds (0 means no expiration)
+      expiryPfps: 1000 * 60 * 60 * 24 * 10, // must be in milliseconds (0 means no expiration)
       expiryUsernames: 1000 * 60 * 60 * 24 * 7, // must be in milliseconds (0 means no expiration)
       favicon: '/img/favicon.svg',
       fileUploadEnabled: true, // enable/disable file uploads (enable only if external file storage is used, e.g. Arweave)
       fileUploadSizeLimit: 1 * 1024 * 1024, // max file upload size in bytes (1 * 1024 * 1024 = 1 MB)
       fileUploadStorageType: "arweave", // "arweave" or "imagekit"
       fileUploadTokenService: process.env.FILE_UPLOAD_SERVICE || 'netlify', // "netlify" or "vercel" (or leave empty for no file uploads)
-      getPostsLimit: 30, // number of posts to fetch from Orbis in the getPosts() function
+      getPostsLimit: 10, // number of posts to fetch
       governanceUrl: 'https://snapshot.org/#/sgbchat.eth', // governance url (snapshot, Tally, etc.)
-      iggyPostAddress: '0x0BF6333Fc85159663A30Ac89FD02c5031B97c5ee',
-      iggyPostMinterAddress: '0xc486B08Ed47fFe5c1b4b1A2ff5c671EA0083D9bA',
-      iggyPostStatsAddress: '0x3Fa0EaC3058828Cc4BA97F51A33597C695bF6F9e',
       imagekitEndpoint: process.env.IMAGEKIT_ENDPOINT,
       imagekitPublicKey: process.env.IMAGEKIT_PUBLIC_KEY,
-      ipfsGateway: 'https://cloudflare-ipfs.com/ipfs/',
-      ipfsGateway2: 'https://ipfs.io/ipfs/',
+      ipfsGateway: 'https://ipfs.io/ipfs/',
+      ipfsGateway2: 'https://cloudflare-ipfs.com/ipfs/',
       ipfsGateway3: 'https://ipfs.filebase.io/ipfs/',
-      keysAddress: '0x0c6A6030121FB3071cB2347DEAC127037785436C', // FriendKeys contract address
-      keysFeatured: ['tempe', 'tekr'],
       linkPreviews: process.env.LINK_PREVIEW_SERVICE || 'netlify', // "netlify", "vercel", or "microlink" (or leave empty for no link previews)
       lpTokenAddress: '', // liquidity pool token (token to stake in the staking contract)
       lpTokenSymbol: 'LP tokens', // LP token symbol
@@ -97,8 +95,6 @@ export default defineNuxtConfig({
       nftDefaultRatio: 1, // default ratio for the NFT price bonding curve
       nftLaunchpadBondingAddress: '0x50045895e1983F39FDC149C9a5AC29C39BEA18fe', // NFT launchpad with bonding curve contract address
       nftLaunchpadLatestItems: 4, // number of latest NFTs to show in the NFT launchpad
-      orbisTest: false, // if true, test context will be used instead of the production one
-      orbisTestContext: 'kjzl6cwe1jw145tfqv2eqv8tiz6puo27meyz4smz40atppuc13tulqca87k35z2', // test context
       previewImage: '/img/covers/cover.png',
       previewImageAirdrop: '/img/covers/cover-airdrop.png',
       previewImageNftCollection: '/img/covers/cover-nft-collection.png',
@@ -122,18 +118,14 @@ export default defineNuxtConfig({
         // show/hide features in sidebars (if you have too many "true", make the sidebar scrollable --> sidebarLeftSticky: false)
         activityPoints: true,
         airdrop: true,
-        friendKeys: true,
         governance: false,
         newsletter: false,
         nftLaunchpad: true,
-        randomMintedPosts: true,
-        searchPosts: true,
         swap: true,
         stake: false,
         sendTokens: true,
         spotify: false,
       },
-      showRepliesOnHomepage: true, // show replies on the homepage
       sidebarLeftSticky: false, // make the left sidebar sticky (always visible)
       spotifyPlaylistId: '5y7f2Wxfq49G5KuNQfMPbk', // enter just the ID of the playlist (not the full URL)
       stakingContractAddress: '', // this is also the stake/gov token address

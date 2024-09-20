@@ -9,7 +9,6 @@ export const useSiteStore = defineStore({
       arweaveBalance: 0,
       colorMode: 'dark',
       fileUploadEnabled: true,
-      showOnlyMasterPosts: useLocalStorage('showOnlyMasterPosts', 'false'),
       slippage: '0.5', // percentage (%)
       swapDeadline: '20', // minutes
     }
@@ -32,16 +31,6 @@ export const useSiteStore = defineStore({
 
     getFileUploadEnabled(state) {
       return state.fileUploadEnabled
-    },
-
-    getShowOnlyMasterPosts(state) {
-      const pStorage = useLocalStorage('showOnlyMasterPosts', null)
-
-      if (pStorage.value) {
-        state.showOnlyMasterPosts = pStorage.value
-      }
-
-      return state.showOnlyMasterPosts
     },
 
     getSlippage(state) {
@@ -77,11 +66,6 @@ export const useSiteStore = defineStore({
 
     setFileUploadEnabled(enabled: boolean) {
       this.fileUploadEnabled = enabled
-    },
-
-    setShowOnlyMasterPosts(somp: string) {
-      this.showOnlyMasterPosts = somp
-      localStorage.setItem('showOnlyMasterPosts', somp)
     },
 
     setSlippage(slippage: string) {

@@ -1,17 +1,17 @@
 <template>
   <div class="scroll-500">
-    <!-- Post/Comment Input Box -->
+    <!-- Message Input Box -->
     <div class="card mb-2 border" v-if="!hideCommentBox">
       <div class="card-body">
         <div class="form-group mt-2 mb-2">
           <textarea
-            v-model="postText"
-            :disabled="!userStore.getIsConnectedToOrbis || !isSupportedChain || !hasDomainOrNotRequired"
+            v-model="messageText"
+            :disabled="!isActivated || !isSupportedChain || !hasDomainOrNotRequired"
             class="form-control"
             id="exampleTextarea"
             rows="5"
-            :placeholder="createPostPlaceholder"
-            v-on:keydown.ctrl.enter="createPost"
+            :placeholder="createMessagePlaceholder"
+            v-on:keydown.ctrl.enter="createMessage"
           ></textarea>
         </div>
 
@@ -22,7 +22,6 @@
               v-if="
                 $config.tenorApiKey != '' &&
                 isActivated &&
-                userStore.getIsConnectedToOrbis &&
                 isSupportedChain &&
                 hasDomainOrNotRequired
               "
@@ -31,7 +30,7 @@
 
             <!-- Sticker button 
             <TenorStickerSearch 
-              v-if="$config.tenorApiKey != '' && isActivated && userStore.getIsConnectedToOrbis && isSupportedChain && hasDomainOrNotRequired"  
+              v-if="$config.tenorApiKey != '' && isActivated && isSupportedChain && hasDomainOrNotRequired"  
               @insertSticker="insertImage"
             />
             -->
@@ -41,7 +40,6 @@
               v-if="
                 isActivated &&
                 $config.fileUploadEnabled !== '' &&
-                userStore.getIsConnectedToOrbis &&
                 isSupportedChain &&
                 hasDomainOrNotRequired
               "
@@ -55,7 +53,7 @@
 
             <!-- Upload Image Modal -->
             <FileUploadModal
-              v-if="userStore.getIsConnectedToOrbis"
+              v-if="isActivated && isSupportedChain && hasDomainOrNotRequired"
               @processFileUrl="insertImage"
               title="Upload image"
               infoText="Upload an image."
@@ -67,29 +65,20 @@
 
             <!-- Emoji Picker -->
             <EmojiPicker
-              v-if="isActivated && userStore.getIsConnectedToOrbis && isSupportedChain && hasDomainOrNotRequired"
+              v-if="isActivated && isSupportedChain && hasDomainOrNotRequired"
               @updateEmoji="insertEmoji"
             />
           </div>
 
           <div>
-            <!-- Create Post button -->
+            <!-- Create Message button -->
             <button
-              v-if="isActivated && userStore.getIsConnectedToOrbis && isSupportedChain && hasDomainOrNotRequired"
-              :disabled="!postText || waitingCreatePost"
+              v-if="isActivated && isSupportedChain && hasDomainOrNotRequired"
+              :disabled="!messageText || waitingCreateMessage"
               class="btn btn-primary me-2 mt-2"
-              @click="createPost"
+              @click="createMessage"
             >
               Submit
-            </button>
-
-            <!-- Sign Into Chat button -->
-            <button
-              v-if="isActivated && !userStore.getIsConnectedToOrbis && isSupportedChain && hasDomainOrNotRequired"
-              class="btn btn-primary"
-              @click="connectToOrbis"
-            >
-              Sign into chat
             </button>
 
             <!-- Get Username button -->
@@ -107,7 +96,7 @@
 
         <div class="d-flex mt-2 row">
           <img
-            v-for="(imgLink, index) in getAllImagesFromText(postText)"
+            v-for="(imgLink, index) in getAllImagesFromText(messageText)"
             :src="imgLink"
             :key="index"
             class="img-fluid img-thumbnail m-1 col-2"
@@ -116,40 +105,43 @@
       </div>
     </div>
 
-    <div v-if="orbisPosts">
-      <ChatPost
-        @insertReply="insertReply"
+    <div v-if="messages">
+      <ChatMessage
         @removePost="removePost"
-        v-for="post in orbisPosts"
-        :key="post.stream_id"
-        :showQuotedPost="showQuotedPost"
-        :post="post"
-        :orbisContext="getOrbisContext"
+        v-for="message in messages"
+        :key="message.url"
+        :message="message"
+        :messageId="message.url.split('://')[1]"
+        :isMainMessage="true"
       />
     </div>
 
-    <div class="d-flex justify-content-center mt-5 mb-4" v-if="orbisPosts.length === 0 && !waitingLoadPosts">
-      <p>No posts yet. Be the first to post!</p>
+    <div class="d-flex justify-content-center mt-5 mb-4" v-if="messages.length === 0 && !waitingLoadMessages">
+      <p>No messages yet. Be the first to post!</p>
     </div>
 
-    <div class="d-flex justify-content-center mb-3" v-if="waitingLoadPosts">
+    <div class="d-flex justify-content-center mb-3" v-if="waitingLoadMessages">
       <span class="spinner-border spinner-border-lg" role="status" aria-hidden="true"></span>
     </div>
 
     <div class="d-grid gap-2 col-6 mx-auto mb-5" v-if="showLoadMore">
-      <button class="btn btn-primary" type="button" @click="getOrbisPosts">Load more posts</button>
+      <button class="btn btn-primary" type="button" @click="getAdditionalMessages">Load more messages</button>
     </div>
+
   </div>
 </template>
 
 <script>
+import axios from 'axios'
+import { ethers } from 'ethers'
 import { useEthers } from '~/store/ethers'
-import ChatPost from '~/components/chat/ChatPost.vue'
 import { useToast } from 'vue-toastification/dist/index.mjs'
 import { useSiteStore } from '~/store/site'
 import { useUserStore } from '~/store/user'
 import ConnectWalletButton from '~/components/ConnectWalletButton.vue'
 import SwitchChainButton from '~/components/SwitchChainButton.vue'
+import WaitingToast from '~/components/WaitingToast'
+import ChatMessage from '~/components/chat/ChatMessage.vue'
 import TenorGifSearch from '~/components/tenor/TenorGifSearch.vue'
 import TenorStickerSearch from '~/components/tenor/TenorStickerSearch.vue'
 import FileUploadModal from '~/components/storage/FileUploadModal.vue'
@@ -161,17 +153,13 @@ import { getWorkingUrl } from '~/utils/ipfsUtils'
 export default {
   name: 'ChatFeed',
   props: [
-    'byDid', // if looking for posts by a specific user (user's DID)
+    'chatContext', // address of the chat context contract
     'hideCommentBox', // if true, we'll hide the comment box
-    'id', // id (optional) is the post id that this component looks for replies to
-    'master', // master stream ID, if there's a master post, we'll show it at the top
-    'masterPost', // master post object (if it exists)
-    'orbisContext',
-    'showQuotedPost', // if true, we'll show the quoted posts (for any post that has a quote)
+    'mainMessageIndex', // (optional) this is the main post id that this component looks for replies to
   ],
 
   components: {
-    ChatPost,
+    ChatMessage,
     ConnectWalletButton,
     FileUploadModal,
     SwitchChainButton,
@@ -182,37 +170,32 @@ export default {
 
   data() {
     return {
-      orbisPosts: [],
+      deletedCount: 0,
+      fullThreadLength: 0,
+      messages: [],
+      messageText: null,
       pageCounter: 0,
-      postText: null,
-      reply_to: null,
+      pageLength: 10,
       showLoadMore: true,
-      waitingCreatePost: false,
-      waitingLoadPosts: false,
+      waitingCreateMessage: false,
+      waitingLoadMessages: false,
     }
   },
 
   created() {
-    this.checkConnectionToOrbis()
-    this.getOrbisPosts()
+    this.getInitialMessages()
   },
 
   computed: {
-    createPostPlaceholder() {
-      if (this.userStore.getIsConnectedToOrbis) {
-        if (this.id) {
+    createMessagePlaceholder() {
+      if (this.isActivated) {
+        if (this.mainMessageIndex) {
           return 'Post your reply'
         }
         return "What's happening?"
-      } else if (!this.isActivated) {
-        return "What's happening? (Please connect wallet and then sign into chat to post messages.)"
       } else {
-        return "What's happening? (Please sign into chat to post messages.)"
+        return "What's happening? (Please connect wallet to post messages.)"
       }
-    },
-
-    getOrbisContext() {
-      return this.orbisContext
     },
 
     hasDomainOrNotRequired() {
@@ -234,172 +217,321 @@ export default {
         return false
       }
     },
-
-    showOnlyMasterPosts() {
-      // check if user chose to only show master posts on the main feed in local storage
-      if (this.siteStore.getShowOnlyMasterPosts === 'true') {
-        return true
-      } else {
-        return false
-      }
-    },
   },
 
   methods: {
-    insertEmoji(emoji) {
-      if (!this.postText) {
-        this.postText = emoji
-      } else {
-        this.postText += emoji
-      }
-    },
+    async createMessage() {
+      this.waitingCreateMessage = true
 
-    async checkConnectionToOrbis() {
-      const isConn = await this.$orbis.isConnected()
-      this.userStore.setIsConnectedToOrbis(isConn)
-
-      if (this.$orbis.session) {
-        this.userStore.setDid(this.$orbis.session.did._id)
-        this.userStore.setDidParent(this.$orbis.session.did._parentId)
-      }
-    },
-
-    async connectToOrbis() {
-      let res = await this.$orbis.connect_v2({
-        provider: this.signer.provider.provider,
-        lit: false,
-      })
-
-      /** Check if connection is successful or not */
-      if (res.status == 200) {
-        this.userStore.setIsConnectedToOrbis(true)
-
-        if (this.$orbis.session) {
-          this.userStore.setDid(this.$orbis.session.did._id)
-          this.userStore.setDidParent(this.$orbis.session.did._parentId)
-        }
-      } else {
-        console.log('Error connecting to Ceramic: ', res)
-        this.toast(res.result, { type: 'error' })
-      }
-    },
-
-    async createPost() {
-      this.waitingCreatePost = true
-
-      let options
-
-      if (this.id) {
-        let masterId
-
-        if (this.master) {
-          masterId = this.master
-        } else {
-          masterId = this.id
-        }
-
-        options = {
-          master: masterId, // the main post in the thread
-          reply_to: this.id, // important: reply_to needs to be filled out even if the reply is directly to the master post
-          body: this.postText,
-          context: this.getOrbisContext,
-        }
-      } else {
-        options = {
-          body: this.postText,
-          context: this.getOrbisContext,
-        }
-      }
-
-      // post on Orbis & Ceramic
-      let res = await this.$orbis.createPost(options)
-
-      /** Check if posting is successful or not */
-      if (res.status == 200) {
-        // post on current feed
-        this.orbisPosts.unshift({
-          stream_id: res.doc,
-          count_likes: 0,
-          timestamp: Math.floor(Date.now() / 1000),
-          creator_details: {
-            metadata: {
-              address: this.address,
-            },
-            profile: {
-              pfp: this.userStore.getOrbisImage,
-            },
-          },
-          master: this.id,
-          reply_to: this.id,
-          content: {
-            body: this.postText,
-          },
+      if (!this.signer || !this.isSupportedChain || !this.hasDomainOrNotRequired) {
+        this.toast('Please connect wallet to post messages, make sure you are on the supported chain and have a ' + $config.tldName + ' domain to post.', {
+          type: 'error',
         })
+        return
+      }
 
-        this.postText = null
-        this.waitingCreatePost = false
-      } else {
-        console.log('Error posting via Orbis to Ceramic: ', res)
-        this.toast(res.result, { type: 'error' })
-        this.waitingCreatePost = false
+      const storageUrl = await this.uploadToChatStorage(this.messageText)
+
+      console.log(storageUrl)
+      //return this.waitingCreateMessage = false // TODO: remove
+
+      if (!storageUrl) {
+        this.toast('Failed to upload message to storage.', {
+          type: 'error',
+        })
+        return
+      }
+      
+      try {
+        const intrfc = new ethers.utils.Interface([
+          'function createMessage(string memory url_) external',
+          'function createReply(uint256 mainMsgIndex_, string memory url_) external'
+        ])
+
+        const contract = new ethers.Contract(this.chatContext, intrfc, this.signer)
+
+        let tx;
+
+        console.log("mainMessageIndex:", this.mainMessageIndex)
+
+        if (this.mainMessageIndex) {
+          tx = await contract.createReply(this.mainMessageIndex, storageUrl)
+        } else {
+          tx = await contract.createMessage(storageUrl)
+        }
+
+        const toastWait = this.toast(
+          {
+            component: WaitingToast,
+            props: {
+              text: 'Please wait for your transaction to confirm. Click on this notification to see transaction in the block explorer.',
+            },
+          },
+          {
+            type: 'info',
+            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+          },
+        )
+
+        const receipt = await tx.wait()
+        
+        if (receipt.status === 1) {
+          this.toast.dismiss(toastWait)
+
+          this.toast('You have successfully submitted a new chat message.', {
+            type: 'success',
+            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+          })
+
+          // prepend message to messages array
+          this.messages.unshift({
+            author: this.userStore.address,
+            url: storageUrl,
+            createdAt: Math.floor(Date.now() / 1000),
+            deleted: false,
+            repliesCount: 0,
+            index: this.fullThreadLength,
+          })
+        } else {
+          this.toast.dismiss(toastWait)
+          this.toast('Transaction has failed.', {
+            type: 'error',
+            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+          })
+          console.log(receipt)
+        }
+      } catch (error) {
+        console.error(error)
+      } finally {
+        this.waitingCreateMessage = false
       }
     },
 
-    async getOrbisPosts() {
-      this.waitingLoadPosts = true
+    async getAdditionalMessages() {
+      this.waitingLoadMessages = true;
 
-      let ascending = false // sort by descending order (from newest to oldest) by default
-      let options
+      try {
+        const provider = this.$getFallbackProvider(this.$config.supportedChainId);
 
-      if (this.id) {
-        // Post details page
-        ascending = true // if this is a post details page, sort replies by ascending order (from oldest to newest)
+        const intrfc = new ethers.utils.Interface([
+          {
+            "inputs": [
+              {"internalType": "bool", "name": "includeDeleted_", "type": "bool"},
+              {"internalType": "uint256", "name": "fromIndex_", "type": "uint256"},
+              {"internalType": "uint256", "name": "length_", "type": "uint256"}
+            ],
+            "name": "fetchMainMessages",
+            "outputs": [
+              {
+                "components": [
+                  {"internalType": "address", "name": "author", "type": "address"},
+                  {"internalType": "uint256", "name": "createdAt", "type": "uint256"},
+                  {"internalType": "bool", "name": "deleted", "type": "bool"},
+                  {"internalType": "uint256", "name": "repliesCount", "type": "uint256"},
+                  {"internalType": "string", "name": "url", "type": "string"},
+                  {"internalType": "uint256", "name": "index", "type": "uint256"}
+                ],
+                "internalType": "struct ChatFeed.Message[]",
+                "name": "",
+                "type": "tuple[]"
+              }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+          },
+          {
+            "inputs": [
+              {"internalType": "bool", "name": "includeDeleted_", "type": "bool"},
+              {"internalType": "uint256", "name": "mainMsgIndex_", "type": "uint256"},
+              {"internalType": "uint256", "name": "fromIndex_", "type": "uint256"},
+              {"internalType": "uint256", "name": "length_", "type": "uint256"}
+            ],
+            "name": "fetchReplies",
+            "outputs": [
+              {
+                "components": [
+                  {"internalType": "address", "name": "author", "type": "address"},
+                  {"internalType": "uint256", "name": "createdAt", "type": "uint256"},
+                  {"internalType": "bool", "name": "deleted", "type": "bool"},
+                  {"internalType": "uint256", "name": "repliesCount", "type": "uint256"},
+                  {"internalType": "string", "name": "url", "type": "string"},
+                  {"internalType": "uint256", "name": "index", "type": "uint256"}
+                ],
+                "internalType": "struct ChatFeed.Message[]",
+                "name": "",
+                "type": "tuple[]"
+              }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+          }
+        ]);
 
-        options = {
-          master: this.id, // master is the post ID
-          context: this.getOrbisContext, // context is the group ID
-          only_master: false, // only get master posts (not replies), or all posts
+        const contract = new ethers.Contract(this.chatContext, intrfc, provider);
+
+        let msgs;
+        
+        if (this.mainMessageIndex) {
+          msgs = await contract.fetchReplies(true, this.mainMessageIndex, this.lastFetchedIndex - 1, this.pageLength);
+        } else {
+          msgs = await contract.fetchMainMessages(true, this.lastFetchedIndex - 1, this.pageLength);
         }
+
+        let msgsToAdd = [];
+        for (let i = 0; i < msgs.length; i++) {
+          const msg = msgs[i];
+          if (!msg.deleted) {
+            msgsToAdd.push({
+              author: msg.author,
+              url: msg.url,
+              createdAt: msg.createdAt.toNumber(),
+              deleted: msg.deleted,
+              repliesCount: msg.repliesCount.toNumber(),
+              index: msg.index.toNumber(),
+            });
+          } else {
+            this.deletedCount++;
+          }
+        }
+
+        // Reverse the array to maintain chronological order
+        msgsToAdd.reverse();
+
+        this.messages = [...this.messages, ...msgsToAdd];
+
+        if (msgs.length < this.pageLength) {
+          this.showLoadMore = false;
+        }
+
+        if (msgsToAdd.length > 0) {
+          this.lastFetchedIndex = msgsToAdd[msgsToAdd.length - 1].index;
+        }
+
+        console.log(this.messages);
+      } catch (error) {
+        console.error(error);
+        this.toast('Failed to load additional messages', { type: 'error' });
+      } finally {
+        this.waitingLoadMessages = false;
+      }
+    },
+
+    async getInitialMessages() {
+      this.waitingLoadMessages = true
+
+      try {
+        const provider = this.$getFallbackProvider(this.$config.supportedChainId)
+
+        const intrfc = new ethers.utils.Interface([
+          {
+            "inputs": [
+              {"internalType": "bool", "name": "includeDeleted_", "type": "bool"},
+              {"internalType": "uint256", "name": "length_", "type": "uint256"}
+            ],
+            "name": "fetchLastMainMessages",
+            "outputs": [
+              {
+                "components": [
+                  {"internalType": "address", "name": "author", "type": "address"},
+                  {"internalType": "uint256", "name": "createdAt", "type": "uint256"},
+                  {"internalType": "bool", "name": "deleted", "type": "bool"},
+                  {"internalType": "uint256", "name": "repliesCount", "type": "uint256"},
+                  {"internalType": "string", "name": "url", "type": "string"},
+                  {"internalType": "uint256", "name": "index", "type": "uint256"}
+                ],
+                "internalType": "struct ChatFeed.Message[]",
+                "name": "",
+                "type": "tuple[]"
+              }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+          },
+          {
+            "inputs": [
+              {"internalType": "bool", "name": "includeDeleted_", "type": "bool"},
+              {"internalType": "uint256", "name": "mainMsgIndex_", "type": "uint256"},
+              {"internalType": "uint256", "name": "length_", "type": "uint256"}
+            ],
+            "name": "fetchLastReplies",
+            "outputs": [
+              {
+                "components": [
+                  {"internalType": "address", "name": "author", "type": "address"},
+                  {"internalType": "uint256", "name": "createdAt", "type": "uint256"},
+                  {"internalType": "bool", "name": "deleted", "type": "bool"},
+                  {"internalType": "uint256", "name": "repliesCount", "type": "uint256"},
+                  {"internalType": "string", "name": "url", "type": "string"},
+                  {"internalType": "uint256", "name": "index", "type": "uint256"}
+                ],
+                "internalType": "struct ChatFeed.Message[]",
+                "name": "",
+                "type": "tuple[]"
+              }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+          }
+        ])
+
+        const contract = new ethers.Contract(this.chatContext, intrfc, provider)
+
+        let msgs;
+        
+        if (this.mainMessageIndex) {
+          msgs = await contract.fetchLastReplies(true, this.mainMessageIndex, this.pageLength)
+        } else {
+          msgs = await contract.fetchLastMainMessages(true, this.pageLength)
+        }
+
+        let msgsToAdd = []
+        for (let i = 0; i < msgs.length; i++) {
+          const msg = msgs[i];
+          if (!msg.deleted) { // only add message if it is not marked as deleted
+            msgsToAdd.push({
+              author: msg.author,
+              url: msg.url,
+              createdAt: msg.createdAt.toNumber(),
+              deleted: msg.deleted,
+              repliesCount: msg.repliesCount.toNumber(),
+              index: msg.index.toNumber(),
+            })
+          } else {
+            this.deletedCount++;
+          }
+        }
+
+        // reverse the array
+        msgsToAdd.reverse()
+
+        this.messages = [...msgsToAdd, ...this.messages];
+
+        if (msgs.length < this.pageLength) {
+          this.showLoadMore = false
+        }
+
+        if (msgsToAdd.length > 0) {
+          this.lastFetchedIndex = msgsToAdd[msgsToAdd.length - 1].index;
+        }
+
+        console.log(this.messages)
+      } catch (error) {
+        console.error(error)
+      } finally {
+        this.waitingLoadMessages = false
+      }
+    },
+
+    insertEmoji(emoji) {
+      if (!this.messageText) {
+        this.messageText = emoji
       } else {
-        // Main feed
-        options = {
-          //algorithm: "recommendations", // recommendations, all-posts, all-posts-non-filtered
-          context: this.getOrbisContext, // context is the group ID
-          only_master: this.showOnlyMasterPosts, // only get master posts (not replies), or all posts
-        }
+        this.messageText += emoji
       }
-
-      if (this.byDid) {
-        options['did'] = this.byDid
-        options['only_master'] = false
-      }
-
-      let { data, error } = await this.$orbis.getPosts(options, this.pageCounter, this.$config.getPostsLimit, ascending)
-
-      if (error) {
-        this.toast('Error fetching posts from the Orbis/Ceramic node.', { type: 'error' })
-        console.log(error)
-        //this.toast(error, {type: "error"});
-      }
-
-      //console.log("data:");
-      //console.log(data);
-
-      if (data.length < this.$config.getPostsLimit) {
-        this.showLoadMore = false // hide Load More Posts button if there's less than getPostsLimit number of posts received
-      } else if (data.length === this.$config.getPostsLimit) {
-        this.showLoadMore = true // show Load More Posts button if data length was full (getPostsLimit number of posts)
-      }
-
-      this.orbisPosts.push(...data)
-
-      this.pageCounter++
-
-      this.waitingLoadPosts = false
     },
 
     async insertImage(imageUrl) {
-      if (imageUrl.startsWith('ipfs://')) {
+      if (imageUrl.startsWith('ipfs://') || imageUrl.startsWith('ar://')) {
         const imgRes = await getWorkingUrl(imageUrl)
 
         if (imgRes.success) {
@@ -420,50 +552,60 @@ export default {
           .replace('.GIF', '.gif')
       }
 
-      // add image url to postText
-      if (!this.postText) {
-        this.postText = imageUrl + ' '
+      // add image url to messageText
+      if (!this.messageText) {
+        this.messageText = imageUrl + ' '
       } else {
-        this.postText = this.postText + ' ' + imageUrl + ' '
+        this.messageText = this.messageText + ' ' + imageUrl + ' '
       }
     },
 
-    async insertReply(streamId, replyToId, replyText, repliedText, repliedAddress) {
-      // callback hook for ChatPost component
-      // listens for reply event and inserts reply into feed
-      this.orbisPosts.unshift({
-        stream_id: streamId,
-        count_likes: 0,
-        timestamp: Math.floor(Date.now() / 1000),
-        creator_details: {
-          metadata: {
-            address: this.address,
-          },
-          profile: {
-            pfp: this.userStore.getOrbisImage,
-          },
-        },
-        master: this.id,
-        reply_to: replyToId, // the post/stream ID of the post being replied to
-        content: {
-          body: replyText, // the text of the reply
-        },
-        reply_to_details: {
-          body: repliedText, // the text of the post being replied to
-        },
-        reply_to_creator_details: {
-          metadata: {
-            address: repliedAddress, // the author address of the post being replied to
-          },
-        },
-      })
+    async removePost(messageId) {
+      // callback hook for ChatMessage component
+      // listens for delete event and removes message from feed
+      this.messages = this.messages.filter(m => m.id !== messageId)
     },
 
-    async removePost(streamId) {
-      // callback hook for ChatPost component
-      // listens for delete event and removes post from feed
-      this.orbisPosts = this.orbisPosts.filter(p => p.stream_id !== streamId)
+    async uploadToChatStorage(messageText) {
+      // TODO: add upload to chat storage (e.g. Arweave)
+      if (this.$config.chat.storage === 'arweave') {
+        const thisAppUrl = window.location.origin
+
+        let fetcherService
+        if (this.$config.fileUploadTokenService === 'netlify') {
+          fetcherService = thisAppUrl + '/.netlify/functions/arweaveUploader'
+        } else if (this.$config.fileUploadTokenService === 'vercel') {
+          fetcherService = thisAppUrl + '/api/arweaveUploader'
+        }
+
+        // create JSON file together with file type and file name, and convert it to base64
+        const messageObj = {
+          author: this.userStore.address,
+          text: messageText,
+          timestamp: Math.floor(Date.now() / 1000)
+        }
+
+        // Use TextEncoder to convert messageObj to base64
+        const encoder = new TextEncoder()
+        const fileData = btoa(String.fromCharCode.apply(null, encoder.encode(JSON.stringify(messageObj))))
+
+        // create file with file type and file name
+        const fileType = 'application/json'
+        const fileName = `${messageObj.author}-${messageObj.timestamp}.json`
+
+        // upload file to Arweave
+        const resp = await axios.post(fetcherService, {
+          fileData,
+          fileName,
+          fileType
+        })
+
+        const transactionId = resp.data.transactionId
+        let fileUri = `ar://${transactionId}`
+        return fileUri
+      }
     },
+
   },
 
   setup() {

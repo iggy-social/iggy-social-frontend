@@ -1,6 +1,6 @@
 # Iggy Social Template
 
-Iggy Social is a Web3 Social frontend website based on the [Iggy Social](https://iggy.social) template. It uses [Orbis SDK](https://useorbis.com) and [Ceramic Network](https://ceramic.network/) in the background. For usernames it uses [Punk Domains](https://punk.domains/).
+Iggy Social is a Web3 Social frontend website based on the [Iggy Social](https://iggy.social) template. For usernames it uses [Punk Domains](https://punk.domains/).
 
 Demo 1 (Netlify): https://demo.iggy.social/
 Demo 2 (Vercel): https://demo2.iggy.social/
@@ -155,10 +155,3 @@ npm run preview
 
 Checkout the [deployment documentation](https://v3.nuxtjs.org/guide/deploy/presets) for more information.
 
-## Testing
-
-Orbis test group:
-
-```bash
-https://app.orbis.club/group/kjzl6cwe1jw145e1i1agcrjp9375sjpyyk7imu281koehrpve0pr46lvr5e9xco
-```

@@ -13,23 +13,6 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <p><strong>Chat</strong></p>
-
-          <!-- Show replies on home feed -->
-          <div class="form-check">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              id="flexCheckChecked"
-              :checked="showRepliesOnHomeFeed"
-              @click="toggleShowOnlyMasterPosts"
-            />
-
-            <label class="form-check-label" for="flexCheckChecked"> Show replies in home feed </label>
-          </div>
-
-          <hr />
-
           <p><strong>Swap</strong></p>
 
           <div class="row">
@@ -63,31 +46,6 @@ import { useSiteStore } from '~/store/site'
 export default {
   name: 'ChatSettingsModal',
 
-  data() {
-    return {
-      showRepliesOnHomeFeed: null,
-    }
-  },
-
-  mounted() {
-    // set initial checkbox value in chat settings modal for showing replies on home feed
-    if (!window.localStorage.getItem('showOnlyMasterPosts')) {
-      if (this.$config.showRepliesOnHomepage) {
-        this.siteStore.setShowOnlyMasterPosts('false')
-        this.showRepliesOnHomeFeed = true
-      } else {
-        this.siteStore.setShowOnlyMasterPosts('true')
-        this.showRepliesOnHomeFeed = false
-      }
-    } else {
-      if (window.localStorage.getItem('showOnlyMasterPosts') == 'true') {
-        this.showRepliesOnHomeFeed = false
-      } else {
-        this.showRepliesOnHomeFeed = true
-      }
-    }
-  },
-
   computed: {
     slippage: {
       // writable computed (aka two-way computed property)
@@ -107,16 +65,6 @@ export default {
       set(value) {
         this.siteStore.setSwapDeadline(value)
       },
-    },
-  },
-
-  methods: {
-    toggleShowOnlyMasterPosts() {
-      if (this.siteStore.getShowOnlyMasterPosts === 'true') {
-        this.siteStore.setShowOnlyMasterPosts('false')
-      } else {
-        this.siteStore.setShowOnlyMasterPosts('true')
-      }
     },
   },
 

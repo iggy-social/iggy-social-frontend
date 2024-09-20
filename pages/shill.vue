@@ -4,7 +4,7 @@
     <Meta property="og:title" :content="'Shill and discuss projects | ' + $config.projectMetadataTitle" />
   </Head>
 
-  <ChatFeed class="mt-1" :showQuotedPost="$config.showRepliesOnHomepage" :orbisContext="$config.chatChannels.shill" />
+  <ChatFeed class="mt-1" :chatContext="$config.chat.contexts.shill" />
 </template>
 
 <script>

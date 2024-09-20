@@ -14,10 +14,9 @@ export const useUserStore = defineStore({
       didParent: null,
       followers: 0,
       following: 0,
-      isConnectedToOrbis: false,
       lastActivityTimestamp: null,
       lpTokenBalanceWei: BigInt(0),
-      orbisImage: null,
+      image: null,
       stakeTokenBalanceWei: BigInt(0), // receipt token from the staking contract (aka governance token)
     }
   },
@@ -63,10 +62,6 @@ export const useUserStore = defineStore({
       return state.following
     },
 
-    getIsConnectedToOrbis(state) {
-      return state.isConnectedToOrbis
-    },
-
     getLastActivityTimestamp(state) {
       return state.lastActivityTimestamp
     },
@@ -75,8 +70,8 @@ export const useUserStore = defineStore({
       return ethers.BigNumber.from(state.lpTokenBalanceWei)
     },
 
-    getOrbisImage(state) {
-      return state.orbisImage
+    getImage(state) {
+      return state.image
     },
 
     getStakeTokenBalanceWei(state) {
@@ -129,10 +124,6 @@ export const useUserStore = defineStore({
       this.following = following
     },
 
-    setIsConnectedToOrbis(isConnected: any) {
-      this.isConnectedToOrbis = isConnected
-    },
-
     setLastActivityTimestamp(timestamp: any) {
       this.lastActivityTimestamp = timestamp
     },
@@ -141,8 +132,8 @@ export const useUserStore = defineStore({
       this.lpTokenBalanceWei = balance.toBigInt()
     },
 
-    setOrbisImage(image: any) {
-      this.orbisImage = image
+    setImage(image: any) {
+      this.image = image
     },
 
     setStakeTokenBalanceWei(balance: ethers.BigNumber) {
