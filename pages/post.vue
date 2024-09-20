@@ -11,17 +11,19 @@
     </Head>
   </div>
 
-  <!-- Main message -->
-  <ChatMessage v-if="message" :message="message" :isMainMessage="true" />
+  <div :key="message?.url">
+    <!-- Main message -->
+    <ChatMessage v-if="message" :message="message" :chatContext="getChatContext" />
 
-  <!-- reply -->
-  <ChatMessage v-if="reply" :message="reply" :isMainMessage="false" />
+    <!-- reply -->
+    <ChatMessage v-if="reply" :message="reply" :mainMessageIndex="getMessageId" :chatContext="getChatContext" />
 
-  <!-- Chat feed of replies -->
-  <ChatFeed v-if="!isReply" :chatContext="getChatContext" :mainMessageIndex="getMessageId" />
+    <!-- Chat feed of replies -->
+    <ChatFeed v-if="!isReply" :chatContext="getChatContext" :mainMessageIndex="getMessageId" />
 
-  <!-- See other replies button -->
-  <NuxtLink v-if="isReply" :to="mainMessagePage" class="btn btn-primary">See other replies</NuxtLink>
+    <!-- See other replies button -->
+    <NuxtLink v-if="isReply" :to="mainMessagePage" class="btn btn-primary">See other replies</NuxtLink>
+  </div>
   
 </template>
 
@@ -76,6 +78,9 @@ export default {
 
   methods: {
     async getMessage() {
+      this.message = null
+      this.reply = null
+
       try {
         const provider = this.$getFallbackProvider(this.$config.supportedChainId);
 

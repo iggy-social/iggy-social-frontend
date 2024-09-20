@@ -21,7 +21,7 @@
           </NuxtLink>
           <span v-if="message?.createdAt">
             ·
-            <NuxtLink class="link-without-color hover-color" :to="getPostUrl">
+            <NuxtLink class="link-without-color hover-color" :to="postUrl">
               {{ timeSince }}
             </NuxtLink>
           </span>
@@ -64,7 +64,7 @@
         <p class="card-subtitle mt-3 text-muted">
 
           <!-- Replies count -->
-          <NuxtLink v-if="isMainMessage" class="link-without-color hover-color" :to="getPostUrl">
+          <NuxtLink v-if="!mainMessageIndex" class="link-without-color hover-color" :to="postUrl">
             <i class="bi bi-chat"></i>
             {{ message.repliesCount }} replies
           </NuxtLink>
@@ -72,7 +72,8 @@
           <!-- Delete message -->
           <span
             v-if="isCurrentUserAuthor"
-            class="cursor-pointer hover-color ms-3"
+            class="cursor-pointer hover-color"
+            :class="{ 'ms-3': !mainMessageIndex }"
             data-bs-toggle="modal"
             :data-bs-target="'#deleteModal' + storageId"
           >
@@ -147,7 +148,7 @@ import { fetchUsername, storeUsername } from '~/utils/storageUtils'
 export default {
   name: 'ChatMessage',
   emits: ['removePost'],
-  props: ['isMainMessage', 'message', 'chatContext'],
+  props: ['mainMessageIndex', 'message', 'chatContext'],
 
   components: {
     Image,
@@ -164,6 +165,8 @@ export default {
       messageIndex: null,
       messageLengthLimit: 550,
       parsedText: null,
+      postUrl: null,
+      replyIndex: null,
       showFullText: false,
       storageId: null,
       waitingDeleteMessage: false,
@@ -171,8 +174,17 @@ export default {
   },
 
   created() {
-    this.messageIndex = this.message.index
-    console.log('messageIndex', this.messageIndex)
+    if (this.mainMessageIndex) {
+      this.replyIndex = this.message.index
+      this.messageIndex = this.mainMessageIndex
+      console.log('messageIndex', this.messageIndex)
+      console.log('replyIndex', this.replyIndex)
+      this.postUrl = `/post/?id=${this.messageIndex}&reply=${this.replyIndex}&context=${this.chatContext}`
+    } else {
+      this.messageIndex = this.message.index
+      this.postUrl = `/post/?id=${this.messageIndex}&context=${this.chatContext}`
+    }
+
     this.storageId = this.message.url.split('://')[1]
     console.log('storageId', this.storageId)
 
@@ -199,14 +211,6 @@ export default {
     getArweaveUrl() {
       if (this.message?.url) {
         return this.message.url.replace("ar://", this.$config.arweaveGateway)
-      }
-    },
-
-    getPostUrl() {
-      if (this.replyIndex) {
-        return `/post/?id=${this.messageIndex}&reply=${this.replyIndex}&context=${this.chatContext}`
-      } else {
-        return `/post/?id=${this.messageIndex}&context=${this.chatContext}`
       }
     },
 
@@ -360,7 +364,7 @@ export default {
 
     openPostDetails() {
       // commented out so that user needs to click the replies button to see the post page
-      //this.$router.push(this.getPostUrl)
+      //this.$router.push(this.postUrl)
     },
 
     parseMessageText() {

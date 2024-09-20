@@ -105,13 +105,25 @@
       </div>
     </div>
 
-    <div v-if="messages">
+    <!-- Main message thread -->
+    <div v-if="messages && !mainMessageIndex">
       <ChatMessage
         @removePost="removePost"
         v-for="message in messages"
         :chatContext="chatContext"
-        :isMainMessage="true"
         :key="message.url"
+        :message="message"
+      />
+    </div>
+
+    <!-- Replies -->
+    <div v-if="messages && mainMessageIndex">
+      <ChatMessage
+        @removePost="removePost"
+        v-for="message in messages"
+        :chatContext="chatContext"
+        :key="message.url"
+        :mainMessageIndex="mainMessageIndex"
         :message="message"
       />
     </div>
