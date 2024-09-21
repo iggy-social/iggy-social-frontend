@@ -515,6 +515,11 @@ a:hover {
   .sidebar-nav {
     width: 260px;
   }
+
+  p.card-text.text-break iframe.rounded {
+    width: 560px;
+    height: 340px;
+}
 }
 
 /* Mobile only */
