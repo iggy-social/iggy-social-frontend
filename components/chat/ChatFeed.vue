@@ -325,6 +325,11 @@ export default {
     async getAdditionalMessages() {
       this.waitingLoadMessages = true;
 
+      if (this.lastFetchedIndex === 0) {
+        this.toast('No more messages to load', { type: 'info' });
+        return;
+      }
+
       try {
         const provider = this.$getFallbackProvider(this.$config.supportedChainId);
 
@@ -385,11 +390,19 @@ export default {
         const contract = new ethers.Contract(this.chatContext, intrfc, provider);
 
         let msgs;
-        
+
+        let fromIndex = this.lastFetchedIndex - this.pageLength;
+        let queryLength = this.pageLength;
+
+        if (fromIndex < 0) {
+          fromIndex = 0;
+          queryLength = this.lastFetchedIndex - fromIndex;
+        }
+
         if (this.mainMessageIndex) {
-          msgs = await contract.fetchReplies(true, this.mainMessageIndex, this.lastFetchedIndex - 1, this.pageLength);
+          msgs = await contract.fetchReplies(true, this.mainMessageIndex, fromIndex, queryLength);
         } else {
-          msgs = await contract.fetchMainMessages(true, this.lastFetchedIndex - 1, this.pageLength);
+          msgs = await contract.fetchMainMessages(true, fromIndex, queryLength);
         }
 
         let msgsToAdd = [];
@@ -414,12 +427,15 @@ export default {
 
         this.messages = [...this.messages, ...msgsToAdd];
 
-        if (msgs.length < this.pageLength) {
+        if (msgsToAdd.length < queryLength) {
           this.showLoadMore = false;
         }
 
-        if (msgsToAdd.length > 0) {
-          this.lastFetchedIndex = msgsToAdd[msgsToAdd.length - 1].index;
+        this.lastFetchedIndex = msgsToAdd[msgsToAdd.length - 1].index;
+        // console.log("lastFetchedIndex additional messages:", this.lastFetchedIndex);
+
+        if (this.lastFetchedIndex === 0) {
+          this.showLoadMore = false;
         }
 
         //console.log(this.messages);
@@ -520,14 +536,15 @@ export default {
         // reverse the array
         msgsToAdd.reverse()
 
-        this.messages = [...msgsToAdd, ...this.messages];
+        this.messages = msgsToAdd;
 
         if (msgs.length < this.pageLength) {
           this.showLoadMore = false
         }
 
-        if (msgsToAdd.length > 0) {
-          this.lastFetchedIndex = msgsToAdd[msgsToAdd.length - 1].index;
+        if (this.messages.length > 0) {
+          this.lastFetchedIndex = this.messages[this.messages.length - 1].index;
+          //console.log("lastFetchedIndex initial messages:", this.lastFetchedIndex);
         }
 
         //console.log(this.messages)

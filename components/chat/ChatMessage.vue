@@ -177,8 +177,8 @@ export default {
     if (this.mainMessageIndex) {
       this.replyIndex = this.message.index
       this.messageIndex = this.mainMessageIndex
-      console.log('messageIndex', this.messageIndex)
-      console.log('replyIndex', this.replyIndex)
+      //console.log('messageIndex', this.messageIndex)
+      //console.log('replyIndex', this.replyIndex)
       this.postUrl = `/post/?id=${this.messageIndex}&reply=${this.replyIndex}&context=${this.chatContext}`
     } else {
       this.messageIndex = this.message.index
@@ -186,7 +186,7 @@ export default {
     }
 
     this.storageId = this.message.url.split('://')[1]
-    console.log('storageId', this.storageId)
+    //console.log('storageId', this.storageId)
 
     this.fetchMessageFromStorage()
 
