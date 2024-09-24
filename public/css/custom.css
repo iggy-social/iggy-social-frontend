@@ -515,6 +515,11 @@ a:hover {
   .sidebar-nav {
     width: 260px;
   }
+
+  .youtube-embed {
+    max-width: 560px;
+    max-height: 340px;
+  }
 }
 
 /* Mobile only */

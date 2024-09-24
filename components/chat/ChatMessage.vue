@@ -27,7 +27,9 @@
           </span>
           <span v-if="message?.url">
             ·
-            <a class="link-without-color hover-color" :href="getArweaveUrl" target="_blank"><i class="bi bi-badge-ar"></i></a>
+            <a class="link-without-color hover-color" :href="getArweaveUrl" target="_blank">
+              <span style="font-size: 0.9em;">ⓐ</span>
+            </a>
           </span>
         </p>
 

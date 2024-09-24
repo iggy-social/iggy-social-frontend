@@ -526,7 +526,7 @@ export function youtubeParsing(text) {
     )[1]
 
     return (
-      "<iframe class='rounded' width='100%' height='315' src='https://www.youtube.com/embed/" +
+      "<iframe class='rounded youtube-embed' width='100%' height='315' src='https://www.youtube.com/embed/" +
       videoId +
       "' frameborder='0' allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share' allowfullscreen></iframe>"
     )
