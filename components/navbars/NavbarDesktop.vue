@@ -30,7 +30,8 @@
             {{ showDomainOrAddress }}
           </a>
           <div class="dropdown-menu dropdown-menu-end">
-            <NuxtLink class="dropdown-item cursor-pointer" to="/profile">Profile</NuxtLink>
+            <NuxtLink v-if="userStore.getDefaultDomain" class="dropdown-item cursor-pointer" to="/profile">Profile</NuxtLink>
+            
             <span class="dropdown-item cursor-pointer" data-bs-toggle="modal" data-bs-target="#chatSettingsModal"
               >Settings</span
             >

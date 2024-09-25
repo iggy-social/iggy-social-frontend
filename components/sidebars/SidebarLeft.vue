@@ -3,7 +3,7 @@
     <div id="sidebar1" class="collapse collapse-horizontal" :class="$config.sidebarLeftSticky ? 'sticky-lg-top' : ''">
       <div class="sidebar-nav list-group border-0 rounded-0 text-sm-start min-vh-100">
         <div class="card m-2 p-2 bg-light">
-          <div v-if="isActivated" class="text-center">
+          <div v-if="isActivated && userStore.getDefaultDomain" class="text-center">
             <NuxtLink to="/profile">
               <ProfileImage
                 :key="userStore.getImage"
@@ -96,7 +96,7 @@
             </li>
 
             <!-- Profile -->
-            <li v-if="isActivated" class="nav-item p-1" @click="closeLeftSidebar">
+            <li v-if="isActivated && userStore.getDefaultDomain" class="nav-item p-1" @click="closeLeftSidebar">
               <NuxtLink
                 class="nav-link"
                 :class="$route.path.startsWith('/profile') ? 'active' : ''"
