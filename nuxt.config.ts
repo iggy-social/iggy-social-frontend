@@ -57,9 +57,9 @@ export default defineNuxtConfig({
       blockExplorerBaseUrl: 'https://holesky.etherscan.io',
       chat: {
         contexts: {
-          general: '0x4A82158ff4B0504F3DB4c7555FfB6298452985E2', // general discussion channel
-          memesImages: '0x1EB2Adc19eB3Df26D84427Be11F1eB1887c6631c',
-          shill: '0xC3623737209Cc141592B20bcEBCA6052AFCcD183',
+          general: '0xdeBc51Cc932Aa24fb9bB5D062d73E5B2E933626D', // general discussion channel
+          memesImages: '0x0c6A6030121FB3071cB2347DEAC127037785436C',
+          shill: '0x9f48c192561f3A6f0efeeE5Fce00Fd9788675eF8',
           nftLaunchpad: '0x498e0e6B245898c5E2dD0299d0456a8928F58ECC', // comments context
         },
         storage: 'arweave', // storage type: 'arweave' or 'ipfs'
