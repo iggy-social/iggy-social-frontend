@@ -114,6 +114,7 @@
         :chatContext="chatContext"
         :key="message.url"
         :message="message"
+        :currentUserIsMod="currentUserIsMod"
       />
     </div>
 
@@ -126,6 +127,7 @@
         :key="message.url"
         :mainMessageIndex="mainMessageIndex"
         :message="message"
+        :currentUserIsMod="currentUserIsMod"
       />
     </div>
 
@@ -146,22 +148,23 @@
 
 <script>
 import axios from 'axios'
+import EmojiPicker from '~/components/EmojiPicker.vue'
+import 'emoji-mart-vue-fast/css/emoji-mart.css'
 import { ethers } from 'ethers'
-import { useEthers } from '~/store/ethers'
 import { useToast } from 'vue-toastification/dist/index.mjs'
+import { useEthers } from '~/store/ethers'
 import { useSiteStore } from '~/store/site'
 import { useUserStore } from '~/store/user'
 import ConnectWalletButton from '~/components/ConnectWalletButton.vue'
 import SwitchChainButton from '~/components/SwitchChainButton.vue'
 import WaitingToast from '~/components/WaitingToast'
 import ChatMessage from '~/components/chat/ChatMessage.vue'
+import FileUploadModal from '~/components/storage/FileUploadModal.vue'
 import TenorGifSearch from '~/components/tenor/TenorGifSearch.vue'
 import TenorStickerSearch from '~/components/tenor/TenorStickerSearch.vue'
-import FileUploadModal from '~/components/storage/FileUploadModal.vue'
-import { getAllImagesFromText } from '~/utils/textUtils'
-import EmojiPicker from '~/components/EmojiPicker.vue'
-import 'emoji-mart-vue-fast/css/emoji-mart.css'
 import { getWorkingUrl } from '~/utils/ipfsUtils'
+import { getAllImagesFromText } from '~/utils/textUtils'
+import { fetchData, storeData } from '~/utils/storageUtils'
 
 export default {
   name: 'ChatFeed',
@@ -183,6 +186,7 @@ export default {
 
   data() {
     return {
+      currentUserIsMod: null, // leave it as null
       deletedCount: 0,
       fullThreadLength: 0,
       lastFetchedIndex: 0,
@@ -200,6 +204,7 @@ export default {
   created() {
     this.getInitialMessages()
     this.getMessagePrice()
+    this.checkIfCurrenctUserIsMod()
   },
 
   computed: {
@@ -236,6 +241,33 @@ export default {
   },
 
   methods: {
+    async checkIfCurrenctUserIsMod() {
+      if (this.address) {
+        const value = fetchData(window, this.chatContext, 'mod-' + this.address, this.$config.expiryMods)
+
+        if (value) {
+          if (value?.isMod || value?.isMod === "true") {
+            return this.currentUserIsMod = true
+          } else {
+            return this.currentUserIsMod = false
+          }
+        }
+
+        const provider = this.$getFallbackProvider(this.$config.supportedChainId)
+        const intrfc = new ethers.utils.Interface(['function isUserMod(address) external view returns (bool)'])
+        const contract = new ethers.Contract(this.chatContext, intrfc, provider)
+
+        try { 
+          const isMod = await contract.isUserMod(this.address)
+          storeData(window, this.chatContext, { isMod: Boolean(isMod) }, 'mod-' + this.address) // TODO: change 0 to something else (e.g. 1 week)
+          return this.currentUserIsMod = Boolean(isMod)
+        } catch (error) {
+          console.error(error)
+          return this.currentUserIsMod = false
+        }
+      }
+    },
+
     async createMessage() {
       this.waitingCreateMessage = true
 
@@ -571,6 +603,15 @@ export default {
     },
 
     async getMessagePrice() {
+      // fetch priceWei from session storage
+      const priceWei = window.sessionStorage.getItem(this.chatContext + '-price')
+
+      if (priceWei) {
+        this.priceWei = priceWei
+        this.price = ethers.utils.formatEther(this.priceWei)
+        return
+      }
+
       const provider = this.$getFallbackProvider(this.$config.supportedChainId)
 
       const intrfc = new ethers.utils.Interface([
@@ -581,6 +622,9 @@ export default {
       
       this.priceWei = await contract.price()
       this.price = ethers.utils.formatEther(this.priceWei)
+
+      // store priceWei in session storage
+      window.sessionStorage.setItem(this.chatContext + '-price', this.priceWei)
     },
 
     insertEmoji(emoji) {

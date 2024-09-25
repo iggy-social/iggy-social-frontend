@@ -73,7 +73,7 @@
 
           <!-- Delete message -->
           <span
-            v-if="isCurrentUserAuthor"
+            v-if="isCurrentUserAuthor || currUserIsMod"
             class="cursor-pointer hover-color"
             :class="{ 'ms-3': !mainMessageIndex }"
             data-bs-toggle="modal"
@@ -145,12 +145,12 @@ import {
   urlParsing,
   youtubeParsing,
 } from '~/utils/textUtils'
-import { fetchUsername, storeUsername } from '~/utils/storageUtils'
+import { fetchData, fetchUsername, storeData, storeUsername } from '~/utils/storageUtils'
 
 export default {
   name: 'ChatMessage',
   emits: ['removePost'],
-  props: ['mainMessageIndex', 'message', 'chatContext'],
+  props: ['mainMessageIndex', 'message', 'chatContext', 'currentUserIsMod'],
 
   components: {
     Image,
@@ -161,6 +161,7 @@ export default {
     return {
       authorAddress: null,
       authorDomain: null,
+      currUserIsMod: false,
       firstLink: null,
       linkPreview: null,
       messageFromStorage: null,
@@ -179,8 +180,6 @@ export default {
     if (this.mainMessageIndex) {
       this.replyIndex = this.message.index
       this.messageIndex = this.mainMessageIndex
-      //console.log('messageIndex', this.messageIndex)
-      //console.log('replyIndex', this.replyIndex)
       this.postUrl = `/post/?id=${this.messageIndex}&reply=${this.replyIndex}&context=${this.chatContext}`
     } else {
       this.messageIndex = this.message.index
@@ -202,6 +201,13 @@ export default {
       this.route.href.includes('/post?id=')
     ) {
       this.showFullText = true
+    }
+
+    // check if current user is a mod
+    if (this.currentUserIsMod !== undefined && this.currentUserIsMod !== null && typeof this.currentUserIsMod === 'boolean') {
+      this.currUserIsMod = this.currentUserIsMod
+    } else {
+      this.checkIfCurrenctUserIsMod()
     }
   },
 
@@ -251,6 +257,31 @@ export default {
   },
 
   methods: {
+    async checkIfCurrenctUserIsMod() {
+      const value = fetchData(window, this.chatContext, 'mod-' + this.address, this.$config.expiryMods)
+
+      if (value) {
+        if (value?.isMod || value?.isMod === "true") {
+          return this.currUserIsMod = true
+        } else {
+          return this.currUserIsMod = false
+        }
+      }
+
+      const provider = this.$getFallbackProvider(this.$config.supportedChainId)
+      const intrfc = new ethers.utils.Interface(['function isUserMod(address) external view returns (bool)'])
+      const contract = new ethers.Contract(this.chatContext, intrfc, provider)
+
+      try { 
+        const isMod = await contract.isUserMod(this.address)
+        storeData(window, this.chatContext, { isMod: Boolean(isMod) }, 'mod-' + this.address) // TODO: change 0 to something else (e.g. 1 week)
+        return this.currUserIsMod = Boolean(isMod)
+      } catch (error) {
+        console.error(error)
+        return this.currUserIsMod = false
+      }
+    },
+
     async deleteMessage() {
       this.waitingDeleteMessage = true
       // TODO: delete post and call removePost event

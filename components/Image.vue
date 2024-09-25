@@ -29,12 +29,14 @@ export default {
 
   methods: {
     async fetchImageData() {
-      const result = await getWorkingUrl(this.url)
+      if(this.url) {
+        const result = await getWorkingUrl(this.url)
 
-      if (result.success) {
-        this.imageUrl = result.url
-      } else {
-        this.imageUrl = this.defaultImage
+        if (result.success) {
+          this.imageUrl = result.url
+        } else {
+          this.imageUrl = this.defaultImage
+        }
       }
     },
 
