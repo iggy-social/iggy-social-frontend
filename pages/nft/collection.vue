@@ -250,13 +250,14 @@
       :audioUrl="audioUrl" :videoUrl="videoUrl" :youtubeUrl="youtubeUrl" 
     />
 
-    <!-- Chat feed - TODO:replace with Comments component
+    <!-- Chat feed - TODO:replace with Comments component -->
     <ChatFeed
-      :key="cAddress"
+      :hideCommentBox="false"
       class="mt-3 scroll-500"
-      :chatContext=""
-      -->
+      :chatContext="$config.chat.contexts.nftLaunchpad"
+      :mainItemId="cAddress"
     />
+    
   </div>
 
   <!-- Add image modal -->

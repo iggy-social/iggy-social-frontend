@@ -107,7 +107,7 @@
     </div>
 
     <!-- Main message thread -->
-    <div v-if="messages && !mainMessageIndex">
+    <div v-if="messages && isMainChatFeed">
       <ChatMessage
         @removePost="removePost"
         v-for="message in messages"
@@ -118,14 +118,14 @@
       />
     </div>
 
-    <!-- Replies -->
-    <div v-if="messages && mainMessageIndex">
+    <!-- Replies & Comments -->
+    <div v-if="messages && !isMainChatFeed">
       <ChatMessage
         @removePost="removePost"
         v-for="message in messages"
         :chatContext="chatContext"
         :key="message.url"
-        :mainMessageIndex="mainMessageIndex"
+        :mainItemId="mainItemId"
         :message="message"
         :currentUserIsMod="currentUserIsMod"
       />
@@ -171,7 +171,7 @@ export default {
   props: [
     'chatContext', // address of the chat context contract
     'hideCommentBox', // if true, we'll hide the comment box
-    'mainMessageIndex', // (optional) this is the main post id that this component looks for replies to
+    'mainItemId', // (optional) this is either a main message index or an address of an NFT collection or similar
   ],
 
   components: {
@@ -209,10 +209,13 @@ export default {
   computed: {
     createMessagePlaceholder() {
       if (this.isActivated) {
-        if (this.mainMessageIndex) {
+        if (this.isReplyFeed) {
           return 'Post your reply'
+        } else if (this.isCommentFeed) {
+          return 'Post your comment'
+        } else {
+          return "What's happening?"
         }
-        return "What's happening?"
       } else {
         return "What's happening? (Please connect wallet to post messages.)"
       }
@@ -227,6 +230,30 @@ export default {
         }
       } else {
         return true
+      }
+    },
+
+    isCommentFeed() {
+      if (this.mainItemId && ethers.utils.isAddress(this.mainItemId)) {
+        return true
+      } else {
+        return false
+      }
+    },
+
+    isMainChatFeed() {
+      if (!this.mainItemId) {
+        return true
+      } else {
+        return false
+      }
+    },
+
+    isReplyFeed() {
+      if (this.mainItemId && !ethers.utils.isAddress(this.mainItemId)) {
+        return true
+      } else {
+        return false
       }
     },
 
@@ -291,8 +318,10 @@ export default {
       
       try {
         const intrfc = new ethers.utils.Interface([
+          'function createComment(address subjectAddress_, string memory url_) external payable',
           'function createMessage(string memory url_) external payable',
           'function createReply(uint256 mainMsgIndex_, string memory url_) external payable',
+          'function getCommentCount(address subjectAddress_) external view returns (uint256)',
           'function getMainMessageCount() external view returns (uint256)',
           'function getReplyCount(uint256 mainMsgIndex_) external view returns (uint256)'
         ])
@@ -301,8 +330,10 @@ export default {
 
         let tx;
 
-        if (this.mainMessageIndex) {
-          tx = await contract.createReply(this.mainMessageIndex, storageUrl, { value: this.priceWei })
+        if (this.isReplyFeed) {
+          tx = await contract.createReply(this.mainItemId, storageUrl, { value: this.priceWei })
+        } else if (this.isCommentFeed) {
+          tx = await contract.createComment(this.mainItemId, storageUrl, { value: this.priceWei })
         } else {
           tx = await contract.createMessage(storageUrl, { value: this.priceWei })
         }
@@ -325,15 +356,17 @@ export default {
         if (receipt.status === 1) {
           this.toast.dismiss(toastWait)
 
-          this.toast('You have successfully submitted a new chat message.', {
+          this.toast('You have successfully submitted a new message.', {
             type: 'success',
             onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           })
 
           // get main message or reply count
           let fullThreadLength;
-          if (this.mainMessageIndex) {
-            fullThreadLength = await contract.getReplyCount(this.mainMessageIndex)
+          if (this.isReplyFeed) {
+            fullThreadLength = await contract.getReplyCount(this.mainItemId)
+          } else if (this.isCommentFeed) {
+            fullThreadLength = await contract.getCommentCount(this.mainItemId)
           } else {
             fullThreadLength = await contract.getMainMessageCount()
           }
@@ -390,6 +423,31 @@ export default {
         const provider = this.$getFallbackProvider(this.$config.supportedChainId);
 
         const intrfc = new ethers.utils.Interface([
+          {
+            "inputs": [
+              {"internalType": "bool", "name": "includeDeleted_", "type": "bool"},
+              {"internalType": "address", "name": "subjectAddress_", "type": "address"},
+              {"internalType": "uint256", "name": "fromIndex_", "type": "uint256"},
+              {"internalType": "uint256", "name": "length_", "type": "uint256"}
+            ],
+            "name": "fetchComments",
+            "outputs": [
+              {
+                "components": [
+                  {"internalType": "address", "name": "author", "type": "address"},
+                  {"internalType": "uint256", "name": "createdAt", "type": "uint256"},
+                  {"internalType": "bool", "name": "deleted", "type": "bool"},
+                  {"internalType": "uint256", "name": "index", "type": "uint256"},
+                  {"internalType": "string", "name": "url", "type": "string"}
+                ],
+                "internalType": "struct ChatFeed.Comment[]",
+                "name": "",
+                "type": "tuple[]"
+              }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+          },
           {
             "inputs": [
               {"internalType": "bool", "name": "includeDeleted_", "type": "bool"},
@@ -455,8 +513,10 @@ export default {
           queryLength = this.lastFetchedIndex - fromIndex;
         }
 
-        if (this.mainMessageIndex) {
-          msgs = await contract.fetchReplies(true, this.mainMessageIndex, fromIndex, queryLength);
+        if (this.isReplyFeed) {
+          msgs = await contract.fetchReplies(true, this.mainItemId, fromIndex, queryLength);
+        } else if (this.isCommentFeed) {
+          msgs = await contract.fetchComments(true, this.mainItemId, fromIndex, queryLength);
         } else {
           msgs = await contract.fetchMainMessages(true, fromIndex, queryLength);
         }
@@ -465,14 +525,20 @@ export default {
         for (let i = 0; i < msgs.length; i++) {
           const msg = msgs[i];
           if (!msg.deleted) {
-            msgsToAdd.push({
+            const messageObj = {
               author: msg.author,
               url: msg.url,
               createdAt: msg.createdAt.toNumber(),
               deleted: msg.deleted,
-              repliesCount: msg.repliesCount.toNumber(),
               index: msg.index.toNumber(),
-            });
+            }
+            
+            // Add repliesCount only if it's not a comment feed
+            if (!this.isCommentFeed) {
+              messageObj.repliesCount = msg.repliesCount.toNumber()
+            }
+            
+            msgsToAdd.push(messageObj)
           } else {
             this.deletedCount++;
           }
@@ -559,6 +625,30 @@ export default {
             ],
             "stateMutability": "view",
             "type": "function"
+          },
+          {
+            "inputs": [
+              {"internalType": "bool", "name": "includeDeleted_", "type": "bool"},
+              {"internalType": "address", "name": "subjectAddress_", "type": "address"},
+              {"internalType": "uint256", "name": "length_", "type": "uint256"}
+            ],
+            "name": "fetchLastComments",
+            "outputs": [
+              {
+                "components": [
+                  {"internalType": "address", "name": "author", "type": "address"},
+                  {"internalType": "uint256", "name": "createdAt", "type": "uint256"},
+                  {"internalType": "bool", "name": "deleted", "type": "bool"},
+                  {"internalType": "uint256", "name": "index", "type": "uint256"},
+                  {"internalType": "string", "name": "url", "type": "string"}
+                ],
+                "internalType": "struct ChatFeed.Comment[]",
+                "name": "",
+                "type": "tuple[]"
+              }
+            ],
+            "stateMutability": "view",
+            "type": "function"
           }
         ])
 
@@ -566,8 +656,10 @@ export default {
 
         let msgs;
         
-        if (this.mainMessageIndex) {
-          msgs = await contract.fetchLastReplies(true, this.mainMessageIndex, this.pageLength)
+        if (this.isReplyFeed) {
+          msgs = await contract.fetchLastReplies(true, this.mainItemId, this.pageLength)
+        } else if (this.isCommentFeed) {
+          msgs = await contract.fetchLastComments(true, this.mainItemId, this.pageLength)
         } else {
           msgs = await contract.fetchLastMainMessages(true, this.pageLength)
         }
@@ -576,14 +668,20 @@ export default {
         for (let i = 0; i < msgs.length; i++) {
           const msg = msgs[i];
           if (!msg.deleted) { // only add message if it is not marked as deleted
-            msgsToAdd.push({
+            const messageObj = {
               author: msg.author,
               url: msg.url,
               createdAt: msg.createdAt.toNumber(),
               deleted: msg.deleted,
-              repliesCount: msg.repliesCount.toNumber(),
               index: msg.index.toNumber(),
-            })
+            }
+            
+            // Add repliesCount only if it's not a comment feed
+            if (!this.isCommentFeed) {
+              messageObj.repliesCount = msg.repliesCount.toNumber()
+            }
+            
+            msgsToAdd.push(messageObj)
           } else {
             this.deletedCount++;
           }

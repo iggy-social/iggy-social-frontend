@@ -16,10 +16,10 @@
     <ChatMessage v-if="message" :message="message" :chatContext="getChatContext" />
 
     <!-- reply -->
-    <ChatMessage v-if="reply" :message="reply" :mainMessageIndex="getMessageId" :chatContext="getChatContext" />
+    <ChatMessage v-if="reply" :message="reply" :mainItemId="getMessageId" :chatContext="getChatContext" />
 
     <!-- Chat feed of replies -->
-    <ChatFeed v-if="!isReply" :chatContext="getChatContext" :mainMessageIndex="getMessageId" />
+    <ChatFeed v-if="!isReply" :chatContext="getChatContext" :mainItemId="getMessageId" />
 
     <!-- See other replies button -->
     <NuxtLink v-if="isReply" :to="mainMessagePage" class="btn btn-primary">See other replies</NuxtLink>

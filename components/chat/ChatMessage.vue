@@ -19,11 +19,15 @@
           <NuxtLink class="link-without-color hover-color" :to="'/profile/?id=' + String(showDomainOrFullAddress)">
             {{ showDomainOrAddress }}
           </NuxtLink>
-          <span v-if="message?.createdAt">
+          <span v-if="message?.createdAt && !isComment">
             ·
             <NuxtLink class="link-without-color hover-color" :to="postUrl">
               {{ timeSince }}
             </NuxtLink>
+          </span>
+          <span v-if="message?.createdAt && isComment">
+            ·
+            {{ timeSince }}
           </span>
           <span v-if="message?.url">
             ·
@@ -34,7 +38,7 @@
         </p>
 
         <!-- post text -->
-        <div @click="openPostDetails" v-if="parsedText">
+        <div v-if="parsedText">
           <p class="card-text text-break" v-if="parsedText.length > messageLengthLimit && !showFullText">
             <span v-html="parsedText.substring(0, messageLengthLimit) + ' ... '"> </span>
             <span class="cursor-pointer hover-color" @click="showFullText = true">Read more</span>
@@ -66,7 +70,7 @@
         <p class="card-subtitle mt-3 text-muted">
 
           <!-- Replies count -->
-          <NuxtLink v-if="!mainMessageIndex" class="link-without-color hover-color" :to="postUrl">
+          <NuxtLink v-if="isMainChatMessage" class="link-without-color hover-color" :to="postUrl">
             <i class="bi bi-chat"></i>
             {{ message.repliesCount }} replies
           </NuxtLink>
@@ -75,7 +79,7 @@
           <span
             v-if="isCurrentUserAuthor || currUserIsMod"
             class="cursor-pointer hover-color"
-            :class="{ 'ms-3': !mainMessageIndex }"
+            :class="{ 'ms-3': isMainChatMessage }"
             data-bs-toggle="modal"
             :data-bs-target="'#deleteModal' + storageId"
           >
@@ -151,7 +155,12 @@ import { fetchData, fetchUsername, storeData, storeUsername } from '~/utils/stor
 export default {
   name: 'ChatMessage',
   emits: ['removePost'],
-  props: ['mainMessageIndex', 'message', 'chatContext', 'currentUserIsMod'],
+  props: [
+    'mainItemId', // (optional) this is either a main message index or an address of an NFT collection or similar
+    'message', // message object
+    'chatContext', // address of the chat context contract
+    'currentUserIsMod' // boolean
+  ],
 
   components: {
     Image,
@@ -178,10 +187,14 @@ export default {
   },
 
   mounted() {
-    if (this.mainMessageIndex) {
+    if (this.isReply) {
       this.replyIndex = this.message.index
-      this.messageIndex = this.mainMessageIndex
+      this.messageIndex = this.mainItemId
       this.postUrl = `/post/?id=${this.messageIndex}&reply=${this.replyIndex}&context=${this.chatContext}`
+    } else if (this.isComment) {
+      this.replyIndex = this.message.index
+      this.messageIndex = this.mainItemId
+      this.postUrl = null
     } else {
       this.messageIndex = this.message.index
       this.postUrl = `/post/?id=${this.messageIndex}&context=${this.chatContext}`
@@ -212,8 +225,32 @@ export default {
   },
 
   computed: {
+    isComment() {
+      if (this.mainItemId && ethers.utils.isAddress(this.mainItemId)) {
+        return true
+      } else {
+        return false
+      }
+    },
+
     isCurrentUserAuthor() {
       return String(this.message.author).toLowerCase() === String(this.address).toLowerCase()
+    },
+
+    isMainChatMessage() {
+      if (!this.mainItemId) {
+        return true
+      } else {
+        return false
+      }
+    },
+
+    isReply() {
+      if (this.mainItemId && !ethers.utils.isAddress(this.mainItemId)) {
+        return true
+      } else {
+        return false
+      }
     },
 
     getArweaveUrl() {
@@ -287,6 +324,7 @@ export default {
         this.waitingDeleteMessage = true
 
         const intrfc = new ethers.utils.Interface([
+          'function deleteComment(address subjectAddress_, uint256 commentIndex_) external',
           'function deleteMessage(uint256 mainMsgIndex_) external',
           'function deleteReply(uint256 mainMsgIndex_, uint256 replyMsgIndex_) external'
         ])
@@ -295,8 +333,10 @@ export default {
 
         try {
           let tx;
-          if (this.mainMessageIndex) {
-            tx = await contract.deleteReply(this.mainMessageIndex, this.message.index)
+          if (this.isReply) {
+            tx = await contract.deleteReply(this.mainItemId, this.message.index)
+          } else if (this.isComment) {
+            tx = await contract.deleteComment(this.mainItemId, this.message.index)
           } else {
             tx = await contract.deleteMessage(this.message.index)
           }
@@ -458,11 +498,6 @@ export default {
       // TODO: store message in browser local storage
 
       this.parseMessageText()
-    },
-
-    openPostDetails() {
-      // commented out so that user needs to click the replies button to see the post page
-      //this.$router.push(this.postUrl)
     },
 
     parseMessageText() {
