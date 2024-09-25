@@ -188,7 +188,6 @@ export default {
     return {
       currentUserIsMod: null, // leave it as null
       deletedCount: 0,
-      fullThreadLength: 0,
       lastFetchedIndex: 0,
       messages: [],
       messageText: null,
@@ -201,7 +200,7 @@ export default {
     }
   },
 
-  created() {
+  mounted() {
     this.getInitialMessages()
     this.getMessagePrice()
     this.checkIfCurrenctUserIsMod()
@@ -293,7 +292,9 @@ export default {
       try {
         const intrfc = new ethers.utils.Interface([
           'function createMessage(string memory url_) external payable',
-          'function createReply(uint256 mainMsgIndex_, string memory url_) external payable'
+          'function createReply(uint256 mainMsgIndex_, string memory url_) external payable',
+          'function getMainMessageCount() external view returns (uint256)',
+          'function getReplyCount(uint256 mainMsgIndex_) external view returns (uint256)'
         ])
 
         const contract = new ethers.Contract(this.chatContext, intrfc, this.signer)
@@ -329,14 +330,22 @@ export default {
             onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           })
 
+          // get main message or reply count
+          let fullThreadLength;
+          if (this.mainMessageIndex) {
+            fullThreadLength = await contract.getReplyCount(this.mainMessageIndex)
+          } else {
+            fullThreadLength = await contract.getMainMessageCount()
+          }
+
           // prepend message to messages array
           this.messages.unshift({
-            author: this.userStore.address,
+            author: this.address,
             url: storageUrl,
             createdAt: Math.floor(Date.now() / 1000),
             deleted: false,
             repliesCount: 0,
-            index: this.fullThreadLength,
+            index: Number(fullThreadLength)-1,
           })
 
           // empty messageText
@@ -668,7 +677,7 @@ export default {
     async removePost(messageId) {
       // callback hook for ChatMessage component
       // listens for delete event and removes message from feed
-      this.messages = this.messages.filter(m => m.id !== messageId)
+      this.messages = this.messages.filter(m => Number(m.index) !== Number(messageId))
     },
 
     async uploadToChatStorage(messageText) {

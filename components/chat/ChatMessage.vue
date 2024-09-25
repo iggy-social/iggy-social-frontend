@@ -107,10 +107,10 @@
               aria-label="Close"
             ></button>
           </div>
-          <div class="modal-body">Do you really want to delete this post? (currently disabled)</div>
+          <div class="modal-body">Do you really want to delete this post?</div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary disabled" @click="deleteMessage" :disabled="waitingDeleteMessage">
+            <button type="button" class="btn btn-primary" @click="deleteMessage" :disabled="waitingDeleteMessage">
               <span
                 v-if="waitingDeleteMessage"
                 class="spinner-border spinner-border-sm"
@@ -131,11 +131,12 @@
 import axios from 'axios'
 import { ethers } from 'ethers'
 import sanitizeHtml from 'sanitize-html'
-import { useEthers, shortenAddress } from '~/store/ethers'
 import { useToast } from 'vue-toastification/dist/index.mjs'
-import { useUserStore } from '~/store/user'
 import Image from '~/components/Image.vue'
+import WaitingToast from '~/components/WaitingToast'
 import ProfileImage from '~/components/profile/ProfileImage.vue'
+import { useEthers, shortenAddress } from '~/store/ethers'
+import { useUserStore } from '~/store/user'
 import { getDomainName } from '~/utils/domainUtils'
 import {
   getTextWithoutBlankCharacters,
@@ -176,7 +177,7 @@ export default {
     }
   },
 
-  created() {
+  mounted() {
     if (this.mainMessageIndex) {
       this.replyIndex = this.message.index
       this.messageIndex = this.mainMessageIndex
@@ -195,7 +196,6 @@ export default {
       this.fetchAuthorDomain()
     }
 
-    // TODO: change this when you have the correct route
     if (
       this.route.href.includes('/post/?id=') ||
       this.route.href.includes('/post?id=')
@@ -283,12 +283,77 @@ export default {
     },
 
     async deleteMessage() {
-      this.waitingDeleteMessage = true
-      // TODO: delete post and call removePost event
+      if (this.signer) {
+        this.waitingDeleteMessage = true
 
-      //this.$emit('removePost')
+        const intrfc = new ethers.utils.Interface([
+          'function deleteMessage(uint256 mainMsgIndex_) external',
+          'function deleteReply(uint256 mainMsgIndex_, uint256 replyMsgIndex_) external'
+        ])
 
-      this.waitingDeleteMessage = false
+        const contract = new ethers.Contract(this.chatContext, intrfc, this.signer)
+
+        try {
+          let tx;
+          if (this.mainMessageIndex) {
+            tx = await contract.deleteReply(this.mainMessageIndex, this.message.index)
+          } else {
+            tx = await contract.deleteMessage(this.message.index)
+          }
+
+          const toastWait = this.toast(
+            {
+              component: WaitingToast,
+              props: {
+                text: 'Please wait for your transaction to confirm. Click on this notification to see transaction in the block explorer.',
+              },
+            },
+            {
+              type: 'info',
+              onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            },
+          )
+
+          const receipt = await tx.wait()
+          
+          if (receipt.status === 1) {
+            this.toast.dismiss(toastWait)
+
+            this.toast('You have successfully deleted the message.', {
+              type: 'success',
+              onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            })
+
+            document.getElementById('closeDeleteModal' + this.storageId).click()
+
+            this.$emit('removePost', this.message.index)
+          } else {
+            this.toast.dismiss(toastWait)
+            this.toast('Transaction has failed.', {
+              type: 'error',
+              onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            })
+            console.log(receipt)
+          }
+        } catch (error) {
+          console.error(error)
+
+          try {
+            let extractMessage = error.message.split('reason=')[1]
+            extractMessage = extractMessage.split(', method=')[0]
+            extractMessage = extractMessage.replace(/"/g, '')
+            extractMessage = extractMessage.replace('execution reverted:', 'Error:')
+
+            console.log(extractMessage)
+
+            this.toast(extractMessage, { type: 'error' })
+          } catch (e) {
+            this.toast('Transaction has failed.', { type: 'error' })
+          }
+        } finally {
+          this.waitingDeleteMessage = false
+        }
+      }
     },
 
     async fetchAuthorDomain() {
