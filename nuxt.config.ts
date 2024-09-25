@@ -48,24 +48,23 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      activityPointsAddress: '0xC3623737209Cc141592B20bcEBCA6052AFCcD183',
-      airdropApAddress: '0x519Cc13253d5bd6bC0b635B9f337230B34B3b1e7', // chat token claim for APs
-      airdropClaimDomainsAddress: '0x8c54EAEA2DDAA8491a32F3A0D9B308d810aEA4fc', // chat token claim for domain holders
+      activityPointsAddress: '',
+      airdropApAddress: '', // chat token claim for APs
+      airdropClaimDomainsAddress: '', // chat token claim for domain holders
       arweaveAddress: process.env.ARWEAVE_ADDRESS,
       arweaveGateway: 'https://arweave.net/',
       arweaveMinBalance: 0.02, // minimum AR balance to upload files
-      blockExplorerBaseUrl: 'https://sepolia.etherscan.io',
+      blockExplorerBaseUrl: 'https://holesky.etherscan.io',
       chat: {
         contexts: {
-          general: '0x9C3BaeAd881BDAAB0Cd0BB112ce2a17Aba390Aba', // general discussion channel
-          memesImages: '0x9C3BaeAd881BDAAB0Cd0BB112ce2a17Aba390Aba',
-          shill: '0x9C3BaeAd881BDAAB0Cd0BB112ce2a17Aba390Aba',
-          nftLaunchpad: '',
+          general: '0x4A82158ff4B0504F3DB4c7555FfB6298452985E2', // general discussion channel
+          memesImages: '0x1EB2Adc19eB3Df26D84427Be11F1eB1887c6631c',
+          shill: '0xC3623737209Cc141592B20bcEBCA6052AFCcD183',
+          nftLaunchpad: '0x498e0e6B245898c5E2dD0299d0456a8928F58ECC', // comments context
         },
-        moderationTokenAddress: '0x63F36191b3660A70059661083C2189a71be5FBdE', // chat moderation token address
         storage: 'arweave', // storage type: 'arweave' or 'ipfs'
       },
-      chatTokenAddress: '0x305912c0d03C22e6eB7D37E06A47ab899e48B9Af', // chat token address
+      chatTokenAddress: '', // chat token address
       chatTokenImage: '', // chat token image
       chatTokenSymbol: 'DEMO', // chat token symbol or name
       domainRequiredToPost: true,
@@ -87,13 +86,10 @@ export default defineNuxtConfig({
       linkPreviews: process.env.LINK_PREVIEW_SERVICE || 'netlify', // "netlify", "vercel", or "microlink" (or leave empty for no link previews)
       lpTokenAddress: '', // liquidity pool token (token to stake in the staking contract)
       lpTokenSymbol: 'LP tokens', // LP token symbol
-      marketplacePostNftUrl: 'https://testnets.opensea.io/assets/sepolia/0x0BF6333Fc85159663A30Ac89FD02c5031B97c5ee',
-      marketplacePostNftItemUrl:
-        'https://testnets.opensea.io/assets/sepolia/0x0BF6333Fc85159663A30Ac89FD02c5031B97c5ee/', // url (append nft id to it)
-      marketplaceNftCollectionBaseUrl: 'https://testnets.opensea.io/assets/sepolia/', // url (append nft address to it)
+      marketplaceNftCollectionBaseUrl: 'https://testnets.opensea.io/assets/holesky/', // url (append nft address to it)
       newsletterLink: 'https://paragraph.xyz/@iggy?modal=subscribe',
       nftDefaultRatio: 1, // default ratio for the NFT price bonding curve
-      nftLaunchpadBondingAddress: '0x50045895e1983F39FDC149C9a5AC29C39BEA18fe', // NFT launchpad with bonding curve contract address
+      nftLaunchpadBondingAddress: '0x2D4144B4E00cf1dC1c4DeDa37cb1CaCEda030998', // NFT launchpad with bonding curve contract address
       nftLaunchpadLatestItems: 4, // number of latest NFTs to show in the NFT launchpad
       previewImage: '/img/covers/cover.png',
       previewImageAirdrop: '/img/covers/cover-airdrop.png',
@@ -112,16 +108,16 @@ export default defineNuxtConfig({
       projectUrl: 'https://demo.iggy.social', // without trailing slash!
       punkMinterAddress: '', // punk domain minter contract address
       punkNumberOfPrices: 1, // number of different prices (based on domain length), usually 1 (price()) or 5 (price1char() - price5char())
-      punkTldAddress: '0x1DD820F4f48eBC2B8e7F666F34fbC5820808074e', // punk domain TLD address
+      punkTldAddress: '0x320881Fff17c9a2189226c61ad1157DFF80b18B5', // punk domain TLD address
       randomPostsNumber: 1, // number of random post NFTs to show in the sidebar widget
       showFeatures: {
         // show/hide features in sidebars (if you have too many "true", make the sidebar scrollable --> sidebarLeftSticky: false)
-        activityPoints: true,
-        airdrop: true,
+        activityPoints: false,
+        airdrop: false,
         governance: false,
         newsletter: false,
         nftLaunchpad: true,
-        swap: true,
+        swap: false,
         stake: false,
         sendTokens: true,
         spotify: false,
@@ -130,11 +126,11 @@ export default defineNuxtConfig({
       spotifyPlaylistId: '5y7f2Wxfq49G5KuNQfMPbk', // enter just the ID of the playlist (not the full URL)
       stakingContractAddress: '', // this is also the stake/gov token address
       stakeTokenSymbol: 'IGT', // stake token symbol (governance token symbol)
-      supportedChainId: 11155111,
+      supportedChainId: 17000,
       swapPriceImpactMaxBps: 1000, // max price impact in bips (1 bps = 0.01%, 1000bps = 10%) for the swap function
       swapRouterAddress: '', // iggy swap router contract address
       tenorApiKey: process.env.TENOR_KEY || '',
-      tldName: '.sepolia',
+      tldName: '.holesky',
       tokenAddress: null, // leave null if it's a native token of the chain
       tokenDecimals: 18,
       tokenSymbol: 'ETH',

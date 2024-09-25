@@ -78,6 +78,7 @@
               class="btn btn-primary me-2 mt-2"
               @click="createMessage"
             >
+              <span v-if="waitingCreateMessage" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
               Submit
             </button>
 
@@ -188,6 +189,8 @@ export default {
       messages: [],
       messageText: null,
       pageLength: 10,
+      price: 0, // price to post a message (in ETH)
+      priceWei: 0, // price to post a message (in wei)
       showLoadMore: true,
       waitingCreateMessage: false,
       waitingLoadMessages: false,
@@ -196,6 +199,7 @@ export default {
 
   created() {
     this.getInitialMessages()
+    this.getMessagePrice()
   },
 
   computed: {
@@ -256,20 +260,18 @@ export default {
       
       try {
         const intrfc = new ethers.utils.Interface([
-          'function createMessage(string memory url_) external',
-          'function createReply(uint256 mainMsgIndex_, string memory url_) external'
+          'function createMessage(string memory url_) external payable',
+          'function createReply(uint256 mainMsgIndex_, string memory url_) external payable'
         ])
 
         const contract = new ethers.Contract(this.chatContext, intrfc, this.signer)
 
         let tx;
 
-        //console.log("mainMessageIndex:", this.mainMessageIndex)
-
         if (this.mainMessageIndex) {
-          tx = await contract.createReply(this.mainMessageIndex, storageUrl)
+          tx = await contract.createReply(this.mainMessageIndex, storageUrl, { value: this.priceWei })
         } else {
-          tx = await contract.createMessage(storageUrl)
+          tx = await contract.createMessage(storageUrl, { value: this.priceWei })
         }
 
         const toastWait = this.toast(
@@ -317,6 +319,19 @@ export default {
         }
       } catch (error) {
         console.error(error)
+
+        try {
+          let extractMessage = error.message.split('reason=')[1]
+          extractMessage = extractMessage.split(', method=')[0]
+          extractMessage = extractMessage.replace(/"/g, '')
+          extractMessage = extractMessage.replace('execution reverted:', 'Error:')
+
+          console.log(extractMessage)
+
+          this.toast(extractMessage, { type: 'error' })
+        } catch (e) {
+          this.toast('Transaction has failed.', { type: 'error' })
+        }
       } finally {
         this.waitingCreateMessage = false
       }
@@ -553,6 +568,19 @@ export default {
       } finally {
         this.waitingLoadMessages = false
       }
+    },
+
+    async getMessagePrice() {
+      const provider = this.$getFallbackProvider(this.$config.supportedChainId)
+
+      const intrfc = new ethers.utils.Interface([
+        'function price() external view returns (uint256)'
+      ])
+
+      const contract = new ethers.Contract(this.chatContext, intrfc, provider)
+      
+      this.priceWei = await contract.price()
+      this.price = ethers.utils.formatEther(this.priceWei)
     },
 
     insertEmoji(emoji) {

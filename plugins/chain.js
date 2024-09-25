@@ -140,6 +140,13 @@ const chains = [
     blockExplorer: 'https://basescan.org',
   },
   {
+    chainId: 17000,
+    name: 'Holesky',
+    currency: 'ETH',
+    rpcs: ['https://holesky.drpc.org', 'https://1rpc.io/holesky', 'https://ethereum-holesky-rpc.publicnode.com'],
+    blockExplorer: 'https://holesky.etherscan.io',
+  },
+  {
     chainId: 34443,
     name: 'Mode',
     currency: 'ETH',
@@ -179,6 +186,7 @@ const chains = [
     name: 'Sepolia',
     currency: 'ETH',
     rpcs: [
+      'https://rpc.sepolia.org',
       'https://eth-sepolia.public.blastapi.io', 
       //'https://1rpc.io/sepolia', 
       'https://ethereum-sepolia-rpc.publicnode.com', 
