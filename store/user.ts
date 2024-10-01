@@ -10,8 +10,6 @@ export const useUserStore = defineStore({
       address: null,
       chatTokenBalanceWei: BigInt(0),
       defaultDomain: null,
-      did: null,
-      didParent: null,
       followers: 0,
       following: 0,
       lastActivityTimestamp: null,
@@ -44,14 +42,6 @@ export const useUserStore = defineStore({
 
     getDefaultDomain(state) {
       return state.defaultDomain
-    },
-
-    getDid(state) {
-      return state.did
-    },
-
-    getDidParent(state) {
-      return state.didParent
     },
 
     getFollowers(state) {
@@ -106,14 +96,6 @@ export const useUserStore = defineStore({
 
     setDefaultDomain(domain: any) {
       this.defaultDomain = domain
-    },
-
-    setDid(did: any) {
-      this.did = did
-    },
-
-    setDidParent(didParent: any) {
-      this.didParent = didParent
     },
 
     setFollowers(followers: any) {

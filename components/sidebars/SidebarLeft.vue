@@ -4,7 +4,7 @@
       <div class="sidebar-nav list-group border-0 rounded-0 text-sm-start min-vh-100">
         <div class="card m-2 p-2 bg-light">
           <div v-if="isActivated && userStore.getDefaultDomain" class="text-center">
-            <NuxtLink to="/profile">
+            <NuxtLink :to="getProfileLink">
               <ProfileImage
                 :key="userStore.getImage"
                 @click="closeLeftSidebar"
@@ -101,7 +101,7 @@
                 class="nav-link"
                 :class="$route.path.startsWith('/profile') ? 'active' : ''"
                 aria-current="page"
-                to="/profile"
+                :to="getProfileLink"
               >
                 <i class="bi bi-person me-2"></i> Profile
               </NuxtLink>
@@ -282,6 +282,16 @@ export default {
   },
 
   computed: {
+    getProfileLink() {
+      if (this.userStore.getDefaultDomain) {
+        return `/profile/?id=${this.userStore.getDefaultDomain}`;
+      } else if (this.address) {
+        return `/profile/?id=${this.address}`;
+      } else {
+        return `/profile`;
+      }
+    },
+
     getUserAp() {
       if (this.userStore.getCurentUserActivityPoints > 0) {
         return this.userStore.getCurentUserActivityPoints

@@ -27,7 +27,7 @@ export async function getActivityPoints(userAddress, signer) {
   if (activityPoints < 1) {
     activityPoints = activityPoints.toFixed(2)
   } else {
-    activityPoints = Math.round(activityPoints)
+    activityPoints = Number.parseFloat(activityPoints)
   }
 
   return activityPoints

@@ -2,8 +2,8 @@
   <div>
     <div class="card border">
       <div class="card-body">
-        <p class="fs-3" @click="$router.back()">
-          <i class="bi bi-arrow-left-circle cursor-pointer"></i>
+        <p class="fs-3">
+          <i class="bi bi-arrow-left-circle cursor-pointer" @click="$router.back()"></i>
         </p>
 
         <div class="row">
@@ -34,6 +34,11 @@
               <p class="me-4" v-if="$config.chatTokenAddress">
                 <i class="bi bi-wallet me-1"></i>
                 {{ balanceChatToken }} {{ $config.chatTokenSymbol }}
+              </p>
+
+              <p class="me-4" v-if="$config.activityPointsAddress && $config.showFeatures.activityPoints">
+                <i class="bi bi-wallet me-1"></i>
+                {{ balanceAp }} AP
               </p>
 
               <p class="me-4">
@@ -147,6 +152,7 @@ import { useUserStore } from '~/store/user'
 import { useToast } from 'vue-toastification/dist/index.mjs'
 import ChangePfpModal from '~/components/profile/ChangePfpModal.vue'
 import ProfileImage from '~/components/profile/ProfileImage.vue'
+import { getActivityPoints } from '~/utils/balanceUtils'
 import { getDomainName, getDomainHolder } from '~/utils/domainUtils'
 import { fetchUsername, storeData, storeUsername } from '~/utils/storageUtils'
 import { getTextWithoutBlankCharacters } from '~/utils/textUtils'
@@ -157,6 +163,7 @@ export default {
 
   data() {
     return {
+      balanceAp: 0,
       balanceChatTokenWei: 0,
       domain: this.pDomain,
       newEmail: null,
@@ -165,7 +172,6 @@ export default {
       uBalance: 0,
       waitingDataLoad: false,
       waitingImageUpdate: false,
-      waitingSetEmail: false,
     }
   },
 
@@ -289,6 +295,11 @@ export default {
           const chatTokenContract = new ethers.Contract(this.$config.chatTokenAddress, chatTokenInterface, provider)
 
           this.balanceChatTokenWei = await chatTokenContract.balanceOf(this.uAddress)
+        }
+
+        // fetch activity points balance
+        if (this.$config.activityPointsAddress && this.$config.showFeatures.activityPoints) {
+          this.balanceAp = await getActivityPoints(this.uAddress, provider);
         }
       }
     },

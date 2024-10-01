@@ -250,7 +250,7 @@
       :audioUrl="audioUrl" :videoUrl="videoUrl" :youtubeUrl="youtubeUrl" 
     />
 
-    <!-- Chat feed - TODO:replace with Comments component -->
+    <!-- Chat feed -->
     <ChatFeed
       :hideCommentBox="false"
       class="mt-3 scroll-500"
