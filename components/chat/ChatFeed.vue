@@ -75,7 +75,7 @@
             <!-- Create Message button -->
             <button
               v-if="isActivated && isSupportedChain && hasDomainOrNotRequired"
-              :disabled="!messageText || waitingCreateMessage"
+              :disabled="!messageText || waitingCreateMessage || arweaveBalanceTooLow"
               class="btn btn-primary me-2 mt-2"
               @click="createMessage"
             >
@@ -208,6 +208,10 @@ export default {
   },
 
   computed: {
+    arweaveBalanceTooLow() {
+      return this.siteStore.arweaveBalance < this.$config.arweaveMinBalance
+    },
+
     createMessagePlaceholder() {
       if (this.isActivated) {
         if (this.isReplyFeed) {
