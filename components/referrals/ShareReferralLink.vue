@@ -9,7 +9,7 @@
       readonly
     />
 
-    <button class="btn btn-outline-secondary" type="button" id="button-addon2">
+    <button class="btn btn-outline-secondary" type="button" id="button-addon2" title="Copy to clipboard">
       <i v-if="!copied" class="bi bi-clipboard"></i>
       <i v-if="copied" class="bi bi-clipboard-check"></i>
     </button>

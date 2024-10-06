@@ -1,5 +1,5 @@
 <template>
-  <button data-bs-toggle="modal" data-bs-target="#emojiModal" class="btn btn-outline-primary me-2 mt-2 btn-sm">
+  <button title="Add emoji to your post" data-bs-toggle="modal" data-bs-target="#emojiModal" class="btn btn-outline-primary me-2 mt-2 btn-sm">
     <i class="bi bi-emoji-smile-fill"></i>
   </button>
 

@@ -3,7 +3,7 @@
     <div class="card-body row">
 
       <!-- Author profile image -->
-      <div class="col-2 col-md-1 pfp-sizing">
+      <div class="col-2 col-md-1 pfp-sizing" title="Profile image and link to the profile">
         <NuxtLink :to="'/profile/?id=' + String(showDomainOrFullAddress)">
           <ProfileImage
             class="img-fluid rounded-circle pfp-img force-circle"
@@ -16,22 +16,30 @@
 
         <!-- post author and timestamp -->
         <p class="card-subtitle mb-2 text-muted">
-          <NuxtLink class="link-without-color hover-color" :to="'/profile/?id=' + String(showDomainOrFullAddress)">
+          <NuxtLink 
+            class="link-without-color hover-color" 
+            :to="'/profile/?id=' + String(showDomainOrFullAddress)"
+            title="Go to profile page"
+          >
             {{ showDomainOrAddress }}
           </NuxtLink>
           <span v-if="message?.createdAt && !isComment">
             ·
-            <NuxtLink class="link-without-color hover-color" :to="postUrl">
+            <NuxtLink 
+              class="link-without-color hover-color" 
+              :to="postUrl"
+              title="Time since post was created and link to the post page"
+            >
               {{ timeSince }}
             </NuxtLink>
           </span>
-          <span v-if="message?.createdAt && isComment">
+          <span v-if="message?.createdAt && isComment" title="Time since post was created">
             ·
             {{ timeSince }}
           </span>
           <span v-if="message?.url">
             ·
-            <a class="link-without-color hover-color" :href="getArweaveUrl" target="_blank">
+            <a class="link-without-color hover-color" :href="getArweaveUrl" target="_blank" title="Link to post stored on Arweave">
               <span style="font-size: 0.9em;">ⓐ</span>
             </a>
           </span>
@@ -70,7 +78,7 @@
         <p class="card-subtitle mt-3 text-muted">
 
           <!-- Replies count -->
-          <NuxtLink v-if="isMainChatMessage" class="link-without-color hover-color" :to="postUrl">
+          <NuxtLink v-if="isMainChatMessage" class="link-without-color hover-color" :to="postUrl" title="See replies to this post">
             <i class="bi bi-chat"></i>
             {{ message.repliesCount }} replies
           </NuxtLink>
@@ -82,6 +90,7 @@
             :class="{ 'ms-3': isMainChatMessage }"
             data-bs-toggle="modal"
             :data-bs-target="'#deleteModal' + storageId"
+            title="Delete the post"
           >
             <i class="bi bi-trash" /> Delete
           </span>

@@ -46,6 +46,7 @@
               class="btn btn-outline-primary me-2 mt-2 btn-sm"
               data-bs-toggle="modal"
               :data-bs-target="'#fileUploadModal' + $.uid"
+              title="Upload image to your post"
             >
               <i class="bi bi-file-earmark-image-fill"></i>
               IMG

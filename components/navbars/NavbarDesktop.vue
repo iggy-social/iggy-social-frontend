@@ -75,7 +75,7 @@
           </div>
         </li>
 
-        <li class="nav-item cursor-pointer">
+        <li class="nav-item cursor-pointer" title="Toggle between light and dark mode">
           <span class="nav-link" v-if="siteStore.getColorMode === 'dark'" @click="changeColorMode('light')">
             <i class="bi bi-brightness-high"></i>
           </span>
