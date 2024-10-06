@@ -10,9 +10,6 @@ export const useUserStore = defineStore({
       address: null,
       chatTokenBalanceWei: BigInt(0),
       defaultDomain: null,
-      followers: 0,
-      following: 0,
-      lastActivityTimestamp: null,
       lpTokenBalanceWei: BigInt(0),
       image: null,
       stakeTokenBalanceWei: BigInt(0), // receipt token from the staking contract (aka governance token)
@@ -44,24 +41,12 @@ export const useUserStore = defineStore({
       return state.defaultDomain
     },
 
-    getFollowers(state) {
-      return state.followers
-    },
-
-    getFollowing(state) {
-      return state.following
-    },
-
-    getLastActivityTimestamp(state) {
-      return state.lastActivityTimestamp
+    getImage(state) {
+      return state.image
     },
 
     getLpTokenBalanceWei(state) {
       return ethers.BigNumber.from(state.lpTokenBalanceWei)
-    },
-
-    getImage(state) {
-      return state.image
     },
 
     getStakeTokenBalanceWei(state) {
@@ -98,24 +83,12 @@ export const useUserStore = defineStore({
       this.defaultDomain = domain
     },
 
-    setFollowers(followers: any) {
-      this.followers = followers
-    },
-
-    setFollowing(following: any) {
-      this.following = following
-    },
-
-    setLastActivityTimestamp(timestamp: any) {
-      this.lastActivityTimestamp = timestamp
+    setImage(image: any) {
+      this.image = image
     },
 
     setLpTokenBalanceWei(balance: ethers.BigNumber) {
       this.lpTokenBalanceWei = balance.toBigInt()
-    },
-
-    setImage(image: any) {
-      this.image = image
     },
 
     setStakeTokenBalanceWei(balance: ethers.BigNumber) {

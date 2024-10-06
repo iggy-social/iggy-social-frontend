@@ -5,6 +5,34 @@ Iggy Social is a Web3 Social frontend website based on the [Iggy Social](https:/
 Demo 1 (Netlify): https://demo.iggy.social/
 Demo 2 (Vercel): https://demo2.iggy.social/
 
+## Add Arweave info
+
+To support posts/comments & image uploads, create an Arweave Wallet (e.g. here: https://arweave.app/) and send some AR to it.
+
+Then go to the wallet settings and download Backup Keyfile.
+
+In this file you'll find 10 different variables, enter these into your .env file:
+
+```bash
+ARWEAVE_KTY=
+ARWEAVE_N=
+ARWEAVE_E=
+ARWEAVE_D=
+ARWEAVE_P=
+ARWEAVE_Q=
+ARWEAVE_DP=
+ARWEAVE_DQ=
+ARWEAVE_QI=
+```
+
+And add the arweave address too:
+
+```bash
+ARWEAVE_ADDRESS=
+```
+
+Also make sure these variables are set on your hosting provider (Netlify, Vercel, etc).
+
 ## Delete mirror.yml in the .github folder
 
 The mirror.yml file is just for the purpose of mirroring this repo to other git servers (for backup reasons). You don't need this in your cloned project.
@@ -61,34 +89,6 @@ And in the build section delete the command and set build folder to empty (or `.
 If you want to have GIF search implemented, create your own Tenor API Key on Google Cloud Console. Follow the instructions here: https://developers.google.com/tenor/guides/quickstart. 
 
 Then enter the key in environment variables (`TENOR_KEY`).
-
-## Image upload (Arweave)
-
-To support image uploads, create an Arweave Wallet (e.g. here: https://arweave.app/) and send some AR to it.
-
-Then go to the wallet settings and download Backup Keyfile.
-
-In this file you'll find 10 different variables, enter these into your .env file:
-
-```bash
-ARWEAVE_KTY=
-ARWEAVE_N=
-ARWEAVE_E=
-ARWEAVE_D=
-ARWEAVE_P=
-ARWEAVE_Q=
-ARWEAVE_DP=
-ARWEAVE_DQ=
-ARWEAVE_QI=
-```
-
-And add the arweave address too:
-
-```bash
-ARWEAVE_ADDRESS=
-```
-
-Also make sure these variables are set on your hosting provider (Netlify, Vercel, etc).
 
 ## ImageKit upload
 
