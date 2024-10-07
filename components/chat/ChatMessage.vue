@@ -17,7 +17,7 @@
         <!-- post author and timestamp -->
         <p class="card-subtitle mb-2 text-muted">
           <NuxtLink 
-            class="link-without-color hover-color" 
+            class="link-without-color hover-color author-color" 
             :to="'/profile/?id=' + String(showDomainOrFullAddress)"
             title="Go to profile page"
           >
@@ -47,14 +47,14 @@
 
         <!-- post text -->
         <div v-if="parsedText">
-          <p class="card-text text-break" v-if="parsedText.length > messageLengthLimit && !showFullText">
+          <p class="card-text text-break post-text-color" v-if="parsedText.length > messageLengthLimit && !showFullText">
             <span v-html="parsedText.substring(0, messageLengthLimit) + ' ... '"> </span>
             <span class="cursor-pointer hover-color" @click="showFullText = true">Read more</span>
           </p>
 
           <p
             v-if="parsedText.length < messageLengthLimit || showFullText"
-            class="card-text text-break"
+            class="card-text text-break post-text-color"
             v-html="parsedText"
           ></p>
         </div>
@@ -67,7 +67,7 @@
 
               <div class="card-body bg-body rounded-bottom-3 border-end border-bottom border-start preview-card-body">
                 <h5 class="card-title text-break">{{ linkPreview.title }}</h5>
-                <p class="card-text text-break text-reset">{{ linkPreview.description }}</p>
+                <p class="card-text text-break post-text-color text-reset">{{ linkPreview.description }}</p>
               </div>
             </a>
           </div>
