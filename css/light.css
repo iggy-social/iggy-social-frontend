@@ -121,6 +121,10 @@
   --bs-white-black-toggle: #000;
 }
 
+[data-bs-theme=light] .author-color {
+  color: #96969a !important;
+}
+
 [data-bs-theme=light] body {
   background-color: #f5f5f6;
 }
@@ -147,6 +151,10 @@
 
 [data-bs-theme=light] p.card-subtitle.mb-2.text-muted a:hover {
   color: var(--bs-primary);
+}
+
+[data-bs-theme=light] .post-text-color {
+  color: #2f2f2f !important;
 }
 
 [data-bs-theme=light] .preview-card-body.bg-body {
