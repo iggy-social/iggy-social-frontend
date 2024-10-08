@@ -17,7 +17,7 @@
         <!-- post author and timestamp -->
         <p class="card-subtitle mb-2 text-muted">
           <NuxtLink 
-            class="link-without-color hover-color author-color" 
+            class="link-without-color hover-color" 
             :to="'/profile/?id=' + String(showDomainOrFullAddress)"
             title="Go to profile page"
           >
