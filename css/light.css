@@ -121,10 +121,6 @@
   --bs-white-black-toggle: #000;
 }
 
-[data-bs-theme=light] .author-color {
-  color: #96969a !important;
-}
-
 [data-bs-theme=light] body {
   background-color: #f5f5f6;
 }
