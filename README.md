@@ -70,6 +70,8 @@ You can also set these in the Nuxt config file (`nuxt.config.ts`).
 
 ### 4everland
 
+> Note that background actions such as link preview or image uploader will not work if you use 4everland as a hosting provider.
+
 [4everland](https://4everland.org/) is a decentralized hosting provider which stores your website on IPFS.
 
 If you have your code on GitHub, the `build.yml` script will build your app via GitHub Actions and create a `build` branch.
