@@ -44,7 +44,10 @@ jobs:
           
           # Create local branches without 'origin/' prefix
           for branch in $(git branch -r | grep -v HEAD); do
-            git branch --track "${branch#origin/}" "$branch"
+            local_branch="${branch#origin/}"
+            if ! git show-ref --verify --quiet "refs/heads/$local_branch"; then
+              git branch --track "$local_branch" "$branch"
+            fi
           done
           
           # Push all branches to GitLab
