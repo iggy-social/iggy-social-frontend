@@ -7,7 +7,7 @@ jobs:
   to_bitbucket:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    steps:                                              # <-- must use actions/checkout before mirroring!
+    steps:                                            
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -21,13 +21,16 @@ jobs:
   to_gitlab:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    steps:                                              # <-- must use actions/checkout before mirroring!
+    steps:                                              
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          fetch-tags: true
       - uses: pixta-dev/repository-mirroring-action@v1
         with:
           target_repo_url:
             git@gitlab.com:iggy-social/iggy-social-frontend.git
-          ssh_private_key:                              # <-- use 'secrets' to pass credential information.
+          ssh_private_key:                              
             ${{ secrets.BITBUCKET_SSH_PRIVATE_KEY }}
+          sync_tags: true
+          push_force: true
