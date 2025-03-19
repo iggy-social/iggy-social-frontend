@@ -25,12 +25,28 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          fetch-tags: true
-      - uses: pixta-dev/repository-mirroring-action@v1
-        with:
-          target_repo_url:
-            git@gitlab.com:iggy-social/iggy-social-frontend.git
-          ssh_private_key:                              
-            ${{ secrets.BITBUCKET_SSH_PRIVATE_KEY }}
-          sync_tags: true
-          push_force: true
+      - name: Configure Git
+        run: |
+          git config --global --add remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+          git fetch --prune --unshallow
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+      - name: Push to GitLab
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.BITBUCKET_SSH_PRIVATE_KEY }}
+        run: |
+          eval $(ssh-agent -s)
+          echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "gitlab.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCsj2bNKTBSpIYDEGk9KxsGh3mySTRgMtXL583qmBpzeQ+jqCMRgBqB98u3z++J1sKlXHWfM9dyhSevkMwSbhoR8XIq/U0tCNyokEi/ueaBMCvbcTHhO7FcwzY92WK4Yt0aGROY5qX2UKSeOvuP4D6TPqKF1onrSzH9bx9XUf2lEdWT/ia1NEKjunUqu1xOB/StKDHMoX4/OKyIzuS0q/T1zOATthvasJFoPrAjkohTyaDUz2LN5JoH839hViyEG82yB+MjcFV5MU3N1l1QL3cVUCh93xSaua1N85qivl+siMkPGbO5xR/En4iEY6K2XPASUEMaieWVNTRCtJ4S8H+9" >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+          
+          # Create local branches without 'origin/' prefix
+          for branch in $(git branch -r | grep -v HEAD); do
+            git branch --track "${branch#origin/}" "$branch"
+          done
+          
+          # Push all branches to GitLab
+          git remote add gitlab git@gitlab.com:iggy-social/iggy-social-frontend.git
+          git push gitlab --all --force
