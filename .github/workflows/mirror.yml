@@ -28,7 +28,7 @@ jobs:
       - name: Configure Git
         run: |
           git config --global --add remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
-          git fetch --prune --unshallow
+          git fetch --prune
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
       - name: Push to GitLab
