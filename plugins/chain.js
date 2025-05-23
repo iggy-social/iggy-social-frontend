@@ -143,7 +143,7 @@ const chains = [
     chainId: 17000,
     name: 'Holesky',
     currency: 'ETH',
-    rpcs: ['https://holesky.drpc.org', 'https://1rpc.io/holesky', 'https://ethereum-holesky-rpc.publicnode.com'],
+    rpcs: ['https://1rpc.io/holesky', 'https://ethereum-holesky-rpc.publicnode.com'],
     blockExplorer: 'https://holesky.etherscan.io',
   },
   {
