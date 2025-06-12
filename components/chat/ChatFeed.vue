@@ -561,8 +561,10 @@ export default {
         this.lastFetchedIndex = msgsToAdd[msgsToAdd.length - 1].index;
         // console.log("lastFetchedIndex additional messages:", this.lastFetchedIndex);
 
-        if (this.lastFetchedIndex === 0) {
+        if (this.lastFetchedIndex == 0) {
           this.showLoadMore = false;
+        } else {
+          this.showLoadMore = true;
         }
 
         //console.log(this.messages);

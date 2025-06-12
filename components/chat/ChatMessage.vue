@@ -435,58 +435,62 @@ export default {
     },
 
     async fetchLinkPreview() {
-      if (this.$config.linkPreviews) {
-        const thisAppUrl = window.location.origin
-        const firstLinkHttps = this.firstLink.replace('http://', 'https://')
+      try {
+        if (this.$config.linkPreviews) {
+          const thisAppUrl = window.location.origin
+          const firstLinkHttps = this.firstLink.replace('http://', 'https://')
 
-        if (firstLinkHttps.startsWith(thisAppUrl.replace('http://', 'https://'))) {
-          return
-        }
-
-        // check in localStorage if link preview is already stored (key is the link)
-        const storedLinkPreviewString = localStorage.getItem(this.firstLink)
-
-        if (storedLinkPreviewString) {
-          this.linkPreview = JSON.parse(storedLinkPreviewString)
-        } else {
-          let fetcherService
-
-          if (this.$config.linkPreviews === 'netlify') {
-            fetcherService = thisAppUrl + '/.netlify/functions/linkPreviews?url=' + this.firstLink
-          } else if (this.$config.linkPreviews === 'vercel') {
-            fetcherService = thisAppUrl + '/api/linkPreviews?url=' + this.firstLink
-          } else if (this.$config.linkPreviews === 'microlink') {
-            fetcherService = 'https://api.microlink.io/?url=' + this.firstLink
+          if (firstLinkHttps.startsWith(thisAppUrl.replace('http://', 'https://'))) {
+            return
           }
 
-          if (fetcherService) {
-            try {
-              const resp = await $fetch(fetcherService).catch(error => error.data)
+          // check in localStorage if link preview is already stored (key is the link)
+          const storedLinkPreviewString = localStorage.getItem(this.firstLink)
 
-              let response = resp
+          if (storedLinkPreviewString) {
+            this.linkPreview = JSON.parse(storedLinkPreviewString)
+          } else {
+            let fetcherService
 
-              if (typeof resp === 'string') {
-                response = JSON.parse(resp)
-              }
+            if (this.$config.linkPreviews === 'netlify') {
+              fetcherService = thisAppUrl + '/.netlify/functions/linkPreviews?url=' + this.firstLink
+            } else if (this.$config.linkPreviews === 'vercel') {
+              fetcherService = thisAppUrl + '/api/linkPreviews?url=' + this.firstLink
+            } else if (this.$config.linkPreviews === 'microlink') {
+              fetcherService = 'https://api.microlink.io/?url=' + this.firstLink
+            }
 
-              if (response?.error) {
-                console.log('Error fetching link preview: ', response['error'])
-                return
-              }
+            if (fetcherService) {
+              try {
+                const resp = await $fetch(fetcherService).catch(error => error.data)
 
-              if (response?.data) {
-                this.linkPreview = response['data']
+                let response = resp
 
-                // store link preview in localStorage
-                if (this.linkPreview?.title) {
-                  localStorage.setItem(this.firstLink, JSON.stringify(this.linkPreview))
+                if (typeof resp === 'string') {
+                  response = JSON.parse(resp)
                 }
+
+                if (response?.error) {
+                  console.log('Error fetching link preview: ', response['error'])
+                  return
+                }
+
+                if (response?.data) {
+                  this.linkPreview = response['data']
+
+                  // store link preview in localStorage
+                  if (this.linkPreview?.title) {
+                    localStorage.setItem(this.firstLink, JSON.stringify(this.linkPreview))
+                  }
+                }
+              } catch (e) {
+                console.log('Error fetching link preview: ', e)
               }
-            } catch (e) {
-              console.log('Error fetching link preview: ', e)
             }
           }
         }
+      } catch (e) {
+        console.log('Error fetching link preview: ', e)
       }
     },
 
