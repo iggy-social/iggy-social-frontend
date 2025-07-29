@@ -20,7 +20,7 @@
             <!-- GIF button -->
             <TenorGifSearch
               v-if="
-                $config.tenorApiKey != '' &&
+                $config.public.tenorApiKey != '' &&
                 isActivated &&
                 isSupportedChain &&
                 hasDomainOrNotRequired
@@ -30,7 +30,7 @@
 
             <!-- Sticker button 
             <TenorStickerSearch 
-              v-if="$config.tenorApiKey != '' && isActivated && isSupportedChain && hasDomainOrNotRequired"  
+              v-if="$config.public.tenorApiKey != '' && isActivated && isSupportedChain && hasDomainOrNotRequired"  
               @insertSticker="insertImage"
             />
             -->
@@ -39,7 +39,7 @@
             <button
               v-if="
                 isActivated &&
-                $config.fileUploadEnabled !== '' &&
+                $config.public.fileUploadEnabled !== '' &&
                 isSupportedChain &&
                 hasDomainOrNotRequired
               "
@@ -58,9 +58,9 @@
               @processFileUrl="insertImage"
               title="Upload image"
               infoText="Upload an image."
-              :storageType="$config.fileUploadStorageType"
+              :storageType="$config.public.fileUploadStorageType"
               :componentId="$.uid"
-              :maxFileSize="$config.fileUploadSizeLimit"
+              :maxFileSize="$config.public.fileUploadSizeLimit"
             />
             <!-- END Upload Image Modal -->
 
@@ -85,7 +85,7 @@
 
             <!-- Get Username button -->
             <button v-if="isActivated && isSupportedChain && !hasDomainOrNotRequired" class="btn btn-primary disabled">
-              Get yourself a {{ $config.tldName }} name to post <i class="bi bi-arrow-right"></i>
+              Get yourself a {{ $config.public.tldName }} name to post <i class="bi bi-arrow-right"></i>
             </button>
 
             <!-- Connect Wallet button -->
@@ -209,7 +209,7 @@ export default {
 
   computed: {
     arweaveBalanceTooLow() {
-      return this.siteStore.arweaveBalance < this.$config.arweaveMinBalance
+      return this.siteStore.arweaveBalance < this.$config.public.arweaveMinBalance
     },
 
     createMessagePlaceholder() {
@@ -227,7 +227,7 @@ export default {
     },
 
     hasDomainOrNotRequired() {
-      if (this.$config.domainRequiredToPost) {
+      if (this.$config.public.domainRequiredToPost) {
         if (this.userStore.getDefaultDomain) {
           return true
         } else {
@@ -263,7 +263,7 @@ export default {
     },
 
     isSupportedChain() {
-      if (this.chainId === this.$config.supportedChainId) {
+      if (this.chainId === this.$config.public.supportedChainId) {
         return true
       } else {
         return false
@@ -274,7 +274,7 @@ export default {
   methods: {
     async checkIfCurrenctUserIsMod() {
       if (this.address) {
-        const value = fetchData(window, this.chatContext, 'mod-' + this.address, this.$config.expiryMods)
+        const value = fetchData(window, this.chatContext, 'mod-' + this.address, this.$config.public.expiryMods)
 
         if (value) {
           if (value?.isMod || value?.isMod === "true") {
@@ -284,7 +284,7 @@ export default {
           }
         }
 
-        const provider = this.$getFallbackProvider(this.$config.supportedChainId)
+        const provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
         const intrfc = new ethers.utils.Interface(['function isUserMod(address) external view returns (bool)'])
         const contract = new ethers.Contract(this.chatContext, intrfc, provider)
 
@@ -303,7 +303,7 @@ export default {
       this.waitingCreateMessage = true
 
       if (!this.signer || !this.isSupportedChain || !this.hasDomainOrNotRequired) {
-        this.toast('Please connect wallet to post messages, make sure you are on the supported chain and have a ' + $config.tldName + ' domain to post.', {
+        this.toast('Please connect wallet to post messages, make sure you are on the supported chain and have a ' + $config.public.tldName + ' domain to post.', {
           type: 'error',
         })
         return
@@ -352,7 +352,7 @@ export default {
           },
           {
             type: 'info',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           },
         )
 
@@ -363,7 +363,7 @@ export default {
 
           this.toast('You have successfully submitted a new message.', {
             type: 'success',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           })
 
           // get main message or reply count
@@ -392,7 +392,7 @@ export default {
           this.toast.dismiss(toastWait)
           this.toast('Transaction has failed.', {
             type: 'error',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           })
           console.log(receipt)
         }
@@ -425,7 +425,7 @@ export default {
       }
 
       try {
-        const provider = this.$getFallbackProvider(this.$config.supportedChainId);
+        const provider = this.$getFallbackProvider(this.$config.public.supportedChainId);
 
         const intrfc = new ethers.utils.Interface([
           {
@@ -581,7 +581,7 @@ export default {
       this.waitingLoadMessages = true
 
       try {
-        const provider = this.$getFallbackProvider(this.$config.supportedChainId)
+        const provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
 
         const intrfc = new ethers.utils.Interface([
           {
@@ -726,7 +726,7 @@ export default {
         return
       }
 
-      const provider = this.$getFallbackProvider(this.$config.supportedChainId)
+      const provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
 
       const intrfc = new ethers.utils.Interface([
         'function price() external view returns (uint256)'
@@ -787,13 +787,13 @@ export default {
 
     async uploadToChatStorage(messageText) {
       // TODO: add upload to chat storage (e.g. Arweave)
-      if (this.$config.chat.storage === 'arweave') {
+      if (this.$config.public.chat.storage === 'arweave') {
         const thisAppUrl = window.location.origin
 
         let fetcherService
-        if (this.$config.fileUploadTokenService === 'netlify') {
+        if (this.$config.public.fileUploadTokenService === 'netlify') {
           fetcherService = thisAppUrl + '/.netlify/functions/arweaveUploader'
-        } else if (this.$config.fileUploadTokenService === 'vercel') {
+        } else if (this.$config.public.fileUploadTokenService === 'vercel') {
           fetcherService = thisAppUrl + '/api/arweaveUploader'
         }
 

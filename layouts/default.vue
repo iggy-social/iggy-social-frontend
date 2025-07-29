@@ -1,19 +1,19 @@
 <template>
   <Head>
-    <Title>{{ $config.projectMetadataTitle }}</Title>
-    <Meta name="description" :content="$config.projectDescription" />
-    <Link rel="icon" type="image/x-icon" :href="$config.favicon" />
+    <Title>{{ $config.public.projectMetadataTitle }}</Title>
+    <Meta name="description" :content="$config.public.projectDescription" />
+    <Link rel="icon" type="image/x-icon" :href="$config.public.favicon" />
 
-    <Meta property="og:title" :content="$config.projectMetadataTitle" />
-    <Meta property="og:description" :content="$config.projectDescription" />
-    <Meta property="og:image" :content="$config.projectUrl + $config.previewImage" />
+    <Meta property="og:title" :content="$config.public.projectMetadataTitle" />
+    <Meta property="og:description" :content="$config.public.projectDescription" />
+    <Meta property="og:image" :content="$config.public.projectUrl + $config.public.previewImage" />
 
     <Meta name="twitter:card" content="summary_large_image" />
-    <Meta name="twitter:site" :content="$config.projectTwitter" />
-    <Meta name="twitter:creator" :content="$config.projectTwitter" />
-    <Meta name="twitter:title" :content="$config.projectMetadataTitle" />
-    <Meta name="twitter:description" :content="$config.projectDescription" />
-    <Meta name="twitter:image" :content="$config.projectUrl + $config.previewImage" />
+    <Meta name="twitter:site" :content="$config.public.projectTwitter" />
+    <Meta name="twitter:creator" :content="$config.public.projectTwitter" />
+    <Meta name="twitter:title" :content="$config.public.projectMetadataTitle" />
+    <Meta name="twitter:description" :content="$config.public.projectDescription" />
+    <Meta name="twitter:image" :content="$config.public.projectUrl + $config.public.previewImage" />
   </Head>
 
   <NavbarDesktop v-if="!isMobile" />
@@ -135,7 +135,7 @@ export default {
     this.fetchArweaveBalance()
 
     // check if file upload is enabled
-    this.siteStore.setFileUploadEnabled(this.$config.fileUploadEnabled)
+    this.siteStore.setFileUploadEnabled(this.$config.public.fileUploadEnabled)
 
     // check if referrer in the URL
     this.referrer = this.$route.query.ref
@@ -181,7 +181,7 @@ export default {
     },
 
     async fetchActivityPoints() {
-      if (this.$config.activityPointsAddress) {
+      if (this.$config.public.activityPointsAddress) {
         const activityPoints = await this.getActivityPoints(this.address, this.signer)
 
         this.userStore.setCurrentUserActivityPoints(activityPoints)
@@ -189,8 +189,8 @@ export default {
     },
 
     async fetchArweaveBalance() {
-      if (this.$config.arweaveAddress) {
-        const balance = await getArweaveBalance(this.$config.arweaveAddress)
+      if (this.$config.public.arweaveAddress) {
+        const balance = await getArweaveBalance(this.$config.public.arweaveAddress)
         //console.log('Arweave balance:', balance)
 
         this.siteStore.setArweaveBalance(balance)
@@ -198,13 +198,13 @@ export default {
     },
 
     // async fetchChatTokenBalance() {
-    // 	if (this.$config.chatTokenAddress) {
+    // 	if (this.$config.public.chatTokenAddress) {
     // 		const chatTokenInterface = new ethers.utils.Interface([
     // 			'function balanceOf(address owner) view returns (uint256)',
     // 		])
 
     // 		const chatTokenContract = new ethers.Contract(
-    // 			this.$config.chatTokenAddress,
+    // 			this.$config.public.chatTokenAddress,
     // 			chatTokenInterface,
     // 			this.signer,
     // 		)
@@ -217,7 +217,7 @@ export default {
 
     // async fetchUserDomain() {
     // 	if (
-    // 		this.chainId === this.$config.supportedChainId &&
+    // 		this.chainId === this.$config.public.supportedChainId &&
     // 		this.address != this.userStore.getCurrentUserAddress
     // 	) {
     // 		this.userStore.setCurrentUserAddress(this.address)
@@ -227,13 +227,13 @@ export default {
     // 		if (this.signer) {
     // 			userDomain = await this.getDomainName(this.address, this.signer)
     // 		} else {
-    //      const provider = this.$getFallbackProvider(this.$config.supportedChainId)
+    //      const provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
     // 			userDomain = await this.getDomainName(this.address, provider)
     // 		}
 
     // 		if (userDomain) {
-    // 			this.userStore.setDefaultDomain(userDomain + this.$config.tldName)
-    // 			storeUsername(window, this.address, userDomain + this.$config.tldName)
+    // 			this.userStore.setDefaultDomain(userDomain + this.$config.public.tldName)
+    // 			storeUsername(window, this.address, userDomain + this.$config.public.tldName)
     // 		} else {
     // 			this.userStore.setDefaultDomain(null)
     // 		}
@@ -252,13 +252,13 @@ export default {
       if (!this.referrer.startsWith('0x')) {
         let domainName = this.referrer
 
-        if (this.referrer.includes(this.$config.tldName)) {
+        if (this.referrer.includes(this.$config.public.tldName)) {
           // get the domain name without extension
           domainName = this.referrer.split('.')[0]
         }
 
         // fetch the domain holder address
-        const provider = this.$getFallbackProvider(this.$config.supportedChainId)
+        const provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
         this.referrer = await this.getDomainHolder(domainName, provider)
       }
 
@@ -318,7 +318,7 @@ export default {
     })
 
     async function fetchUserDomain() {
-      if (chainId.value === $config.supportedChainId && address.value != userStore.getCurrentUserAddress) {
+      if (chainId.value === $config.public.supportedChainId && address.value != userStore.getCurrentUserAddress) {
         userStore.setCurrentUserAddress(address.value)
 
         let userDomain
@@ -326,13 +326,13 @@ export default {
         if (signer.value) {
           userDomain = await getDomainName(address.value, signer.value)
         } else {
-          const provider = $getFallbackProvider($config.supportedChainId)
+          const provider = $getFallbackProvider($config.public.supportedChainId)
           userDomain = await getDomainName(address.value, provider)
         }
 
         if (userDomain) {
-          userStore.setDefaultDomain(userDomain + $config.tldName)
-          storeUsername(window, address.value, userDomain + $config.tldName)
+          userStore.setDefaultDomain(userDomain + $config.public.tldName)
+          storeUsername(window, address.value, userDomain + $config.public.tldName)
         } else {
           userStore.setDefaultDomain(null)
         }
@@ -343,7 +343,7 @@ export default {
     }
 
     async function fetchActivityPoints() {
-      if ($config.activityPointsAddress) {
+      if ($config.public.activityPointsAddress) {
         const activityPoints = await getActivityPoints(address.value, signer.value)
 
         userStore.setCurrentUserActivityPoints(activityPoints)
@@ -351,12 +351,12 @@ export default {
     }
 
     async function fetchChatTokenBalance() {
-      if ($config.chatTokenAddress) {
+      if ($config.public.chatTokenAddress) {
         const chatTokenInterface = new ethers.utils.Interface([
           'function balanceOf(address owner) view returns (uint256)',
         ])
 
-        const chatTokenContract = new ethers.Contract($config.chatTokenAddress, chatTokenInterface, signer.value)
+        const chatTokenContract = new ethers.Contract($config.public.chatTokenAddress, chatTokenInterface, signer.value)
 
         const balance = await chatTokenContract.balanceOf(address.value)
 
@@ -380,26 +380,6 @@ export default {
   },
 
   watch: {
-    // address(newVal, oldVal) {
-    // 	if (newVal) {
-    // 		this.fetchUserDomain()
-    // 	}
-    // },
-
-    // chainId(newVal, oldVal) {
-    // 	if (newVal) {
-    // 		this.fetchUserDomain()
-    // 	}
-    // },
-
-    // isActivated(newVal, oldVal) {
-    // 	if (oldVal === true && newVal === false) {
-    // 		// if user disconnects, clear the local storage
-    // 		console.log('user disconnected')
-    // 		localStorage.setItem('connected', '')
-    // 	}
-    // },
-
     width(newVal, oldVal) {
       if (newVal > this.breakpoint) {
         this.lSidebar.show()

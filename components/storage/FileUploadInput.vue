@@ -54,9 +54,9 @@ export default {
       const thisAppUrl = window.location.origin
 
       let fetcherService
-      if (this.$config.fileUploadTokenService === 'netlify') {
+      if (this.$config.public.fileUploadTokenService === 'netlify') {
         fetcherService = thisAppUrl + '/.netlify/functions/arweaveUploader'
-      } else if (this.$config.fileUploadTokenService === 'vercel') {
+      } else if (this.$config.public.fileUploadTokenService === 'vercel') {
         fetcherService = thisAppUrl + '/api/arweaveUploader'
       }
 
@@ -91,9 +91,9 @@ export default {
       const thisAppUrl = window.location.origin
 
       let fetcherService
-      if (this.$config.fileUploadTokenService === 'netlify') {
+      if (this.$config.public.fileUploadTokenService === 'netlify') {
         fetcherService = thisAppUrl + '/.netlify/functions/imageKitUploader'
-      } else if (this.$config.fileUploadTokenService === 'vercel') {
+      } else if (this.$config.public.fileUploadTokenService === 'vercel') {
         fetcherService = thisAppUrl + '/api/imageKitUploader'
       }
 
@@ -106,14 +106,14 @@ export default {
       }
 
       const imagekit = new ImageKit({
-        publicKey: this.$config.imagekitPublicKey,
-        urlEndpoint: this.$config.imagekitEndpoint,
+        publicKey: this.$config.public.imagekitPublicKey,
+        urlEndpoint: this.$config.public.imagekitEndpoint,
       })
 
       const result = await imagekit.upload({
         file: this.file,
         fileName: this.newFileName,
-        tags: [this.$config.projectName, this.$config.projectUrl],
+        tags: [this.$config.public.projectName, this.$config.public.projectUrl],
         token: authParams.data.token,
         signature: authParams.data.signature,
         expire: authParams.data.expire,

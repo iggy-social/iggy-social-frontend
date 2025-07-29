@@ -3,9 +3,9 @@
   <button
     v-if="!navbar && !dropdown"
     class="btn btn-primary"
-    @click="changeNetwork($getChainName($config.supportedChainId))"
+    @click="changeNetwork($getChainName($config.public.supportedChainId))"
   >
-    Switch to {{ $getChainName($config.supportedChainId) }}
+    Switch to {{ $getChainName($config.public.supportedChainId) }}
   </button>
 
   <!-- Button with dropdown -->
@@ -14,8 +14,8 @@
       {{ showChainName }}
     </button>
     <div class="dropdown-menu">
-      <span class="dropdown-item cursor-pointer" @click="changeNetwork($getChainName($config.supportedChainId))">
-        Switch to {{ $getChainName($config.supportedChainId) }}
+      <span class="dropdown-item cursor-pointer" @click="changeNetwork($getChainName($config.public.supportedChainId))">
+        Switch to {{ $getChainName($config.public.supportedChainId) }}
       </span>
     </div>
   </div>
@@ -33,8 +33,8 @@
       {{ showChainName }}
     </a>
     <div class="dropdown-menu dropdown-menu-end">
-      <span class="dropdown-item cursor-pointer" @click="changeNetwork($getChainName($config.supportedChainId))">
-        Switch to {{ $getChainName($config.supportedChainId) }}
+      <span class="dropdown-item cursor-pointer" @click="changeNetwork($getChainName($config.public.supportedChainId))">
+        Switch to {{ $getChainName($config.public.supportedChainId) }}
       </span>
     </div>
   </li>
@@ -49,8 +49,8 @@ export default {
 
   computed: {
     showChainName() {
-      if (this.chainId === this.$config.supportedChainId) {
-        return this.$getChainName(this.$config.supportedChainId)
+      if (this.chainId === this.$config.public.supportedChainId) {
+        return this.$getChainName(this.$config.public.supportedChainId)
       } else {
         return 'Unsupported network'
       }

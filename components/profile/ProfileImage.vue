@@ -35,7 +35,7 @@ export default {
         return null
       }
 
-      return this.domain.replace(this.$config.tldName, '')
+      return this.domain.replace(this.$config.public.tldName, '')
     },
   },
 
@@ -53,7 +53,7 @@ export default {
       if (this.domainName) {
 
         // Check if domain name has an image (domainName-img key)
-        const dataObject = fetchData(window, this.domainName, "img", this.$config.expiryPfps)
+        const dataObject = fetchData(window, this.domainName, "img", this.$config.public.expiryPfps)
 
         if (dataObject) {
           const prefetchRes = await getWorkingUrl(dataObject.image)
@@ -63,9 +63,9 @@ export default {
           }
         } else {
           // fetch image from blockchain
-          let provider = this.$getFallbackProvider(this.$config.supportedChainId)
+          let provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
 
-          if (this.isActivated && this.chainId === this.$config.supportedChainId) {
+          if (this.isActivated && this.chainId === this.$config.public.supportedChainId) {
             // fetch provider from user's wallet
             provider = this.signer
           }
@@ -74,7 +74,7 @@ export default {
             'function getDomainData(string calldata _domainName) public view returns(string memory) ', // returns a stringified JSON object
           ])
 
-          const punkContract = new ethers.Contract(this.$config.punkTldAddress, punkInterface, provider)
+          const punkContract = new ethers.Contract(this.$config.public.punkTldAddress, punkInterface, provider)
 
           try {
             const domainData = await punkContract.getDomainData(String(this.domainName).toLowerCase())

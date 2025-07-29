@@ -130,7 +130,7 @@ export default {
           },
           {
             type: 'info',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           },
         )
 
@@ -140,7 +140,7 @@ export default {
           this.toast.dismiss(toastWait)
           this.toast('You have successfully approved ' + this.token.symbol + '!', {
             type: 'success',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           })
           this.$emit('setApprovalAmount', approvalAmount)
           this.waiting = false
@@ -150,7 +150,7 @@ export default {
           this.toast.dismiss(toastWait)
           this.toast('Transaction has failed.', {
             type: 'error',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           })
           console.log(receipt)
         }

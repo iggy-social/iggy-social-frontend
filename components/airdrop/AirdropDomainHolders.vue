@@ -1,7 +1,7 @@
 <template>
   <div>
     <p class="text-center">
-      Claim {{ domainChatReward }} {{ $config.chatTokenSymbol }} airdrop for each {{ $config.tldName }} domain that you
+      Claim {{ domainChatReward }} {{ $config.public.chatTokenSymbol }} airdrop for each {{ $config.public.tldName }} domain that you
       hold.
     </p>
 
@@ -10,7 +10,7 @@
       <input v-model="domainName" type="text" placeholder="Enter domain name" class="form-control" />
 
       <button class="btn btn-primary" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-        {{ $config.tldName }}
+        {{ $config.public.tldName }}
       </button>
     </div>
 
@@ -37,7 +37,7 @@
     <p class="text-center">
       <small>
         Note that someone else can claim tokens (for a given domain) for you and save you on gas fees. You will still
-        receive the same amount of {{ $config.chatTokenSymbol }} tokens as if you've made the claim yourself.
+        receive the same amount of {{ $config.public.chatTokenSymbol }} tokens as if you've made the claim yourself.
       </small>
     </p>
   </div>
@@ -71,7 +71,7 @@ export default {
     async claim() {
       this.waiting = true
 
-      const cleanDomainName = this.domainName.replace(this.$config.tldName, '').trim().toLowerCase()
+      const cleanDomainName = this.domainName.replace(this.$config.public.tldName, '').trim().toLowerCase()
       console.log(cleanDomainName)
 
       const chatTokenClaimDomainsInterface = new ethers.utils.Interface([
@@ -79,7 +79,7 @@ export default {
       ])
 
       const chatTokenClaimDomainsContract = new ethers.Contract(
-        this.$config.airdropClaimDomainsAddress,
+        this.$config.public.airdropClaimDomainsAddress,
         chatTokenClaimDomainsInterface,
         this.signer,
       )
@@ -96,7 +96,7 @@ export default {
           },
           {
             type: 'info',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           },
         )
 
@@ -105,9 +105,9 @@ export default {
         if (receipt.status === 1) {
           this.toast.dismiss(toastWait)
 
-          this.toast('Airdrop for ' + cleanDomainName + this.$config.tldName + ' has been successfully claimed!', {
+          this.toast('Airdrop for ' + cleanDomainName + this.$config.public.tldName + ' has been successfully claimed!', {
             type: 'success',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           })
 
           this.userStore.addToChatTokenBalanceWei(this.domainChatRewardWei)
@@ -118,7 +118,7 @@ export default {
           this.waiting = false
           this.toast('Transaction has failed.', {
             type: 'error',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           })
           console.log(receipt)
         }

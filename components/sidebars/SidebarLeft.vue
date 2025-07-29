@@ -1,6 +1,6 @@
 <template>
   <div class="col col-lg-auto px-0 mt-1">
-    <div id="sidebar1" class="collapse collapse-horizontal" :class="$config.sidebarLeftSticky ? 'sticky-lg-top' : ''">
+    <div id="sidebar1" class="collapse collapse-horizontal" :class="$config.public.sidebarLeftSticky ? 'sticky-lg-top' : ''">
       <div class="sidebar-nav list-group border-0 rounded-0 text-sm-start min-vh-100">
         <div class="card m-2 p-2 bg-light">
           <div v-if="isActivated && userStore.getDefaultDomain" class="text-center">
@@ -20,13 +20,13 @@
 
             <!-- Chat tokens -->
             <!--
-          <button v-if="userStore.getChatTokenBalanceWei > 0 && $config.chatTokenAddress" class="btn btn-outline-primary btn-sm mt-2 mb-2 disabled">
-            {{ userStore.getChatTokenBalance }} {{ $config.chatTokenSymbol }}
+          <button v-if="userStore.getChatTokenBalanceWei > 0 && $config.public.chatTokenAddress" class="btn btn-outline-primary btn-sm mt-2 mb-2 disabled">
+            {{ userStore.getChatTokenBalance }} {{ $config.public.chatTokenSymbol }}
           </button>
           -->
 
             <!-- Activity Points -->
-            <div v-if="$config.activityPointsAddress && $config.showFeatures.activityPoints" class="mt-2">
+            <div v-if="$config.public.activityPointsAddress && $config.public.showFeatures.activityPoints" class="mt-2">
               <NuxtLink to="/activity-points" class="btn btn-outline-primary btn-sm mt-2 mb-2">
                 {{ getUserAp }} AP
               </NuxtLink>
@@ -83,7 +83,7 @@
             <li
               class="nav-item p-1"
               @click="closeLeftSidebar"
-              v-if="$config.nftLaunchpadBondingAddress && $config.showFeatures.nftLaunchpad"
+              v-if="$config.public.nftLaunchpadBondingAddress && $config.public.showFeatures.nftLaunchpad"
             >
               <NuxtLink
                 class="nav-link"
@@ -111,7 +111,7 @@
             <li
               class="nav-item p-1"
               @click="closeLeftSidebar"
-              v-if="$config.showFeatures.activityPoints && $config.activityPointsAddress"
+              v-if="$config.public.showFeatures.activityPoints && $config.public.activityPointsAddress"
             >
               <NuxtLink
                 class="nav-link"
@@ -132,7 +132,7 @@
           -->
 
             <!-- Send tokens -->
-            <li class="nav-item p-1" @click="closeLeftSidebar" v-if="$config.showFeatures.sendTokens">
+            <li class="nav-item p-1" @click="closeLeftSidebar" v-if="$config.public.showFeatures.sendTokens">
               <NuxtLink
                 class="nav-link"
                 :class="$route.path.startsWith('/send-tokens') ? 'active' : ''"
@@ -147,7 +147,7 @@
             <li
               class="nav-item p-1"
               @click="closeLeftSidebar"
-              v-if="$config.stakingContractAddress && $config.showFeatures.stake"
+              v-if="$config.public.stakingContractAddress && $config.public.showFeatures.stake"
             >
               <NuxtLink
                 class="nav-link"
@@ -163,7 +163,7 @@
             <li
               class="nav-item p-1"
               @click="closeLeftSidebar"
-              v-if="$config.swapRouterAddress && $config.showFeatures.swap"
+              v-if="$config.public.swapRouterAddress && $config.public.showFeatures.swap"
             >
               <NuxtLink
                 class="nav-link"
@@ -179,7 +179,7 @@
             <li
               class="nav-item p-1"
               @click="closeLeftSidebar"
-              v-if="($config.airdropClaimDomainsAddress || $config.airdropApAddress) && $config.showFeatures.airdrop"
+              v-if="($config.public.airdropClaimDomainsAddress || $config.public.airdropApAddress) && $config.public.showFeatures.airdrop"
             >
               <NuxtLink
                 class="nav-link"
@@ -192,8 +192,8 @@
             </li>
 
             <!-- Governance -->
-            <li class="nav-item p-1" v-if="$config.showFeatures.governance" @click="closeLeftSidebar">
-              <a class="nav-link" :href="$config.governanceUrl" target="_blank">
+            <li class="nav-item p-1" v-if="$config.public.showFeatures.governance" @click="closeLeftSidebar">
+              <a class="nav-link" :href="$config.public.governanceUrl" target="_blank">
                 <i class="bi bi-box2 me-2"></i> Governance
                 <small><i class="bi bi-box-arrow-up-right ms-1"></i></small>
               </a>
@@ -231,7 +231,7 @@
 
             <ul class="dropdown-menu">
 
-              <li class="pt-1 pb-1" @click="closeLeftSidebar" v-if="$config.airdropClaimDomainsAddress || $config.airdropApAddress">
+              <li class="pt-1 pb-1" @click="closeLeftSidebar" v-if="$config.public.airdropClaimDomainsAddress || $config.public.airdropApAddress">
                 <NuxtLink class="dropdown-item" :class="$route.path.startsWith('/airdrop') ? 'active' : ''" aria-current="page" to="/airdrop">
                   <i class="bi bi-gift me-2"></i> Airdrop
                 </NuxtLink>
@@ -313,10 +313,10 @@ export default {
     },
 
     async fetchActivityPoints() {
-      if (this.$config.activityPointsAddress && this.address) {
+      if (this.$config.public.activityPointsAddress && this.address) {
         this.toast.info('Refreshing activity points...', { timeout: 2000 })
 
-        const provider = this.$getFallbackProvider(this.$config.supportedChainId)
+        const provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
 
         const activityPoints = await this.getActivityPoints(this.address, provider)
 

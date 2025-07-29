@@ -28,13 +28,13 @@
         <ReferralWidget />
 
         <!-- Playlist -->
-        <div class="card m-2 bg-light" v-if="$config.showFeatures.spotify">
-          <div class="card-header bg-light">{{ $config.projectName }} Playlist</div>
+        <div class="card m-2 bg-light" v-if="$config.public.showFeatures.spotify">
+          <div class="card-header bg-light">{{ $config.public.projectName }} Playlist</div>
           <div class="card-body sidebar-card-body">
             <iframe
               style="border-radius: 12px"
               :src="
-                'https://open.spotify.com/embed/playlist/' + $config.spotifyPlaylistId + '?utm_source=generator&theme=0'
+                'https://open.spotify.com/embed/playlist/' + $config.public.spotifyPlaylistId + '?utm_source=generator&theme=0'
               "
               width="100%"
               height="352"
@@ -48,17 +48,17 @@
 
         <!-- Swap tokens -->
         <SimpleSwapWidget
-          v-if="$config.swapRouterAddress && $config.showFeatures.swap"
-          :routerAddress="$config.swapRouterAddress"
+          v-if="$config.public.swapRouterAddress && $config.public.showFeatures.swap"
+          :routerAddress="$config.public.swapRouterAddress"
           :tokens="tokens"
           title="Swap tokens"
         />
 
         <!-- Newsletter -->
-        <div v-if="$config.newsletterLink && $config.showFeatures.newsletter" class="card m-2 bg-light">
-          <div class="card-header bg-light">{{ $config.projectName }} Newsletter</div>
+        <div v-if="$config.public.newsletterLink && $config.public.showFeatures.newsletter" class="card m-2 bg-light">
+          <div class="card-header bg-light">{{ $config.public.projectName }} Newsletter</div>
           <div class="card-body sidebar-card-body">
-            <a class="btn btn-outline-primary mt-2 mb-2" target="_blank" :href="$config.newsletterLink">
+            <a class="btn btn-outline-primary mt-2 mb-2" target="_blank" :href="$config.public.newsletterLink">
               Join our newsletter!
               <i class="bi bi-box-arrow-up-right ms-1"></i>
             </a>
@@ -93,7 +93,7 @@ export default {
 
   computed: {
     isSupportedChain() {
-      if (this.chainId === this.$config.supportedChainId) {
+      if (this.chainId === this.$config.public.supportedChainId) {
         return true
       } else {
         return false

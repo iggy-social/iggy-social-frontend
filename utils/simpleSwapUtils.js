@@ -28,7 +28,7 @@ export async function getOutputTokenAmount(signer, inputToken, outputToken, amou
 
   let path = [inputToken.address, outputToken.address]
 
-  const wrappedAddress = wrappedNativeTokens[String(config.supportedChainId)]
+  const wrappedAddress = wrappedNativeTokens[String(config.public.supportedChainId)]
 
   // check if input & output tokens are not native coin or wrapped token
   if (
@@ -69,7 +69,7 @@ export function swapTokens(signer, receiver, inputToken, outputToken, amountIn, 
   // get deadline in minutes from the site store
   const deadline = Math.floor(Date.now() / 1000) + 60 * Number(siteStore.getSwapDeadline) // X minutes from the current Unix time
 
-  const wrappedAddress = String(wrappedNativeTokens[String(config.supportedChainId)]).toLowerCase()
+  const wrappedAddress = String(wrappedNativeTokens[String(config.public.supportedChainId)]).toLowerCase()
   const inputTokenAddress = String(inputToken.address).toLowerCase()
   const outputTokenAddress = String(outputToken.address).toLowerCase()
 

@@ -8,7 +8,7 @@
         </div>
         <div class="modal-body">
           <p>
-            Share your referral link and earn referral fees<span v-if="$config.showFeatures.activityPoints">
+            Share your referral link and earn referral fees<span v-if="$config.public.showFeatures.activityPoints">
               (and activity points)</span
             >! 🤑
           </p>

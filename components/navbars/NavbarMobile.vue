@@ -42,7 +42,7 @@ export default {
 
   computed: {
     isSupportedChain() {
-      if (this.chainId === this.$config.supportedChainId) {
+      if (this.chainId === this.$config.public.supportedChainId) {
         return true
       } else {
         return false

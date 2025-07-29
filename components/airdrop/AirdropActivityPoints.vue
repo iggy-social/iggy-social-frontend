@@ -1,13 +1,13 @@
 <template>
   <div>
-    <p class="text-center">Claim {{ airdropAp }} {{ $config.chatTokenSymbol }} airdrop for past activity points.</p>
+    <p class="text-center">Claim {{ airdropAp }} {{ $config.public.chatTokenSymbol }} airdrop for past activity points.</p>
 
     <!-- Input field -->
     <div class="input-group mt-5">
       <input v-model="airdropAp" type="text" class="form-control" disabled />
 
       <button class="btn btn-primary" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-        {{ $config.chatTokenSymbol }}
+        {{ $config.public.chatTokenSymbol }}
       </button>
     </div>
 
@@ -34,7 +34,7 @@
     <p class="text-center">
       <small>
         If you're not eligible, or have already claimed the airdrop, the amount of
-        {{ $config.chatTokenSymbol }} tokens shown is 0.
+        {{ $config.public.chatTokenSymbol }} tokens shown is 0.
       </small>
     </p>
   </div>
@@ -70,7 +70,7 @@ export default {
 
       const claimApInterface = new ethers.utils.Interface(['function claim() external'])
 
-      const claimApContract = new ethers.Contract(this.$config.airdropApAddress, claimApInterface, this.signer)
+      const claimApContract = new ethers.Contract(this.$config.public.airdropApAddress, claimApInterface, this.signer)
 
       try {
         const tx = await claimApContract.claim()
@@ -84,7 +84,7 @@ export default {
           },
           {
             type: 'info',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           },
         )
 
@@ -99,7 +99,7 @@ export default {
 
           this.toast('Airdrop for past APs has been successfully claimed!', {
             type: 'success',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           })
 
           this.waiting = false
@@ -108,7 +108,7 @@ export default {
           this.waiting = false
           this.toast('Transaction has failed.', {
             type: 'error',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           })
           console.log(receipt)
         }

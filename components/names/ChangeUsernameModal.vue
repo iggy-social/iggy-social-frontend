@@ -23,7 +23,7 @@
 
           <div class="input-group mb-3">
             <input type="text" class="form-control text-end" placeholder="enter name" v-model="domainName" />
-            <span class="input-group-text">{{ $config.tldName }}</span>
+            <span class="input-group-text">{{ $config.public.tldName }}</span>
           </div>
 
           <p v-if="domainNotValid.invalid && domainNotValid.message" class="text-danger">
@@ -172,7 +172,7 @@ export default {
           'function editDefaultDomain(string calldata _domainName) external',
         ])
 
-        const tldContract = new ethers.Contract(this.$config.punkTldAddress, tldInterface, this.signer)
+        const tldContract = new ethers.Contract(this.$config.public.punkTldAddress, tldInterface, this.signer)
 
         try {
           const tx = await tldContract.editDefaultDomain(
@@ -188,7 +188,7 @@ export default {
             },
             {
               type: 'info',
-              onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
             },
           )
 
@@ -199,7 +199,7 @@ export default {
             this.fetchUserDomain() // update the main username in this app
             this.toast('You have successfully changed your username!', {
               type: 'success',
-              onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
             })
             this.loading = false
             document.getElementById('closeChangeUsernameModal').click()
@@ -207,7 +207,7 @@ export default {
             this.toast.dismiss(toastWait)
             this.toast('Transaction has failed.', {
               type: 'error',
-              onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
             })
             this.loading = false
             console.log(receipt)
@@ -228,13 +228,13 @@ export default {
         if (this.signer) {
           userDomain = await this.getDomainName(this.address, this.signer)
         } else {
-          const provider = this.$getFallbackProvider(this.$config.supportedChainId)
+          const provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
           userDomain = await this.getDomainName(this.address, provider)
         }
 
         if (userDomain) {
-          this.userStore.setDefaultDomain(userDomain + this.$config.tldName)
-          storeUsername(window, this.address, userDomain + this.$config.tldName)
+          this.userStore.setDefaultDomain(userDomain + this.$config.public.tldName)
+          storeUsername(window, this.address, userDomain + this.$config.public.tldName)
         } else {
           this.userStore.setDefaultDomain(null)
         }

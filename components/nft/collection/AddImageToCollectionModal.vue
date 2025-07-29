@@ -21,20 +21,20 @@
 
         <div class="modal-body">
           <div class="mt-2">
-            <div v-if="!imageUrl && $config.fileUploadEnabled">
+            <div v-if="!imageUrl && $config.public.fileUploadEnabled">
               <p>Upload additional image (and then click Submit below):</p>
 
               <FileUploadInput
                 btnCls="btn btn-primary"
-                :storageType="$config.fileUploadStorageType"
-                :maxFileSize="$config.fileUploadSizeLimit"
+                :storageType="$config.public.fileUploadStorageType"
+                :maxFileSize="$config.public.fileUploadSizeLimit"
                 @processUploadedFileUrl="insertImageLink"
               />
 
               <p class="mt-3">Or paste image link here:</p>
             </div>
 
-            <p v-if="!$config.fileUploadEnabled">Paste image link here:</p>
+            <p v-if="!$config.public.fileUploadEnabled">Paste image link here:</p>
 
             <input v-model="imageUrl" type="text" class="form-control" id="addImageToCollectionInput" />
 
@@ -108,7 +108,7 @@ export default {
           },
           {
             type: 'info',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           },
         )
 
@@ -119,7 +119,7 @@ export default {
 
           this.toast('You have successfully added new image URL to the NFT collection.', {
             type: 'success',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           })
 
           this.imageUrl = null
@@ -133,7 +133,7 @@ export default {
           this.waiting = false
           this.toast('Transaction has failed.', {
             type: 'error',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           })
           console.log(receipt)
         }

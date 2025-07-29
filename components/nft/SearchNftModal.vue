@@ -81,15 +81,15 @@ export default {
           ])
 
           // fetch provider from hardcoded RPCs
-          let provider = this.$getFallbackProvider(this.$config.supportedChainId)
+          let provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
 
-          if (this.isActivated && this.chainId === this.$config.supportedChainId) {
+          if (this.isActivated && this.chainId === this.$config.public.supportedChainId) {
             // fetch provider from user's MetaMask
             provider = this.signer
           }
 
           const launchpadContract = new ethers.Contract(
-            this.$config.nftLaunchpadBondingAddress,
+            this.$config.public.nftLaunchpadBondingAddress,
             launchpadInterface,
             provider,
           )

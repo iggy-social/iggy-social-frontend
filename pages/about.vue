@@ -1,7 +1,7 @@
 <template>
   <Head>
-    <Title>About | {{ $config.projectMetadataTitle }}</Title>
-    <Meta property="og:title" :content="'About | ' + $config.projectMetadataTitle" />
+    <Title>About | {{ $config.public.projectMetadataTitle }}</Title>
+    <Meta property="og:title" :content="'About | ' + $config.public.projectMetadataTitle" />
   </Head>
 
   <div class="card border scroll-500">

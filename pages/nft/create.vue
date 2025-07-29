@@ -1,15 +1,15 @@
 <template>
   <Head>
-    <Title>Create NFT Collection | {{ $config.projectMetadataTitle }}</Title>
-    <Meta property="og:title" :content="'Create NFT Collection | ' + $config.projectMetadataTitle" />
+    <Title>Create NFT Collection | {{ $config.public.projectMetadataTitle }}</Title>
+    <Meta property="og:title" :content="'Create NFT Collection | ' + $config.public.projectMetadataTitle" />
 
-    <Meta name="description" :content="'Create your very own NFT collection on ' + $config.projectName + '!'" />
+    <Meta name="description" :content="'Create your very own NFT collection on ' + $config.public.projectName + '!'" />
 
-    <Meta property="og:image" :content="$config.projectUrl + $config.previewImageNftCreate" />
-    <Meta property="og:description" :content="'Create your very own NFT collection on ' + $config.projectName + '!'" />
+    <Meta property="og:image" :content="$config.public.projectUrl + $config.public.previewImageNftCreate" />
+    <Meta property="og:description" :content="'Create your very own NFT collection on ' + $config.public.projectName + '!'" />
 
-    <Meta name="twitter:image" :content="$config.projectUrl + $config.previewImageNftCreate" />
-    <Meta name="twitter:description" :content="'Create your very own NFT collection on ' + $config.projectName + '!'" />
+    <Meta name="twitter:image" :content="$config.public.projectUrl + $config.public.previewImageNftCreate" />
+    <Meta name="twitter:description" :content="'Create your very own NFT collection on ' + $config.public.projectName + '!'" />
   </Head>
 
   <div class="card border scroll-500">
@@ -25,7 +25,7 @@
       </div>
 
       <p class="mb-4" v-if="createPrice">
-        Price for creating a collection is {{ createPrice }} {{ $config.tokenSymbol }}.
+        Price for creating a collection is {{ createPrice }} {{ $config.public.tokenSymbol }}.
       </p>
 
       <!-- Collection Name -->
@@ -70,7 +70,7 @@
           />
 
           <button
-            v-if="isActivated && $config.fileUploadEnabled !== ''"
+            v-if="isActivated && $config.public.fileUploadEnabled !== ''"
             class="btn btn-outline-secondary rounded-end-2"
             data-bs-toggle="modal"
             :data-bs-target="'#fileUploadModal' + $.uid"
@@ -149,10 +149,10 @@
         <label for="ratio" class="form-label">Bonding Curve Ratio</label>
         <input type="text" class="form-control" id="ratio" aria-describedby="ratioHelp" v-model="ratio" />
         <div id="ratioHelp" class="form-text">
-          Price for mint #1 will be {{ getLessDecimals(calculatePrice(2, ratio)) }} {{ $config.tokenSymbol }}, for mint
-          #5 will be {{ getLessDecimals(calculatePrice(5, ratio)) }} {{ $config.tokenSymbol }}, for mint #15 will be
-          {{ getLessDecimals(calculatePrice(15, ratio)) }} {{ $config.tokenSymbol }}, for mint #30 will be
-          {{ getLessDecimals(calculatePrice(30, ratio)) }} {{ $config.tokenSymbol }}, etc.
+          Price for mint #1 will be {{ getLessDecimals(calculatePrice(2, ratio)) }} {{ $config.public.tokenSymbol }}, for mint
+          #5 will be {{ getLessDecimals(calculatePrice(5, ratio)) }} {{ $config.public.tokenSymbol }}, for mint #15 will be
+          {{ getLessDecimals(calculatePrice(15, ratio)) }} {{ $config.public.tokenSymbol }}, for mint #30 will be
+          {{ getLessDecimals(calculatePrice(30, ratio)) }} {{ $config.public.tokenSymbol }}, etc.
         </div>
       </div>
 
@@ -172,7 +172,7 @@
             role="status"
             aria-hidden="true"
           ></span>
-          Create NFT Collection for {{ createPrice }} {{ $config.tokenSymbol }}
+          Create NFT Collection for {{ createPrice }} {{ $config.public.tokenSymbol }}
         </button>
 
         <!-- Paused button -->
@@ -195,9 +195,9 @@
         @processFileUrl="insertImage"
         title="Upload your NFT image"
         infoText="Upload the NFT image."
-        :storageType="$config.fileUploadStorageType"
+        :storageType="$config.public.fileUploadStorageType"
         :componentId="$.uid"
-        :maxFileSize="$config.fileUploadSizeLimit"
+        :maxFileSize="$config.public.fileUploadSizeLimit"
       />
       <!-- END Upload Image Modal -->
     </div>
@@ -247,7 +247,7 @@ export default {
 
   mounted() {
     this.isMounted = true
-    this.ratio = this.$config.nftDefaultRatio
+    this.ratio = this.$config.public.nftDefaultRatio
     this.fetchData()
   },
 
@@ -277,7 +277,7 @@ export default {
     },
 
     isSupportedChain() {
-      if (this.chainId === this.$config.supportedChainId) {
+      if (this.chainId === this.$config.public.supportedChainId) {
         return true
       } else {
         return false
@@ -320,7 +320,7 @@ export default {
         ])
 
         const launchpadContract = new ethers.Contract(
-          this.$config.nftLaunchpadBondingAddress,
+          this.$config.public.nftLaunchpadBondingAddress,
           launchpadInterface,
           this.signer,
         )
@@ -348,7 +348,7 @@ export default {
             },
             {
               type: 'info',
-              onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
             },
           )
 
@@ -359,7 +359,7 @@ export default {
 
             this.toast('You have successfully created an NFT collection!', {
               type: 'success',
-              onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
             })
 
             // after successful launch, fetch the collection address and redirect to the collection page
@@ -373,7 +373,7 @@ export default {
             this.waitingCreate = false
             this.toast('Transaction has failed.', {
               type: 'error',
-              onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
             })
             console.log(receipt)
           }
@@ -404,9 +404,9 @@ export default {
       this.waitingData = true
 
       // fetch provider from hardcoded RPCs
-      let provider = this.$getFallbackProvider(this.$config.supportedChainId)
+      let provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
 
-      if (this.isActivated && this.chainId === this.$config.supportedChainId) {
+      if (this.isActivated && this.chainId === this.$config.public.supportedChainId) {
         // fetch provider from user's MetaMask
         provider = this.signer
       }
@@ -419,7 +419,7 @@ export default {
       ])
 
       const launchpadContract = new ethers.Contract(
-        this.$config.nftLaunchpadBondingAddress,
+        this.$config.public.nftLaunchpadBondingAddress,
         launchpadInterface,
         provider,
       )

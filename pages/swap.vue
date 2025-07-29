@@ -1,7 +1,7 @@
 <template>
   <Head>
-    <Title>Swap | {{ $config.projectMetadataTitle }}</Title>
-    <Meta property="og:title" :content="'Token Swap | ' + $config.projectMetadataTitle" />
+    <Title>Swap | {{ $config.public.projectMetadataTitle }}</Title>
+    <Meta property="og:title" :content="'Token Swap | ' + $config.public.projectMetadataTitle" />
   </Head>
 
   <div class="scroll-500">
@@ -15,7 +15,7 @@
 
         <div class="d-flex justify-content-center mt-5">
           <div class="col-12 col-lg-8">
-            <SimpleSwap :routerAddress="$config.swapRouterAddress" swapId="SwapPage1" :tokens="tokens" />
+            <SimpleSwap :routerAddress="$config.public.swapRouterAddress" swapId="SwapPage1" :tokens="tokens" />
           </div>
         </div>
       </div>

@@ -66,7 +66,7 @@ FILE_UPLOAD_SERVICE=netlify
 LINK_PREVIEW_SERVICE=netlify
 ```
 
-You can also set these in the Nuxt config file (`nuxt.config.ts`).
+You can also set these in the Nuxt config file (`nuxt.config.public.ts`).
 
 ### 4everland
 
@@ -108,7 +108,7 @@ You can also use ImageKit as your main image upload, if you set the `fileUploadS
 
 ## Customize
 
-- Project-specific settings in `nuxt.config.ts`
+- Project-specific settings in `nuxt.config.public.ts`
 - CSS files in the `/public/css/` folder
 - Favicon and cover/preview images in `/public/img/` folder
 

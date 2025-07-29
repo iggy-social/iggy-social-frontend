@@ -1,7 +1,7 @@
 <template>
   <Head>
-    <Title>Activity Points | {{ $config.projectMetadataTitle }}</Title>
-    <Meta property="og:title" :content="'Activity Points | ' + $config.projectMetadataTitle" />
+    <Title>Activity Points | {{ $config.public.projectMetadataTitle }}</Title>
+    <Meta property="og:title" :content="'Activity Points | ' + $config.public.projectMetadataTitle" />
   </Head>
 
   <div class="card border scroll-500">
@@ -31,11 +31,11 @@
         <span>How to earn more Activity Points:</span>
 
         <ul>
-          <li>Mint {{ $config.tldName }} domains</li>
-          <li v-if="$config.showFeatures.swap">Swap tokens (when the receiving token is {{ $config.tokenSymbol }})</li>
+          <li>Mint {{ $config.public.tldName }} domains</li>
+          <li v-if="$config.public.showFeatures.swap">Swap tokens (when the receiving token is {{ $config.public.tokenSymbol }})</li>
           <li>Mint posts</li>
-          <li>Invite others to {{ $config.projectName }} using referral links</li>
-          <li v-if="$config.showFeatures.nftLaunchpad">Launch and mint NFTs via the NFT Launchpad</li>
+          <li>Invite others to {{ $config.public.projectName }} using referral links</li>
+          <li v-if="$config.public.showFeatures.nftLaunchpad">Launch and mint NFTs via the NFT Launchpad</li>
           <li>Other kinds of earning APs are coming soon, stay tuned!</li>
         </ul>
       </div>
@@ -78,8 +78,8 @@ export default {
     getActivityPoints,
 
     async fetchActivityPoints() {
-      if (this.$config.activityPointsAddress && this.address) {
-        const provider = this.$getFallbackProvider(this.$config.supportedChainId)
+      if (this.$config.public.activityPointsAddress && this.address) {
+        const provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
         const activityPoints = await this.getActivityPoints(this.address, provider)
         this.userStore.setCurrentUserActivityPoints(activityPoints)
       }

@@ -1,23 +1,23 @@
 <template>
   <Head>
-    <Title>Airdrop | {{ $config.projectMetadataTitle }}</Title>
+    <Title>Airdrop | {{ $config.public.projectMetadataTitle }}</Title>
     <Meta property="og:title" content="Airdrop" />
 
     <Meta
       name="description"
-      :content="'Claim your ' + $config.chatTokenSymbol + ' token airdrop on ' + $config.projectName + '!'"
+      :content="'Claim your ' + $config.public.chatTokenSymbol + ' token airdrop on ' + $config.public.projectName + '!'"
     />
 
-    <Meta property="og:image" :content="$config.projectUrl + $config.previewImageAirdrop" />
+    <Meta property="og:image" :content="$config.public.projectUrl + $config.public.previewImageAirdrop" />
     <Meta
       property="og:description"
-      :content="'Claim your ' + $config.chatTokenSymbol + ' token airdrop on ' + $config.projectName + '!'"
+      :content="'Claim your ' + $config.public.chatTokenSymbol + ' token airdrop on ' + $config.public.projectName + '!'"
     />
 
-    <Meta name="twitter:image" :content="$config.projectUrl + $config.previewImageAirdrop" />
+    <Meta name="twitter:image" :content="$config.public.projectUrl + $config.public.previewImageAirdrop" />
     <Meta
       name="twitter:description"
-      :content="'Claim your ' + $config.chatTokenSymbol + ' token airdrop on ' + $config.projectName + '!'"
+      :content="'Claim your ' + $config.public.chatTokenSymbol + ' token airdrop on ' + $config.public.projectName + '!'"
     />
   </Head>
 
@@ -123,7 +123,7 @@ export default {
       ])
 
       const chatTokenClaimDomainsContract = new ethers.Contract(
-        this.$config.airdropClaimDomainsAddress,
+        this.$config.public.airdropClaimDomainsAddress,
         chatTokenClaimDomainsInterface,
         this.signer,
       )
@@ -135,7 +135,7 @@ export default {
         'function claimPreview(address _address) public view returns (uint256)',
       ])
 
-      const claimApContract = new ethers.Contract(this.$config.airdropApAddress, claimApInterface, this.signer)
+      const claimApContract = new ethers.Contract(this.$config.public.airdropApAddress, claimApInterface, this.signer)
 
       this.airdropApWei = await claimApContract.claimPreview(this.address)
 

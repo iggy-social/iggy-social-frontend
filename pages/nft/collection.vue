@@ -1,15 +1,15 @@
 <template>
   <Head>
-    <Title>NFT Collection Details | {{ $config.projectMetadataTitle }}</Title>
-    <Meta property="og:title" :content="'NFT Collection Details | ' + $config.projectMetadataTitle" />
+    <Title>NFT Collection Details | {{ $config.public.projectMetadataTitle }}</Title>
+    <Meta property="og:title" :content="'NFT Collection Details | ' + $config.public.projectMetadataTitle" />
 
-    <Meta name="description" :content="'Check this NFT collection on ' + $config.projectName + '!'" />
+    <Meta name="description" :content="'Check this NFT collection on ' + $config.public.projectName + '!'" />
 
-    <Meta property="og:image" :content="$config.projectUrl + $config.previewImageNftCollection" />
-    <Meta property="og:description" :content="'Check this NFT collection on ' + $config.projectName + '!'" />
+    <Meta property="og:image" :content="$config.public.projectUrl + $config.public.previewImageNftCollection" />
+    <Meta property="og:description" :content="'Check this NFT collection on ' + $config.public.projectName + '!'" />
 
-    <Meta name="twitter:image" :content="$config.projectUrl + $config.previewImageNftCollection" />
-    <Meta name="twitter:description" :content="'Check this NFT collection on ' + $config.projectName + '!'" />
+    <Meta name="twitter:image" :content="$config.public.projectUrl + $config.public.previewImageNftCollection" />
+    <Meta name="twitter:description" :content="'Check this NFT collection on ' + $config.public.projectName + '!'" />
   </Head>
 
   <div class="card border">
@@ -119,8 +119,8 @@
 
             <p class="me-4" v-if="nativeNft">
               <i class="bi bi-coin me-1"></i>
-              Buy/Sell price: {{ formatPrice(priceBuyWei) }} {{ $config.tokenSymbol }} /
-              {{ formatPrice(priceSellWei) }} {{ $config.tokenSymbol }}
+              Buy/Sell price: {{ formatPrice(priceBuyWei) }} {{ $config.public.tokenSymbol }} /
+              {{ formatPrice(priceSellWei) }} {{ $config.public.tokenSymbol }}
             </p>
 
             <p class="me-4">
@@ -131,7 +131,7 @@
             <p class="me-4">
               <i class="bi bi-box-arrow-up-right me-2"></i>
               <a
-                :href="$config.blockExplorerBaseUrl + '/address/' + cAddress"
+                :href="$config.public.blockExplorerBaseUrl + '/address/' + cAddress"
                 target="_blank"
                 style="text-decoration: none"
               >
@@ -149,7 +149,7 @@
             <p class="me-4">
               <i class="bi bi-box-arrow-up-right me-1"></i>
               <a
-                :href="$config.marketplaceNftCollectionBaseUrl + cAddress"
+                :href="$config.public.marketplaceNftCollectionBaseUrl + cAddress"
                 target="_blank"
                 style="text-decoration: none"
               >
@@ -193,7 +193,7 @@
                   role="status"
                   aria-hidden="true"
                 ></span>
-                Buy for {{ formatPrice(priceBuyWei) }} {{ $config.tokenSymbol }}
+                Buy for {{ formatPrice(priceBuyWei) }} {{ $config.public.tokenSymbol }}
               </button>
             </div>
 
@@ -210,7 +210,7 @@
                   role="status"
                   aria-hidden="true"
                 ></span>
-                Sell for {{ formatPrice(priceSellWei) }} {{ $config.tokenSymbol }}
+                Sell for {{ formatPrice(priceSellWei) }} {{ $config.public.tokenSymbol }}
               </button>
             </div>
           </div>
@@ -218,7 +218,7 @@
           <small v-if="isActivated && isSupportedChain && nativeNft">
             <em>
               (Price may still change after pressing the button, so make sure to check the
-              {{ $config.tokenSymbol }} amount in wallet.)
+              {{ $config.public.tokenSymbol }} amount in wallet.)
             </em>
           </small>
           <!-- END Buttons -->
@@ -254,7 +254,7 @@
     <ChatFeed
       :hideCommentBox="false"
       class="mt-3 scroll-500"
-      :chatContext="$config.chat.contexts.nftLaunchpad"
+      :chatContext="$config.public.chat.contexts.nftLaunchpad"
       :mainItemId="cAddress"
     />
     
@@ -370,17 +370,17 @@ export default {
     },
 
     collectionExplorerLink() {
-      return this.$config.blockExplorerBaseUrl+"/token/"+this.cAddress;
+      return this.$config.public.blockExplorerBaseUrl+"/token/"+this.cAddress;
     },
 
     collectionMarketplaceLink() {
-      return this.$config.marketplaceNftCollectionBaseUrl + this.cAddress
+      return this.$config.public.marketplaceNftCollectionBaseUrl + this.cAddress
     },
 
     getUsernameOrFullAddress() {
       if (this.cAuthorDomain) {
-        let cleanName = String(this.cAuthorDomain).replace(this.$config.tldName, '')
-        return getTextWithoutBlankCharacters(cleanName) + this.$config.tldName
+        let cleanName = String(this.cAuthorDomain).replace(this.$config.public.tldName, '')
+        return getTextWithoutBlankCharacters(cleanName) + this.$config.public.tldName
       } else {
         return this.cAuthorAddress
       }
@@ -389,8 +389,8 @@ export default {
     getUsernameOrShortAddress() {
       if (this.cAuthorAddress) {
         if (this.cAuthorDomain) {
-          let cleanName = String(this.cAuthorDomain).replace(this.$config.tldName, '')
-          return getTextWithoutBlankCharacters(cleanName) + this.$config.tldName
+          let cleanName = String(this.cAuthorDomain).replace(this.$config.public.tldName, '')
+          return getTextWithoutBlankCharacters(cleanName) + this.$config.public.tldName
         } else {
           return shortenAddress(this.cAuthorAddress)
         }
@@ -408,7 +408,7 @@ export default {
     },
 
     isSupportedChain() {
-      if (this.chainId === this.$config.supportedChainId) {
+      if (this.chainId === this.$config.public.supportedChainId) {
         return true
       } else {
         return false
@@ -450,7 +450,7 @@ export default {
           },
           {
             type: 'info',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           },
         )
 
@@ -461,7 +461,7 @@ export default {
 
           this.toast('You have successfully bought the NFT! Congrats!', {
             type: 'success',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           })
 
           this.priceBuyWei = await nftContract.getMintPrice()
@@ -481,7 +481,7 @@ export default {
           this.waitingBuy = false
           this.toast('Transaction has failed.', {
             type: 'error',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           })
           console.log(receipt)
         }
@@ -507,12 +507,12 @@ export default {
 
     async fetchUserDomain() {
       if (this.cAuthorAddress) {
-        const provider = this.$getFallbackProvider(this.$config.supportedChainId)
+        const provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
         const userDomain = await this.getDomainName(this.cAuthorAddress, provider)
 
         if (userDomain) {
           this.cAuthorDomain = userDomain
-          storeUsername(window, this.cAuthorAddress, userDomain + this.$config.tldName)
+          storeUsername(window, this.cAuthorAddress, userDomain + this.$config.public.tldName)
         }
       }
     },
@@ -556,9 +556,9 @@ export default {
       }
 
       // fetch provider from hardcoded RPCs
-      let provider = this.$getFallbackProvider(this.$config.supportedChainId)
+      let provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
 
-      if (this.isActivated && this.chainId === this.$config.supportedChainId) {
+      if (this.isActivated && this.chainId === this.$config.public.supportedChainId) {
         // fetch provider from user's MetaMask
         provider = this.signer
       }
@@ -692,7 +692,7 @@ export default {
 
       // if metadata starts with "ipfs://" convert it into default IPFS gateway link
       if (String(metadata).startsWith("ipfs://")) {
-        metadata = String(metadata).replace("ipfs://", this.$config.ipfsGateway);
+        metadata = String(metadata).replace("ipfs://", this.$config.public.ipfsGateway);
       }
 
       // if it starts with http, fetch data with axios
@@ -703,9 +703,9 @@ export default {
         } catch (e) {
           console.error(e);
 
-          if (metadata.startsWith(this.$config.ipfsGateway)) {
+          if (metadata.startsWith(this.$config.public.ipfsGateway)) {
             try {
-              metadata = String(metadata).replace(this.$config.ipfsGateway, this.$config.ipfsGateway2);
+              metadata = String(metadata).replace(this.$config.public.ipfsGateway, this.$config.public.ipfsGateway2);
               const response = await axios.get(metadata);
               metadata = response.data;
             } catch (e) {
@@ -760,9 +760,9 @@ export default {
       this.nativeNft = false;
 
       // fetch provider from hardcoded RPCs
-      let provider = this.$getFallbackProvider(this.$config.supportedChainId);
+      let provider = this.$getFallbackProvider(this.$config.public.supportedChainId);
 
-      if (this.isActivated && this.chainId === this.$config.supportedChainId) {
+      if (this.isActivated && this.chainId === this.$config.public.supportedChainId) {
         // fetch provider from user's MetaMask
         provider = this.signer;
       }
@@ -934,7 +934,7 @@ export default {
           },
           {
             type: 'info',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           },
         )
 
@@ -945,7 +945,7 @@ export default {
 
           this.toast('You have dumped the NFT.', {
             type: 'success',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           })
 
           this.priceBuyWei = await nftContract.getMintPrice()
@@ -965,7 +965,7 @@ export default {
           this.waitingSell = false
           this.toast('Transaction has failed.', {
             type: 'error',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           })
           console.log(receipt)
         }
@@ -1005,7 +1005,7 @@ export default {
     },
 
     chainId(newValue, oldValue) {
-      if (newValue == this.$config.supportedChainId && oldValue !== newValue && !this.waitingData) {
+      if (newValue == this.$config.public.supportedChainId && oldValue !== newValue && !this.waitingData) {
         this.getCollectionDetails()
       }
     },

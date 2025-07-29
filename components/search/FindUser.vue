@@ -9,7 +9,7 @@
         v-model="domainName"
         v-on:keyup.enter="redirectToProfile"
       />
-      <span class="input-group-text" id="find-user">{{ $config.tldName }}</span>
+      <span class="input-group-text" id="find-user">{{ $config.public.tldName }}</span>
     </div>
 
     <p v-if="domainNotValid.invalid && domainNotValid.message" class="text-danger">
@@ -130,7 +130,7 @@ export default {
 
   methods: {
     redirectToProfile() {
-      this.$router.push({ path: '/profile', query: { id: this.domainName + this.$config.tldName } })
+      this.$router.push({ path: '/profile', query: { id: this.domainName + this.$config.public.tldName } })
       this.$emit('closeModal')
     },
   },

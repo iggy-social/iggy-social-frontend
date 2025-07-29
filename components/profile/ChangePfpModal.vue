@@ -49,7 +49,7 @@
 
               <FileUploadInput
                 btnCls="btn btn-primary"
-                :maxFileSize="$config.fileUploadSizeLimit"
+                :maxFileSize="$config.public.fileUploadSizeLimit"
                 :storageType="storageType"
                 @processUploadedFileUrl="processUploadedFileUrl"
               />
@@ -117,7 +117,7 @@ export default {
 
   computed: {
     domainNameWithoutTld() {
-      return this.domainName.replace(this.$config.tldName, '')
+      return this.domainName.replace(this.$config.public.tldName, '')
     },
 
     fileUploadEnabled() {
@@ -125,7 +125,7 @@ export default {
     },
 
     isSupportedChain() {
-      if (this.chainId === this.$config.supportedChainId) {
+      if (this.chainId === this.$config.public.supportedChainId) {
         return true
       } else {
         return false
@@ -147,7 +147,7 @@ export default {
         'function editData(string calldata _domainName, string calldata _data) external',
       ])
 
-      const punkContract = new ethers.Contract(this.$config.punkTldAddress, punkInterface, this.signer)
+      const punkContract = new ethers.Contract(this.$config.public.punkTldAddress, punkInterface, this.signer)
 
       // get domain data
       let domainData = await punkContract.getDomainData(String(this.domainNameWithoutTld).toLowerCase())
@@ -178,7 +178,7 @@ export default {
           },
           {
             type: 'info',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           },
         )
 
@@ -191,7 +191,7 @@ export default {
 
           this.toast('You have successfully changed your profile image!', {
             type: 'success',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           })
 
           this.$emit('processFileUrl', this.imageLink)
@@ -201,7 +201,7 @@ export default {
           this.toast.dismiss(toastWait)
           this.toast('Transaction has failed.', {
             type: 'error',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           })
           console.log(receipt)
         }

@@ -48,7 +48,7 @@
           </div>
         </li>
 
-        <li v-if="isActivated && $config.chatTokenAddress" class="nav-item dropdown">
+        <li v-if="isActivated && $config.public.chatTokenAddress" class="nav-item dropdown">
           <a
             class="nav-link dropdown-toggle"
             data-bs-toggle="dropdown"
@@ -57,20 +57,20 @@
             aria-haspopup="true"
             aria-expanded="false"
           >
-            {{ userStore.getChatTokenBalance }} {{ $config.chatTokenSymbol }}
+            {{ userStore.getChatTokenBalance }} {{ $config.public.chatTokenSymbol }}
           </a>
           <div class="dropdown-menu dropdown-menu-end">
             <NuxtLink class="dropdown-item cursor-pointer" to="/airdrop"
-              >Claim {{ $config.chatTokenSymbol }} airdrop</NuxtLink
+              >Claim {{ $config.public.chatTokenSymbol }} airdrop</NuxtLink
             >
             <NuxtLink
-              v-if="$config.stakingContractAddress && $config.showFeatures.stake"
+              v-if="$config.public.stakingContractAddress && $config.public.showFeatures.stake"
               class="dropdown-item cursor-pointer"
               to="/stake"
-              >Stake & earn weekly {{ $config.tokenSymbol }} rewards</NuxtLink
+              >Stake & earn weekly {{ $config.public.tokenSymbol }} rewards</NuxtLink
             >
             <span class="dropdown-item cursor-pointer" @click="addToMetaMask"
-              >Add {{ $config.chatTokenSymbol }} to MetaMask</span
+              >Add {{ $config.public.chatTokenSymbol }} to MetaMask</span
             >
           </div>
         </li>
@@ -122,10 +122,10 @@ export default {
     addToMetaMask() {
       addTokenToMetaMask(
         window.ethereum,
-        this.$config.chatTokenAddress,
-        this.$config.chatTokenSymbol,
+        this.$config.public.chatTokenAddress,
+        this.$config.public.chatTokenSymbol,
         18, // decimals
-        this.$config.chatTokenImage,
+        this.$config.public.chatTokenImage,
       )
     },
 

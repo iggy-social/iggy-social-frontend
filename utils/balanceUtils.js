@@ -18,7 +18,7 @@ export async function getActivityPoints(userAddress, signer) {
     'function getPoints(address user_) external view returns (uint256)',
   ])
 
-  const activityPointsContract = new ethers.Contract(config.activityPointsAddress, activityPointsInterface, provider)
+  const activityPointsContract = new ethers.Contract(config.public.activityPointsAddress, activityPointsInterface, provider)
 
   const pointsWei = await activityPointsContract.getPoints(userAddress)
 

@@ -112,7 +112,7 @@ export default {
     inputIsWrappedNativeCoin() {
       if (
         String(this.inputToken?.address).toLowerCase() ==
-        String(wrappedNativeTokens[this.$config.supportedChainId]).toLowerCase()
+        String(wrappedNativeTokens[this.$config.public.supportedChainId]).toLowerCase()
       ) {
         return true
       } else {
@@ -131,7 +131,7 @@ export default {
     outputIsWrappedNativeCoin() {
       if (
         String(this.outputToken?.address).toLowerCase() ==
-        String(wrappedNativeTokens[this.$config.supportedChainId]).toLowerCase()
+        String(wrappedNativeTokens[this.$config.public.supportedChainId]).toLowerCase()
       ) {
         return true
       } else {
@@ -169,7 +169,7 @@ export default {
           },
           {
             type: 'info',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           },
         )
 
@@ -181,7 +181,7 @@ export default {
             'You have successfully swapped ' + this.inputToken.symbol + ' for ' + this.outputToken.symbol + '!',
             {
               type: 'success',
-              onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
             },
           )
           this.$emit('changeInputTokenBalance')
@@ -192,7 +192,7 @@ export default {
           this.toast.dismiss(toastWait)
           this.toast('Transaction has failed.', {
             type: 'error',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           })
           console.log(receipt)
         }

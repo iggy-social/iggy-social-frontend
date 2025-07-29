@@ -1,14 +1,14 @@
 <template>
   <div>
     <p class="text-center">
-      Unstake {{ $config.stakeTokenSymbol }} to receive back {{ $config.lpTokenSymbol }} (it will also auto-claim any
+      Unstake {{ $config.public.stakeTokenSymbol }} to receive back {{ $config.public.lpTokenSymbol }} (it will also auto-claim any
       remaining rewards).
     </p>
 
     <!-- Input field -->
     <div class="input-group mt-5">
       <button class="btn btn-primary" type="button" data-bs-toggle="dropdown" aria-expanded="false" disabled>
-        {{ $config.stakeTokenSymbol }}
+        {{ $config.public.stakeTokenSymbol }}
       </button>
 
       <input
@@ -29,7 +29,7 @@
       <em>
         Balance:
         <span class="cursor-pointer hover-color" @click="setMaxInputTokenAmount">
-          {{ stakeTokenBalance }} {{ $config.stakeTokenSymbol }}
+          {{ stakeTokenBalance }} {{ $config.public.stakeTokenSymbol }}
         </span>
       </em>
     </small>
@@ -184,7 +184,7 @@ export default {
       ])
 
       const stakingContract = new ethers.Contract(
-        this.$config.stakingContractAddress,
+        this.$config.public.stakingContractAddress,
         stakingContractInterface,
         this.signer,
       )
@@ -201,7 +201,7 @@ export default {
           },
           {
             type: 'info',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           },
         )
 
@@ -216,7 +216,7 @@ export default {
 
           this.toast('You have successfully unstaked tokens!', {
             type: 'success',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           })
 
           this.waitingWithdrawal = false
@@ -225,7 +225,7 @@ export default {
           this.waitingWithdrawal = false
           this.toast('Transaction has failed.', {
             type: 'error',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           })
           console.log(receipt)
         }

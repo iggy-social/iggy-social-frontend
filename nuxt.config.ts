@@ -101,7 +101,6 @@ export default defineNuxtConfig({
       previewImagePostNft: '/img/covers/cover-post-nft.png',
       previewImageProfile: '/img/covers/cover-profile.png',
       previewImageStake: '/img/covers/cover-stake.png',
-      profileMintedPostIdsMax: 36, // max number of minted post ids to show in the profile page
       projectMetadataTitle: 'Iggy Social Demo | Web3 Social Template For Your DAO',
       projectName: 'Iggy Demo',
       projectDescription: 'This is a demo website presenting Iggy Social, a web3 social template for your DAO.',
@@ -110,7 +109,6 @@ export default defineNuxtConfig({
       punkMinterAddress: '', // punk domain minter contract address
       punkNumberOfPrices: 1, // number of different prices (based on domain length), usually 1 (price()) or 5 (price1char() - price5char())
       punkTldAddress: '0x320881Fff17c9a2189226c61ad1157DFF80b18B5', // punk domain TLD address
-      randomPostsNumber: 1, // number of random post NFTs to show in the sidebar widget
       showFeatures: {
         // show/hide features in sidebars (if you have too many "true", make the sidebar scrollable --> sidebarLeftSticky: false)
         activityPoints: false,

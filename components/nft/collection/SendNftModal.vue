@@ -41,7 +41,7 @@
           <div v-if="nftDataLoaded" class="mt-4">
             <label :for="'inputAddress-'+componentId" class="form-label">
               <strong>
-                Recipient address or {{ $config.tldName }} name:
+                Recipient address or {{ $config.public.tldName }} name:
               </strong>
             </label>
 
@@ -163,9 +163,9 @@ export default {
         let tokenURI = await nftContract.tokenURI(this.tokenId);
 
         if (tokenURI.startsWith("ipfs://")) {
-          tokenURI = tokenURI.replace("ipfs://", this.$config.ipfsGateway);
+          tokenURI = tokenURI.replace("ipfs://", this.$config.public.ipfsGateway);
         } else if (tokenURI.startsWith("ar://")) {
-          tokenURI = tokenURI.replace("ar://", this.$config.arweaveGateway);
+          tokenURI = tokenURI.replace("ar://", this.$config.public.arweaveGateway);
         }
 
         let json; // NFT metadata JSON
@@ -183,9 +183,9 @@ export default {
         }
 
         if (json["image"].startsWith("ipfs://")) {
-          json["image"] = json["image"].replace("ipfs://", this.$config.ipfsGateway);
+          json["image"] = json["image"].replace("ipfs://", this.$config.public.ipfsGateway);
         } else if (json["image"].startsWith("ar://")) {
-          json["image"] = json["image"].replace("ar://", this.$config.arweaveGateway);
+          json["image"] = json["image"].replace("ar://", this.$config.public.arweaveGateway);
         }
 
         this.nftImage = json["image"];
@@ -202,12 +202,12 @@ export default {
         if (ethers.utils.isAddress(recipient)) {
           this.recipientAddress = recipient;
         } else {
-          const domainName = String(recipient).trim().toLowerCase().replace(this.$config.tldName, "");
+          const domainName = String(recipient).trim().toLowerCase().replace(this.$config.public.tldName, "");
 
           // fetch provider from hardcoded RPCs
-          let provider = this.$getFallbackProvider(this.$config.supportedChainId);
+          let provider = this.$getFallbackProvider(this.$config.public.supportedChainId);
 
-          if (this.isActivated && this.chainId === this.$config.supportedChainId) {
+          if (this.isActivated && this.chainId === this.$config.public.supportedChainId) {
             // fetch provider from user's MetaMask
             provider = this.signer;
           }
@@ -216,7 +216,7 @@ export default {
             "function getDomainHolder(string) view returns (address)"
           ]);
 
-          const tldContract = new ethers.Contract(this.$config.punkTldAddress, tldInterface, provider);
+          const tldContract = new ethers.Contract(this.$config.public.punkTldAddress, tldInterface, provider);
 
           this.recipientAddress = await tldContract.getDomainHolder(domainName);
         }
@@ -246,7 +246,7 @@ export default {
           },
           {
             type: "info",
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
           }
         );
 
@@ -257,7 +257,7 @@ export default {
 
           this.toast("You have successfully transferred the NFT.", {
             type: "success",
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
           });
 
           this.recipientAddress = null;
@@ -274,7 +274,7 @@ export default {
           this.waiting = false;
           this.toast("Transaction has failed.", {
             type: "error",
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
           });
           console.log(receipt);
         }

@@ -1,5 +1,5 @@
 <template>
-  <ChatFeed class="mt-1" :hideCommentBox="false" :chatContext="$config.chat.contexts.general" />
+  <ChatFeed class="mt-1" :hideCommentBox="false" :chatContext="$config.public.chat.contexts.general" />
 </template>
 
 <script>

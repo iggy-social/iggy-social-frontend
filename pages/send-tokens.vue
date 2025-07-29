@@ -1,7 +1,7 @@
 <template>
   <Head>
-    <Title>Send tokens | {{ $config.projectMetadataTitle }}</Title>
-    <Meta property="og:title" :content="'Send tokens | ' + $config.projectMetadataTitle" />
+    <Title>Send tokens | {{ $config.public.projectMetadataTitle }}</Title>
+    <Meta property="og:title" :content="'Send tokens | ' + $config.public.projectMetadataTitle" />
   </Head>
 
   <div class="scroll-500">

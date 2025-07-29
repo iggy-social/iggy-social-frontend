@@ -272,13 +272,13 @@ export default {
     bothTokensAreNativeCoinOrWrappedTokenOrSame() {
       if (
         (this.inputToken.address == ethers.constants.AddressZero &&
-          this.outputToken.address == wrappedNativeTokens[this.$config.supportedChainId]) ||
-        (this.inputToken.address == wrappedNativeTokens[this.$config.supportedChainId] &&
+          this.outputToken.address == wrappedNativeTokens[this.$config.public.supportedChainId]) ||
+        (this.inputToken.address == wrappedNativeTokens[this.$config.public.supportedChainId] &&
           this.outputToken.address == ethers.constants.AddressZero) ||
         (this.inputToken.address == ethers.constants.AddressZero &&
           this.outputToken.address == ethers.constants.AddressZero) ||
-        (this.inputToken.address == wrappedNativeTokens[this.$config.supportedChainId] &&
-          this.outputToken.address == wrappedNativeTokens[this.$config.supportedChainId])
+        (this.inputToken.address == wrappedNativeTokens[this.$config.public.supportedChainId] &&
+          this.outputToken.address == wrappedNativeTokens[this.$config.public.supportedChainId])
       ) {
         return true
       } else if (this.inputToken.address == this.outputToken.address) {
@@ -341,7 +341,7 @@ export default {
     inputIsWrappedNativeCoin() {
       if (
         String(this.inputToken?.address).toLowerCase() ==
-        String(wrappedNativeTokens[this.$config.supportedChainId]).toLowerCase()
+        String(wrappedNativeTokens[this.$config.public.supportedChainId]).toLowerCase()
       ) {
         return true
       } else {
@@ -350,7 +350,7 @@ export default {
     },
 
     isSupportedChain() {
-      if (this.chainId === this.$config.supportedChainId) {
+      if (this.chainId === this.$config.public.supportedChainId) {
         return true
       } else {
         return false
@@ -388,7 +388,7 @@ export default {
     },
 
     priceImpactTooHigh() {
-      if (this.priceImpact > this.$config.swapPriceImpactMaxBps) {
+      if (this.priceImpact > this.$config.public.swapPriceImpactMaxBps) {
         return true
       }
 

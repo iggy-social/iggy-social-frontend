@@ -1,12 +1,12 @@
 <template>
   <Head>
-    <Title>Memes & Images | {{ $config.projectMetadataTitle }}</Title>
-    <Meta property="og:title" :content="'Memes & Images | ' + $config.projectMetadataTitle" />
+    <Title>Memes & Images | {{ $config.public.projectMetadataTitle }}</Title>
+    <Meta property="og:title" :content="'Memes & Images | ' + $config.public.projectMetadataTitle" />
   </Head>
 
   <ChatFeed
     class="mt-1"
-    :chatContext="$config.chat.contexts.memesImages"
+    :chatContext="$config.public.chat.contexts.memesImages"
   />
 </template>
 

@@ -23,7 +23,7 @@ export function findFirstCollectionUrl(text) {
   if (match) {
     const url = match[0]
 
-    if (url.startsWith(config.projectUrl + '/nft/collection')) {
+    if (url.startsWith(config.public.projectUrl + '/nft/collection')) {
       return url.split('?id=')[1] // return address string
     }
 
@@ -61,7 +61,7 @@ export function findFirstUrl(text) {
     ) {
       // ignore youtube embeds
       return null
-    } else if (url.startsWith(config.projectUrl + '/nft/collection')) {
+    } else if (url.startsWith(config.public.projectUrl + '/nft/collection')) {
       // ignore collection links from our website
       return null
     }
@@ -102,7 +102,7 @@ export function getAllImagesFromText(text) {
   } else {
     for (let i = 0; i < imageLinks.length; i++) {
       if (imageLinks[i].startsWith('ar://')) {
-        imageLinks[i] = imageLinks[i].replace('ar://', config.arweaveGateway)
+        imageLinks[i] = imageLinks[i].replace('ar://', config.public.arweaveGateway)
       } else if (imageLinks[i].startsWith('ipfs://')) {
         imageLinks[i] = imageLinks[i].replace('ipfs://', 'https://ipfs.io/ipfs/')
       }
@@ -141,7 +141,7 @@ export function getImageFromText(text) {
   } else {
     for (let i = 0; i < imageLinks.length; i++) {
       if (imageLinks[i].startsWith('ar://')) {
-        imageLinks[i] = imageLinks[i].replace('ar://', config.arweaveGateway)
+        imageLinks[i] = imageLinks[i].replace('ar://', config.public.arweaveGateway)
       } else if (imageLinks[i].startsWith('ipfs://')) {
         imageLinks[i] = imageLinks[i].replace('ipfs://', 'https://ipfs.io/ipfs/')
       }
@@ -418,7 +418,7 @@ export function imgParsing(text) {
   return text.replace(imageRegex, function (url) {
     let newUrl = url
     if (url.startsWith('ar://')) {
-      newUrl = url.replace('ar://', config.arweaveGateway)
+      newUrl = url.replace('ar://', config.public.arweaveGateway)
     } else if (url.startsWith('ipfs://')) {
       newUrl = url.replace('ipfs://', 'https://ipfs.io/ipfs/')
     }
@@ -445,7 +445,7 @@ export function imgWithoutExtensionParsing(text) {
 
   return text.replace(imageRegex, function (url) {
     if (url.startsWith('ar://')) {
-      url = url.replace('ar://', config.arweaveGateway)
+      url = url.replace('ar://', config.public.arweaveGateway)
     } else if (url.startsWith('ipfs://')) {
       url = url.replace('ipfs://', 'https://ipfs.io/ipfs/')
     }
@@ -503,7 +503,7 @@ export function urlParsing(text) {
     } else if (url.endsWith('?.img') || url.endsWith('?img') || url.endsWith('?.img"') || url.endsWith('?img"')) {
       // ignore urls ending with "?.img" beause they represent images (even though they don't have an image extension)
       return url
-    } else if (url.startsWith(config.projectUrl + '/nft/collection')) {
+    } else if (url.startsWith(config.public.projectUrl + '/nft/collection')) {
       // ignore collection links from our website
       return url
     }

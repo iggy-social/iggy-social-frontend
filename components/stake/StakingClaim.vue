@@ -1,14 +1,14 @@
 <template>
   <div>
     <p class="text-center">
-      Claim {{ $config.tokenSymbol }} rewards for the previous period. Make sure to visit this page once per week to
+      Claim {{ $config.public.tokenSymbol }} rewards for the previous period. Make sure to visit this page once per week to
       claim your rewards!
     </p>
 
     <!-- Input field -->
     <div class="input-group mt-5">
       <button class="btn btn-primary" type="button" data-bs-toggle="dropdown" aria-expanded="false" disabled>
-        {{ $config.tokenSymbol }}
+        {{ $config.public.tokenSymbol }}
       </button>
 
       <input v-model="claimAmount" type="text" class="form-control" disabled />
@@ -34,11 +34,11 @@
 
     <ul>
       <li>
-        Your stake: {{ getLessDecimals(stakeTokenBalance) }} {{ $config.lpTokenSymbol }} ({{ $config.stakeTokenSymbol }}
+        Your stake: {{ getLessDecimals(stakeTokenBalance) }} {{ $config.public.lpTokenSymbol }} ({{ $config.public.stakeTokenSymbol }}
         tokens)
       </li>
       <li>
-        Previous period rewards (total): {{ getLessDecimals(claimRewardsTotal) }} {{ $config.tokenSymbol }}
+        Previous period rewards (total): {{ getLessDecimals(claimRewardsTotal) }} {{ $config.public.tokenSymbol }}
 
         <i
           class="bi bi-info-circle-fill"
@@ -49,7 +49,7 @@
         ></i>
       </li>
       <li>
-        Current period rewards (so far): {{ getLessDecimals(futureRewards) }} {{ $config.tokenSymbol }}
+        Current period rewards (so far): {{ getLessDecimals(futureRewards) }} {{ $config.public.tokenSymbol }}
 
         <i
           class="bi bi-info-circle-fill"
@@ -263,7 +263,7 @@ export default {
       ])
 
       const stakingContract = new ethers.Contract(
-        this.$config.stakingContractAddress,
+        this.$config.public.stakingContractAddress,
         stakingContractInterface,
         this.signer,
       )
@@ -280,7 +280,7 @@ export default {
           },
           {
             type: 'info',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           },
         )
 
@@ -294,7 +294,7 @@ export default {
 
           this.toast('You have successfully claimed rewards!', {
             type: 'success',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           })
 
           this.waiting = false
@@ -303,7 +303,7 @@ export default {
           this.waiting = false
           this.toast('Transaction has failed.', {
             type: 'error',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           })
           console.log(receipt)
         }

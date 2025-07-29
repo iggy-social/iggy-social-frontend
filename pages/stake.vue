@@ -1,20 +1,20 @@
 <template>
   <Head>
-    <Title>Stake and Earn | {{ $config.projectMetadataTitle }}</Title>
+    <Title>Stake and Earn | {{ $config.public.projectMetadataTitle }}</Title>
     <Meta property="og:title" content="Stake and Earn" />
 
-    <Meta name="description" :content="'Stake and earn ' + $config.tokenSymbol + ' on ' + $config.projectName + '!'" />
+    <Meta name="description" :content="'Stake and earn ' + $config.public.tokenSymbol + ' on ' + $config.public.projectName + '!'" />
 
-    <Meta property="og:image" :content="$config.projectUrl + $config.previewImageStake" />
+    <Meta property="og:image" :content="$config.public.projectUrl + $config.public.previewImageStake" />
     <Meta
       property="og:description"
-      :content="'Stake and earn ' + $config.tokenSymbol + ' on ' + $config.projectName + '!'"
+      :content="'Stake and earn ' + $config.public.tokenSymbol + ' on ' + $config.public.projectName + '!'"
     />
 
-    <Meta name="twitter:image" :content="$config.projectUrl + $config.previewImageStake" />
+    <Meta name="twitter:image" :content="$config.public.projectUrl + $config.public.previewImageStake" />
     <Meta
       name="twitter:description"
-      :content="'Stake and earn ' + $config.tokenSymbol + ' on ' + $config.projectName + '!'"
+      :content="'Stake and earn ' + $config.public.tokenSymbol + ' on ' + $config.public.projectName + '!'"
     />
   </Head>
 
@@ -204,7 +204,7 @@ export default {
       ])
 
       this.stakingContract = new ethers.Contract(
-        this.$config.stakingContractAddress,
+        this.$config.public.stakingContractAddress,
         stakingContractInterface,
         this.signer,
       )
@@ -216,7 +216,7 @@ export default {
         'function decimals() public view returns (uint8)',
       ])
 
-      this.lpToken = new ethers.Contract(this.$config.lpTokenAddress, lpTokenInterface, this.signer)
+      this.lpToken = new ethers.Contract(this.$config.public.lpTokenAddress, lpTokenInterface, this.signer)
 
       // fetch previewClaim
       this.fetchPreviewClaim()
@@ -225,7 +225,7 @@ export default {
       this.userStore.setLpTokenBalanceWei(await this.lpToken.balanceOf(this.address))
 
       // fetch staking token approved amount for the staking contract
-      this.lpTokenAllowanceWei = await this.lpToken.allowance(this.address, this.$config.stakingContractAddress)
+      this.lpTokenAllowanceWei = await this.lpToken.allowance(this.address, this.$config.public.stakingContractAddress)
 
       // fetch receipt token balance
       this.userStore.setStakeTokenBalanceWei(await this.stakingContract.balanceOf(this.address))

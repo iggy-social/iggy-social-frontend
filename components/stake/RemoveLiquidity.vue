@@ -1,12 +1,12 @@
 <template>
   <p class="text-center">
-    Remove liquidity and get back {{ $config.chatTokenSymbol }} & {{ $config.tokenSymbol }} tokens.
+    Remove liquidity and get back {{ $config.public.chatTokenSymbol }} & {{ $config.public.tokenSymbol }} tokens.
   </p>
 
   <!-- CHAT token field -->
   <div class="input-group mt-5">
     <button class="btn btn-primary" type="button" data-bs-toggle="dropdown" aria-expanded="false" disabled>
-      {{ $config.lpTokenSymbol }}
+      {{ $config.public.lpTokenSymbol }}
     </button>
 
     <input
@@ -27,7 +27,7 @@
     <em>
       Balance:
       <span class="cursor-pointer hover-color" @click="setMaxInputTokenAmount">
-        {{ lpTokenBalance }} {{ $config.lpTokenSymbol }}
+        {{ lpTokenBalance }} {{ $config.public.lpTokenSymbol }}
       </span>
     </em>
   </small>
@@ -42,7 +42,7 @@
       @click="approveToken"
     >
       <span v-if="waitingApproval" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-      Approve {{ $config.lpTokenSymbol }}
+      Approve {{ $config.public.lpTokenSymbol }}
     </button>
 
     <!-- Deposit button -->
@@ -60,7 +60,7 @@
 
   <p class="text-center">
     <small class="text-center" v-if="allowanceTooLow">
-      <em> You will need to do 2 transactions: Approve {{ $config.lpTokenSymbol }} and then Remove liquidity. </em>
+      <em> You will need to do 2 transactions: Approve {{ $config.public.lpTokenSymbol }} and then Remove liquidity. </em>
     </small>
   </p>
 </template>
@@ -130,10 +130,10 @@ export default {
         'function approve(address spender, uint256 amount) public returns (bool)',
       ])
 
-      const lpToken = new ethers.Contract(this.$config.lpTokenAddress, lpTokenInterface, this.signer)
+      const lpToken = new ethers.Contract(this.$config.public.lpTokenAddress, lpTokenInterface, this.signer)
 
       try {
-        const tx = await lpToken.approve(this.$config.swapRouterAddress, this.depositAmountWei)
+        const tx = await lpToken.approve(this.$config.public.swapRouterAddress, this.depositAmountWei)
 
         const toastWait = this.toast(
           {
@@ -144,7 +144,7 @@ export default {
           },
           {
             type: 'info',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           },
         )
 
@@ -157,7 +157,7 @@ export default {
 
           this.toast('You have successfully approved tokens. Now proceed with removing liquidity!', {
             type: 'success',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           })
 
           this.waitingApproval = false
@@ -168,7 +168,7 @@ export default {
           this.waitingApproval = false
           this.toast('Transaction has failed.', {
             type: 'error',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           })
           console.log(receipt)
         }
@@ -187,11 +187,11 @@ export default {
         'function calculateETHAndTokensToReceive(address _lpToken, uint256 _lpAmount) external view returns (uint256 amountToken, uint256 amountETH)',
       ])
 
-      const routerContract = new ethers.Contract(this.$config.swapRouterAddress, routerInterface, this.signer)
+      const routerContract = new ethers.Contract(this.$config.public.swapRouterAddress, routerInterface, this.signer)
 
       // calculate the minimum amount of both native coin and chat token to be received
       const chatETHAmounts = await routerContract.calculateETHAndTokensToReceive(
-        this.$config.chatTokenAddress,
+        this.$config.public.chatTokenAddress,
         ethers.utils.parseEther(String(this.depositAmount)),
       )
 
@@ -207,7 +207,7 @@ export default {
 
       try {
         const tx = await routerContract.removeLiquidityETH(
-          this.$config.chatTokenAddress,
+          this.$config.public.chatTokenAddress,
           this.depositAmountWei, // LP tokens to burn
           tokenAmountWeiMin, // min amount of chat tokens to receive
           ncAmountWeiMin, // min amount of native coins to receive
@@ -219,12 +219,12 @@ export default {
           {
             component: WaitingToast,
             props: {
-              text: `Removing liquidity from the ${this.$config.lpTokenSymbol}-${this.$config.tokenSymbol} pool...`,
+              text: `Removing liquidity from the ${this.$config.public.lpTokenSymbol}-${this.$config.public.tokenSymbol} pool...`,
             },
           },
           {
             type: 'info',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           },
         )
 
@@ -234,10 +234,10 @@ export default {
           this.toast.dismiss(toastWait)
 
           this.toast(
-            `You have successfully removed liquidity and received ${this.$config.lpTokenSymbol} & ${this.$config.tokenSymbol}!`,
+            `You have successfully removed liquidity and received ${this.$config.public.lpTokenSymbol} & ${this.$config.public.tokenSymbol}!`,
             {
               type: 'success',
-              onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
             },
           )
 
@@ -247,7 +247,7 @@ export default {
           this.toast.dismiss(toastWait)
           this.toast('Transaction has failed.', {
             type: 'error',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           })
           console.log(receipt)
         }
@@ -264,9 +264,9 @@ export default {
         'function allowance(address owner, address spender) public view returns (uint256)',
       ])
 
-      const lpTokenContract = new ethers.Contract(this.$config.lpTokenAddress, lpTokenInterface, this.signer)
+      const lpTokenContract = new ethers.Contract(this.$config.public.lpTokenAddress, lpTokenInterface, this.signer)
 
-      this.allowanceWei = await lpTokenContract.allowance(this.address, this.$config.swapRouterAddress)
+      this.allowanceWei = await lpTokenContract.allowance(this.address, this.$config.public.swapRouterAddress)
     },
 
     setMaxInputTokenAmount() {

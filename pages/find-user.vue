@@ -1,7 +1,7 @@
 <template>
   <Head>
-    <Title>Find user | {{ $config.projectMetadataTitle }}</Title>
-    <Meta property="og:title" :content="'Find user | ' + $config.projectMetadataTitle" />
+    <Title>Find user | {{ $config.public.projectMetadataTitle }}</Title>
+    <Meta property="og:title" :content="'Find user | ' + $config.public.projectMetadataTitle" />
   </Head>
 
   <div class="scroll-500">

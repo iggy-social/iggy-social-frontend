@@ -71,7 +71,7 @@ export default {
         'https://tenor.googleapis.com/v2/search?q=' +
         this.searchTerm +
         '&key=' +
-        this.$config.tenorApiKey +
+        this.$config.public.tenorApiKey +
         '&client_key=' +
         this.clientKey +
         '&limit=' +

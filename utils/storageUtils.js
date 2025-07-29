@@ -12,7 +12,7 @@ export function fetchCollection(window, cAddress) {
 
   try {
     const config = useRuntimeConfig()
-    const expiration = config.expiryCollections // in milliseconds
+    const expiration = config.public.expiryCollections // in milliseconds
     const currentTime = new Date().getTime()
 
     const objectString = window.localStorage.getItem(String(cAddress).toLowerCase() + collectionExtension)
@@ -113,7 +113,7 @@ export function fetchUsername(window, userAddress) {
 
   try {
     const config = useRuntimeConfig()
-    const expiration = config.expiryUsernames // in milliseconds
+    const expiration = config.public.expiryUsernames // in milliseconds
     const currentTime = new Date().getTime()
 
     const usernameObjectString = window.localStorage.getItem(String(userAddress).toLowerCase() + usernameExtension)

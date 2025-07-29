@@ -1,9 +1,9 @@
 <template>
   <div class="card m-2 bg-light">
-    <div class="card-header bg-light">Get a {{ $config.tldName }} name</div>
+    <div class="card-header bg-light">Get a {{ $config.public.tldName }} name</div>
 
     <div class="card-body sidebar-card-body">
-      <p>Get yourself a {{ $config.tldName }} username and start chatting with other community members.</p>
+      <p>Get yourself a {{ $config.public.tldName }} username and start chatting with other community members.</p>
 
       <div class="input-group mb-3">
         <input
@@ -13,14 +13,14 @@
           aria-describedby="mint-name"
           v-model="domainName"
         />
-        <span class="input-group-text" id="mint-name">{{ $config.tldName }}</span>
+        <span class="input-group-text" id="mint-name">{{ $config.public.tldName }}</span>
       </div>
 
       <p v-if="domainNotValid.invalid && domainNotValid.message" class="text-danger">
         <small> <i class="bi bi-exclamation-octagon"></i> {{ domainNotValid.message }} </small>
       </p>
 
-      <p>Minting price: {{ getNamePrice }} {{ $config.tokenSymbol }}</p>
+      <p>Minting price: {{ getNamePrice }} {{ $config.public.tokenSymbol }}</p>
 
       <div class="text-center">
         <button
@@ -184,7 +184,7 @@ export default {
     },
 
     getNamePrice() {
-      if (this.$config.punkNumberOfPrices === 1) {
+      if (this.$config.public.punkNumberOfPrices === 1) {
         return this.price
       } else if (this.domainName) {
         if (this.domainName.match(/./gu).length === 1) {
@@ -206,7 +206,7 @@ export default {
     },
 
     isSupportedChain() {
-      if (this.chainId === this.$config.supportedChainId) {
+      if (this.chainId === this.$config.public.supportedChainId) {
         return true
       } else {
         return false
@@ -220,7 +220,7 @@ export default {
     async fetchDomainData() {
       this.loadingData = true
 
-      this.isMinter = this.$config.punkMinterAddress !== ''
+      this.isMinter = this.$config.public.punkMinterAddress !== ''
 
       const contractInterface = new ethers.utils.Interface([
         'function buyingEnabled() view returns (bool)', // TLD-specific function
@@ -238,12 +238,12 @@ export default {
       let contractAddress
 
       if (this.isMinter) {
-        contractAddress = this.$config.punkMinterAddress
+        contractAddress = this.$config.public.punkMinterAddress
       } else {
-        contractAddress = this.$config.punkTldAddress
+        contractAddress = this.$config.public.punkTldAddress
       }
 
-      let provider = this.$getFallbackProvider(this.$config.supportedChainId)
+      let provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
 
       const contract = new ethers.Contract(contractAddress, contractInterface, provider)
 
@@ -255,14 +255,14 @@ export default {
       }
 
       // fetch price(s)
-      if (this.$config.punkNumberOfPrices === 1) {
-        this.price = ethers.utils.formatUnits(await contract.price(), this.$config.tokenDecimals)
-      } else if (this.$config.punkNumberOfPrices === 5) {
-        this.price1char = ethers.utils.formatUnits(await contract.price1char(), this.$config.tokenDecimals)
-        this.price2char = ethers.utils.formatUnits(await contract.price2char(), this.$config.tokenDecimals)
-        this.price3char = ethers.utils.formatUnits(await contract.price3char(), this.$config.tokenDecimals)
-        this.price4char = ethers.utils.formatUnits(await contract.price4char(), this.$config.tokenDecimals)
-        this.price5char = ethers.utils.formatUnits(await contract.price5char(), this.$config.tokenDecimals)
+      if (this.$config.public.punkNumberOfPrices === 1) {
+        this.price = ethers.utils.formatUnits(await contract.price(), this.$config.public.tokenDecimals)
+      } else if (this.$config.public.punkNumberOfPrices === 5) {
+        this.price1char = ethers.utils.formatUnits(await contract.price1char(), this.$config.public.tokenDecimals)
+        this.price2char = ethers.utils.formatUnits(await contract.price2char(), this.$config.public.tokenDecimals)
+        this.price3char = ethers.utils.formatUnits(await contract.price3char(), this.$config.public.tokenDecimals)
+        this.price4char = ethers.utils.formatUnits(await contract.price4char(), this.$config.public.tokenDecimals)
+        this.price5char = ethers.utils.formatUnits(await contract.price5char(), this.$config.public.tokenDecimals)
       }
 
       // fetch referral fee
@@ -282,13 +282,13 @@ export default {
         if (this.signer) {
           userDomain = await this.getDomainName(this.address, this.signer)
         } else {
-          const provider = this.$getFallbackProvider(this.$config.supportedChainId)
+          const provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
           userDomain = await this.getDomainName(this.address, provider)
         }
 
         if (userDomain) {
-          this.userStore.setDefaultDomain(userDomain + this.$config.tldName)
-          storeUsername(window, this.address, userDomain + this.$config.tldName)
+          this.userStore.setDefaultDomain(userDomain + this.$config.public.tldName)
+          storeUsername(window, this.address, userDomain + this.$config.public.tldName)
         } else {
           this.userStore.setDefaultDomain(null)
         }
@@ -301,7 +301,7 @@ export default {
       if (this.isActivated && !this.domainNotValid.invalid) {
         const tldInterface = new ethers.utils.Interface(['function getDomainHolder(string) view returns (address)'])
 
-        const tldContract = new ethers.Contract(this.$config.punkTldAddress, tldInterface, this.signer)
+        const tldContract = new ethers.Contract(this.$config.public.punkTldAddress, tldInterface, this.signer)
 
         // check if name is already taken
         let domainHolder = await tldContract.getDomainHolder(this.domainName.toLowerCase())
@@ -320,9 +320,9 @@ export default {
           let contractAddress
 
           if (this.isMinter) {
-            contractAddress = this.$config.punkMinterAddress
+            contractAddress = this.$config.public.punkMinterAddress
           } else {
-            contractAddress = this.$config.punkTldAddress
+            contractAddress = this.$config.public.punkTldAddress
           }
 
           const contract = new ethers.Contract(contractAddress, mintInterface, this.signer)
@@ -332,7 +332,7 @@ export default {
             this.address, // domain receiver
             fetchReferrer(window), // referrer
             {
-              value: ethers.utils.parseUnits(this.getNamePrice, this.$config.tokenDecimals),
+              value: ethers.utils.parseUnits(this.getNamePrice, this.$config.public.tokenDecimals),
             },
           )
 
@@ -345,7 +345,7 @@ export default {
             },
             {
               type: 'info',
-              onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
             },
           )
 
@@ -356,14 +356,14 @@ export default {
             this.fetchUserDomain()
             this.toast('You have successfully minted a name!', {
               type: 'success',
-              onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
             })
             this.loadingMint = false
           } else {
             this.toast.dismiss(toastWait)
             this.toast('Transaction has failed.', {
               type: 'error',
-              onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
             })
             this.loadingMint = false
             console.log(receipt)

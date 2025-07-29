@@ -28,15 +28,15 @@
             <div class="mt-4 muted-text" style="font-size: 14px">
               <p class="me-4">
                 <i class="bi bi-wallet me-1"></i>
-                {{ balanceEth }} {{ $config.tokenSymbol }}
+                {{ balanceEth }} {{ $config.public.tokenSymbol }}
               </p>
 
-              <p class="me-4" v-if="$config.chatTokenAddress">
+              <p class="me-4" v-if="$config.public.chatTokenAddress">
                 <i class="bi bi-wallet me-1"></i>
-                {{ balanceChatToken }} {{ $config.chatTokenSymbol }}
+                {{ balanceChatToken }} {{ $config.public.chatTokenSymbol }}
               </p>
 
-              <p class="me-4" v-if="$config.activityPointsAddress && $config.showFeatures.activityPoints">
+              <p class="me-4" v-if="$config.public.activityPointsAddress && $config.public.showFeatures.activityPoints">
                 <i class="bi bi-wallet me-1"></i>
                 {{ balanceAp }} AP
               </p>
@@ -44,7 +44,7 @@
               <p class="me-4">
                 <i class="bi bi-box-arrow-up-right me-2"></i>
                 <a
-                  :href="$config.blockExplorerBaseUrl + '/address/' + uAddress"
+                  :href="$config.public.blockExplorerBaseUrl + '/address/' + uAddress"
                   target="_blank"
                   class="body-color hover-color"
                   style="text-decoration: none"
@@ -117,7 +117,7 @@
 
             <!-- Send tokens to user -->
             <NuxtLink
-              v-if="domain && !isCurrentUser && $config.showFeatures.sendTokens"
+              v-if="domain && !isCurrentUser && $config.public.showFeatures.sendTokens"
               class="btn btn-primary mt-2"
               :to="'/send-tokens/?to=' + domain"
             >
@@ -217,7 +217,7 @@ export default {
         return null
       }
 
-      return String(this.domain).replace(this.$config.tldName, "")
+      return String(this.domain).replace(this.$config.public.tldName, "")
     },
   },
 
@@ -250,9 +250,9 @@ export default {
       }
 
       // set contract
-      let provider = this.$getFallbackProvider(this.$config.supportedChainId)
+      let provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
 
-      if (this.isActivated && this.chainId === this.$config.supportedChainId) {
+      if (this.isActivated && this.chainId === this.$config.public.supportedChainId) {
         // fetch provider from user's wallet
         provider = this.signer
       }
@@ -262,7 +262,7 @@ export default {
         const domainName = await getDomainName(this.uAddress, provider)
 
         if (domainName) {
-          this.domain = String(domainName).replace(this.$config.tldName, "") + this.$config.tldName
+          this.domain = String(domainName).replace(this.$config.public.tldName, "") + this.$config.public.tldName
           storeUsername(window, this.uAddress, this.domain)
         }
       }
@@ -274,7 +274,7 @@ export default {
           this.uAddress = domainHolder
         }
 
-        this.domain = String(this.domain).replace(this.$config.tldName, "") + this.$config.tldName
+        this.domain = String(this.domain).replace(this.$config.public.tldName, "") + this.$config.public.tldName
         storeUsername(window, this.uAddress, this.domain)
       }
 
@@ -283,22 +283,22 @@ export default {
 
     async fetchBalance() {
       if (this.uAddress) {
-        let provider = this.$getFallbackProvider(this.$config.supportedChainId)
+        let provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
 
         // fetch balance of an address
         this.uBalance = await provider.getBalance(this.uAddress)
 
-        if (this.$config.chatTokenAddress) {
+        if (this.$config.public.chatTokenAddress) {
           // fetch chat balance
           const chatTokenInterface = new ethers.utils.Interface(['function balanceOf(address owner) view returns (uint256)'])
 
-          const chatTokenContract = new ethers.Contract(this.$config.chatTokenAddress, chatTokenInterface, provider)
+          const chatTokenContract = new ethers.Contract(this.$config.public.chatTokenAddress, chatTokenInterface, provider)
 
           this.balanceChatTokenWei = await chatTokenContract.balanceOf(this.uAddress)
         }
 
         // fetch activity points balance
-        if (this.$config.activityPointsAddress && this.$config.showFeatures.activityPoints) {
+        if (this.$config.public.activityPointsAddress && this.$config.public.showFeatures.activityPoints) {
           this.balanceAp = await getActivityPoints(this.uAddress, provider);
         }
       }

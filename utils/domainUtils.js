@@ -7,7 +7,7 @@ export async function getDomainName(userAddress, signer) {
 
   const tldInterface = new ethers.utils.Interface(['function defaultNames(address) view returns (string)'])
 
-  const contract = new ethers.Contract(config.punkTldAddress, tldInterface, provider)
+  const contract = new ethers.Contract(config.public.punkTldAddress, tldInterface, provider)
 
   // get user's default domain
   const userDomain = await contract.defaultNames(userAddress)
@@ -20,15 +20,15 @@ export async function getDomainHolder(domainName, signer) {
 
   let provider = signer
 
-  if (domainName.includes(config.tldName)) {
-    domainName = domainName.replace(config.tldName, '')
+  if (domainName.includes(config.public.tldName)) {
+    domainName = domainName.replace(config.public.tldName, '')
   }
 
   const tldInterface = new ethers.utils.Interface([
     'function getDomainHolder(string memory) public view returns(address)',
   ])
 
-  const contract = new ethers.Contract(config.punkTldAddress, tldInterface, provider)
+  const contract = new ethers.Contract(config.public.punkTldAddress, tldInterface, provider)
 
   // get user's default domain
   const userAddress = await contract.getDomainHolder(domainName)

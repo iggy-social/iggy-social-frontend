@@ -264,7 +264,7 @@ export default {
 
     getArweaveUrl() {
       if (this.message?.url) {
-        return this.message.url.replace("ar://", this.$config.arweaveGateway)
+        return this.message.url.replace("ar://", this.$config.public.arweaveGateway)
       }
     },
 
@@ -304,7 +304,7 @@ export default {
 
   methods: {
     async checkIfCurrenctUserIsMod() {
-      const value = fetchData(window, this.chatContext, 'mod-' + this.address, this.$config.expiryMods)
+      const value = fetchData(window, this.chatContext, 'mod-' + this.address, this.$config.public.expiryMods)
 
       if (value) {
         if (value?.isMod || value?.isMod === "true") {
@@ -314,7 +314,7 @@ export default {
         }
       }
 
-      const provider = this.$getFallbackProvider(this.$config.supportedChainId)
+      const provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
       const intrfc = new ethers.utils.Interface(['function isUserMod(address) external view returns (bool)'])
       const contract = new ethers.Contract(this.chatContext, intrfc, provider)
 
@@ -359,7 +359,7 @@ export default {
             },
             {
               type: 'info',
-              onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
             },
           )
 
@@ -370,7 +370,7 @@ export default {
 
             this.toast('You have successfully deleted the message.', {
               type: 'success',
-              onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
             })
 
             document.getElementById('closeDeleteModal' + this.storageId).click()
@@ -380,7 +380,7 @@ export default {
             this.toast.dismiss(toastWait)
             this.toast('Transaction has failed.', {
               type: 'error',
-              onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
             })
             console.log(receipt)
           }
@@ -417,9 +417,9 @@ export default {
           this.authorDomain = storedDomain
         } else {
           // fetch provider from hardcoded RPCs
-          let provider = this.$getFallbackProvider(this.$config.supportedChainId)
+          let provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
 
-          if (this.isActivated && this.chainId === this.$config.supportedChainId) {
+          if (this.isActivated && this.chainId === this.$config.public.supportedChainId) {
             // fetch provider from user's MetaMask
             provider = this.signer
           }
@@ -427,7 +427,7 @@ export default {
           const domainName = await getDomainName(this.authorAddress, provider)
 
           if (domainName) {
-            this.authorDomain = domainName + this.$config.tldName
+            this.authorDomain = domainName + this.$config.public.tldName
             storeUsername(window, this.authorAddress, this.authorDomain)
           }
         }
@@ -436,7 +436,7 @@ export default {
 
     async fetchLinkPreview() {
       try {
-        if (this.$config.linkPreviews) {
+        if (this.$config.public.linkPreviews) {
           const thisAppUrl = window.location.origin
           const firstLinkHttps = this.firstLink.replace('http://', 'https://')
 
@@ -452,11 +452,11 @@ export default {
           } else {
             let fetcherService
 
-            if (this.$config.linkPreviews === 'netlify') {
+            if (this.$config.public.linkPreviews === 'netlify') {
               fetcherService = thisAppUrl + '/.netlify/functions/linkPreviews?url=' + this.firstLink
-            } else if (this.$config.linkPreviews === 'vercel') {
+            } else if (this.$config.public.linkPreviews === 'vercel') {
               fetcherService = thisAppUrl + '/api/linkPreviews?url=' + this.firstLink
-            } else if (this.$config.linkPreviews === 'microlink') {
+            } else if (this.$config.public.linkPreviews === 'microlink') {
               fetcherService = 'https://api.microlink.io/?url=' + this.firstLink
             }
 
@@ -499,9 +499,9 @@ export default {
 
       let response;
       if (this.message.url.startsWith('ar://')) {
-        response = await axios.get(`${this.$config.arweaveGateway}${this.storageId}`)
+        response = await axios.get(`${this.$config.public.arweaveGateway}${this.storageId}`)
       } else if (this.message.url.startsWith('ipfs://')) {
-        response = await axios.get(`${this.$config.ipfsGateway}${this.storageId}`)
+        response = await axios.get(`${this.$config.public.ipfsGateway}${this.storageId}`)
       } else if (this.message.url.startsWith('http')) {
         response = await axios.get(this.message.url)
       }
@@ -521,7 +521,7 @@ export default {
         allowedAttributes: {},
       })
 
-      if (this.$config.linkPreviews) {
+      if (this.$config.public.linkPreviews) {
         // get first link in post
         this.firstLink = findFirstUrl(postText)
         if (this.firstLink) {

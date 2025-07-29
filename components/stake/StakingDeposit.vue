@@ -1,8 +1,8 @@
 <template>
   <div>
     <p class="text-center">
-      Stake {{ $config.lpTokenSymbol }} to receive periodic staking rewards in {{ $config.tokenSymbol }} tokens (min
-      deposit: {{ minDeposit }} {{ $config.lpTokenSymbol }}).
+      Stake {{ $config.public.lpTokenSymbol }} to receive periodic staking rewards in {{ $config.public.tokenSymbol }} tokens (min
+      deposit: {{ minDeposit }} {{ $config.public.lpTokenSymbol }}).
       <NuxtLink to="/post/?id=kjzl6cwe1jw147gcaq8o17j668j1vol8v4z0vmv0ris1g5qyqvmrxbn0bpif8wh">
         Learn more here.
       </NuxtLink>
@@ -11,7 +11,7 @@
     <!-- Input field -->
     <div class="input-group mt-5">
       <button class="btn btn-primary" type="button" data-bs-toggle="dropdown" aria-expanded="false" disabled>
-        {{ $config.lpTokenSymbol }}
+        {{ $config.public.lpTokenSymbol }}
       </button>
 
       <input
@@ -32,7 +32,7 @@
       <em>
         Balance:
         <span class="cursor-pointer hover-color" @click="setMaxInputTokenAmount">
-          {{ lpTokenBalance }} {{ $config.lpTokenSymbol }}
+          {{ lpTokenBalance }} {{ $config.public.lpTokenSymbol }}
         </span>
       </em>
     </small>
@@ -163,10 +163,10 @@ export default {
         'function approve(address spender, uint256 amount) public returns (bool)',
       ])
 
-      const lpToken = new ethers.Contract(this.$config.lpTokenAddress, lpTokenInterface, this.signer)
+      const lpToken = new ethers.Contract(this.$config.public.lpTokenAddress, lpTokenInterface, this.signer)
 
       try {
-        const tx = await lpToken.approve(this.$config.stakingContractAddress, this.depositAmountWei)
+        const tx = await lpToken.approve(this.$config.public.stakingContractAddress, this.depositAmountWei)
 
         const toastWait = this.toast(
           {
@@ -177,7 +177,7 @@ export default {
           },
           {
             type: 'info',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           },
         )
 
@@ -190,7 +190,7 @@ export default {
 
           this.toast('You have successfully approved tokens. Now proceed with staking!', {
             type: 'success',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           })
 
           this.waitingApproval = false
@@ -201,7 +201,7 @@ export default {
           this.waitingApproval = false
           this.toast('Transaction has failed.', {
             type: 'error',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           })
           console.log(receipt)
         }
@@ -220,7 +220,7 @@ export default {
       ])
 
       const stakingContract = new ethers.Contract(
-        this.$config.stakingContractAddress,
+        this.$config.public.stakingContractAddress,
         stakingContractInterface,
         this.signer,
       )
@@ -237,7 +237,7 @@ export default {
           },
           {
             type: 'info',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           },
         )
 
@@ -252,7 +252,7 @@ export default {
 
           this.toast('You have successfully staked tokens!', {
             type: 'success',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           })
 
           this.waitingDeposit = false
@@ -261,7 +261,7 @@ export default {
           this.waitingDeposit = false
           this.toast('Transaction has failed.', {
             type: 'error',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
           })
           console.log(receipt)
         }

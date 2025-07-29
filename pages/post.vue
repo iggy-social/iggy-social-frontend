@@ -1,13 +1,13 @@
 <template>
   <div>
     <Head>
-      <Meta name="description" :content="'Check out this chat post on ' + $config.projectName + '!'" />
+      <Meta name="description" :content="'Check out this chat post on ' + $config.public.projectName + '!'" />
 
-      <Meta property="og:image" :content="$config.projectUrl + $config.previewImagePost" />
-      <Meta property="og:description" :content="'Check out this chat post on ' + $config.projectName + '!'" />
+      <Meta property="og:image" :content="$config.public.projectUrl + $config.public.previewImagePost" />
+      <Meta property="og:description" :content="'Check out this chat post on ' + $config.public.projectName + '!'" />
 
-      <Meta name="twitter:image" :content="$config.projectUrl + $config.previewImagePost" />
-      <Meta name="twitter:description" :content="'Check out this chat post on ' + $config.projectName + '!'" />
+      <Meta name="twitter:image" :content="$config.public.projectUrl + $config.public.previewImagePost" />
+      <Meta name="twitter:description" :content="'Check out this chat post on ' + $config.public.projectName + '!'" />
     </Head>
   </div>
 
@@ -82,7 +82,7 @@ export default {
       this.reply = null
 
       try {
-        const provider = this.$getFallbackProvider(this.$config.supportedChainId);
+        const provider = this.$getFallbackProvider(this.$config.public.supportedChainId);
 
         const intrfc = new ethers.utils.Interface([
           {

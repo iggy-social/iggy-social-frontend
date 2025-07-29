@@ -1,20 +1,20 @@
 <template>
   <Head>
-    <Title>NFT Launchpad | {{ $config.projectMetadataTitle }}</Title>
-    <Meta property="og:title" :content="'NFT Launchpad | ' + $config.projectMetadataTitle" />
+    <Title>NFT Launchpad | {{ $config.public.projectMetadataTitle }}</Title>
+    <Meta property="og:title" :content="'NFT Launchpad | ' + $config.public.projectMetadataTitle" />
 
-    <Meta name="description" :content="'Check out these awesome NFT collections on ' + $config.projectName + '!'" />
+    <Meta name="description" :content="'Check out these awesome NFT collections on ' + $config.public.projectName + '!'" />
 
-    <Meta property="og:image" :content="$config.projectUrl + $config.previewImageNftLaunchpad" />
+    <Meta property="og:image" :content="$config.public.projectUrl + $config.public.previewImageNftLaunchpad" />
     <Meta
       property="og:description"
-      :content="'Check out these awesome NFT collections on ' + $config.projectName + '!'"
+      :content="'Check out these awesome NFT collections on ' + $config.public.projectName + '!'"
     />
 
-    <Meta name="twitter:image" :content="$config.projectUrl + $config.previewImageNftLaunchpad" />
+    <Meta name="twitter:image" :content="$config.public.projectUrl + $config.public.previewImageNftLaunchpad" />
     <Meta
       name="twitter:description"
-      :content="'Check out these awesome NFT collections on ' + $config.projectName + '!'"
+      :content="'Check out these awesome NFT collections on ' + $config.public.projectName + '!'"
     />
   </Head>
 
@@ -40,7 +40,7 @@
       <!-- NFT competition alert 
     <div class="alert alert-primary mb-3 text-center" role="alert">
       <NuxtLink to="/post/?id=kjzl6cwe1jw149z0ddpcygc1nhgjdppg1zpr8r4s0j8siaq0bod6u0v5dyaqr2c">
-        Create your NFT and win a 2000 {{ $config.tokenSymbol }} prize! Hurry up, the competition ends on Friday, 29 September!
+        Create your NFT and win a 2000 {{ $config.public.tokenSymbol }} prize! Hurry up, the competition ends on Friday, 29 September!
       </NuxtLink>
     </div>
     -->
@@ -60,7 +60,7 @@
               <p class="card-text mb-1">
                 <strong>{{ nft.name }}</strong>
               </p>
-              <small class="card-text">{{ formatPrice(nft.price) }} {{ $config.tokenSymbol }}</small>
+              <small class="card-text">{{ formatPrice(nft.price) }} {{ $config.public.tokenSymbol }}</small>
             </div>
           </div>
         </NuxtLink>
@@ -81,7 +81,7 @@
               <p class="card-text mb-1">
                 <strong>{{ nft.name }}</strong>
               </p>
-              <small class="card-text">{{ formatPrice(nft.price) }} {{ $config.tokenSymbol }}</small>
+              <small class="card-text">{{ formatPrice(nft.price) }} {{ $config.public.tokenSymbol }}</small>
             </div>
           </div>
         </NuxtLink>
@@ -133,7 +133,7 @@ export default {
   },
 
   mounted() {
-    if (this.$config.nftLaunchpadBondingAddress) {
+    if (this.$config.public.nftLaunchpadBondingAddress) {
       this.fetchFeaturedNfts()
       this.fetchLastNfts()
     }
@@ -150,9 +150,9 @@ export default {
       this.waitingData = true
 
       // fetch provider from hardcoded RPCs
-      let provider = this.$getFallbackProvider(this.$config.supportedChainId)
+      let provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
 
-      if (this.isActivated && this.chainId === this.$config.supportedChainId) {
+      if (this.isActivated && this.chainId === this.$config.public.supportedChainId) {
         // fetch provider from user's MetaMask
         provider = this.signer
       }
@@ -163,7 +163,7 @@ export default {
       ])
 
       const launchpadContract = new ethers.Contract(
-        this.$config.nftLaunchpadBondingAddress,
+        this.$config.public.nftLaunchpadBondingAddress,
         launchpadInterface,
         provider,
       )
@@ -178,9 +178,9 @@ export default {
       this.waitingData = true
 
       // fetch provider from hardcoded RPCs
-      let provider = this.$getFallbackProvider(this.$config.supportedChainId)
+      let provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
 
-      if (this.isActivated && this.chainId === this.$config.supportedChainId) {
+      if (this.isActivated && this.chainId === this.$config.public.supportedChainId) {
         // fetch provider from user's MetaMask
         provider = this.signer
       }
@@ -193,7 +193,7 @@ export default {
       ])
 
       const launchpadContract = new ethers.Contract(
-        this.$config.nftLaunchpadBondingAddress,
+        this.$config.public.nftLaunchpadBondingAddress,
         launchpadInterface,
         provider,
       )
@@ -211,10 +211,10 @@ export default {
         if (this.allNftsIndexEnd === 0) {
           this.allNftsIndexEnd = this.allNftsArrayLength - 1
 
-          if (this.allNftsArrayLength < this.$config.nftLaunchpadLatestItems) {
+          if (this.allNftsArrayLength < this.$config.public.nftLaunchpadLatestItems) {
             this.allNftsIndexStart = 0
           } else {
-            this.allNftsIndexStart = this.allNftsArrayLength - this.$config.nftLaunchpadLatestItems
+            this.allNftsIndexStart = this.allNftsArrayLength - this.$config.public.nftLaunchpadLatestItems
           }
         }
 
@@ -227,14 +227,14 @@ export default {
 
         await this.parseNftsArray(lNftsWritable, this.lastNfts, provider)
 
-        if (this.allNftsIndexEnd > this.$config.nftLaunchpadLatestItems) {
-          this.allNftsIndexEnd = this.allNftsIndexEnd - this.$config.nftLaunchpadLatestItems
+        if (this.allNftsIndexEnd > this.$config.public.nftLaunchpadLatestItems) {
+          this.allNftsIndexEnd = this.allNftsIndexEnd - this.$config.public.nftLaunchpadLatestItems
         } else {
           this.allNftsIndexEnd = 0
         }
 
-        if (this.allNftsIndexStart > this.$config.nftLaunchpadLatestItems) {
-          this.allNftsIndexStart = this.allNftsIndexStart - this.$config.nftLaunchpadLatestItems
+        if (this.allNftsIndexStart > this.$config.public.nftLaunchpadLatestItems) {
+          this.allNftsIndexStart = this.allNftsIndexStart - this.$config.public.nftLaunchpadLatestItems
         } else {
           this.allNftsIndexStart = 0
         }

@@ -1,7 +1,7 @@
 import { ethers } from 'ethers'
 
 export default defineNuxtPlugin(() => {
-  //const config = useRuntimeConfig() // access env vars like this: config.alchemyPolygonKey
+  //const config = useRuntimeConfig() // access env vars like this: config.public.alchemyPolygonKey
 
   function getChainName(chainId) {
     let chain = chains.find(chain => chain.chainId == chainId)
