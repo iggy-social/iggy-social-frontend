@@ -32,7 +32,7 @@
             {{ showDomainOrAddress }}
           </a>
           <div class="dropdown-menu dropdown-menu-end">
-            <NuxtLink class="dropdown-item cursor-pointer" to="/">Profile</NuxtLink>
+            <NuxtLink class="dropdown-item cursor-pointer" :to="getProfileLink">Profile</NuxtLink>
             
             <span class="dropdown-item cursor-pointer" data-bs-toggle="modal" data-bs-target="#siteSettingsModal">
               Settings
@@ -40,9 +40,9 @@
             <span class="dropdown-item cursor-pointer" data-bs-toggle="modal" data-bs-target="#changeUsernameModal">
               Change username
             </span>
-            <span class="dropdown-item cursor-pointer" data-bs-toggle="modal" data-bs-target="#findUserModal">
+            <NuxtLink class="dropdown-item cursor-pointer" to="/find-user">
               Find user
-            </span>
+            </NuxtLink>
             <span class="dropdown-item cursor-pointer" data-bs-toggle="modal" data-bs-target="#referralModal">
               Share referral link
             </span>
@@ -91,13 +91,21 @@ export default {
   },
 
   computed: {
+    getProfileLink() {
+      if (this.domainName) {
+        return `/profile/?id=${this.domainName}`;
+      } else if (this.address) {
+        return `/profile/?id=${this.address}`;
+      } else {
+        return `/profile`;
+      }
+    },
+
     isActivated() {
       return this?.isActivated || false
     },
 
     showDomainOrAddress() {
-      // For now, we'll just show the shortened address
-      // You can extend this to show domain if you have domain functionality
       if (this.domainName) {
         return this.domainName
       } else if (this.address) {
