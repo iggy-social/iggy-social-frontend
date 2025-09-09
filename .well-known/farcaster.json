@@ -1,0 +1,22 @@
+{
+  "accountAssociation": {
+    "header": "",
+    "payload": "",
+    "signature": ""
+  },
+  "miniapp": {
+    "version": "1",
+    "name": "Iggy Social",
+    "subtitle": "A starter template for building Web3 applications with Wagmi and Nuxt",
+    "buttonTitle": "A starter template for building Web3 applications with Wagmi and Nuxt",
+    "description": "A starter template for building Web3 applications with Wagmi and Nuxt",
+    "tags": ["send", "token", "transfer", "domain", "name"],
+    "primaryCategory": "utility",
+    "homeUrl": "https://iggy-social-nuxt.vercel.app",
+    "iconUrl": "https://iggy-social-nuxt.vercel.app/img/logo.svg",
+    "heroImageUrl": "https://iggy-social-nuxt.vercel.app/img/covers/cover.png",
+    "imageUrl": "https://iggy-social-nuxt.vercel.app/img/covers/cover.png",
+    "splashImageUrl": "https://iggy-social-nuxt.vercel.app/img/logo.svg",
+    "splashBackgroundColor": "#002b36"
+  }
+}
