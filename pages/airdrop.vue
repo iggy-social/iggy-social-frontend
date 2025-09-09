@@ -49,7 +49,7 @@
         <div v-if="currentTab === 'domain'">
           <div class="d-flex justify-content-center mt-5">
             <div class="col-12 col-lg-8">
-              <AirdropDomainHolders :domainChatRewardWei="domainChatRewardWei" :loadingData="fetchingData" />
+              <AirdropDomainHolders />
             </div>
           </div>
         </div>
@@ -58,11 +58,7 @@
         <div v-if="currentTab === 'ap'">
           <div class="d-flex justify-content-center mt-5">
             <div class="col-12 col-lg-8">
-              <AirdropActivityPoints
-                :airdropApWei="airdropApWei"
-                :loadingData="fetchingData"
-                @setDomainChatRewardWeiToZero="setDomainChatRewardWeiToZero"
-              />
+              <AirdropActivityPoints />
             </div>
           </div>
         </div>
@@ -72,20 +68,15 @@
 </template>
 
 <script>
-import { ethers } from 'ethers'
-import { useEthers } from '~/store/ethers'
-import AirdropDomainHolders from '~/components/airdrop/AirdropDomainHolders.vue'
-import AirdropActivityPoints from '~/components/airdrop/AirdropActivityPoints.vue'
+import AirdropDomainHolders from '@/components/airdrop/AirdropDomainHolders.vue'
+import AirdropActivityPoints from '@/components/airdrop/AirdropActivityPoints.vue'
 
 export default {
   name: 'Airdrop',
 
   data() {
     return {
-      airdropApWei: 0, // the amount of CHAT tokens that user will get for past APs
       currentTab: 'domain',
-      domainChatRewardWei: 100000000000000,
-      fetchingData: false,
     }
   },
 
@@ -101,61 +92,12 @@ export default {
     if (!this.currentTab) {
       this.currentTab = 'domain'
     }
-
-    if (this.address) {
-      this.fetchAirdropData()
-    }
   },
 
   methods: {
     changeCurrentTab(tab) {
       this.currentTab = tab
       localStorage.setItem('airdropCurrentTab', tab)
-    },
-
-    async fetchAirdropData() {
-      // fetch airdrop data
-      this.fetchingData = true
-
-      // fetch chat reward from the ChatTokenClaimDomains contract
-      const chatTokenClaimDomainsInterface = new ethers.utils.Interface([
-        'function chatReward() external view returns (uint256)',
-      ])
-
-      const chatTokenClaimDomainsContract = new ethers.Contract(
-        this.$config.public.airdropClaimDomainsAddress,
-        chatTokenClaimDomainsInterface,
-        this.signer,
-      )
-
-      this.domainChatRewardWei = await chatTokenClaimDomainsContract.chatReward()
-
-      // preview airdrop claim for past APs
-      const claimApInterface = new ethers.utils.Interface([
-        'function claimPreview(address _address) public view returns (uint256)',
-      ])
-
-      const claimApContract = new ethers.Contract(this.$config.public.airdropApAddress, claimApInterface, this.signer)
-
-      this.airdropApWei = await claimApContract.claimPreview(this.address)
-
-      this.fetchingData = false
-    },
-
-    setDomainChatRewardWeiToZero() {
-      this.domainChatRewardWei = 0
-    },
-  },
-
-  setup() {
-    const { address, signer } = useEthers()
-
-    return { address, signer }
-  },
-
-  watch: {
-    address() {
-      this.fetchAirdropData()
     },
   },
 }

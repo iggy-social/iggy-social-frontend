@@ -17,10 +17,9 @@
 </template>
 
 <script>
-import { useEthers } from '~/store/ethers'
 import { useToast } from 'vue-toastification/dist/index.mjs'
-import { useUserStore } from '~/store/user'
-import { getTextWithoutBlankCharacters } from '~/utils/textUtils'
+import { getTextWithoutBlankCharacters } from '@/utils/textUtils'
+import { useAccountData } from '@/composables/useAccountData'
 
 export default {
   name: 'ShareReferralLink',
@@ -33,19 +32,19 @@ export default {
 
   computed: {
     getDomainNameOrAddress() {
-      if (this.userStore.getDefaultDomain) {
-        return getTextWithoutBlankCharacters(this.userStore.getDefaultDomain)
+      if (this.domainName) {
+        return getTextWithoutBlankCharacters(this.domainName)
       }
 
       return this.address
     },
 
     getReferralLink() {
-      if (this.$route.href.includes('?')) {
-        return window.location.origin + this.$route.href + `&ref=${this.getDomainNameOrAddress}`
+      if (this.route.fullPath.includes('?')) {
+        return window.location.origin + this.route.fullPath + `&ref=${this.getDomainNameOrAddress}`
       }
 
-      return window.location.origin + this.$route.href + `?ref=${this.getDomainNameOrAddress}`
+      return window.location.origin + this.route.fullPath + `?ref=${this.getDomainNameOrAddress}`
     },
   },
 
@@ -58,11 +57,16 @@ export default {
   },
 
   setup() {
-    const { address } = useEthers()
+    const { address, domainName } = useAccountData()
     const toast = useToast()
-    const userStore = useUserStore()
+    const route = useRoute()
 
-    return { address, toast, userStore }
+    return { 
+      address,
+      domainName,
+      toast,
+      route
+    }
   },
 }
 </script>

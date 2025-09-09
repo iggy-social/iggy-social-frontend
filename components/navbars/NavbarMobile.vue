@@ -2,34 +2,34 @@
   <nav class="navbar sticky-top navbar-expand-lg navbar-mobile">
     <div class="container-fluid">
       <button @click="toggleLeftSidebar" class="nav-item btn navbar-toggler nav-btn-left" type="button">
-        <span v-if="!sidebarStore.showLeftSidebar" class="navbar-toggler-icon"></span>
-        <span v-if="sidebarStore.showLeftSidebar" class="bi bi-x-lg"></span>
+        <span v-if="!showLeftSidebar" class="navbar-toggler-icon"></span>
+        <span v-if="showLeftSidebar" class="bi bi-x-lg"></span>
       </button>
 
       <NuxtLink class="navbar-brand mx-auto" to="/">
-        <img src="/img/logo.svg" alt="Chat logo" height="40" />
+        <img src="/img/logo.svg" alt="Iggy Social logo" height="40" />
       </NuxtLink>
 
       <button @click="toggleRightSidebar" class="nav-item btn navbar-toggler nav-btn-right" type="button">
-        <span v-if="!sidebarStore.showRightSidebar" class="navbar-toggler-icon"></span>
-        <span v-if="sidebarStore.showRightSidebar" class="bi bi-x-lg"></span>
+        <span v-if="!showRightSidebar" class="navbar-toggler-icon"></span>
+        <span v-if="showRightSidebar" class="bi bi-x-lg"></span>
       </button>
     </div>
   </nav>
 
   <div v-if="!isSupportedChain || !isActivated" class="card border m-3">
     <div class="card-body d-flex justify-content-center">
-      <ConnectWalletButton v-if="!isActivated" class="btn btn-primary" btnText="Connect wallet" />
+      <ConnectWalletButton v-if="!isActivated" customClass="btn-primary" />
       <SwitchChainButton v-if="isActivated && !isSupportedChain" />
     </div>
   </div>
 </template>
 
 <script>
-import { useEthers } from '~/store/ethers'
-import { useSidebarStore } from '~/store/sidebars'
-import ConnectWalletButton from '~/components/ConnectWalletButton.vue'
-import SwitchChainButton from '~/components/SwitchChainButton.vue'
+import ConnectWalletButton from '@/components/connect/ConnectWalletButton.vue'
+import SwitchChainButton from '@/components/connect/SwitchChainButton.vue'
+import { useAccountData } from '@/composables/useAccountData'
+import { useSidebars } from '@/composables/useSidebars'
 
 export default {
   name: 'NavbarMobile',
@@ -42,50 +42,77 @@ export default {
 
   computed: {
     isSupportedChain() {
-      if (this.chainId === this.$config.public.supportedChainId) {
-        return true
-      } else {
-        return false
-      }
+      return this.chainId === this.$config.public.supportedChainId
+    },
+
+    isActivated() {
+      return this.isActivated || false
+    },
+
+    chainId() {
+      return this.chainId || 1
+    },
+
+    showLeftSidebar() {
+      return this.leftSidebar
+    },
+
+    showRightSidebar() {
+      return this.rightSidebar
     },
   },
 
   methods: {
     toggleLeftSidebar() {
-      this.sidebarStore.setRightSidebar(false)
-      //this.rSidebar.hide();
+      this.setRightSidebar(false)
 
-      if (this.sidebarStore.showLeftSidebar) {
-        this.sidebarStore.setLeftSidebar(false)
-        this.lSidebar.hide()
-        this.sidebarStore.setMainContent(true)
+      if (this.showLeftSidebar) {
+        this.setLeftSidebar(false)
+        if (this.lSidebar) this.lSidebar.hide()
+        this.setMainContent(true)
       } else {
-        this.sidebarStore.setLeftSidebar(true)
-        this.lSidebar.show()
-        this.sidebarStore.setMainContent(false)
+        this.setLeftSidebar(true)
+        if (this.lSidebar) this.lSidebar.show()
+        this.setMainContent(false)
       }
     },
 
     toggleRightSidebar() {
-      this.lSidebar.hide()
-      this.sidebarStore.setLeftSidebar(false)
+      if (this.lSidebar) this.lSidebar.hide()
+      this.setLeftSidebar(false)
 
-      if (this.sidebarStore.showRightSidebar) {
-        this.sidebarStore.setRightSidebar(false)
-        //this.rSidebar.hide();
-        this.sidebarStore.setMainContent(true)
+      if (this.showRightSidebar) {
+        this.setRightSidebar(false)
+        this.setMainContent(true)
       } else {
-        this.sidebarStore.setRightSidebar(true)
-        //this.rSidebar.show();
-        this.sidebarStore.setMainContent(false)
+        this.setRightSidebar(true)
+        this.setMainContent(false)
+      }
+    },
+
+    async changeNetwork(chainId) {
+      try {
+        await this.switchToNetwork(chainId)
+      } catch (error) {
+        console.error('Failed to switch network:', error)
       }
     },
   },
 
   setup() {
-    const { chainId, isActivated } = useEthers()
-    const sidebarStore = useSidebarStore()
-    return { chainId, isActivated, sidebarStore }
+    const { isActivated, chainId, switchToNetwork } = useAccountData()
+    const { leftSidebar, rightSidebar, setLeftSidebar, setRightSidebar, setMainContent } = useSidebars()
+
+    return {
+      chainId,
+      isActivated,
+      leftSidebar,
+      rightSidebar,
+      setLeftSidebar,
+      setRightSidebar,
+      setMainContent,
+      switchToNetwork,
+    }
   },
 }
 </script>

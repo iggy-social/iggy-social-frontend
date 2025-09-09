@@ -2,5 +2,10 @@
   "buildCommand": "npm run generate",
   "devCommand": "npm run dev",
   "installCommand": "npm install",
-  "outputDirectory": "dist"
+  "outputDirectory": "dist",
+  "functions": {
+    "app/**/*.js": {
+      "runtime": "nodejs22.x"
+    }
+  }
 }

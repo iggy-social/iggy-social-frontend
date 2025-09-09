@@ -1,15 +1,12 @@
 <template>
   <div class="col-auto col-lg-3 px-0 mt-1">
-    <div id="sidebar2" class="collapse collapse-horizontal" :class="{ show: sidebarStore.showRightSidebar }">
+    <div id="sidebar2" class="collapse collapse-horizontal" :class="{ show: rightSidebar }">
       <div id="sidebar-nav" class="list-group border-0 rounded-0 text-sm-start min-vh-100">
 
         <!-- Connect wallet / Switch Chain -->
         <div v-if="isMobile" class="card m-2 bg-light">
           <div class="card-body sidebar-card-body text-center mt-4">
-            <ConnectWalletButton v-if="!isActivated" class="btn btn-primary" btnText="Connect wallet" />
-            <SwitchChainButton v-if="isActivated && !isSupportedChain" />
-
-            <div class="dropdown mt-2">
+            <div class="dropdown-center d-grid">
               <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                 Actions
               </button>
@@ -21,92 +18,50 @@
           </div>
         </div>
 
+        <!-- Widget 
+        <div class="card m-2 bg-light">
+          <div class="card-header bg-light">Widget</div>
+          <div class="card-body sidebar-card-body">
+            <p>
+              I am a little sidebar widget: Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+              Quisque sed ipsum vitae metus eleifend hendrerit ornare quis tortor.
+            </p>
+          </div>
+        </div>
+        -->
+
         <!-- Mint/register a domain name -->
         <NameMintWidget />
 
-        <!-- Referrals -->
+        <!-- Referral widget -->
         <ReferralWidget />
 
-        <!-- Playlist -->
-        <div class="card m-2 bg-light" v-if="$config.public.showFeatures.spotify">
-          <div class="card-header bg-light">{{ $config.public.projectName }} Playlist</div>
-          <div class="card-body sidebar-card-body">
-            <iframe
-              style="border-radius: 12px"
-              :src="
-                'https://open.spotify.com/embed/playlist/' + $config.public.spotifyPlaylistId + '?utm_source=generator&theme=0'
-              "
-              width="100%"
-              height="352"
-              frameBorder="0"
-              allowfullscreen=""
-              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-              loading="lazy"
-            ></iframe>
-          </div>
-        </div>
-
-        <!-- Swap tokens -->
-        <SimpleSwapWidget
-          v-if="$config.public.swapRouterAddress && $config.public.showFeatures.swap"
-          :routerAddress="$config.public.swapRouterAddress"
-          :tokens="tokens"
-          title="Swap tokens"
-        />
-
-        <!-- Newsletter -->
-        <div v-if="$config.public.newsletterLink && $config.public.showFeatures.newsletter" class="card m-2 bg-light">
-          <div class="card-header bg-light">{{ $config.public.projectName }} Newsletter</div>
-          <div class="card-body sidebar-card-body">
-            <a class="btn btn-outline-primary mt-2 mb-2" target="_blank" :href="$config.public.newsletterLink">
-              Join our newsletter!
-              <i class="bi bi-box-arrow-up-right ms-1"></i>
-            </a>
-          </div>
-        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import tokens from '~/assets/data/tokens.json'
-import ConnectWalletButton from '~/components/ConnectWalletButton.vue'
-import SwitchChainButton from '~/components/SwitchChainButton.vue'
-import NameMintWidget from '~/components/names/NameMintWidget.vue'
-import SimpleSwapWidget from '~/components/swap/SimpleSwapWidget.vue'
-import ReferralWidget from '~/components/referrals/ReferralWidget.vue'
-import { useEthers } from '~/store/ethers'
-import { useSidebarStore } from '~/store/sidebars'
+import NameMintWidget from '@/components/names/NameMintWidget.vue'
+import ReferralWidget from '@/components/referrals/ReferralWidget.vue'
+import { useAccountData } from '@/composables/useAccountData'
+import { useSidebars } from '@/composables/useSidebars'
 
 export default {
   name: 'SidebarRight',
   props: ['rSidebar', 'isMobile'],
 
-  components: {
-    ConnectWalletButton,
+  components: { 
     NameMintWidget,
     ReferralWidget,
-    SimpleSwapWidget,
-    SwitchChainButton,
-  },
-
-  computed: {
-    isSupportedChain() {
-      if (this.chainId === this.$config.public.supportedChainId) {
-        return true
-      } else {
-        return false
-      }
-    },
   },
 
   methods: {
     closeRightSidebar() {
       if (this.isMobile) {
         //this.rSidebar.hide();
-        this.sidebarStore.setRightSidebar(false)
-        this.sidebarStore.setMainContent(true)
+        this.setRightSidebar(false)
+        this.setMainContent(true)
       }
     },
 
@@ -118,9 +73,16 @@ export default {
   },
 
   setup() {
-    const { chainId, disconnect, isActivated } = useEthers()
-    const sidebarStore = useSidebarStore()
-    return { chainId, disconnect, isActivated, sidebarStore, tokens }
+    const { rightSidebar, setRightSidebar, setMainContent } = useSidebars()
+    const { disconnect, isActivated } = useAccountData()
+
+    return {
+      disconnect,
+      isActivated,
+      rightSidebar,
+      setRightSidebar,
+      setMainContent,
+    }
   },
 }
 </script>

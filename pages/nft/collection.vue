@@ -106,10 +106,6 @@
         </div>
 
         <div class="col-md-7">
-          <!--
-					<h3 class="mb-3">Collection: {{ cName }}</h3>
-					-->
-
           <!-- Data -->
           <div class="mt-1 mb-4 muted-text" style="font-size: 14px">
             <p class="me-4">
@@ -145,19 +141,6 @@
               </span>
             </p>
 
-            <!--
-            <p class="me-4">
-              <i class="bi bi-box-arrow-up-right me-1"></i>
-              <a
-                :href="$config.public.marketplaceNftCollectionBaseUrl + cAddress"
-                target="_blank"
-                style="text-decoration: none"
-              >
-                See on NFT marketplace
-              </a>
-            </p>
-            -->
-
             <div v-if="cAddress" class="dropdown">
               <i class="bi bi-box-arrow-up-right me-2"></i>
               <span class="dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
@@ -181,7 +164,7 @@
           <!-- Buttons -->
           <div class="row mb-3" v-if="nativeNft">
             <div v-if="!isActivated || !isSupportedChain" class="d-grid gap-2 col">
-              <ConnectWalletButton v-if="!isActivated" class="btn btn-primary" btnText="Connect wallet" />
+              <ConnectWalletButton v-if="!isActivated" class="btn-primary" btnText="Connect wallet" />
               <SwitchChainButton v-if="isActivated && !isSupportedChain" />
             </div>
 
@@ -281,29 +264,30 @@
   <RemoveImageFromCollectionModal :mdAddress="mdAddress" :cAddress="cAddress" />
 
   <!-- Send NFT Modal -->
-  <SendNftModal v-if="address" :address="address" :cAddress="cAddress" :signer="signer" />
+  <SendNftModal v-if="address" :address="address" :cAddress="cAddress" />
 </template>
 
 <script>
-import { ethers } from 'ethers'
-import { useEthers, shortenAddress } from '~/store/ethers'
+import { isAddress, formatEther } from 'viem'
 import { useToast } from 'vue-toastification/dist/index.mjs'
-import ChatFeed from '~/components/chat/ChatFeed.vue'
-import ConnectWalletButton from '~/components/ConnectWalletButton.vue'
-import Image from '~/components/Image.vue'
-import SwitchChainButton from '~/components/SwitchChainButton.vue'
-import WaitingToast from '~/components/WaitingToast'
-import AddImageToCollectionModal from '~/components/nft/collection/AddImageToCollectionModal'
-import ChangeCollectionPreviewModal from '~/components/nft/collection/ChangeCollectionPreviewModal'
-import ChangeDescriptionModal from '~/components/nft/collection/ChangeDescriptionModal'
-import ChangeNftTypeModal from '~/components/nft/collection/ChangeNftTypeModal'
-import CollectionMediaSection from '~/components/nft/collection/CollectionMediaSection.vue';
-import RemoveImageFromCollectionModal from '~/components/nft/collection/RemoveImageFromCollectionModal'
-import SendNftModal from '~/components/nft/collection/SendNftModal.vue';
-import { getDomainName } from '~/utils/domainUtils'
-import { getIpfsUrl } from '~/utils/ipfsUtils'
-import { fetchCollection, fetchUsername, storeCollection, storeUsername } from '~/utils/storageUtils'
-import { getTextWithoutBlankCharacters } from '~/utils/textUtils'
+import ChatFeed from '@/components/chat/ChatFeed.vue'
+import ConnectWalletButton from '@/components/connect/ConnectWalletButton.vue'
+import Image from '@/components/Image.vue'
+import SwitchChainButton from '@/components/connect/SwitchChainButton.vue'
+import WaitingToast from '@/components/WaitingToast'
+import AddImageToCollectionModal from '@/components/nft/collection/AddImageToCollectionModal'
+import ChangeCollectionPreviewModal from '@/components/nft/collection/ChangeCollectionPreviewModal'
+import ChangeDescriptionModal from '@/components/nft/collection/ChangeDescriptionModal'
+import ChangeNftTypeModal from '@/components/nft/collection/ChangeNftTypeModal'
+import CollectionMediaSection from '@/components/nft/collection/CollectionMediaSection.vue';
+import RemoveImageFromCollectionModal from '@/components/nft/collection/RemoveImageFromCollectionModal'
+import SendNftModal from '@/components/nft/collection/SendNftModal.vue';
+import { useAccountData } from '@/composables/useAccountData'
+import { useWeb3 } from '@/composables/useWeb3'
+import { getDomainName } from '@/utils/domainUtils'
+import { getIpfsUrl } from '@/utils/fileUtils'
+import { fetchCollection, fetchUsername, storeCollection, storeUsername } from '@/utils/browserStorageUtils'
+import { getTextWithoutBlankCharacters } from '@/utils/textUtils'
 
 export default {
   name: 'NftCollection',
@@ -349,21 +333,27 @@ export default {
   },
 
   mounted() {
-    if (this.cAddress) {
-      // check if address is valid
-      if (!ethers.utils.isAddress(this.cAddress)) {
+    // Wait for next tick to ensure computed properties are resolved
+    this.$nextTick(() => {
+      if (this.cAddress && isAddress(this.cAddress)) {
+        this.getCollectionDetails()
+      } else if (this.$route.query?.id) {
+        // If we have a query param but cAddress is still null, there's an issue
+        console.error('Route has query param but cAddress is null or invalid')
         this.toast('Invalid NFT address.', { type: 'error' })
-        return this.$router.push({ path: '/' })
+        this.$router.push({ path: '/' })
+      } else {
+        console.log('No valid address found in mounted')
       }
-
-      this.getCollectionDetails()
-    }
+    })
   },
 
   computed: {
     cAddress() {
-      if (this.$route.query?.id) {
-        return this.$route.query.id
+      const address = this.$route.query?.id
+      
+      if (address) {
+        return address
       }
 
       return null
@@ -392,7 +382,7 @@ export default {
           let cleanName = String(this.cAuthorDomain).replace(this.$config.public.tldName, '')
           return getTextWithoutBlankCharacters(cleanName) + this.$config.public.tldName
         } else {
-          return shortenAddress(this.cAuthorAddress)
+          return this.shortenAddress(this.cAuthorAddress)
         }
       }
 
@@ -423,25 +413,75 @@ export default {
     async buyNft() {
       this.waitingBuy = true
 
-      const nftInterface = new ethers.utils.Interface([
-        'function getBurnPrice() public view returns (uint256)',
-        'function getMintPrice() public view returns (uint256)',
-        'function mint(address to) external payable returns (uint256)',
-        'function tokenOfOwnerByIndex(address owner, uint256 index) public view returns (uint256)',
-        'function totalSupply() public view returns (uint256)',
-      ])
-
-      const nftContract = new ethers.Contract(this.cAddress, nftInterface, this.signer)
+      const nftAbi = [
+        {
+          name: 'getBurnPrice',
+          type: 'function',
+          stateMutability: 'view',
+          inputs: [],
+          outputs: [{ type: 'uint256' }]
+        },
+        {
+          name: 'getMintPrice',
+          type: 'function',
+          stateMutability: 'view',
+          inputs: [],
+          outputs: [{ type: 'uint256' }]
+        },
+        {
+          name: 'mint',
+          type: 'function',
+          stateMutability: 'payable',
+          inputs: [{ name: 'to', type: 'address' }],
+          outputs: [{ type: 'uint256' }]
+        },
+        {
+          name: 'tokenOfOwnerByIndex',
+          type: 'function',
+          stateMutability: 'view',
+          inputs: [
+            { name: 'owner', type: 'address' },
+            { name: 'index', type: 'uint256' }
+          ],
+          outputs: [{ type: 'uint256' }]
+        },
+        {
+          name: 'totalSupply',
+          type: 'function',
+          stateMutability: 'view',
+          inputs: [],
+          outputs: [{ type: 'uint256' }]
+        }
+      ]
 
       // fetch the price again to get the latest price
-      this.priceBuyWei = await nftContract.getMintPrice()
-
       try {
-        const tx = await nftContract.mint(this.address, {
-          value: this.priceBuyWei,
+        const priceResult = await this.readData({
+          address: this.cAddress,
+          abi: nftAbi,
+          functionName: 'getMintPrice',
         })
 
-        const toastWait = this.toast(
+        this.priceBuyWei = Number(priceResult)
+      } catch (e) {
+        console.error('Failed to get mint price:', e)
+        this.waitingBuy = false
+        this.toast('Failed to get mint price.', { type: 'error' })
+        return
+      }
+
+      let toastWait;
+
+      try {
+        const hash = await this.writeData({
+          address: this.cAddress,
+          abi: nftAbi,
+          functionName: 'mint',
+          args: [this.address],
+          value: Number(this.priceBuyWei),
+        })
+
+        toastWait = this.toast(
           {
             component: WaitingToast,
             props: {
@@ -450,30 +490,57 @@ export default {
           },
           {
             type: 'info',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           },
         )
 
-        const receipt = await tx.wait()
+        const receipt = await this.waitForTxReceipt(hash)
 
-        if (receipt.status === 1) {
+        if (receipt.status === 'success') {
           this.toast.dismiss(toastWait)
 
           this.toast('You have successfully bought the NFT! Congrats!', {
             type: 'success',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           })
 
-          this.priceBuyWei = await nftContract.getMintPrice()
-          this.priceSellWei = await nftContract.getBurnPrice()
-
+          // Update prices and user data
           try {
-            this.userTokenId = await nftContract.tokenOfOwnerByIndex(this.address, 0)
-          } catch (e) {
-            this.userTokenId = null
-          }
+            const [newPriceBuy, newPriceSell] = await Promise.all([
+              this.readData({
+                address: this.cAddress,
+                abi: nftAbi,
+                functionName: 'getMintPrice',
+              }),
+              this.readData({
+                address: this.cAddress,
+                abi: nftAbi,
+                functionName: 'getBurnPrice',
+              })
+            ])
+            
+            this.priceBuyWei = Number(newPriceBuy)
+            this.priceSellWei = Number(newPriceSell)
 
-          this.cSupply = await nftContract.totalSupply()
+            try {
+              this.userTokenId = Number(await this.readData({
+                address: this.cAddress,
+                abi: nftAbi,
+                functionName: 'tokenOfOwnerByIndex',
+                args: [this.address, 0],
+              }))
+            } catch (e) {
+              this.userTokenId = null
+            }
+
+            this.cSupply = await this.readData({
+              address: this.cAddress,
+              abi: nftAbi,
+              functionName: 'totalSupply',
+            })
+          } catch (e) {
+            console.error('Failed to update data after purchase:', e)
+          }
 
           this.waitingBuy = false
         } else {
@@ -481,16 +548,15 @@ export default {
           this.waitingBuy = false
           this.toast('Transaction has failed.', {
             type: 'error',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           })
-          console.log(receipt)
         }
       } catch (e) {
         console.error(e)
 
         try {
-          let extractMessage = e.message.split('reason=')[1]
-          extractMessage = extractMessage.split(', method=')[0]
+          let extractMessage = e.message.split('Details:')[1]
+          extractMessage = extractMessage.split('Version: viem')[0]
           extractMessage = extractMessage.replace(/"/g, '')
           extractMessage = extractMessage.replace('execution reverted:', 'Error:')
 
@@ -502,13 +568,15 @@ export default {
         }
 
         this.waitingBuy = false
+      } finally {
+        this.toast.dismiss(toastWait)
+        this.waitingBuy = false
       }
     },
 
     async fetchUserDomain() {
       if (this.cAuthorAddress) {
-        const provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
-        const userDomain = await this.getDomainName(this.cAuthorAddress, provider)
+        const userDomain = await this.getDomainName(this.cAuthorAddress)
 
         if (userDomain) {
           this.cAuthorDomain = userDomain
@@ -522,7 +590,7 @@ export default {
         return null
       }
 
-      const price = Number(ethers.utils.formatEther(priceWei))
+      const price = Number(formatEther(priceWei))
 
       if (price > 100) {
         return price.toFixed(0)
@@ -546,62 +614,155 @@ export default {
     },
 
     async getCollectionDetails(refresh = false) {
+      // Add comprehensive address validation guard to prevent contract calls with invalid address
+      if (!this.cAddress || !isAddress(this.cAddress)) {
+        console.warn('cAddress is null or invalid:', this.cAddress, 'cannot fetch collection details')
+        this.waitingData = false
+        return
+      }
+
       this.waitingData = true
 
       let collection = fetchCollection(window, this.cAddress)
 
       if (refresh) {
-        console.log('Refreshing collection metadata...')
         collection = null
       }
 
-      // fetch provider from hardcoded RPCs
-      let provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
-
-      if (this.isActivated && this.chainId === this.$config.public.supportedChainId) {
-        // fetch provider from user's MetaMask
-        provider = this.signer
-      }
-
-      const nftInterface = new ethers.utils.Interface([
-        'function getBurnPrice() public view returns (uint256)',
-        'function getMintPrice() public view returns (uint256)',
-        'function metadataAddress() public view returns (address)',
-        'function name() public view returns (string memory)',
-        'function owner() public view returns (address)',
-        'function tokenOfOwnerByIndex(address owner, uint256 index) public view returns (uint256)',
-        'function totalSupply() public view returns (uint256)',
-      ])
-
-      const nftContract = new ethers.Contract(this.cAddress, nftInterface, provider)
-
-      console.log("Fetching collection details...");
+      const nftAbi = [
+        {
+          name: 'getBurnPrice',
+          type: 'function',
+          stateMutability: 'view',
+          inputs: [],
+          outputs: [{ type: 'uint256' }]
+        },
+        {
+          name: 'getMintPrice',
+          type: 'function',
+          stateMutability: 'view',
+          inputs: [],
+          outputs: [{ type: 'uint256' }]
+        },
+        {
+          name: 'metadataAddress',
+          type: 'function',
+          stateMutability: 'view',
+          inputs: [],
+          outputs: [{ type: 'address' }]
+        },
+        {
+          name: 'name',
+          type: 'function',
+          stateMutability: 'view',
+          inputs: [],
+          outputs: [{ type: 'string' }]
+        },
+        {
+          name: 'owner',
+          type: 'function',
+          stateMutability: 'view',
+          inputs: [],
+          outputs: [{ type: 'address' }]
+        },
+        {
+          name: 'tokenOfOwnerByIndex',
+          type: 'function',
+          stateMutability: 'view',
+          inputs: [
+            { name: 'owner', type: 'address' },
+            { name: 'index', type: 'uint256' }
+          ],
+          outputs: [{ type: 'uint256' }]
+        },
+        {
+          name: 'totalSupply',
+          type: 'function',
+          stateMutability: 'view',
+          inputs: [],
+          outputs: [{ type: 'uint256' }]
+        }
+      ]
 
       if (collection?.mdAddress) {
         this.mdAddress = collection.mdAddress;
       } else {
         try {
-          this.mdAddress = await nftContract.metadataAddress();
+          this.mdAddress = await this.readData({
+            address: this.cAddress,
+            abi: nftAbi,
+            functionName: 'metadataAddress',
+          });
         } catch (e) {
           return this.getCollectionDetailsFallback();
         }
       }
 
-      const metadataInterface = new ethers.utils.Interface([
-        "function getCollectionDescription(address) public view returns (string memory)",
-        "function getCollectionMetadataType(address nftAddress_) external view returns (uint256)",
-        "function getCollectionName(address nftAddress_) external view returns (string memory)",
-        "function getCollectionPreviewImage(address) public view returns (string memory)",
-        "function getMetadata(address nftAddress_, uint256 tokenId_) external view returns (string memory)",
-        "function mdContractType() external view returns (string memory)"
-      ]);
-
-      const metadataContract = new ethers.Contract(this.mdAddress, metadataInterface, provider)
+      const metadataAbi = [
+        {
+          name: 'getCollectionDescription',
+          type: 'function',
+          stateMutability: 'view',
+          inputs: [{ name: 'nftAddress', type: 'address' }],
+          outputs: [{ type: 'string' }]
+        },
+        {
+          name: 'getCollectionMetadataType',
+          type: 'function',
+          stateMutability: 'view',
+          inputs: [{ name: 'nftAddress_', type: 'address' }],
+          outputs: [{ type: 'uint256' }]
+        },
+        {
+          name: 'getCollectionName',
+          type: 'function',
+          stateMutability: 'view',
+          inputs: [{ name: 'nftAddress_', type: 'address' }],
+          outputs: [{ type: 'string' }]
+        },
+        {
+          name: 'getCollectionPreviewImage',
+          type: 'function',
+          stateMutability: 'view',
+          inputs: [{ name: 'nftAddress', type: 'address' }],
+          outputs: [{ type: 'string' }]
+        },
+        {
+          name: 'getMetadata',
+          type: 'function',
+          stateMutability: 'view',
+          inputs: [
+            { name: 'nftAddress_', type: 'address' },
+            { name: 'tokenId_', type: 'uint256' }
+          ],
+          outputs: [{ type: 'string' }]
+        },
+        {
+          name: 'mdContractType',
+          type: 'function',
+          stateMutability: 'view',
+          inputs: [],
+          outputs: [{ type: 'string' }]
+        }
+      ];
 
       // get collection details
       try {
-        this.priceBuyWei = await nftContract.getMintPrice()
-        this.priceSellWei = await nftContract.getBurnPrice()
+        const [priceBuy, priceSell] = await Promise.all([
+          this.readData({
+            address: this.cAddress,
+            abi: nftAbi,
+            functionName: 'getMintPrice',
+          }),
+          this.readData({
+            address: this.cAddress,
+            abi: nftAbi,
+            functionName: 'getBurnPrice',
+          })
+        ])
+        
+        this.priceBuyWei = priceBuy
+        this.priceSellWei = priceSell
       } catch (e) {
         return this.getCollectionDetailsFallback();
       }
@@ -610,7 +771,12 @@ export default {
       if (collection?.image) {
         this.cImage = collection.image
       } else {
-        this.cImage = await metadataContract.getCollectionPreviewImage(this.cAddress)
+        this.cImage = await this.readData({
+          address: this.mdAddress,
+          abi: metadataAbi,
+          functionName: 'getCollectionPreviewImage',
+          args: [this.cAddress],
+        })
       }
 
       // get IPFS link
@@ -624,39 +790,72 @@ export default {
       if (collection?.description && collection.description !== '' && collection.description !== null) {
         this.cDescription = collection.description
       } else {
-        this.cDescription = await metadataContract.getCollectionDescription(this.cAddress)
+        this.cDescription = await this.readData({
+          address: this.mdAddress,
+          abi: metadataAbi,
+          functionName: 'getCollectionDescription',
+          args: [this.cAddress],
+        })
       }
 
       // get type
       if (collection?.type >= 0) {
         this.cType = collection.type
       } else {
-        this.cType = Number(await metadataContract.getCollectionMetadataType(this.cAddress))
+        this.cType = Number(await this.readData({
+          address: this.mdAddress,
+          abi: metadataAbi,
+          functionName: 'getCollectionMetadataType',
+          args: [this.cAddress],
+        }))
       }
 
       // get name
       if (collection?.name) {
         this.cName = collection.name
       } else {
-        this.cName = await nftContract.name()
+        this.cName = await this.readData({
+          address: this.cAddress,
+          abi: nftAbi,
+          functionName: 'name',
+        })
       }
 
       try {
-        this.userTokenId = await nftContract.tokenOfOwnerByIndex(this.address, 0)
+        // Only call tokenOfOwnerByIndex if user has a valid wallet address
+        if (this.address && isAddress(this.address)) {
+          this.userTokenId = await this.readData({
+            address: this.cAddress,
+            abi: nftAbi,
+            functionName: 'tokenOfOwnerByIndex',
+            args: [this.address, 0],
+          })
+        } else {
+          this.userTokenId = null
+        }
       } catch (e) {
+        console.warn('Error getting user token ID:', e)
         this.userTokenId = null
       }
 
       this.waitingData = false
 
-      this.cSupply = await nftContract.totalSupply()
+      this.cSupply = await this.readData({
+        address: this.cAddress,
+        abi: nftAbi,
+        functionName: 'totalSupply',
+      })
 
       // get author address
       if (collection?.authorAddress) {
         this.cAuthorAddress = collection.authorAddress
         this.cAuthorDomain = collection.authorDomain
       } else {
-        this.cAuthorAddress = await nftContract.owner()
+        this.cAuthorAddress = await this.readData({
+          address: this.cAddress,
+          abi: nftAbi,
+          functionName: 'owner',
+        })
       }
 
       // get username from storage
@@ -684,7 +883,13 @@ export default {
 
       // getMetadata
       let mdTokenId = this.userTokenId ? this.userTokenId : 1;
-      let metadata = await metadataContract.getMetadata(this.cAddress, mdTokenId);
+      
+      let metadata = await this.readData({
+        address: this.mdAddress,
+        abi: metadataAbi,
+        functionName: 'getMetadata',
+        args: [this.cAddress, mdTokenId],
+      });
 
       if (String(metadata).startsWith("http")) {
         metadata = getIpfsUrl(metadata);
@@ -698,7 +903,7 @@ export default {
       // if it starts with http, fetch data with axios
       if (String(metadata).startsWith("http")) {
         try {
-          const response = await axios.get(metadata);
+          const response = await this.$axios.get(metadata);
           metadata = response.data;
         } catch (e) {
           console.error(e);
@@ -706,7 +911,7 @@ export default {
           if (metadata.startsWith(this.$config.public.ipfsGateway)) {
             try {
               metadata = String(metadata).replace(this.$config.public.ipfsGateway, this.$config.public.ipfsGateway2);
-              const response = await axios.get(metadata);
+              const response = await this.$axios.get(metadata);
               metadata = response.data;
             } catch (e) {
               console.error(e);
@@ -742,7 +947,11 @@ export default {
       if (this.cType == 0 && this.isCurrentAddressOwner) { // type 0 means onchain metadata
         // check if metadata contract has mdContractType variable and if it's set to "media"
         try {
-          const mdContractType = await metadataContract.mdContractType();
+          const mdContractType = await this.readData({
+            address: this.mdAddress,
+            abi: metadataAbi,
+            functionName: 'mdContractType',
+          });
 
           if (mdContractType == "media") {
             this.mediaMetadataContract = true;
@@ -754,38 +963,76 @@ export default {
     },
 
     async getCollectionDetailsFallback() {
-      console.log("Fetching collection details via fallback method...");
+      // Add null check guard to prevent contract calls with invalid address
+      if (!this.cAddress) {
+        console.warn('cAddress is null, cannot fetch collection details via fallback')
+        return
+      }
 
       // this function is called if the NFT contract was not created via NFTdegen
       this.nativeNft = false;
 
-      // fetch provider from hardcoded RPCs
-      let provider = this.$getFallbackProvider(this.$config.public.supportedChainId);
-
-      if (this.isActivated && this.chainId === this.$config.public.supportedChainId) {
-        // fetch provider from user's MetaMask
-        provider = this.signer;
-      }
-
-      const nftInterface = new ethers.utils.Interface([
-        "function name() public view returns (string memory)",
-        "function owner() public view returns (address)",
-        "function tokenURI(uint256 tokenId) public view returns (string memory)", // ERC-721
-        "function totalSupply() public view returns (uint256)",
-        "function uri(uint256 tokenId) public view returns (string memory)", // ERC-1155
-      ]);
-
-      const nftContract = new ethers.Contract(this.cAddress, nftInterface, provider);
+      const nftAbi = [
+        {
+          name: 'name',
+          type: 'function',
+          stateMutability: 'view',
+          inputs: [],
+          outputs: [{ type: 'string' }]
+        },
+        {
+          name: 'owner',
+          type: 'function',
+          stateMutability: 'view',
+          inputs: [],
+          outputs: [{ type: 'address' }]
+        },
+        {
+          name: 'tokenURI',
+          type: 'function',
+          stateMutability: 'view',
+          inputs: [{ name: 'tokenId', type: 'uint256' }],
+          outputs: [{ type: 'string' }]
+        },
+        {
+          name: 'totalSupply',
+          type: 'function',
+          stateMutability: 'view',
+          inputs: [],
+          outputs: [{ type: 'uint256' }]
+        },
+        {
+          name: 'uri',
+          type: 'function',
+          stateMutability: 'view',
+          inputs: [{ name: 'tokenId', type: 'uint256' }],
+          outputs: [{ type: 'string' }]
+        }
+      ];
 
       // fetch name
-      this.cName = await nftContract.name();
+      this.cName = await this.readData({
+        address: this.cAddress,
+        abi: nftAbi,
+        functionName: 'name',
+      });
 
       let tokenURI;
 
       try { // ERC-721
-        tokenURI = await nftContract.tokenURI(1);
+        tokenURI = await this.readData({
+          address: this.cAddress,
+          abi: nftAbi,
+          functionName: 'tokenURI',
+          args: [1],
+        });
       } catch (e) { // ERC-1155
-        tokenURI = await nftContract.uri(1);
+        tokenURI = await this.readData({
+          address: this.cAddress,
+          abi: nftAbi,
+          functionName: 'uri',
+          args: [1],
+        });
       }
 
       if (tokenURI.startsWith("data:application/json;")) {
@@ -821,7 +1068,7 @@ export default {
       } else {
         // if tokenURI is a URL, fetch it
         try {
-          const response = await axios.get(tokenURI);
+          const response = await this.$axios.get(tokenURI);
 
           const metadata = response.data;
 
@@ -861,14 +1108,22 @@ export default {
 
       // try-catch for totalSupply
       try {
-        this.cSupply = await nftContract.totalSupply();
+        this.cSupply = await this.readData({
+          address: this.cAddress,
+          abi: nftAbi,
+          functionName: 'totalSupply',
+        });
       } catch (e) {
         console.log("No totalSupply function in the contract.");
       }
 
       // try-catch for owner
       try {
-        this.cAuthorAddress = await nftContract.owner();
+        this.cAuthorAddress = await this.readData({
+          address: this.cAddress,
+          abi: nftAbi,
+          functionName: 'owner',
+        });
         this.cAuthorDomain = fetchUsername(window, this.cAuthorAddress)
 
         if (!this.cAuthorDomain) {
@@ -912,20 +1167,58 @@ export default {
     async sellNft() {
       this.waitingSell = true
 
-      const nftInterface = new ethers.utils.Interface([
-        'function getBurnPrice() public view returns (uint256)',
-        'function getMintPrice() public view returns (uint256)',
-        'function burn(uint256 tokenId) external returns (uint256)',
-        'function tokenOfOwnerByIndex(address owner, uint256 index) public view returns (uint256)',
-        'function totalSupply() public view returns (uint256)',
-      ])
+      const nftAbi = [
+        {
+          name: 'getBurnPrice',
+          type: 'function',
+          stateMutability: 'view',
+          inputs: [],
+          outputs: [{ type: 'uint256' }]
+        },
+        {
+          name: 'getMintPrice',
+          type: 'function',
+          stateMutability: 'view',
+          inputs: [],
+          outputs: [{ type: 'uint256' }]
+        },
+        {
+          name: 'burn',
+          type: 'function',
+          stateMutability: 'nonpayable',
+          inputs: [{ name: 'tokenId', type: 'uint256' }],
+          outputs: [{ type: 'uint256' }]
+        },
+        {
+          name: 'tokenOfOwnerByIndex',
+          type: 'function',
+          stateMutability: 'view',
+          inputs: [
+            { name: 'owner', type: 'address' },
+            { name: 'index', type: 'uint256' }
+          ],
+          outputs: [{ type: 'uint256' }]
+        },
+        {
+          name: 'totalSupply',
+          type: 'function',
+          stateMutability: 'view',
+          inputs: [],
+          outputs: [{ type: 'uint256' }]
+        }
+      ]
 
-      const nftContract = new ethers.Contract(this.cAddress, nftInterface, this.signer)
+      let toastWait;
 
       try {
-        const tx = await nftContract.burn(this.userTokenId)
+        const hash = await this.writeData({
+          address: this.cAddress,
+          abi: nftAbi,
+          functionName: 'burn',
+          args: [this.userTokenId],
+        })
 
-        const toastWait = this.toast(
+        toastWait = this.toast(
           {
             component: WaitingToast,
             props: {
@@ -934,30 +1227,59 @@ export default {
           },
           {
             type: 'info',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           },
         )
 
-        const receipt = await tx.wait()
+        const receipt = await this.waitForTxReceipt(hash)
 
-        if (receipt.status === 1) {
+        if (receipt.status === 'success') {
           this.toast.dismiss(toastWait)
 
           this.toast('You have dumped the NFT.', {
             type: 'success',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           })
 
-          this.priceBuyWei = await nftContract.getMintPrice()
-          this.priceSellWei = await nftContract.getBurnPrice()
-
+          // Update prices and user data
           try {
-            this.userTokenId = await nftContract.tokenOfOwnerByIndex(this.address, 0)
-          } catch (e) {
-            this.userTokenId = null
-          }
+            const [newPriceBuy, newPriceSell] = await Promise.all([
+              this.readData({
+                address: this.cAddress,
+                abi: nftAbi,
+                functionName: 'getMintPrice',
+              }),
+              this.readData({
+                address: this.cAddress,
+                abi: nftAbi,
+                functionName: 'getBurnPrice',
+              })
+            ])
+            
+            this.priceBuyWei = newPriceBuy
+            this.priceSellWei = newPriceSell
 
-          this.cSupply = await nftContract.totalSupply()
+            try {
+              if (this.address) {
+                this.userTokenId = await this.readData({
+                  address: this.cAddress,
+                  abi: nftAbi,
+                  functionName: 'tokenOfOwnerByIndex',
+                    args: [this.address, 0],
+                })
+              }
+            } catch (e) {
+              this.userTokenId = null
+            }
+
+            this.cSupply = await this.readData({
+              address: this.cAddress,
+              abi: nftAbi,
+              functionName: 'totalSupply',
+            })
+          } catch (e) {
+            console.error('Failed to update data after sale:', e)
+          }
 
           this.waitingSell = false
         } else {
@@ -965,16 +1287,16 @@ export default {
           this.waitingSell = false
           this.toast('Transaction has failed.', {
             type: 'error',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           })
           console.log(receipt)
         }
       } catch (e) {
         console.error(e)
-
+        
         try {
-          let extractMessage = e.message.split('reason=')[1]
-          extractMessage = extractMessage.split(', method=')[0]
+          let extractMessage = e.message.split('Details:')[1]
+          extractMessage = extractMessage.split('Version: viem')[0]
           extractMessage = extractMessage.replace(/"/g, '')
           extractMessage = extractMessage.replace('execution reverted:', 'Error:')
 
@@ -986,15 +1308,28 @@ export default {
         }
 
         this.waitingSell = false
+      } finally {
+        this.toast.dismiss(toastWait)
+        this.waitingSell = false
       }
     },
   },
 
   setup() {
-    const { address, chainId, isActivated, signer } = useEthers()
+    const { readData, writeData, waitForTxReceipt } = useWeb3()
+    const { address, chainId, isActivated, shortenAddress } = useAccountData()
     const toast = useToast()
 
-    return { address, chainId, isActivated, shortenAddress, signer, toast }
+    return { 
+      address, 
+      chainId, 
+      isActivated, 
+      shortenAddress, 
+      readData, 
+      writeData, 
+      waitForTxReceipt, 
+      toast 
+    }
   },
 
   watch: {
@@ -1011,15 +1346,17 @@ export default {
     },
 
     cAddress(newValue, oldValue) {
-      // if cAddress and also if path is /nft/collection?id=...
-      if (newValue && oldValue && newValue !== oldValue && this.cAddress && this.$route.path === '/nft/collection') {
-        // check if address is valid
-        if (!ethers.utils.isAddress(this.cAddress)) {
+      // Only proceed if we have a valid new value
+      if (newValue && this.$route.path === '/nft/collection') {
+        if (!isAddress(newValue)) {
           this.toast('Invalid NFT address.', { type: 'error' })
           return this.$router.push({ path: '/' })
         }
-
-        this.getCollectionDetails()
+        
+        // Only call if we're not already waiting for data
+        if (!this.waitingData) {
+          this.getCollectionDetails()
+        }
       }
     },
   },

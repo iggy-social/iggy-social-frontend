@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import PunkProfile from '~/components/profile/PunkProfile.vue'
+import PunkProfile from '@/components/profile/PunkProfile.vue'
 
 export default {
   name: 'Profile',
@@ -22,7 +22,5 @@ export default {
   components: {
     PunkProfile,
   },
-
-  setup() {},
 }
 </script>

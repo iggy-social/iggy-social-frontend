@@ -308,6 +308,28 @@ a:hover {
   width: auto;
 }
 
+.modal {
+  display: none;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal.show {
+  display: block;
+}
+
+.modal-dialog {
+  position: relative;
+  width: auto;
+  margin: 0.5rem;
+  pointer-events: auto;
+  margin: 1.75rem auto;
+}
+
+.modal-content {
+  border-radius: 12px;
+  padding: 10px;
+}
+
 .muted-text {
   font-size: 14px;
 }
@@ -524,6 +546,35 @@ a:hover {
 
 /* Mobile only */
 @media only screen and (max-width: 767px) {
+
+  /*
+  .modal {
+    z-index: 1050;
+  }
+    */
+
+  .modal {
+    display: none;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  
+  .modal.show {
+    display: block;
+  }
+  
+  .modal-dialog {
+    position: relative;
+    width: auto;
+    margin: 0.5rem;
+    pointer-events: auto;
+    margin: 1.75rem auto;
+    max-width: 90%;
+  }
+  
+  .modal-content {
+    border-radius: 12px;
+    padding: 10px;
+  }
   
   .scroll-500 {
     margin-bottom: 500px;

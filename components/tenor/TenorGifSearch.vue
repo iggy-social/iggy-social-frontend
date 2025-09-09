@@ -5,7 +5,11 @@
   </button>
 
   <!-- Modal -->
-  <div class="modal fade" id="gifModal" tabindex="-1" aria-labelledby="gifModalLabel" aria-hidden="true">
+  <div 
+    class="modal fade" 
+    id="gifModal" 
+    aria-labelledby="gifModalLabel" 
+  >
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -16,6 +20,7 @@
             class="btn-close"
             data-bs-dismiss="modal"
             aria-label="Close"
+            @click="handleCloseClick"
           ></button>
         </div>
 
@@ -43,6 +48,8 @@
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
   name: 'TenorGifSearch',
   emits: ['insertGif'],
@@ -76,11 +83,19 @@ export default {
         this.limit +
         '&contentfilter=high&random=true&media_filter=gif'
 
-      const response = await fetch(searchUrl)
-      const data = await response.json()
+      const response = await axios.get(searchUrl)
+      const data = response.data
 
       for (let i = 0; i < data.results.length; i++) {
         this.gifArray.push(data.results[i]['media_formats']['gif']['url'])
+      }
+    },
+
+    handleCloseClick() {
+      // Remove focus from the close button to prevent aria-hidden warning
+      const closeButton = document.getElementById('closeGifModal')
+      if (closeButton) {
+        closeButton.blur()
       }
     },
   },

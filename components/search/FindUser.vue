@@ -12,12 +12,12 @@
       <span class="input-group-text" id="find-user">{{ $config.public.tldName }}</span>
     </div>
 
-    <p v-if="domainNotValid.invalid && domainNotValid.message" class="text-danger">
-      <small> <i class="bi bi-exclamation-octagon"></i> {{ domainNotValid.message }} </small>
+    <p v-if="validateDomainName(domainName).invalid && validateDomainName(domainName).message" class="text-danger">
+      <small> <i class="bi bi-exclamation-octagon"></i> {{ validateDomainName(domainName).message }} </small>
     </p>
 
     <div class="text-center">
-      <button class="btn btn-primary mt-2 mb-2" :disabled="domainNotValid.invalid" @click="redirectToProfile">
+      <button class="btn btn-primary mt-2 mb-2" :disabled="validateDomainName(domainName).invalid" @click="redirectToProfile">
         Find User
       </button>
     </div>
@@ -25,6 +25,8 @@
 </template>
 
 <script>
+import { validateDomainName } from '@/utils/domainUtils'
+
 export default {
   name: 'FindUser',
   emit: ['closeModal'],
@@ -33,99 +35,6 @@ export default {
     return {
       domainName: null,
     }
-  },
-
-  computed: {
-    domainNotValid() {
-      if (this.domainName === '') {
-        return { invalid: true, message: null }
-      } else if (this.domainName === null) {
-        return { invalid: true, message: null }
-      } else if (this.domainName.includes('.')) {
-        return { invalid: true, message: 'Dots not allowed' }
-      } else if (this.domainName.includes(' ')) {
-        return { invalid: true, message: 'Spaces not allowed' }
-      } else if (this.domainName.includes('%')) {
-        return { invalid: true, message: '% not allowed' }
-      } else if (this.domainName.includes('&')) {
-        return { invalid: true, message: '& not allowed' }
-      } else if (this.domainName.includes('?')) {
-        return { invalid: true, message: '? not allowed' }
-      } else if (this.domainName.includes('#')) {
-        return { invalid: true, message: '# not allowed' }
-      } else if (this.domainName.includes('/')) {
-        return { invalid: true, message: '/ not allowed' }
-      } else if (this.domainName.includes(',')) {
-        return { invalid: true, message: 'Comma not allowed' }
-      } else if (
-        this.domainName.includes('\\') ||
-        this.domainName.includes('­') ||
-        this.domainName.includes('	') ||
-        this.domainName.includes('͏') ||
-        this.domainName.includes('؜') ||
-        this.domainName.includes('܏') ||
-        this.domainName.includes('ᅟ') ||
-        this.domainName.includes('ᅠ') ||
-        this.domainName.includes(' ') ||
-        this.domainName.includes('឴') ||
-        this.domainName.includes('឵') ||
-        this.domainName.includes('᠎') ||
-        this.domainName.includes(' ') ||
-        this.domainName.includes(' ') ||
-        this.domainName.includes(' ') ||
-        this.domainName.includes(' ') ||
-        this.domainName.includes(' ') ||
-        this.domainName.includes(' ') ||
-        this.domainName.includes(' ') ||
-        this.domainName.includes(' ') ||
-        this.domainName.includes(' ') ||
-        this.domainName.includes(' ') ||
-        this.domainName.includes(' ') ||
-        this.domainName.includes('​') ||
-        this.domainName.includes('‌') ||
-        this.domainName.includes('‍') ||
-        this.domainName.includes('‎') ||
-        this.domainName.includes('‏') ||
-        this.domainName.includes(' ') ||
-        this.domainName.includes(' ') ||
-        this.domainName.includes('⁠') ||
-        this.domainName.includes('⁡') ||
-        this.domainName.includes('⁢') ||
-        this.domainName.includes('⁣') ||
-        this.domainName.includes('⁤') ||
-        this.domainName.includes('⁪') ||
-        this.domainName.includes('⁫') ||
-        this.domainName.includes('⁬') ||
-        this.domainName.includes('⁭') ||
-        this.domainName.includes('⁮') ||
-        this.domainName.includes('⁯') ||
-        this.domainName.includes('　') ||
-        this.domainName.includes('⠀') ||
-        this.domainName.includes('ㅤ') ||
-        this.domainName.includes('ﾠ') ||
-        this.domainName.includes('𑂱') ||
-        this.domainName.includes('𛲠') ||
-        this.domainName.includes('𛲡') ||
-        this.domainName.includes('𛲢') ||
-        this.domainName.includes('𛲣') ||
-        this.domainName.includes('𝅙') ||
-        this.domainName.includes('𝅳') ||
-        this.domainName.includes('𝅴') ||
-        this.domainName.includes('𝅵') ||
-        this.domainName.includes('𝅶') ||
-        this.domainName.includes('𝅷') ||
-        this.domainName.includes('𝅸') ||
-        this.domainName.includes('𝅹') ||
-        this.domainName.includes('𝅺') ||
-        this.domainName.includes('') ||
-        this.domainName.includes('') ||
-        this.domainName.includes('')
-      ) {
-        return { invalid: true, message: 'This character is not allowed' }
-      }
-
-      return { invalid: false, message: 'Domain name is valid' }
-    },
   },
 
   methods: {

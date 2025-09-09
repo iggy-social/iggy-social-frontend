@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import ChatFeed from '../components/chat/ChatFeed.vue'
+import ChatFeed from '@/components/chat/ChatFeed.vue'
 
 export default {
   name: 'MemesImages',

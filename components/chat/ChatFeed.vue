@@ -89,7 +89,7 @@
             </button>
 
             <!-- Connect Wallet button -->
-            <ConnectWalletButton v-if="!isActivated" class="btn btn-primary" btnText="Connect wallet" />
+            <ConnectWalletButton v-if="!isActivated" class="btn-primary" btnText="Connect wallet" />
 
             <!-- Switch Chain button -->
             <SwitchChainButton v-if="isActivated && !isSupportedChain" :navbar="false" :dropdown="false" />
@@ -149,23 +149,23 @@
 
 <script>
 import axios from 'axios'
-import EmojiPicker from '~/components/EmojiPicker.vue'
+import EmojiPicker from '@/components/EmojiPicker.vue'
 import 'emoji-mart-vue-fast/css/emoji-mart.css'
-import { ethers } from 'ethers'
 import { useToast } from 'vue-toastification/dist/index.mjs'
-import { useEthers } from '~/store/ethers'
-import { useSiteStore } from '~/store/site'
-import { useUserStore } from '~/store/user'
-import ConnectWalletButton from '~/components/ConnectWalletButton.vue'
-import SwitchChainButton from '~/components/SwitchChainButton.vue'
-import WaitingToast from '~/components/WaitingToast'
-import ChatMessage from '~/components/chat/ChatMessage.vue'
-import FileUploadModal from '~/components/storage/FileUploadModal.vue'
-import TenorGifSearch from '~/components/tenor/TenorGifSearch.vue'
-import TenorStickerSearch from '~/components/tenor/TenorStickerSearch.vue'
-import { getWorkingUrl } from '~/utils/ipfsUtils'
-import { getAllImagesFromText } from '~/utils/textUtils'
-import { fetchData, storeData } from '~/utils/storageUtils'
+import { isAddress, formatEther } from 'viem'
+import ConnectWalletButton from '@/components/connect/ConnectWalletButton.vue'
+import SwitchChainButton from '@/components/connect/SwitchChainButton.vue'
+import WaitingToast from '@/components/WaitingToast'
+import ChatMessage from '@/components/chat/ChatMessage.vue'
+import FileUploadModal from '@/components/storage/FileUploadModal.vue'
+import TenorGifSearch from '@/components/tenor/TenorGifSearch.vue'
+import TenorStickerSearch from '@/components/tenor/TenorStickerSearch.vue'
+import { getWorkingUrl } from '@/utils/fileUtils'
+import { getAllImagesFromText } from '@/utils/textUtils'
+import { fetchData, storeData } from '@/utils/browserStorageUtils'
+import { useAccountData } from '@/composables/useAccountData'
+import { useWeb3 } from '@/composables/useWeb3'
+import { useSiteSettings } from '@/composables/useSiteSettings'
 
 export default {
   name: 'ChatFeed',
@@ -209,7 +209,7 @@ export default {
 
   computed: {
     arweaveBalanceTooLow() {
-      return this.siteStore.arweaveBalance < this.$config.public.arweaveMinBalance
+      return this.arweaveBalance < this.$config.public.arweaveMinBalance
     },
 
     createMessagePlaceholder() {
@@ -228,7 +228,7 @@ export default {
 
     hasDomainOrNotRequired() {
       if (this.$config.public.domainRequiredToPost) {
-        if (this.userStore.getDefaultDomain) {
+        if (this.domainName) {
           return true
         } else {
           return false
@@ -239,7 +239,7 @@ export default {
     },
 
     isCommentFeed() {
-      if (this.mainItemId && ethers.utils.isAddress(this.mainItemId)) {
+      if (this.mainItemId && isAddress(this.mainItemId)) {
         return true
       } else {
         return false
@@ -255,7 +255,7 @@ export default {
     },
 
     isReplyFeed() {
-      if (this.mainItemId && !ethers.utils.isAddress(this.mainItemId)) {
+      if (this.mainItemId && !isAddress(this.mainItemId)) {
         return true
       } else {
         return false
@@ -284,13 +284,22 @@ export default {
           }
         }
 
-        const provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
-        const intrfc = new ethers.utils.Interface(['function isUserMod(address) external view returns (bool)'])
-        const contract = new ethers.Contract(this.chatContext, intrfc, provider)
+        try {
+          const contractConfig = {
+            address: this.chatContext,
+            abi: [{
+              inputs: [{ internalType: 'address', name: '', type: 'address' }],
+              name: 'isUserMod',
+              outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+              stateMutability: 'view',
+              type: 'function'
+            }],
+            functionName: 'isUserMod',
+            args: [this.address]
+          }
 
-        try { 
-          const isMod = await contract.isUserMod(this.address)
-          storeData(window, this.chatContext, { isMod: Boolean(isMod) }, 'mod-' + this.address) // TODO: change 0 to something else (e.g. 1 week)
+          const isMod = await this.readData(contractConfig)
+          storeData(window, this.chatContext, { isMod: Boolean(isMod) }, 'mod-' + this.address)
           return this.currentUserIsMod = Boolean(isMod)
         } catch (error) {
           console.error(error)
@@ -302,8 +311,8 @@ export default {
     async createMessage() {
       this.waitingCreateMessage = true
 
-      if (!this.signer || !this.isSupportedChain || !this.hasDomainOrNotRequired) {
-        this.toast('Please connect wallet to post messages, make sure you are on the supported chain and have a ' + $config.public.tldName + ' domain to post.', {
+      if (!this.isSupportedChain || !this.hasDomainOrNotRequired) {
+        this.toast('Please make sure you are on the supported chain and have a ' + this.$config.public.tldName + ' domain to post.', {
           type: 'error',
         })
         return
@@ -311,39 +320,72 @@ export default {
 
       const storageUrl = await this.uploadToChatStorage(this.messageText)
 
-      //console.log(storageUrl)
-      //return this.waitingCreateMessage = false // TODO: remove
-
       if (!storageUrl) {
         this.toast('Failed to upload message to storage.', {
           type: 'error',
         })
         return
       }
+
+      let toastWait;
       
       try {
-        const intrfc = new ethers.utils.Interface([
-          'function createComment(address subjectAddress_, string memory url_) external payable',
-          'function createMessage(string memory url_) external payable',
-          'function createReply(uint256 mainMsgIndex_, string memory url_) external payable',
-          'function getCommentCount(address subjectAddress_) external view returns (uint256)',
-          'function getMainMessageCount() external view returns (uint256)',
-          'function getReplyCount(uint256 mainMsgIndex_) external view returns (uint256)'
-        ])
-
-        const contract = new ethers.Contract(this.chatContext, intrfc, this.signer)
-
-        let tx;
+        let contractConfig
+        let tx
 
         if (this.isReplyFeed) {
-          tx = await contract.createReply(this.mainItemId, storageUrl, { value: this.priceWei })
+          contractConfig = {
+            address: this.chatContext,
+            abi: [{
+              inputs: [
+                { internalType: 'uint256', name: 'mainMsgIndex_', type: 'uint256' },
+                { internalType: 'string', name: 'url_', type: 'string' }
+              ],
+              name: 'createReply',
+              outputs: [],
+              stateMutability: 'payable',
+              type: 'function'
+            }],
+            functionName: 'createReply',
+            args: [this.mainItemId, storageUrl],
+            value: this.priceWei
+          }
         } else if (this.isCommentFeed) {
-          tx = await contract.createComment(this.mainItemId, storageUrl, { value: this.priceWei })
+          contractConfig = {
+            address: this.chatContext,
+            abi: [{
+              inputs: [
+                { internalType: 'address', name: 'subjectAddress_', type: 'address' },
+                { internalType: 'string', name: 'url_', type: 'string' }
+              ],
+              name: 'createComment',
+              outputs: [],
+              stateMutability: 'payable',
+              type: 'function'
+            }],
+            functionName: 'createComment',
+            args: [this.mainItemId, storageUrl],
+            value: this.priceWei
+          }
         } else {
-          tx = await contract.createMessage(storageUrl, { value: this.priceWei })
+          contractConfig = {
+            address: this.chatContext,
+            abi: [{
+              inputs: [{ internalType: 'string', name: 'url_', type: 'string' }],
+              name: 'createMessage',
+              outputs: [],
+              stateMutability: 'payable',
+              type: 'function'
+            }],
+            functionName: 'createMessage',
+            args: [storageUrl],
+            value: this.priceWei
+          }
         }
 
-        const toastWait = this.toast(
+        tx = await this.writeData(contractConfig)
+
+        toastWait = this.toast(
           {
             component: WaitingToast,
             props: {
@@ -352,28 +394,64 @@ export default {
           },
           {
             type: 'info',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx, '_blank').focus(),
           },
         )
 
-        const receipt = await tx.wait()
+        const receipt = await this.waitForTxReceipt(tx)
         
-        if (receipt.status === 1) {
+        if (receipt.status === 'success') {
           this.toast.dismiss(toastWait)
 
           this.toast('You have successfully submitted a new message.', {
             type: 'success',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx, '_blank').focus(),
           })
 
           // get main message or reply count
-          let fullThreadLength;
+          let fullThreadLength
           if (this.isReplyFeed) {
-            fullThreadLength = await contract.getReplyCount(this.mainItemId)
+            const replyCountConfig = {
+              address: this.chatContext,
+              abi: [{
+                inputs: [{ internalType: 'uint256', name: 'mainMsgIndex_', type: 'uint256' }],
+                name: 'getReplyCount',
+                outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+                stateMutability: 'view',
+                type: 'function'
+              }],
+              functionName: 'getReplyCount',
+              args: [this.mainItemId]
+            }
+                         fullThreadLength = await this.readData(replyCountConfig)
           } else if (this.isCommentFeed) {
-            fullThreadLength = await contract.getCommentCount(this.mainItemId)
+            const commentCountConfig = {
+              address: this.chatContext,
+              abi: [{
+                inputs: [{ internalType: 'address', name: 'subjectAddress_', type: 'address' }],
+                name: 'getCommentCount',
+                outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+                stateMutability: 'view',
+                type: 'function'
+              }],
+              functionName: 'getCommentCount',
+              args: [this.mainItemId]
+            }
+                         fullThreadLength = await this.readData(commentCountConfig)
           } else {
-            fullThreadLength = await contract.getMainMessageCount()
+            const mainMessageCountConfig = {
+              address: this.chatContext,
+              abi: [{
+                inputs: [],
+                name: 'getMainMessageCount',
+                outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+                stateMutability: 'view',
+                type: 'function'
+              }],
+              functionName: 'getMainMessageCount',
+              args: []
+            }
+                         fullThreadLength = await this.readData(mainMessageCountConfig)
           }
 
           // prepend message to messages array
@@ -392,7 +470,7 @@ export default {
           this.toast.dismiss(toastWait)
           this.toast('Transaction has failed.', {
             type: 'error',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx, '_blank').focus(),
           })
           console.log(receipt)
         }
@@ -400,8 +478,8 @@ export default {
         console.error(error)
 
         try {
-          let extractMessage = error.message.split('reason=')[1]
-          extractMessage = extractMessage.split(', method=')[0]
+          let extractMessage = error.message.split('Details:')[1]
+          extractMessage = extractMessage.split('Version: viem')[0]
           extractMessage = extractMessage.replace(/"/g, '')
           extractMessage = extractMessage.replace('execution reverted:', 'Error:')
 
@@ -409,9 +487,10 @@ export default {
 
           this.toast(extractMessage, { type: 'error' })
         } catch (e) {
-          this.toast('Transaction has failed.', { type: 'error' })
+          this.toast("Transaction has failed.", {type: "error"});
         }
       } finally {
+        this.toast.dismiss(toastWait)
         this.waitingCreateMessage = false
       }
     },
@@ -425,90 +504,8 @@ export default {
       }
 
       try {
-        const provider = this.$getFallbackProvider(this.$config.public.supportedChainId);
-
-        const intrfc = new ethers.utils.Interface([
-          {
-            "inputs": [
-              {"internalType": "bool", "name": "includeDeleted_", "type": "bool"},
-              {"internalType": "address", "name": "subjectAddress_", "type": "address"},
-              {"internalType": "uint256", "name": "fromIndex_", "type": "uint256"},
-              {"internalType": "uint256", "name": "length_", "type": "uint256"}
-            ],
-            "name": "fetchComments",
-            "outputs": [
-              {
-                "components": [
-                  {"internalType": "address", "name": "author", "type": "address"},
-                  {"internalType": "uint256", "name": "createdAt", "type": "uint256"},
-                  {"internalType": "bool", "name": "deleted", "type": "bool"},
-                  {"internalType": "uint256", "name": "index", "type": "uint256"},
-                  {"internalType": "string", "name": "url", "type": "string"}
-                ],
-                "internalType": "struct ChatFeed.Comment[]",
-                "name": "",
-                "type": "tuple[]"
-              }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-          },
-          {
-            "inputs": [
-              {"internalType": "bool", "name": "includeDeleted_", "type": "bool"},
-              {"internalType": "uint256", "name": "fromIndex_", "type": "uint256"},
-              {"internalType": "uint256", "name": "length_", "type": "uint256"}
-            ],
-            "name": "fetchMainMessages",
-            "outputs": [
-              {
-                "components": [
-                  {"internalType": "address", "name": "author", "type": "address"},
-                  {"internalType": "uint256", "name": "createdAt", "type": "uint256"},
-                  {"internalType": "bool", "name": "deleted", "type": "bool"},
-                  {"internalType": "uint256", "name": "index", "type": "uint256"},
-                  {"internalType": "uint256", "name": "repliesCount", "type": "uint256"},
-                  {"internalType": "string", "name": "url", "type": "string"}
-                ],
-                "internalType": "struct ChatFeed.Message[]",
-                "name": "",
-                "type": "tuple[]"
-              }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-          },
-          {
-            "inputs": [
-              {"internalType": "bool", "name": "includeDeleted_", "type": "bool"},
-              {"internalType": "uint256", "name": "mainMsgIndex_", "type": "uint256"},
-              {"internalType": "uint256", "name": "fromIndex_", "type": "uint256"},
-              {"internalType": "uint256", "name": "length_", "type": "uint256"}
-            ],
-            "name": "fetchReplies",
-            "outputs": [
-              {
-                "components": [
-                  {"internalType": "address", "name": "author", "type": "address"},
-                  {"internalType": "uint256", "name": "createdAt", "type": "uint256"},
-                  {"internalType": "bool", "name": "deleted", "type": "bool"},
-                  {"internalType": "uint256", "name": "index", "type": "uint256"},
-                  {"internalType": "uint256", "name": "repliesCount", "type": "uint256"},
-                  {"internalType": "string", "name": "url", "type": "string"}
-                ],
-                "internalType": "struct ChatFeed.Message[]",
-                "name": "",
-                "type": "tuple[]"
-              }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-          }
-        ]);
-
-        const contract = new ethers.Contract(this.chatContext, intrfc, provider);
-
-        let msgs;
+        let contractConfig
+        let msgs
 
         let fromIndex = this.lastFetchedIndex - this.pageLength;
         let queryLength = this.pageLength;
@@ -519,12 +516,96 @@ export default {
         }
 
         if (this.isReplyFeed) {
-          msgs = await contract.fetchReplies(true, this.mainItemId, fromIndex, queryLength);
+          contractConfig = {
+            address: this.chatContext,
+            abi: [{
+              inputs: [
+                { internalType: 'bool', name: 'includeDeleted_', type: 'bool' },
+                { internalType: 'uint256', name: 'mainMsgIndex_', type: 'uint256' },
+                { internalType: 'uint256', name: 'fromIndex_', type: 'uint256' },
+                { internalType: 'uint256', name: 'length_', type: 'uint256' }
+              ],
+              name: 'fetchReplies',
+              outputs: [{
+                components: [
+                  { internalType: 'address', name: 'author', type: 'address' },
+                  { internalType: 'uint256', name: 'createdAt', type: 'uint256' },
+                  { internalType: 'bool', name: 'deleted', type: 'bool' },
+                  { internalType: 'uint256', name: 'index', type: 'uint256' },
+                  { internalType: 'uint256', name: 'repliesCount', type: 'uint256' },
+                  { internalType: 'string', name: 'url', type: 'string' }
+                ],
+                internalType: 'struct ChatFeed.Message[]',
+                name: '',
+                type: 'tuple[]'
+              }],
+              stateMutability: 'view',
+              type: 'function'
+            }],
+            functionName: 'fetchReplies',
+            args: [true, this.mainItemId, fromIndex, queryLength]
+          }
         } else if (this.isCommentFeed) {
-          msgs = await contract.fetchComments(true, this.mainItemId, fromIndex, queryLength);
+          contractConfig = {
+            address: this.chatContext,
+            abi: [{
+              inputs: [
+                { internalType: 'bool', name: 'includeDeleted_', type: 'bool' },
+                { internalType: 'address', name: 'subjectAddress_', type: 'address' },
+                { internalType: 'uint256', name: 'fromIndex_', type: 'uint256' },
+                { internalType: 'uint256', name: 'length_', type: 'uint256' }
+              ],
+              name: 'fetchComments',
+              outputs: [{
+                components: [
+                  { internalType: 'address', name: 'author', type: 'address' },
+                  { internalType: 'uint256', name: 'createdAt', type: 'uint256' },
+                  { internalType: 'bool', name: 'deleted', type: 'bool' },
+                  { internalType: 'uint256', name: 'index', type: 'uint256' },
+                  { internalType: 'string', name: 'url', type: 'string' }
+                ],
+                internalType: 'struct ChatFeed.Comment[]',
+                name: '',
+                type: 'tuple[]'
+              }],
+              stateMutability: 'view',
+              type: 'function'
+            }],
+            functionName: 'fetchComments',
+            args: [true, this.mainItemId, fromIndex, queryLength]
+          }
         } else {
-          msgs = await contract.fetchMainMessages(true, fromIndex, queryLength);
+          contractConfig = {
+            address: this.chatContext,
+            abi: [{
+              inputs: [
+                { internalType: 'bool', name: 'includeDeleted_', type: 'bool' },
+                { internalType: 'uint256', name: 'fromIndex_', type: 'uint256' },
+                { internalType: 'uint256', name: 'length_', type: 'uint256' }
+              ],
+              name: 'fetchMainMessages',
+              outputs: [{
+                components: [
+                  { internalType: 'address', name: 'author', type: 'address' },
+                  { internalType: 'uint256', name: 'createdAt', type: 'uint256' },
+                  { internalType: 'bool', name: 'deleted', type: 'bool' },
+                  { internalType: 'uint256', name: 'index', type: 'uint256' },
+                  { internalType: 'uint256', name: 'repliesCount', type: 'uint256' },
+                  { internalType: 'string', name: 'url', type: 'string' }
+                ],
+                internalType: 'struct ChatFeed.Message[]',
+                name: '',
+                type: 'tuple[]'
+              }],
+              stateMutability: 'view',
+              type: 'function'
+            }],
+            functionName: 'fetchMainMessages',
+            args: [true, fromIndex, queryLength]
+          }
         }
+
+        msgs = await this.readData(contractConfig)
 
         let msgsToAdd = [];
         for (let i = 0; i < msgs.length; i++) {
@@ -533,14 +614,14 @@ export default {
             const messageObj = {
               author: msg.author,
               url: msg.url,
-              createdAt: msg.createdAt.toNumber(),
+              createdAt: Number(msg.createdAt),
               deleted: msg.deleted,
-              index: msg.index.toNumber(),
+              index: Number(msg.index),
             }
             
             // Add repliesCount only if it's not a comment feed
             if (!this.isCommentFeed) {
-              messageObj.repliesCount = msg.repliesCount.toNumber()
+              messageObj.repliesCount = Number(msg.repliesCount)
             }
             
             msgsToAdd.push(messageObj)
@@ -559,15 +640,12 @@ export default {
         }
 
         this.lastFetchedIndex = msgsToAdd[msgsToAdd.length - 1].index;
-        // console.log("lastFetchedIndex additional messages:", this.lastFetchedIndex);
 
         if (this.lastFetchedIndex == 0) {
           this.showLoadMore = false;
         } else {
           this.showLoadMore = true;
         }
-
-        //console.log(this.messages);
       } catch (error) {
         console.error(error);
         this.toast('Failed to load additional messages', { type: 'error' });
@@ -581,95 +659,97 @@ export default {
       this.waitingLoadMessages = true
 
       try {
-        const provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
-
-        const intrfc = new ethers.utils.Interface([
-          {
-            "inputs": [
-              {"internalType": "bool", "name": "includeDeleted_", "type": "bool"},
-              {"internalType": "uint256", "name": "length_", "type": "uint256"}
-            ],
-            "name": "fetchLastMainMessages",
-            "outputs": [
-              {
-                "components": [
-                  {"internalType": "address", "name": "author", "type": "address"},
-                  {"internalType": "uint256", "name": "createdAt", "type": "uint256"},
-                  {"internalType": "bool", "name": "deleted", "type": "bool"},
-                  {"internalType": "uint256", "name": "index", "type": "uint256"},
-                  {"internalType": "uint256", "name": "repliesCount", "type": "uint256"},
-                  {"internalType": "string", "name": "url", "type": "string"}
-                ],
-                "internalType": "struct ChatFeed.Message[]",
-                "name": "",
-                "type": "tuple[]"
-              }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-          },
-          {
-            "inputs": [
-              {"internalType": "bool", "name": "includeDeleted_", "type": "bool"},
-              {"internalType": "uint256", "name": "mainMsgIndex_", "type": "uint256"},
-              {"internalType": "uint256", "name": "length_", "type": "uint256"}
-            ],
-            "name": "fetchLastReplies",
-            "outputs": [
-              {
-                "components": [
-                  {"internalType": "address", "name": "author", "type": "address"},
-                  {"internalType": "uint256", "name": "createdAt", "type": "uint256"},
-                  {"internalType": "bool", "name": "deleted", "type": "bool"},
-                  {"internalType": "uint256", "name": "index", "type": "uint256"},
-                  {"internalType": "uint256", "name": "repliesCount", "type": "uint256"},
-                  {"internalType": "string", "name": "url", "type": "string"}
-                ],
-                "internalType": "struct ChatFeed.Message[]",
-                "name": "",
-                "type": "tuple[]"
-              }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-          },
-          {
-            "inputs": [
-              {"internalType": "bool", "name": "includeDeleted_", "type": "bool"},
-              {"internalType": "address", "name": "subjectAddress_", "type": "address"},
-              {"internalType": "uint256", "name": "length_", "type": "uint256"}
-            ],
-            "name": "fetchLastComments",
-            "outputs": [
-              {
-                "components": [
-                  {"internalType": "address", "name": "author", "type": "address"},
-                  {"internalType": "uint256", "name": "createdAt", "type": "uint256"},
-                  {"internalType": "bool", "name": "deleted", "type": "bool"},
-                  {"internalType": "uint256", "name": "index", "type": "uint256"},
-                  {"internalType": "string", "name": "url", "type": "string"}
-                ],
-                "internalType": "struct ChatFeed.Comment[]",
-                "name": "",
-                "type": "tuple[]"
-              }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-          }
-        ])
-
-        const contract = new ethers.Contract(this.chatContext, intrfc, provider)
-
-        let msgs;
+        let contractConfig
+        let msgs
         
         if (this.isReplyFeed) {
-          msgs = await contract.fetchLastReplies(true, this.mainItemId, this.pageLength)
+          contractConfig = {
+            address: this.chatContext,
+            abi: [{
+              inputs: [
+                { internalType: 'bool', name: 'includeDeleted_', type: 'bool' },
+                { internalType: 'uint256', name: 'mainMsgIndex_', type: 'uint256' },
+                { internalType: 'uint256', name: 'length_', type: 'uint256' }
+              ],
+              name: 'fetchLastReplies',
+              outputs: [{
+                components: [
+                  { internalType: 'address', name: 'author', type: 'address' },
+                  { internalType: 'uint256', name: 'createdAt', type: 'uint256' },
+                  { internalType: 'bool', name: 'deleted', type: 'bool' },
+                  { internalType: 'uint256', name: 'index', type: 'uint256' },
+                  { internalType: 'uint256', name: 'repliesCount', type: 'uint256' },
+                  { internalType: 'string', name: 'url', type: 'string' }
+                ],
+                internalType: 'struct ChatFeed.Message[]',
+                name: '',
+                type: 'tuple[]'
+              }],
+              stateMutability: 'view',
+              type: 'function'
+            }],
+            functionName: 'fetchLastReplies',
+            args: [true, this.mainItemId, this.pageLength]
+          }
         } else if (this.isCommentFeed) {
-          msgs = await contract.fetchLastComments(true, this.mainItemId, this.pageLength)
+          contractConfig = {
+            address: this.chatContext,
+            abi: [{
+              inputs: [
+                { internalType: 'bool', name: 'includeDeleted_', type: 'bool' },
+                { internalType: 'address', name: 'subjectAddress_', type: 'address' },
+                { internalType: 'uint256', name: 'length_', type: 'uint256' }
+              ],
+              name: 'fetchLastComments',
+              outputs: [{
+                components: [
+                  { internalType: 'address', name: 'author', type: 'address' },
+                  { internalType: 'uint256', name: 'createdAt', type: 'uint256' },
+                  { internalType: 'bool', name: 'deleted', type: 'bool' },
+                  { internalType: 'uint256', name: 'index', type: 'uint256' },
+                  { internalType: 'string', name: 'url', type: 'string' }
+                ],
+                internalType: 'struct ChatFeed.Comment[]',
+                name: '',
+                type: 'tuple[]'
+              }],
+              stateMutability: 'view',
+              type: 'function'
+            }],
+            functionName: 'fetchLastComments',
+            args: [true, this.mainItemId, this.pageLength]
+          }
         } else {
-          msgs = await contract.fetchLastMainMessages(true, this.pageLength)
+          contractConfig = {
+            address: this.chatContext,
+            abi: [{
+              inputs: [
+                { internalType: 'bool', name: 'includeDeleted_', type: 'bool' },
+                { internalType: 'uint256', name: 'length_', type: 'uint256' }
+              ],
+              name: 'fetchLastMainMessages',
+              outputs: [{
+                components: [
+                  { internalType: 'address', name: 'author', type: 'address' },
+                  { internalType: 'uint256', name: 'createdAt', type: 'uint256' },
+                  { internalType: 'bool', name: 'deleted', type: 'bool' },
+                  { internalType: 'uint256', name: 'index', type: 'uint256' },
+                  { internalType: 'uint256', name: 'repliesCount', type: 'uint256' },
+                  { internalType: 'string', name: 'url', type: 'string' }
+                ],
+                internalType: 'struct ChatFeed.Message[]',
+                name: '',
+                type: 'tuple[]'
+              }],
+              stateMutability: 'view',
+              type: 'function'
+            }],
+            functionName: 'fetchLastMainMessages',
+            args: [true, this.pageLength]
+          }
         }
+
+        msgs = await this.readData(contractConfig)
 
         let msgsToAdd = []
         for (let i = 0; i < msgs.length; i++) {
@@ -678,14 +758,14 @@ export default {
             const messageObj = {
               author: msg.author,
               url: msg.url,
-              createdAt: msg.createdAt.toNumber(),
+              createdAt: Number(msg.createdAt),
               deleted: msg.deleted,
-              index: msg.index.toNumber(),
+              index: Number(msg.index),
             }
             
             // Add repliesCount only if it's not a comment feed
             if (!this.isCommentFeed) {
-              messageObj.repliesCount = msg.repliesCount.toNumber()
+              messageObj.repliesCount = Number(msg.repliesCount)
             }
             
             msgsToAdd.push(messageObj)
@@ -705,10 +785,7 @@ export default {
 
         if (this.messages.length > 0) {
           this.lastFetchedIndex = this.messages[this.messages.length - 1].index;
-          //console.log("lastFetchedIndex initial messages:", this.lastFetchedIndex);
         }
-
-        //console.log(this.messages)
       } catch (error) {
         console.error(error)
       } finally {
@@ -722,23 +799,42 @@ export default {
 
       if (priceWei) {
         this.priceWei = priceWei
-        this.price = ethers.utils.formatEther(this.priceWei)
+        this.price = formatEther(this.priceWei)
         return
       }
 
-      const provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
+      try {
+        const contractConfig = {
+          address: this.chatContext,
+          abi: [{
+            inputs: [],
+            name: 'price',
+            outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+            stateMutability: 'view',
+            type: 'function'
+          }],
+          functionName: 'price',
+          args: []
+        }
+        
+        this.priceWei = await this.readData(contractConfig)
+        
+        // Handle case where price might be 0 or undefined
+        if (this.priceWei === null || this.priceWei === undefined) {
+          this.priceWei = '0'
+          this.price = '0'
+        } else {
+          this.price = formatEther(this.priceWei)
+        }
 
-      const intrfc = new ethers.utils.Interface([
-        'function price() external view returns (uint256)'
-      ])
-
-      const contract = new ethers.Contract(this.chatContext, intrfc, provider)
-      
-      this.priceWei = await contract.price()
-      this.price = ethers.utils.formatEther(this.priceWei)
-
-      // store priceWei in session storage
-      window.sessionStorage.setItem(this.chatContext + '-price', this.priceWei)
+        // store priceWei in session storage
+        window.sessionStorage.setItem(this.chatContext + '-price', this.priceWei)
+      } catch (error) {
+        console.error('Failed to get message price:', error)
+        // Set default values on error
+        this.priceWei = '0'
+        this.price = '0'
+      }
     },
 
     insertEmoji(emoji) {
@@ -799,7 +895,7 @@ export default {
 
         // create JSON file together with file type and file name, and convert it to base64
         const messageObj = {
-          author: this.userStore.address,
+          author: this.address,
           text: messageText,
           timestamp: Math.floor(Date.now() / 1000)
         }
@@ -828,12 +924,42 @@ export default {
   },
 
   setup() {
-    const { address, chainId, isActivated, signer } = useEthers()
     const toast = useToast()
-    const siteStore = useSiteStore()
-    const userStore = useUserStore()
+    const { 
+      address,
+      chainId,
+      isActivated,
+      isConnecting,
+      isCurrentChainSupported,
+      shortenAddress,
+      domainName
+    } = useAccountData()
+    
+    const { 
+      readData,
+      writeData,
+      waitForTxReceipt
+    } = useWeb3()
+    
+    const { 
+      arweaveBalance
+    } = useSiteSettings()
 
-    return { address, chainId, isActivated, signer, toast, siteStore, userStore }
+    return { 
+      toast, 
+      address,
+      chainId,
+      isActivated,
+      isConnecting,
+      isCurrentChainSupported,
+      shortenAddress,
+      domainName,
+      readData,
+      writeData,
+      waitForTxReceipt,
+      arweaveBalance,
+      formatEther
+    }
   },
 }
 </script>

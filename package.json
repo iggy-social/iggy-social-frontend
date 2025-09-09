@@ -1,40 +1,46 @@
 {
-  "name": "iggy-social-frontend",
+  "name": "iggy-social-nuxt",
   "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "build": "nuxt build",
+    "predev": "node check-node-version.js",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "format": "prettier --write \"**/*.{vue,ts,js,json}\""
+    "postinstall": "nuxt prepare",
+    "generate-pwa-icons": "node scripts/generate-pwa-icons.js"
   },
   "dependencies": {
-    "@openzeppelin/merkle-tree": "^1.0.5",
-    "@pinia/nuxt": "^0.4.6",
-    "@vue-dapp/core": "^1.5.1",
-    "@vue-dapp/modal": "^1.5.1",
-    "@vueuse/core": "^9.2.0",
-    "@vueuse/nuxt": "^9.2.0",
-    "arweave": "^1.15.1",
-    "axios": "^1.6.2",
-    "emoji-mart-vue-fast": "^15.0.0",
-    "ethers": "^5.7.2",
-    "imagekit": "^4.1.4",
-    "imagekit-javascript": "^2.0.0",
-    "metascraper": "^5.36.0",
-    "metascraper-description": "^5.36.0",
-    "metascraper-image": "^5.36.0",
-    "metascraper-title": "^5.36.0",
-    "pinia": "^2.0.28",
-    "sanitize-html": "^2.7.2",
-    "vue": "^3.4.27",
-    "vue-dapp": "^0.6.2",
-    "vue-toastification": "^2.0.0-rc.5"
+    "@farcaster/miniapp-sdk": "latest",
+    "@farcaster/miniapp-wagmi-connector": "latest",
+    "@openzeppelin/merkle-tree": "^1.0.8",
+    "@popperjs/core": "^2.11.8",
+    "@tanstack/vue-query": ">=5.83.0",
+    "@types/dompurify": "^3.0.5",
+    "@vite-pwa/nuxt": "^1.0.4",
+    "@vueuse/core": "^13.6.0",
+    "@wagmi/vue": "latest",
+    "arweave": "^1.15.7",
+    "axios": "^1.11.0",
+    "dompurify": "^3.2.6",
+    "emoji-mart-vue-fast": "^15.0.4",
+    "imagekit": "^6.0.0",
+    "imagekit-javascript": "^4.0.1",
+    "nuxt": "^3.19.1",
+    "viem": "latest",
+    "vue": "^3.5.17",
+    "vue-toastification": "next"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "overrides": {
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
-    "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
-    "@esbuild-plugins/node-modules-polyfill": "^0.1.4",
-    "nuxt": "3.0.0",
-    "prettier": "^3.2.5"
+    "semver": "^7.7.2",
+    "sharp": "^0.34.3"
   }
 }

@@ -62,11 +62,10 @@
 </template>
 
 <script>
-import { ethers } from 'ethers'
-import { useEthers } from '~/store/ethers'
 import { useToast } from 'vue-toastification/dist/index.mjs'
-import Image from '~/components/Image.vue'
-import WaitingToast from '~/components/WaitingToast'
+import Image from '@/components/Image.vue'
+import WaitingToast from '@/components/WaitingToast'
+import { useWeb3 } from '@/composables/useWeb3'
 
 export default {
   name: 'RemoveImageFromCollectionModal',
@@ -94,14 +93,26 @@ export default {
     async loadImages() {
       this.waitingLoad = true
 
-      const metadataInterface = new ethers.utils.Interface([
-        'function getCollectionImages(address nftAddress_) external view returns (string[] memory)',
-      ])
-
-      const metadataContract = new ethers.Contract(this.mdAddress, metadataInterface, this.signer)
+      const contractConfig = {
+        address: this.mdAddress,
+        abi: [
+          {
+            inputs: [{ name: 'nftAddress_', type: 'address' }],
+            name: 'getCollectionImages',
+            outputs: [{ name: '', type: 'string[]' }],
+            stateMutability: 'view',
+            type: 'function',
+          },
+        ],
+        functionName: 'getCollectionImages',
+        args: [this.cAddress],
+      }
 
       try {
-        this.images = await metadataContract.getCollectionImages(this.cAddress)
+        const result = await this.readData(contractConfig)
+        if (result) {
+          this.images = result
+        }
         this.waitingLoad = false
       } catch (e) {
         console.error(e)
@@ -112,16 +123,30 @@ export default {
     async removeImage(imageIndex) {
       this.waitingRemove = true
 
-      const metadataInterface = new ethers.utils.Interface([
-        'function removeImageFromCollectionByIndex(address nftAddress_, uint256 index_) external',
-      ])
+      const contractConfig = {
+        address: this.mdAddress,
+        abi: [
+          {
+            inputs: [
+              { name: 'nftAddress_', type: 'address' },
+              { name: 'index_', type: 'uint256' },
+            ],
+            name: 'removeImageFromCollectionByIndex',
+            outputs: [],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          },
+        ],
+        functionName: 'removeImageFromCollectionByIndex',
+        args: [this.cAddress, BigInt(imageIndex)],
+      }
 
-      const metadataContract = new ethers.Contract(this.mdAddress, metadataInterface, this.signer)
+      let toastWait;
 
       try {
-        const tx = await metadataContract.removeImageFromCollectionByIndex(this.cAddress, imageIndex)
+        const hash = await this.writeData(contractConfig)
 
-        const toastWait = this.toast(
+        toastWait = this.toast(
           {
             component: WaitingToast,
             props: {
@@ -130,18 +155,18 @@ export default {
           },
           {
             type: 'info',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           },
         )
 
-        const receipt = await tx.wait()
+        const receipt = await this.waitForTxReceipt(hash)
 
-        if (receipt.status === 1) {
+        if (receipt.status === 'success') {
           this.toast.dismiss(toastWait)
 
           this.toast('You have successfully removed an image from the NFT collection.', {
             type: 'success',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           })
 
           this.imageUrl = null
@@ -157,7 +182,7 @@ export default {
           this.waitingRemove = false
           this.toast('Transaction has failed.', {
             type: 'error',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           })
           console.log(receipt)
         }
@@ -165,8 +190,8 @@ export default {
         console.error(e)
 
         try {
-          let extractMessage = e.message.split('reason=')[1]
-          extractMessage = extractMessage.split(', method=')[0]
+          let extractMessage = e.message.split('Details:')[1]
+          extractMessage = extractMessage.split('Version: viem')[0]
           extractMessage = extractMessage.replace(/"/g, '')
           extractMessage = extractMessage.replace('execution reverted:', 'Error:')
 
@@ -178,15 +203,18 @@ export default {
         }
 
         this.waitingRemove = false
+      } finally {
+        this.toast.dismiss(toastWait)
+        this.waitingRemove = false
       }
     },
   },
 
   setup() {
-    const { signer } = useEthers()
+    const { readData, writeData, waitForTxReceipt } = useWeb3()
     const toast = useToast()
 
-    return { signer, toast }
+    return { readData, writeData, waitForTxReceipt, toast }
   },
 }
 </script>

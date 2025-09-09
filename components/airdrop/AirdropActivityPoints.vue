@@ -6,7 +6,7 @@
     <div class="input-group mt-5">
       <input v-model="airdropAp" type="text" class="form-control" disabled />
 
-      <button class="btn btn-primary" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+      <button class="btn btn-primary" type="button" aria-expanded="false">
         {{ $config.public.chatTokenSymbol }}
       </button>
     </div>
@@ -14,7 +14,7 @@
     <!-- Claim button -->
     <div class="d-flex justify-content-center mt-4 mb-4">
       <button
-        :disabled="waiting || loadingData || airdropAp == 0"
+        :disabled="waiting || loadingData || airdropAp == 0 || airdropAp == null"
         class="btn btn-outline-primary"
         type="button"
         @click="claim"
@@ -41,41 +41,82 @@
 </template>
 
 <script>
-import { ethers } from 'ethers'
-import { useEthers } from '~/store/ethers'
+import { formatEther } from 'viem'
 import { useToast } from 'vue-toastification/dist/index.mjs'
-import WaitingToast from '~/components/WaitingToast'
-import { useUserStore } from '~/store/user'
+import WaitingToast from '@/components/WaitingToast'
+import { useAccountData } from '@/composables/useAccountData'
+import { useWeb3 } from '@/composables/useWeb3'
 
 export default {
   name: 'AirdropActivityPoints',
-  props: ['airdropApWei', 'loadingData'],
-  emits: ['setDomainChatRewardWeiToZero'],
 
   data() {
     return {
       waiting: false,
+      loadingData: false,
+      airdropApWei: 0,
     }
   },
 
   computed: {
     airdropAp() {
-      return Math.round(Number(ethers.utils.formatEther(this.airdropApWei)))
-    },
+      return this.airdropApWei ? Math.round(Number(formatEther(this.airdropApWei))) : 0
+    }
+  },
+
+  mounted() {
+    if (this.address) {
+      this.fetchAirdropData()
+    }
   },
 
   methods: {
+    async fetchAirdropData() {
+      this.loadingData = true
+
+      try {
+        // preview airdrop claim for past APs
+        const claimPreviewResult = await this.readData({
+          address: this.$config.public.airdropApAddress,
+          abi: [
+            {
+              name: 'claimPreview',
+              type: 'function',
+              stateMutability: 'view',
+              inputs: [{ type: 'address', name: '_address' }],
+              outputs: [{ type: 'uint256', name: '' }]
+            }
+          ],
+          functionName: 'claimPreview',
+          args: [this.address]
+        })
+
+        if (claimPreviewResult) {
+          this.airdropApWei = claimPreviewResult
+        }
+      } catch (error) {
+        console.error('Error fetching airdrop data:', error)
+      } finally {
+        this.loadingData = false
+      }
+    },
+
     async claim() {
       this.waiting = true
 
-      const claimApInterface = new ethers.utils.Interface(['function claim() external'])
+      const claimApContract = {
+        address: this.$config.public.airdropApAddress,
+        abi: [{ name: 'claim', type: 'function', stateMutability: 'nonpayable', inputs: [], outputs: [] }],
+        functionName: 'claim',
+        args: [],
+      }
 
-      const claimApContract = new ethers.Contract(this.$config.public.airdropApAddress, claimApInterface, this.signer)
+      let toastWait;
 
       try {
-        const tx = await claimApContract.claim()
+        const hash = await this.writeData(claimApContract)
 
-        const toastWait = this.toast(
+        toastWait = this.toast(
           {
             component: WaitingToast,
             props: {
@@ -84,22 +125,22 @@ export default {
           },
           {
             type: 'info',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           },
         )
 
-        const receipt = await tx.wait()
+        const receipt = await this.waitForTxReceipt(hash)
 
-        if (receipt.status === 1) {
+        if (receipt.status === 'success') {
           this.toast.dismiss(toastWait)
 
-          this.userStore.addToChatTokenBalanceWei(this.airdropApWei)
+          this.addToChatTokenBalanceWei(this.airdropApWei)
 
-          this.$emit('setDomainChatRewardWeiToZero')
+          this.airdropApWei = 0
 
           this.toast('Airdrop for past APs has been successfully claimed!', {
             type: 'success',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           })
 
           this.waiting = false
@@ -108,7 +149,7 @@ export default {
           this.waiting = false
           this.toast('Transaction has failed.', {
             type: 'error',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           })
           console.log(receipt)
         }
@@ -116,8 +157,8 @@ export default {
         console.error(e)
 
         try {
-          let extractMessage = e.message.split('reason=')[1]
-          extractMessage = extractMessage.split(', method=')[0]
+          let extractMessage = e.message.split('Details:')[1]
+          extractMessage = extractMessage.split('Version: viem')[0]
           extractMessage = extractMessage.replace(/"/g, '')
           extractMessage = extractMessage.replace('execution reverted:', 'Error:')
           extractMessage = extractMessage.replace('ChatTokenClaimActivityPoints: ', '')
@@ -130,21 +171,34 @@ export default {
         }
 
         this.waiting = false
+      } finally {
+        this.toast.dismiss(toastWait)
+        this.waiting = false
       }
     },
   },
 
   setup() {
-    const { address, signer } = useEthers()
+    const { readData, writeData, waitForTxReceipt } = useWeb3()
+    const { addToChatTokenBalanceWei, address } = useAccountData()
     const toast = useToast()
-    const userStore = useUserStore()
 
     return {
+      readData,
+      writeData,
+      waitForTxReceipt,
+      addToChatTokenBalanceWei,
       address,
-      signer,
       toast,
-      userStore,
     }
+  },
+
+  watch: {
+    address() {
+      if (this.address) {
+        this.fetchAirdropData()
+      }
+    },
   },
 }
 </script>

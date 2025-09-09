@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import FindUser from '~/components/search/FindUser.vue'
+import FindUser from '@/components/search/FindUser.vue'
 
 export default {
   name: 'FindUserModal',

@@ -1,10 +1,21 @@
 <template>
-  <div class="modal fade" id="referralModal" tabindex="-1" aria-labelledby="referralModalLabel" aria-hidden="true">
+  <div 
+    class="modal fade" 
+    id="referralModal" 
+    aria-labelledby="referralModalLabel" 
+  >
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5" id="referralModalLabel">Share referral link</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button 
+            id="closeReferralModal"
+            type="button" 
+            class="btn-close" 
+            data-bs-dismiss="modal" 
+            aria-label="Close"
+            @click="handleCloseClick"
+          ></button>
         </div>
         <div class="modal-body">
           <p>
@@ -24,13 +35,23 @@
 </template>
 
 <script>
-import ShareReferralLink from '~/components/referrals/ShareReferralLink.vue'
+import ShareReferralLink from '@/components/referrals/ShareReferralLink.vue'
 
 export default {
   name: 'ReferralModal',
 
   components: {
     ShareReferralLink,
+  },
+
+  methods: {
+    handleCloseClick() {
+      // Remove focus from the close button to prevent aria-hidden warning
+      const closeButton = document.getElementById('closeReferralModal')
+      if (closeButton) {
+        closeButton.blur()
+      }
+    },
   },
 }
 </script>

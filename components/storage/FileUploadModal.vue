@@ -3,9 +3,7 @@
   <div
     class="modal fade"
     :id="'fileUploadModal' + componentId"
-    tabindex="-1"
     :aria-labelledby="'fileUploadModalLabel' + componentId"
-    aria-hidden="true"
   >
     <div class="modal-dialog">
       <div class="modal-content">
@@ -17,6 +15,7 @@
             class="btn-close"
             data-bs-dismiss="modal"
             aria-label="Close"
+            @click="handleCloseClick"
           ></button>
         </div>
 
@@ -68,7 +67,7 @@
               <!--
               <div v-if="!arweaveBalanceTooLow">
                 <hr />
-                <p><small>The file will be uploaded to Arweave. Current balance in the wallet: {{ arweaveBalance }} AR.</small></p>
+                <p><small>The file will be uploaded to Arweave. Current balance in the wallet: {{ arBalance }} AR.</small></p>
               </div>
               -->
             </div>
@@ -91,8 +90,8 @@
 </template>
 
 <script>
-import { useSiteStore } from '~/store/site'
-import FileUploadInput from '~/components/storage/FileUploadInput.vue'
+import { useSiteSettings } from '@/composables/useSiteSettings'
+import FileUploadInput from '@/components/storage/FileUploadInput.vue'
 
 export default {
   name: 'FileUploadModal',
@@ -114,11 +113,9 @@ export default {
   },
 
   computed: {
-    arweaveBalance() {
-      const arBalance = this.siteStore.arweaveBalance
-
-      if (arBalance) {
-        const balancePrecision = Number(arBalance).toFixed(6);
+    arBalance() {
+      if (this.arweaveBalance) {
+        const balancePrecision = Number(this.arweaveBalance).toFixed(6);
         return Number.parseFloat(balancePrecision);
       }
       
@@ -130,11 +127,11 @@ export default {
         return false
       }
       
-      return this.arweaveBalance < this.$config.public.arweaveMinBalance
+      return this.arBalance < this.$config.public.arweaveMinBalance
     },
 
     fileUploadEnabled() {
-      return this.siteStore.getFileUploadEnabled
+      return this.$config.public.fileUploadEnabled
     },
 
     getTitle() {
@@ -147,13 +144,21 @@ export default {
       this.$emit('processFileUrl', fileUrl)
       document.getElementById('closeFileUploadModal' + this.componentId).click()
     },
+
+    handleCloseClick() {
+      // Remove focus from the close button to prevent aria-hidden warning
+      const closeButton = document.getElementById('closeFileUploadModal' + this.componentId)
+      if (closeButton) {
+        closeButton.blur()
+      }
+    },
   },
 
   setup() {
-    const siteStore = useSiteStore()
+    const { arweaveBalance } = useSiteSettings()
 
     return {
-      siteStore,
+      arweaveBalance,
     }
   },
 

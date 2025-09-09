@@ -45,10 +45,10 @@
 </template>
 
 <script>
-import { ethers } from 'ethers'
-import { useEthers } from '~/store/ethers'
+import { useWeb3 } from '@/composables/useWeb3'
+import { useAccountData } from '@/composables/useAccountData'
 import { useToast } from 'vue-toastification/dist/index.mjs'
-import WaitingToast from '~/components/WaitingToast'
+import WaitingToast from '@/components/WaitingToast'
 
 export default {
   name: 'ChangeDescriptionModal',
@@ -72,19 +72,32 @@ export default {
     async update() {
       this.waiting = true
 
-      const metadataInterface = new ethers.utils.Interface([
-        'function setDescription(address nftAddress_, string memory description_) external',
-      ])
-
-      const metadataContract = new ethers.Contract(this.mdAddress, metadataInterface, this.signer)
+      let toastWait;
 
       try {
-        const tx = await metadataContract.setDescription(
-          this.cAddress,
-          this.editDescription.replace(/"/g, "'"), // replace double quotes with single quotes
-        )
+        // Call the smart contract using writeData
+        const hash = await this.writeData({
+          address: this.mdAddress,
+          abi: [
+            {
+              name: 'setDescription',
+              type: 'function',
+              stateMutability: 'nonpayable',
+              inputs: [
+                { name: 'nftAddress_', type: 'address' },
+                { name: 'description_', type: 'string' }
+              ],
+              outputs: []
+            }
+          ],
+          functionName: 'setDescription',
+          args: [
+            this.cAddress,
+            this.editDescription.replace(/"/g, "'") // replace double quotes with single quotes
+          ]
+        })
 
-        const toastWait = this.toast(
+        toastWait = this.toast(
           {
             component: WaitingToast,
             props: {
@@ -93,18 +106,19 @@ export default {
           },
           {
             type: 'info',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           },
         )
 
-        const receipt = await tx.wait()
+        // Wait for transaction receipt
+        const receipt = await this.waitForTxReceipt(hash)
 
-        if (receipt.status === 1) {
+        if (receipt.status === 'success') {
           this.toast.dismiss(toastWait)
 
           this.toast('You have updated the NFT description.', {
             type: 'success',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           })
 
           this.$emit('saveCollection', {
@@ -122,7 +136,7 @@ export default {
           this.waiting = false
           this.toast('Transaction has failed.', {
             type: 'error',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           })
           console.log(receipt)
         }
@@ -130,8 +144,8 @@ export default {
         console.error(e)
 
         try {
-          let extractMessage = e.message.split('reason=')[1]
-          extractMessage = extractMessage.split(', method=')[0]
+          let extractMessage = e.message.split('Details:')[1]
+          extractMessage = extractMessage.split('Version: viem')[0]
           extractMessage = extractMessage.replace(/"/g, '')
           extractMessage = extractMessage.replace('execution reverted:', 'Error:')
 
@@ -143,15 +157,24 @@ export default {
         }
 
         this.waiting = false
+      } finally {
+        this.toast.dismiss(toastWait)
+        this.waiting = false
       }
     },
   },
 
   setup() {
-    const { signer } = useEthers()
+    const { writeData, waitForTxReceipt } = useWeb3()
+    const { isActivated } = useAccountData()
     const toast = useToast()
 
-    return { signer, toast }
+    return { 
+      writeData, 
+      waitForTxReceipt, 
+      isActivated, 
+      toast 
+    }
   },
 
   watch: {

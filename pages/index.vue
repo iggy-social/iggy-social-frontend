@@ -3,20 +3,22 @@
 </template>
 
 <script>
-import { useEthers } from '~/store/ethers'
-import ChatFeed from '../components/chat/ChatFeed.vue'
+import ChatFeed from '@/components/chat/ChatFeed.vue'
+import { useAccountData } from '@/composables/useAccountData'
 
 export default {
   name: 'index',
-
   components: {
     ChatFeed,
   },
 
   setup() {
-    const { address, chainId } = useEthers()
+    const { address, chainId } = useAccountData()
 
-    return { address, chainId }
+    return {
+      address,
+      chainId,
+    }
   },
 }
 </script>

@@ -105,12 +105,13 @@
 </template>
 
 <script>
-import { ethers } from 'ethers'
-import { useEthers } from '~/store/ethers'
-import Image from '~/components/Image.vue'
-import SearchNftModal from '~/components/nft/SearchNftModal.vue'
-import { getIpfsUrl } from '~/utils/ipfsUtils'
-import { fetchCollection, storeCollection } from '~/utils/storageUtils'
+import { formatEther } from 'viem'
+import { useAccount } from '@wagmi/vue'
+import Image from '@/components/Image.vue'
+import SearchNftModal from '@/components/nft/SearchNftModal.vue'
+import { getWorkingUrl } from '@/utils/fileUtils'
+import { fetchCollection, storeCollection } from '@/utils/browserStorageUtils'
+import { useWeb3 } from '@/composables/useWeb3'
 
 export default {
   name: 'Nft',
@@ -149,98 +150,138 @@ export default {
     async fetchFeaturedNfts() {
       this.waitingData = true
 
-      // fetch provider from hardcoded RPCs
-      let provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
+      try {
+        // create launchpad contract config for readData
+        const launchpadContractConfig = {
+          address: this.$config.public.nftLaunchpadBondingAddress,
+          abi: [
+            {
+              name: 'getFeaturedNftContracts',
+              type: 'function',
+              stateMutability: 'view',
+              inputs: [{ name: 'amount', type: 'uint256' }],
+              outputs: [{ name: '', type: 'address[]' }]
+            }
+          ],
+          functionName: 'getFeaturedNftContracts',
+          args: [4]
+        }
 
-      if (this.isActivated && this.chainId === this.$config.public.supportedChainId) {
-        // fetch provider from user's MetaMask
-        provider = this.signer
+        // get featured NFTs using readData
+        const fNfts = await this.readData(launchpadContractConfig)
+        
+        if (fNfts) {
+          await this.parseNftsArray(fNfts, this.featuredNfts)
+        }
+      } catch (error) {
+        console.error('Error fetching featured NFTs:', error)
+      } finally {
+        this.waitingData = false
       }
-
-      // create launchpad contract object
-      const launchpadInterface = new ethers.utils.Interface([
-        'function getFeaturedNftContracts(uint256 amount) external view returns(address[] memory)',
-      ])
-
-      const launchpadContract = new ethers.Contract(
-        this.$config.public.nftLaunchpadBondingAddress,
-        launchpadInterface,
-        provider,
-      )
-
-      // get featured NFTs
-      const fNfts = await launchpadContract.getFeaturedNftContracts(4)
-
-      await this.parseNftsArray(fNfts, this.featuredNfts, provider)
     },
 
     async fetchLastNfts() {
       this.waitingData = true
 
-      // fetch provider from hardcoded RPCs
-      let provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
+      try {
+        // create launchpad contract config for readData
+        const launchpadContractConfig = {
+          address: this.$config.public.nftLaunchpadBondingAddress,
+          abi: [
+            {
+              name: 'getLastNftContracts',
+              type: 'function',
+              stateMutability: 'view',
+              inputs: [{ name: 'amount', type: 'uint256' }],
+              outputs: [{ name: '', type: 'address[]' }]
+            },
+            {
+              name: 'getNftContracts',
+              type: 'function',
+              stateMutability: 'view',
+              inputs: [
+                { name: 'fromIndex', type: 'uint256' },
+                { name: 'toIndex', type: 'uint256' }
+              ],
+              outputs: [{ name: '', type: 'address[]' }]
+            },
+            {
+              name: 'getNftContractsArrayLength',
+              type: 'function',
+              stateMutability: 'view',
+              inputs: [],
+              outputs: [{ name: '', type: 'uint256' }]
+            }
+          ]
+        }
 
-      if (this.isActivated && this.chainId === this.$config.public.supportedChainId) {
-        // fetch provider from user's MetaMask
-        provider = this.signer
-      }
+        // get all NFTs array length
+        if (Number(this.allNftsArrayLength) === 0) {
+          const lengthConfig = {
+            ...launchpadContractConfig,
+            functionName: 'getNftContractsArrayLength',
+            args: []
+          }
+          const lengthResult = await this.readData(lengthConfig)
+          this.allNftsArrayLength = lengthResult ? Number(lengthResult) : 0
+        }
 
-      // create launchpad contract object
-      const launchpadInterface = new ethers.utils.Interface([
-        'function getLastNftContracts(uint256 amount) external view returns(address[] memory)',
-        'function getNftContracts(uint256 fromIndex, uint256 toIndex) external view returns(address[] memory)',
-        'function getNftContractsArrayLength() external view returns(uint256)',
-      ])
+        if (this.allNftsArrayLength === 1) {
+          const lastNftsConfig = {
+            ...launchpadContractConfig,
+            functionName: 'getLastNftContracts',
+            args: [1]
+          }
+          const lNfts = await this.readData(lastNftsConfig)
+          if (lNfts) {
+            await this.parseNftsArray(lNfts)
+          }
+        } else if (this.allNftsArrayLength > 1) {
+          // set the start and end index, if end index is 0
+          if (this.allNftsIndexEnd === 0) {
+            this.allNftsIndexEnd = this.allNftsArrayLength - 1
 
-      const launchpadContract = new ethers.Contract(
-        this.$config.public.nftLaunchpadBondingAddress,
-        launchpadInterface,
-        provider,
-      )
+            if (this.allNftsArrayLength < this.$config.public.nftLaunchpadLatestItems) {
+              this.allNftsIndexStart = 0
+            } else {
+              this.allNftsIndexStart = this.allNftsArrayLength - this.$config.public.nftLaunchpadLatestItems
+            }
+          }
 
-      // get all NFTs array length
-      if (Number(this.allNftsArrayLength) === 0) {
-        this.allNftsArrayLength = await launchpadContract.getNftContractsArrayLength()
-      }
+          // get last NFTs
+          const contractsConfig = {
+            ...launchpadContractConfig,
+            functionName: 'getNftContracts',
+            args: [this.allNftsIndexStart, this.allNftsIndexEnd]
+          }
+          const lNfts = await this.readData(contractsConfig)
+          
+          if (lNfts) {
+            const lNftsWritable = [...lNfts] // copy the lNfts array to make it writable (for reverse() method)
 
-      if (Number(this.allNftsArrayLength) === 1) {
-        const lNfts = await launchpadContract.getLastNftContracts(1)
-        await this.parseNftsArray(lNfts, this.lastNfts, provider)
-      } else if (Number(this.allNftsArrayLength) > 1) {
-        // set the start and end index, if end index is 0
-        if (this.allNftsIndexEnd === 0) {
-          this.allNftsIndexEnd = this.allNftsArrayLength - 1
+            // reverse the lNftsWritable array (to show the latest NFTs first)
+            lNftsWritable.reverse()
 
-          if (this.allNftsArrayLength < this.$config.public.nftLaunchpadLatestItems) {
-            this.allNftsIndexStart = 0
-          } else {
-            this.allNftsIndexStart = this.allNftsArrayLength - this.$config.public.nftLaunchpadLatestItems
+            await this.parseNftsArray(lNftsWritable)
+
+            if (this.allNftsIndexEnd > this.$config.public.nftLaunchpadLatestItems) {
+              this.allNftsIndexEnd = Math.max(0, this.allNftsIndexEnd - this.$config.public.nftLaunchpadLatestItems)
+            } else {
+              this.allNftsIndexEnd = 0
+            }
+
+            if (this.allNftsIndexStart > this.$config.public.nftLaunchpadLatestItems) {
+              this.allNftsIndexStart = Math.max(0, this.allNftsIndexStart - this.$config.public.nftLaunchpadLatestItems)
+            } else {
+              this.allNftsIndexStart = 0
+            }
           }
         }
-
-        // get last NFTs
-        const lNfts = await launchpadContract.getNftContracts(this.allNftsIndexStart, this.allNftsIndexEnd)
-        const lNftsWritable = [...lNfts] // copy the lNfts array to make it writable (for reverse() method)
-
-        // reverse the lNftsWritable array (to show the latest NFTs first)
-        lNftsWritable.reverse()
-
-        await this.parseNftsArray(lNftsWritable, this.lastNfts, provider)
-
-        if (this.allNftsIndexEnd > this.$config.public.nftLaunchpadLatestItems) {
-          this.allNftsIndexEnd = this.allNftsIndexEnd - this.$config.public.nftLaunchpadLatestItems
-        } else {
-          this.allNftsIndexEnd = 0
-        }
-
-        if (this.allNftsIndexStart > this.$config.public.nftLaunchpadLatestItems) {
-          this.allNftsIndexStart = this.allNftsIndexStart - this.$config.public.nftLaunchpadLatestItems
-        } else {
-          this.allNftsIndexStart = 0
-        }
+      } catch (error) {
+        console.error('Error fetching last NFTs:', error)
+      } finally {
+        this.waitingData = false
       }
-
-      this.waitingData = false
     },
 
     formatPrice(priceWei) {
@@ -248,7 +289,7 @@ export default {
         return null
       }
 
-      const price = Number(ethers.utils.formatEther(priceWei))
+      const price = Number(formatEther(priceWei))
 
       if (price > 100) {
         return price.toFixed(0)
@@ -271,74 +312,121 @@ export default {
       }
     },
 
-    async parseNftsArray(inputArray, outputArray, provider) {
-      const nftInterface = new ethers.utils.Interface([
-        'function collectionPreview() public view returns (string memory)',
-        'function getMintPrice() public view returns (uint256)',
-        'function name() public view returns (string memory)',
-      ])
+    async parseNftsArray(inputArray, outputArray = this.lastNfts) {
+      // Clear the output array before adding new items
+      //outputArray.length = 0
+      
+      const nftContractConfig = {
+        abi: [
+          {
+            name: 'collectionPreview',
+            type: 'function',
+            stateMutability: 'view',
+            inputs: [],
+            outputs: [{ name: '', type: 'string' }]
+          },
+          {
+            name: 'getMintPrice',
+            type: 'function',
+            stateMutability: 'view',
+            inputs: [],
+            outputs: [{ name: '', type: 'uint256' }]
+          },
+          {
+            name: 'name',
+            type: 'function',
+            stateMutability: 'view',
+            inputs: [],
+            outputs: [{ name: '', type: 'string' }]
+          }
+        ]
+      }
 
       // for loop to get NFTs data (price, name & image)
       for (let i = 0; i < inputArray.length; i++) {
-        const nftContract = new ethers.Contract(inputArray[i], nftInterface, provider)
+        try {
+          // fetch collection object from storage
+          let collection = fetchCollection(window, inputArray[i])
 
-        // fetch collection object from storage
-        let collection = fetchCollection(window, inputArray[i])
-
-        if (!collection) {
-          collection = {
-            address: inputArray[i],
+          if (!collection) {
+            collection = {
+              address: inputArray[i],
+            }
           }
+
+          // get collection name
+          let cName
+
+          if (collection?.name) {
+            cName = collection.name
+          } else {
+            const nameConfig = {
+              ...nftContractConfig,
+              address: inputArray[i],
+              functionName: 'name',
+              args: []
+            }
+            cName = await this.readData(nameConfig)
+            if (cName) {
+              collection['name'] = cName
+            }
+          }
+
+          // get price
+          const priceConfig = {
+            ...nftContractConfig,
+            address: inputArray[i],
+            functionName: 'getMintPrice',
+            args: []
+          }
+          const mintPriceWei = await this.readData(priceConfig)
+
+          // get image
+          let cImage
+
+          if (collection?.image) {
+            cImage = collection.image
+          } else {
+            const imageConfig = {
+              ...nftContractConfig,
+              address: inputArray[i],
+              functionName: 'collectionPreview',
+              args: []
+            }
+
+            cImage = await this.readData(imageConfig)
+
+            if (cImage) {
+              let cImageResult = await getWorkingUrl(cImage)
+              if (cImageResult?.success) {
+                collection['image'] = cImageResult?.url
+              }
+            }
+          }
+
+          // store collection object in storage
+          storeCollection(window, inputArray[i], collection)
+
+          outputArray.push({
+            address: inputArray[i],
+            image: cImage,
+            name: cName,
+            price: mintPriceWei,
+          })
+        } catch (error) {
+          console.error(`Error parsing NFT ${inputArray[i]}:`, error)
         }
-
-        // get collection name
-        let cName
-
-        if (collection?.name) {
-          cName = collection.name
-        } else {
-          cName = await nftContract.name()
-          collection['name'] = cName
-        }
-
-        // get price
-        const mintPriceWei = await nftContract.getMintPrice()
-
-        // get image
-        let cImage
-
-        if (collection?.image) {
-          cImage = collection.image
-        } else {
-          cImage = await nftContract.collectionPreview()
-          collection['image'] = cImage
-        }
-
-        // get IPFS link
-        const imageIpfsUrl = getIpfsUrl(cImage)
-
-        if (imageIpfsUrl) {
-          cImage = imageIpfsUrl
-          collection['image'] = cImage
-        }
-
-        // store collection object in storage
-        storeCollection(window, inputArray[i], collection)
-
-        outputArray.push({
-          address: inputArray[i],
-          image: cImage,
-          name: cName,
-          price: mintPriceWei,
-        })
       }
     },
+
+
   },
 
   setup() {
-    const { address, chainId, isActivated, signer } = useEthers()
+    const { address, chainId, isConnected } = useAccount()
+    const { readData } = useWeb3()
 
-    return { address, chainId, isActivated, signer }
+    return { address, chainId, isConnected, readData }
   },
 }
 </script>

@@ -28,10 +28,9 @@
 </template>
 
 <script>
-import { ethers } from 'ethers'
 import { useToast } from 'vue-toastification/dist/index.mjs'
-import ChatFeed from '~/components/chat/ChatFeed.vue'
-import ChatMessage from '~/components/chat/ChatMessage.vue'
+import ChatFeed from '@/components/chat/ChatFeed.vue'
+import ChatMessage from '@/components/chat/ChatMessage.vue'
 
 export default {
   data() {
@@ -82,77 +81,83 @@ export default {
       this.reply = null
 
       try {
-        const provider = this.$getFallbackProvider(this.$config.public.supportedChainId);
-
-        const intrfc = new ethers.utils.Interface([
-          {
-            "inputs": [{"internalType": "uint256", "name": "mainMsgIndex_", "type": "uint256"}],
-            "name": "getMainMessage",
-            "outputs": [
-              {
-                "components": [
-                  {"internalType": "address", "name": "author", "type": "address"},
-                  {"internalType": "uint256", "name": "createdAt", "type": "uint256"},
-                  {"internalType": "bool", "name": "deleted", "type": "bool"},
-                  {"internalType": "uint256", "name": "index", "type": "uint256"},
-                  {"internalType": "uint256", "name": "repliesCount", "type": "uint256"},
-                  {"internalType": "string", "name": "url", "type": "string"}
-                ],
-                "internalType": "struct ChatFeed.Message",
-                "name": "",
-                "type": "tuple"
-              }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-          },
-          {
-            "inputs": [
-              {"internalType": "uint256", "name": "mainMsgIndex_", "type": "uint256"},
-              {"internalType": "uint256", "name": "replyMsgIndex_", "type": "uint256"}
-            ],
-            "name": "getReply",
-            "outputs": [
-              {
-                "components": [
-                  {"internalType": "address", "name": "author", "type": "address"},
-                  {"internalType": "uint256", "name": "createdAt", "type": "uint256"},
-                  {"internalType": "bool", "name": "deleted", "type": "bool"},
-                  {"internalType": "uint256", "name": "index", "type": "uint256"},
-                  {"internalType": "uint256", "name": "repliesCount", "type": "uint256"},
-                  {"internalType": "string", "name": "url", "type": "string"}
-                ],
-                "internalType": "struct ChatFeed.Message",
-                "name": "",
-                "type": "tuple"
-              }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-          }
-        ]);
-
-        const contract = new ethers.Contract(this.getChatContext, intrfc, provider);
+        const contractConfig = {
+          address: this.getChatContext,
+          abi: [
+            {
+              "inputs": [{"internalType": "uint256", "name": "mainMsgIndex_", "type": "uint256"}],
+              "name": "getMainMessage",
+              "outputs": [
+                {
+                  "components": [
+                    {"internalType": "address", "name": "author", "type": "address"},
+                    {"internalType": "uint256", "name": "createdAt", "type": "uint256"},
+                    {"internalType": "bool", "name": "deleted", "type": "bool"},
+                    {"internalType": "uint256", "name": "index", "type": "uint256"},
+                    {"internalType": "uint256", "name": "repliesCount", "type": "uint256"},
+                    {"internalType": "string", "name": "url", "type": "string"}
+                  ],
+                  "internalType": "struct ChatFeed.Message",
+                  "name": "",
+                  "type": "tuple"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {"internalType": "uint256", "name": "mainMsgIndex_", "type": "uint256"},
+                {"internalType": "uint256", "name": "replyMsgIndex_", "type": "uint256"}
+              ],
+              "name": "getReply",
+              "outputs": [
+                {
+                  "components": [
+                    {"internalType": "address", "name": "author", "type": "address"},
+                    {"internalType": "uint256", "name": "createdAt", "type": "uint256"},
+                    {"internalType": "bool", "name": "deleted", "type": "bool"},
+                    {"internalType": "uint256", "name": "index", "type": "uint256"},
+                    {"internalType": "uint256", "name": "repliesCount", "type": "uint256"},
+                    {"internalType": "string", "name": "url", "type": "string"}
+                  ],
+                  "internalType": "struct ChatFeed.Message",
+                  "name": "",
+                  "type": "tuple"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            }
+          ],
+          functionName: 'getMainMessage',
+          args: [this.getMessageId]
+        }
 
         let msg;
         let replyObj;
 
-        msg = await contract.getMainMessage(this.getMessageId);
+        msg = await this.readData(contractConfig);
         
         if (this.isReply) {
-          replyObj = await contract.getReply(this.getMessageId, this.getReplyId);
+          const replyContractConfig = {
+            ...contractConfig,
+            functionName: 'getReply',
+            args: [this.getMessageId, this.getReplyId]
+          }
+          replyObj = await this.readData(replyContractConfig);
         }
 
-        if (!msg.deleted) {
+        if (msg && !msg.deleted) {
           this.message = {
             author: msg.author,
             url: msg.url,
-            createdAt: msg.createdAt.toNumber(),
+            createdAt: Number(msg.createdAt),
             deleted: msg.deleted,
-            repliesCount: msg.repliesCount.toNumber(),
-            index: msg.index.toNumber(),
+            repliesCount: Number(msg.repliesCount),
+            index: Number(msg.index),
           };
-        } else {
+        } else if (msg && msg.deleted) {
           this.toast('This message has been deleted.', { type: 'info' });
         }
 
@@ -161,10 +166,10 @@ export default {
             this.reply = {
               author: replyObj.author,
               url: replyObj.url,
-              createdAt: replyObj.createdAt.toNumber(),
+              createdAt: Number(replyObj.createdAt),
               deleted: replyObj.deleted,
-              repliesCount: replyObj.repliesCount.toNumber(),
-              index: replyObj.index.toNumber(),
+              repliesCount: Number(replyObj.repliesCount),
+              index: Number(replyObj.index),
             };
           } else {
             this.toast('This reply has been deleted.', { type: 'info' });
@@ -181,10 +186,12 @@ export default {
   setup() {
     const route = useRoute()
     const toast = useToast()
+    const { readData } = useWeb3()
 
     return {
       route,
       toast,
+      readData,
     }
   },
 

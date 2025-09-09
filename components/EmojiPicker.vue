@@ -3,7 +3,11 @@
     <i class="bi bi-emoji-smile-fill"></i>
   </button>
 
-  <div class="modal fade" id="emojiModal" tabindex="-1" aria-labelledby="emojiModalLabel" aria-hidden="true">
+  <div 
+    class="modal fade" 
+    id="emojiModal" 
+    aria-labelledby="emojiModalLabel" 
+  >
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -14,6 +18,7 @@
             class="btn-close"
             data-bs-dismiss="modal"
             aria-label="Close"
+            @click="handleCloseClick"
           ></button>
         </div>
         <div class="modal-body">
@@ -44,6 +49,16 @@ export default {
     EmojiMartPicker,
   },
   emits: ['updateEmoji'],
+
+  methods: {
+    handleCloseClick() {
+      // Remove focus from the close button to prevent aria-hidden warning
+      const closeButton = document.getElementById('closeEmojiModal')
+      if (closeButton) {
+        closeButton.blur()
+      }
+    },
+  },
 
   setup(props, context) {
     const emojiIndex = new EmojiIndex(data)

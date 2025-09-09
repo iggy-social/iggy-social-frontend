@@ -183,7 +183,7 @@
         <!-- Connect Wallet button -->
         <ConnectWalletButton
           v-if="!isActivated && !isSupportedChain"
-          class="btn btn-primary"
+          class="btn-primary"
           btnText="Connect wallet"
         />
         <SwitchChainButton v-if="isActivated && !isSupportedChain" />
@@ -205,17 +205,17 @@
 </template>
 
 <script>
-import { ethers } from 'ethers'
-import { useEthers } from '~/store/ethers'
 import { useToast } from 'vue-toastification/dist/index.mjs'
-import ConnectWalletButton from '~/components/ConnectWalletButton.vue'
-import Image from '~/components/Image.vue'
-import SwitchChainButton from '~/components/SwitchChainButton.vue'
-import WaitingToast from '~/components/WaitingToast'
-import FileUploadModal from '~/components/storage/FileUploadModal.vue'
-import { useUserStore } from '~/store/user'
-import { getLessDecimals } from '~/utils/numberUtils'
-import { fetchReferrer } from '~/utils/storageUtils'
+import { formatEther, parseEther } from 'viem'
+import ConnectWalletButton from '@/components/connect/ConnectWalletButton.vue'
+import Image from '@/components/Image.vue'
+import SwitchChainButton from '@/components/connect/SwitchChainButton.vue'
+import WaitingToast from '@/components/WaitingToast'
+import FileUploadModal from '@/components/storage/FileUploadModal.vue'
+import { useAccountData } from '@/composables/useAccountData'
+import { useWeb3 } from '@/composables/useWeb3'
+import { getLessDecimals } from '@/utils/numberUtils'
+import { fetchReferrer } from '@/utils/browserStorageUtils'
 
 export default {
   name: 'NftCreate',
@@ -261,7 +261,7 @@ export default {
     createPrice() {
       if (!this.createPriceWei) return null
 
-      const price = Number(ethers.utils.formatEther(this.createPriceWei))
+      const price = Number(formatEther(this.createPriceWei))
 
       if (price > 0.01) {
         return Number.parseFloat(price.toFixed(5))
@@ -300,46 +300,52 @@ export default {
     async createCollection() {
       this.waitingCreate = true
 
-      //return this.$router.push({ path: '/nft/collection', query: { id: this.address } });
+      let toastWait;
 
-      if (this.signer) {
-        // create launchpad contract object
-        const launchpadInterface = new ethers.utils.Interface([
-          `function launch(
-              address contractOwner_,
-              address referrer_,
-              string memory mdDescription_,
-              string memory mdImage_,
-              string memory mdName_,
-              string memory name_,
-              string memory symbol_,
-              string calldata uniqueId_, 
-              uint256 ratio_
-            ) external payable`,
-          'function getNftContractAddress(string calldata _uniqueId) external view returns(address)',
-        ])
-
-        const launchpadContract = new ethers.Contract(
-          this.$config.public.nftLaunchpadBondingAddress,
-          launchpadInterface,
-          this.signer,
-        )
-
+      if (this.isActivated) {
         try {
-          const tx = await launchpadContract.launch(
-            this.address, // contract owner
-            fetchReferrer(window), // referrer
-            this.cleanDescription, // collection description
-            this.cImage, // collection image
-            this.cName, // this.nftName, // NFT name
-            this.cName, // collection name
-            this.cSymbol, // collection symbol
-            this.uniqueId, // unique ID to easily find the NFT contract address
-            ethers.utils.parseEther(String(this.ratio)), // bonding curve ratio
-            { value: this.createPriceWei }, // price for creating collection
-          )
+          // Create launchpad contract object
+          const launchpadInterface = [
+            {
+              name: 'launch',
+              type: 'function',
+              stateMutability: 'payable',
+              inputs: [
+                { name: 'contractOwner_', type: 'address' },
+                { name: 'referrer_', type: 'address' },
+                { name: 'mdDescription_', type: 'string' },
+                { name: 'mdImage_', type: 'string' },
+                { name: 'mdName_', type: 'string' },
+                { name: 'name_', type: 'string' },
+                { name: 'symbol_', type: 'string' },
+                { name: 'uniqueId_', type: 'string' },
+                { name: 'ratio_', type: 'uint256' }
+              ],
+              outputs: []
+            }
+          ]
 
-          const toastWait = this.toast(
+          const launchpadContract = {
+            address: this.$config.public.nftLaunchpadBondingAddress,
+            abi: launchpadInterface,
+            functionName: 'launch',
+            args: [
+              this.address, // contract owner
+              fetchReferrer(window), // referrer
+              this.cleanDescription, // collection description
+              this.cImage, // collection image
+              this.cName, // NFT name
+              this.cName, // collection name
+              this.cSymbol, // collection symbol
+              this.uniqueId, // unique ID to easily find the NFT contract address
+              parseEther(String(this.ratio)) // bonding curve ratio
+            ],
+            value: this.createPriceWei // price for creating collection
+          }
+
+          const hash = await this.writeData(launchpadContract)
+
+          toastWait = this.toast(
             {
               component: WaitingToast,
               props: {
@@ -348,22 +354,37 @@ export default {
             },
             {
               type: 'info',
-              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
             },
           )
 
-          const receipt = await tx.wait()
+          const receipt = await this.waitForTxReceipt(hash)
 
-          if (receipt.status === 1) {
+          if (receipt.status === 'success') {
             this.toast.dismiss(toastWait)
 
             this.toast('You have successfully created an NFT collection!', {
               type: 'success',
-              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
             })
 
             // after successful launch, fetch the collection address and redirect to the collection page
-            const nftContractAddress = await launchpadContract.getNftContractAddress(this.uniqueId)
+            const getNftContractAddressInterface = [
+              {
+                name: 'getNftContractAddress',
+                type: 'function',
+                stateMutability: 'view',
+                inputs: [{ name: '_uniqueId', type: 'string' }],
+                outputs: [{ name: '', type: 'address' }]
+              }
+            ]
+
+            const nftContractAddress = await this.readData({
+              address: this.$config.public.nftLaunchpadBondingAddress,
+              abi: getNftContractAddressInterface,
+              functionName: 'getNftContractAddress',
+              args: [this.uniqueId]
+            })
 
             this.$router.push({ path: '/nft/collection', query: { id: nftContractAddress } })
 
@@ -373,7 +394,7 @@ export default {
             this.waitingCreate = false
             this.toast('Transaction has failed.', {
               type: 'error',
-              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
             })
             console.log(receipt)
           }
@@ -381,8 +402,8 @@ export default {
           console.error(e)
 
           try {
-            let extractMessage = e.message.split('reason=')[1]
-            extractMessage = extractMessage.split(', method=')[0]
+            let extractMessage = e.message.split('Details:')[1]
+            extractMessage = extractMessage.split('Version: viem')[0]
             extractMessage = extractMessage.replace(/"/g, '')
             extractMessage = extractMessage.replace('execution reverted:', 'Error:')
 
@@ -394,6 +415,9 @@ export default {
           }
 
           this.waitingCreate = false
+        } finally {
+          this.toast.dismiss(toastWait)
+          this.waitingCreate = false
         }
       }
 
@@ -403,58 +427,88 @@ export default {
     async fetchData() {
       this.waitingData = true
 
-      // fetch provider from hardcoded RPCs
-      let provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
+      try {
+        // Create launchpad contract object for reading data
+        const launchpadInterface = [
+          {
+            name: 'paused',
+            type: 'function',
+            stateMutability: 'view',
+            inputs: [],
+            outputs: [{ name: '', type: 'bool' }]
+          },
+          {
+            name: 'isUniqueIdAvailable',
+            type: 'function',
+            stateMutability: 'view',
+            inputs: [{ name: '_uniqueId', type: 'string' }],
+            outputs: [{ name: '', type: 'bool' }]
+          },
+          {
+            name: 'price',
+            type: 'function',
+            stateMutability: 'view',
+            inputs: [],
+            outputs: [{ name: '', type: 'uint256' }]
+          }
+        ]
 
-      if (this.isActivated && this.chainId === this.$config.public.supportedChainId) {
-        // fetch provider from user's MetaMask
-        provider = this.signer
+        // check if paused
+        this.launchpadPaused = await this.readData({
+          address: this.$config.public.nftLaunchpadBondingAddress,
+          abi: launchpadInterface,
+          functionName: 'paused',
+          args: []
+        })
+
+        // generate unique ID and check if it's already been used
+        this.uniqueId = Math.random().toString(36).slice(2)
+
+        const isUniqueIdAvailable = await this.readData({
+          address: this.$config.public.nftLaunchpadBondingAddress,
+          abi: launchpadInterface,
+          functionName: 'isUniqueIdAvailable',
+          args: [this.uniqueId]
+        })
+
+        if (!isUniqueIdAvailable) {
+          this.uniqueId = Math.random().toString(36).slice(10)
+        }
+
+        // get price for creating collection
+        this.createPriceWei = await this.readData({
+          address: this.$config.public.nftLaunchpadBondingAddress,
+          abi: launchpadInterface,
+          functionName: 'price',
+          args: []
+        })
+
+        this.waitingData = false
+      } catch (error) {
+        console.error('Error fetching data:', error)
+        this.waitingData = false
       }
-
-      // create launchpad contract object
-      const launchpadInterface = new ethers.utils.Interface([
-        'function paused() public view returns(bool)',
-        'function isUniqueIdAvailable(string calldata _uniqueId) public view returns(bool)',
-        'function price() public view returns(uint256)',
-      ])
-
-      const launchpadContract = new ethers.Contract(
-        this.$config.public.nftLaunchpadBondingAddress,
-        launchpadInterface,
-        provider,
-      )
-
-      // check if paused
-      this.launchpadPaused = await launchpadContract.paused()
-
-      // generate unique ID and check if it's already been used
-      // Math.random().toString(36).slice(2);
-      this.uniqueId = Math.random().toString(36).slice(2)
-
-      const isUniqueIdAvailable = await launchpadContract.isUniqueIdAvailable(this.uniqueId)
-
-      if (!isUniqueIdAvailable) {
-        this.uniqueId = Math.random().toString(36).slice(10)
-      }
-
-      // get price for creating collection
-      this.createPriceWei = await launchpadContract.price()
-
-      this.waitingData = false
     },
 
     insertImage(imageUrl) {
       this.cImage = imageUrl.replace('?.img', '')
     },
-
   },
 
   setup() {
-    const { address, chainId, isActivated, signer } = useEthers()
-    const userStore = useUserStore()
+    const { address, chainId, isActivated } = useAccountData()
+    const { readData, writeData, waitForTxReceipt } = useWeb3()
     const toast = useToast()
 
-    return { address, chainId, isActivated, signer, toast, userStore }
+    return { 
+      address, 
+      chainId, 
+      isActivated, 
+      readData, 
+      writeData, 
+      waitForTxReceipt, 
+      toast 
+    }
   },
 }
 </script>

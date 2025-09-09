@@ -3,14 +3,11 @@
     <p class="text-center">
       Stake {{ $config.public.lpTokenSymbol }} to receive periodic staking rewards in {{ $config.public.tokenSymbol }} tokens (min
       deposit: {{ minDeposit }} {{ $config.public.lpTokenSymbol }}).
-      <NuxtLink to="/post/?id=kjzl6cwe1jw147gcaq8o17j668j1vol8v4z0vmv0ris1g5qyqvmrxbn0bpif8wh">
-        Learn more here.
-      </NuxtLink>
     </p>
 
     <!-- Input field -->
     <div class="input-group mt-5">
-      <button class="btn btn-primary" type="button" data-bs-toggle="dropdown" aria-expanded="false" disabled>
+      <button class="btn btn-primary" type="button" aria-expanded="false" disabled>
         {{ $config.public.lpTokenSymbol }}
       </button>
 
@@ -86,21 +83,21 @@
 </template>
 
 <script>
-import { ethers } from 'ethers'
-import { useEthers } from '~/store/ethers'
+import { parseUnits, formatUnits } from 'viem'
 import { useToast } from 'vue-toastification/dist/index.mjs'
-import WaitingToast from '~/components/WaitingToast'
-import AddLiquidity from '~/components/stake/AddLiquidity.vue'
-import { useUserStore } from '~/store/user'
+import WaitingToast from '@/components/WaitingToast.vue'
+import AddLiquidity from '@/components/stake/AddLiquidity.vue'
+import { useAccountData } from '@/composables/useAccountData'
+import { useWeb3 } from '@/composables/useWeb3'
 
 export default {
   name: 'StakingDeposit',
-  props: ['loadingStakingData', 'minDepositWei', 'maxDepositWei', 'lpTokenAllowanceWei', 'lpTokenDecimals'],
-  emits: ['clearClaimAmount', 'subtractBalance', 'updateAllowance'],
+  props: ['loadingStakingData', 'minDepositWei', 'maxDepositWei', 'lpTokenAllowanceWei'],
+  emits: ['clearClaimAmount', 'fetchLockedTimeLeft', 'updateAllowance'],
 
   data() {
     return {
-      allowanceWei: 0,
+      allowanceWei: BigInt(0),
       depositAmount: 0,
       waitingApproval: false,
       waitingDeposit: false,
@@ -112,20 +109,21 @@ export default {
   },
 
   mounted() {
-    this.allowanceWei = this.lpTokenAllowanceWei
+    this.allowanceWei = this.lpTokenAllowanceWei || BigInt(0)
+    this.fetchLpTokenBalance()
   },
 
   computed: {
     allowanceTooLow() {
-      return Number(this.allowanceWei) < Number(this.depositAmountWei)
+      return this.allowanceWei < this.depositAmountWei
     },
 
     depositAmountWei() {
       if (!this.depositAmount || Number(this.depositAmount) === 0) {
-        return 0
+        return BigInt(0)
       }
 
-      return ethers.utils.parseUnits(String(this.depositAmount), this.lpTokenDecimals)
+      return parseUnits(String(this.depositAmount), this.$config.public.lpTokenDecimals)
     },
 
     depositTooLow() {
@@ -133,11 +131,11 @@ export default {
         return true
       }
 
-      return Number(this.depositAmountWei) < Number(this.minDepositWei)
+      return this.depositAmountWei < (this.minDepositWei || BigInt(0))
     },
 
     lpTokenBalance() {
-      return ethers.utils.formatUnits(this.userStore.getLpTokenBalanceWei, this.lpTokenDecimals)
+      return formatUnits(this.getLpTokenBalanceWei(), this.$config.public.lpTokenDecimals)
     },
 
     minDeposit() {
@@ -150,25 +148,66 @@ export default {
         return 0
       }
 
-      return ethers.utils.formatEther(String(this.minDepositWei))
+      return formatUnits(this.minDepositWei, 18)
     },
   },
 
   methods: {
+    async fetchLpTokenBalance() {
+      if (this.address) {
+        try {
+          const contractConfig = {
+            address: this.$config.public.lpTokenAddress,
+            abi: [
+              {
+                name: 'balanceOf',
+                type: 'function',
+                stateMutability: 'view',
+                inputs: [{ name: 'account', type: 'address' }],
+                outputs: [{ name: '', type: 'uint256' }]
+              }
+            ],
+            functionName: 'balanceOf',
+            args: [this.address]
+          }
+
+          const result = await this.readData(contractConfig)
+          if (result !== null) {
+            this.setLpTokenBalanceWei(result)
+          }
+        } catch (error) {
+          console.error('Error fetching LP token balance:', error)
+        }
+      }
+    },
+
     async approveToken() {
       this.waitingApproval = true
 
-      // set up staking token
-      const lpTokenInterface = new ethers.utils.Interface([
-        'function approve(address spender, uint256 amount) public returns (bool)',
-      ])
-
-      const lpToken = new ethers.Contract(this.$config.public.lpTokenAddress, lpTokenInterface, this.signer)
+      let toastWait;
 
       try {
-        const tx = await lpToken.approve(this.$config.public.stakingContractAddress, this.depositAmountWei)
+        const contractConfig = {
+          address: this.$config.public.lpTokenAddress,
+          abi: [
+            {
+              name: 'approve',
+              type: 'function',
+              stateMutability: 'nonpayable',
+              inputs: [
+                { name: 'spender', type: 'address' },
+                { name: 'amount', type: 'uint256' }
+              ],
+              outputs: [{ name: '', type: 'bool' }]
+            }
+          ],
+          functionName: 'approve',
+          args: [this.$config.public.stakingContractAddress, this.depositAmountWei]
+        }
 
-        const toastWait = this.toast(
+        const hash = await this.writeData(contractConfig)
+
+        toastWait = this.toast(
           {
             component: WaitingToast,
             props: {
@@ -177,20 +216,20 @@ export default {
           },
           {
             type: 'info',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           },
         )
 
-        const receipt = await tx.wait()
+        const receipt = await this.waitForTxReceipt(hash)
 
-        if (receipt.status === 1) {
+        if (receipt.status === 'success') {
           this.$emit('updateAllowance', this.depositAmountWei)
 
           this.toast.dismiss(toastWait)
 
           this.toast('You have successfully approved tokens. Now proceed with staking!', {
             type: 'success',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           })
 
           this.waitingApproval = false
@@ -201,12 +240,26 @@ export default {
           this.waitingApproval = false
           this.toast('Transaction has failed.', {
             type: 'error',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           })
           console.log(receipt)
         }
       } catch (e) {
-        console.error(e)
+        try {
+          let extractMessage = e.message.split('Details:')[1]
+          extractMessage = extractMessage.split('Version: viem')[0]
+          extractMessage = extractMessage.replace(/"/g, "");
+          extractMessage = extractMessage.replace('execution reverted:', "Error:");
+
+          console.log(extractMessage);
+          
+          this.toast(extractMessage, {type: "error"});
+        } catch (e) {
+          this.toast("Transaction has failed.", {type: "error"});
+        }
+        this.waitingApproval = false
+      } finally {
+        this.toast.dismiss(toastWait)
         this.waitingApproval = false
       }
     },
@@ -214,21 +267,27 @@ export default {
     async deposit() {
       this.waitingDeposit = true
 
-      // set up staking contract
-      const stakingContractInterface = new ethers.utils.Interface([
-        'function deposit(uint256 _assets) external returns (uint256)',
-      ])
-
-      const stakingContract = new ethers.Contract(
-        this.$config.public.stakingContractAddress,
-        stakingContractInterface,
-        this.signer,
-      )
+      let toastWait;
 
       try {
-        const tx = await stakingContract.deposit(this.depositAmountWei)
+        const contractConfig = {
+          address: this.$config.public.stakingContractAddress,
+          abi: [
+            {
+              name: 'deposit',
+              type: 'function',
+              stateMutability: 'nonpayable',
+              inputs: [{ name: '_assets', type: 'uint256' }],
+              outputs: [{ name: '', type: 'uint256' }]
+            }
+          ],
+          functionName: 'deposit',
+          args: [this.depositAmountWei]
+        }
 
-        const toastWait = this.toast(
+        const hash = await this.writeData(contractConfig)
+
+        toastWait = this.toast(
           {
             component: WaitingToast,
             props: {
@@ -237,22 +296,34 @@ export default {
           },
           {
             type: 'info',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           },
         )
 
-        const receipt = await tx.wait()
+        const receipt = await this.waitForTxReceipt(hash)
 
-        if (receipt.status === 1) {
-          this.$emit('updateAllowance', 0) // reset allowance
-          this.$emit('subtractBalance', this.depositAmountWei)
+        if (receipt.status === 'success') {
+          this.$emit('updateAllowance', BigInt(0)) // reset allowance
+          
+          // Update LP token balance by subtracting the deposited amount
+          const currentLpBalance = this.getLpTokenBalanceWei()
+          this.setLpTokenBalanceWei(currentLpBalance - this.depositAmountWei)
+          
+          // Update Stake token balance by adding the deposited amount (1:1 ratio)
+          const currentStakeBalance = this.getStakeTokenBalanceWei()
+          this.setStakeTokenBalanceWei(currentStakeBalance + this.depositAmountWei)
+          
           this.$emit('clearClaimAmount') // clear claim amount in parent component
+          this.$emit('fetchLockedTimeLeft') // fetch locked time left in parent component
+
+          // reset deposit amount
+          this.depositAmount = 0
 
           this.toast.dismiss(toastWait)
 
           this.toast('You have successfully staked tokens!', {
             type: 'success',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           })
 
           this.waitingDeposit = false
@@ -261,13 +332,26 @@ export default {
           this.waitingDeposit = false
           this.toast('Transaction has failed.', {
             type: 'error',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           })
           console.log(receipt)
         }
       } catch (e) {
-        console.error(e)
-        this.toast(e.message, { type: 'error' })
+        try {
+          let extractMessage = e.message.split('Details:')[1]
+          extractMessage = extractMessage.split('Version: viem')[0]
+          extractMessage = extractMessage.replace(/"/g, "");
+          extractMessage = extractMessage.replace('execution reverted:', "Error:");
+
+          console.log(extractMessage);
+          
+          this.toast(extractMessage, {type: "error"});
+        } catch (e) {
+          this.toast("Transaction has failed.", {type: "error"});
+        }
+        this.waitingDeposit = false
+      } finally {
+        this.toast.dismiss(toastWait)
         this.waitingDeposit = false
       }
     },
@@ -278,20 +362,32 @@ export default {
   },
 
   setup() {
-    const { signer } = useEthers()
+    const { readData, writeData, waitForTxReceipt } = useWeb3()
+    const { 
+      address, 
+      getLpTokenBalanceWei, 
+      setLpTokenBalanceWei,
+      getStakeTokenBalanceWei,
+      setStakeTokenBalanceWei
+    } = useAccountData()
     const toast = useToast()
-    const userStore = useUserStore()
 
     return {
-      signer,
+      readData,
+      writeData,
+      waitForTxReceipt,
+      address,
       toast,
-      userStore,
+      getLpTokenBalanceWei,
+      setLpTokenBalanceWei,
+      getStakeTokenBalanceWei,
+      setStakeTokenBalanceWei,
     }
   },
 
   watch: {
     lpTokenAllowanceWei() {
-      this.allowanceWei = this.lpTokenAllowanceWei
+      this.allowanceWei = this.lpTokenAllowanceWei || BigInt(0)
     },
   },
 }

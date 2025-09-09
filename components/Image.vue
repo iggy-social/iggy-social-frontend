@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import { getWorkingUrl } from '~/utils/ipfsUtils'
+import { getWorkingUrl } from '@/utils/fileUtils'
 
 export default {
   name: 'Image',

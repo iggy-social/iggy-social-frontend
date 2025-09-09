@@ -45,6 +45,8 @@
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
   name: 'TenorStickerSearch',
   emits: ['insertSticker'],
@@ -80,8 +82,8 @@ export default {
         '&contentfilter=high' +
         '&media_filter=png,gif&random=true'
 
-      const response = await fetch(searchUrl)
-      const data = await response.json()
+      const response = await axios.get(searchUrl)
+      const data = response.data
 
       for (let i = 0; i < data.results.length; i++) {
         if (data.results[i]['media_formats']['png_transparent']) {

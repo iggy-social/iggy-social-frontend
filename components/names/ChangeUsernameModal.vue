@@ -2,9 +2,7 @@
   <div
     class="modal fade"
     id="changeUsernameModal"
-    tabindex="-1"
     aria-labelledby="changeUsernameModalLabel"
-    aria-hidden="true"
   >
     <div class="modal-dialog">
       <div class="modal-content">
@@ -16,6 +14,7 @@
             class="btn-close"
             data-bs-dismiss="modal"
             aria-label="Close"
+            @click="handleCloseClick"
           ></button>
         </div>
         <div class="modal-body">
@@ -50,13 +49,10 @@
 </template>
 
 <script>
-import { useEthers } from '~/store/ethers'
-import { ethers } from 'ethers'
 import { useToast } from 'vue-toastification/dist/index.mjs'
-import WaitingToast from '~/components/WaitingToast'
-import { useUserStore } from '~/store/user'
-import { getDomainName } from '~/utils/domainUtils'
-import { storeUsername } from '~/utils/storageUtils'
+import WaitingToast from '@/components/WaitingToast'
+import { getDomainHolder, getDomainName, validateDomainName } from '@/utils/domainUtils'
+import { storeUsername } from '@/utils/browserStorageUtils'
 
 export default {
   name: 'ChangeUsernameModal',
@@ -64,122 +60,54 @@ export default {
   data() {
     return {
       domainName: null,
+      fullDomainName: null,
       loading: false,
     }
   },
 
   computed: {
     domainNotValid() {
-      if (this.domainName === '') {
-        return { invalid: true, message: null }
-      } else if (this.domainName === null) {
-        return { invalid: true, message: null }
-      } else if (this.domainName.includes('.')) {
-        return { invalid: true, message: 'Dots not allowed' }
-      } else if (this.domainName.includes(' ')) {
-        return { invalid: true, message: 'Spaces not allowed' }
-      } else if (this.domainName.includes('%')) {
-        return { invalid: true, message: '% not allowed' }
-      } else if (this.domainName.includes('&')) {
-        return { invalid: true, message: '& not allowed' }
-      } else if (this.domainName.includes('?')) {
-        return { invalid: true, message: '? not allowed' }
-      } else if (this.domainName.includes('#')) {
-        return { invalid: true, message: '# not allowed' }
-      } else if (this.domainName.includes('/')) {
-        return { invalid: true, message: '/ not allowed' }
-      } else if (this.domainName.includes(',')) {
-        return { invalid: true, message: 'Comma not allowed' }
-      } else if (
-        this.domainName.includes('\\') ||
-        this.domainName.includes('­') ||
-        this.domainName.includes('	') ||
-        this.domainName.includes('͏') ||
-        this.domainName.includes('؜') ||
-        this.domainName.includes('܏') ||
-        this.domainName.includes('ᅟ') ||
-        this.domainName.includes('ᅠ') ||
-        this.domainName.includes(' ') ||
-        this.domainName.includes('឴') ||
-        this.domainName.includes('឵') ||
-        this.domainName.includes('᠎') ||
-        this.domainName.includes(' ') ||
-        this.domainName.includes(' ') ||
-        this.domainName.includes(' ') ||
-        this.domainName.includes(' ') ||
-        this.domainName.includes(' ') ||
-        this.domainName.includes(' ') ||
-        this.domainName.includes(' ') ||
-        this.domainName.includes(' ') ||
-        this.domainName.includes(' ') ||
-        this.domainName.includes(' ') ||
-        this.domainName.includes(' ') ||
-        this.domainName.includes('​') ||
-        this.domainName.includes('‌') ||
-        this.domainName.includes('‍') ||
-        this.domainName.includes('‎') ||
-        this.domainName.includes('‏') ||
-        this.domainName.includes(' ') ||
-        this.domainName.includes(' ') ||
-        this.domainName.includes('⁠') ||
-        this.domainName.includes('⁡') ||
-        this.domainName.includes('⁢') ||
-        this.domainName.includes('⁣') ||
-        this.domainName.includes('⁤') ||
-        this.domainName.includes('⁪') ||
-        this.domainName.includes('⁫') ||
-        this.domainName.includes('⁬') ||
-        this.domainName.includes('⁭') ||
-        this.domainName.includes('⁮') ||
-        this.domainName.includes('⁯') ||
-        this.domainName.includes('　') ||
-        this.domainName.includes('⠀') ||
-        this.domainName.includes('ㅤ') ||
-        this.domainName.includes('ﾠ') ||
-        this.domainName.includes('𑂱') ||
-        this.domainName.includes('𛲠') ||
-        this.domainName.includes('𛲡') ||
-        this.domainName.includes('𛲢') ||
-        this.domainName.includes('𛲣') ||
-        this.domainName.includes('𝅙') ||
-        this.domainName.includes('𝅳') ||
-        this.domainName.includes('𝅴') ||
-        this.domainName.includes('𝅵') ||
-        this.domainName.includes('𝅶') ||
-        this.domainName.includes('𝅷') ||
-        this.domainName.includes('𝅸') ||
-        this.domainName.includes('𝅹') ||
-        this.domainName.includes('𝅺') ||
-        this.domainName.includes('') ||
-        this.domainName.includes('') ||
-        this.domainName.includes('')
-      ) {
-        return { invalid: true, message: 'This character is not allowed' }
-      }
-
-      return { invalid: false, message: 'Domain name is valid' }
+      return validateDomainName(this.domainName)
     },
   },
 
   methods: {
-    getDomainName,
-
     async changeUsername() {
       this.loading = true
+      this.fullDomainName = this.domainName + this.$config.public.tldName
 
       if (this.isActivated && !this.domainNotValid.invalid) {
-        const tldInterface = new ethers.utils.Interface([
-          'function editDefaultDomain(string calldata _domainName) external',
-        ])
+        // check if the domain is owned by the user
+        const domainHolder = await getDomainHolder(this.domainName)
+        if (String(domainHolder).toLowerCase() !== String(this.address).toLowerCase()) {
+          this.toast('You do not own this domain.', { type: 'error' })
+          this.loading = false
+          return
+        }
 
-        const tldContract = new ethers.Contract(this.$config.public.punkTldAddress, tldInterface, this.signer)
+        // TLD contract ABI for editDefaultDomain function
+        const tldAbi = [
+          {
+            inputs: [{ name: '_domainName', type: 'string' }],
+            name: 'editDefaultDomain',
+            outputs: [],
+            stateMutability: 'nonpayable',
+            type: 'function'
+          }
+        ]
+
+        let toastWait;
 
         try {
-          const tx = await tldContract.editDefaultDomain(
-            this.domainName.toLowerCase(), // domain name
-          )
+          // Call the contract using writeData from useWeb3
+          const hash = await this.writeData({
+            address: this.$config.public.punkTldAddress,
+            abi: tldAbi,
+            functionName: 'editDefaultDomain',
+            args: [this.domainName.toLowerCase()] // domain name
+          })
 
-          const toastWait = this.toast(
+          toastWait = this.toast(
             {
               component: WaitingToast,
               props: {
@@ -188,18 +116,19 @@ export default {
             },
             {
               type: 'info',
-              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
             },
           )
 
-          const receipt = await tx.wait()
+          // Wait for transaction receipt using waitForTxReceipt from useWeb3
+          const receipt = await this.waitForTxReceipt(hash)
 
-          if (receipt.status === 1) {
+          if (receipt.status === 'success') {
             this.toast.dismiss(toastWait)
             this.fetchUserDomain() // update the main username in this app
             this.toast('You have successfully changed your username!', {
               type: 'success',
-              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
             })
             this.loading = false
             document.getElementById('closeChangeUsernameModal').click()
@@ -207,47 +136,71 @@ export default {
             this.toast.dismiss(toastWait)
             this.toast('Transaction has failed.', {
               type: 'error',
-              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
             })
             this.loading = false
             console.log(receipt)
           }
         } catch (e) {
-          console.log('error: ' + e)
-          this.toast('Error: ' + e, { type: 'error' })
+          try {
+            let extractMessage = e.message.split('Details:')[1]
+            extractMessage = extractMessage.split('Version: viem')[0]
+            extractMessage = extractMessage.replace(/"/g, "");
+            extractMessage = extractMessage.replace('execution reverted:', "Error:");
+
+            console.log(extractMessage);
+            
+            this.toast(extractMessage, {type: "error"});
+          } catch (e) {
+            this.toast("Transaction has failed.", {type: "error"});
+          }
           this.loading = false
           return
+        } finally {
+        this.toast.dismiss(toastWait)
+        this.loading = false
         }
       }
     },
 
     async fetchUserDomain() {
-      if (this.isActivated) {
-        let userDomain
+      // Use the composable to set the domain name
+      this.setDomainName(this.fullDomainName)
+      storeUsername(window, this.address, this.fullDomainName)
+    },
 
-        if (this.signer) {
-          userDomain = await this.getDomainName(this.address, this.signer)
-        } else {
-          const provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
-          userDomain = await this.getDomainName(this.address, provider)
-        }
-
-        if (userDomain) {
-          this.userStore.setDefaultDomain(userDomain + this.$config.public.tldName)
-          storeUsername(window, this.address, userDomain + this.$config.public.tldName)
-        } else {
-          this.userStore.setDefaultDomain(null)
-        }
+    handleCloseClick() {
+      // Remove focus from the close button to prevent aria-hidden warning
+      const closeButton = document.getElementById('closeChangeUsernameModal')
+      if (closeButton) {
+        closeButton.blur()
       }
     },
   },
 
   setup() {
-    const { address, isActivated, signer } = useEthers()
     const toast = useToast()
-    const userStore = useUserStore()
+    
+    // Use the composables
+    const { 
+      address, 
+      isActivated, 
+      setDomainName 
+    } = useAccountData()
+    
+    const { 
+      writeData, 
+      waitForTxReceipt 
+    } = useWeb3()
 
-    return { address, isActivated, signer, toast, userStore }
+    return { 
+      address, 
+      isActivated, 
+      toast, 
+      setDomainName,
+      writeData,
+      waitForTxReceipt
+    }
   },
 }
 </script>

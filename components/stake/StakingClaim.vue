@@ -7,7 +7,7 @@
 
     <!-- Input field -->
     <div class="input-group mt-5">
-      <button class="btn btn-primary" type="button" data-bs-toggle="dropdown" aria-expanded="false" disabled>
+      <button class="btn btn-primary" type="button" aria-expanded="false" disabled>
         {{ $config.public.tokenSymbol }}
       </button>
 
@@ -66,28 +66,16 @@
     <p>
       <small> Important: Claim your rewards once per week, otherwise they will be forfeited. </small>
     </p>
-
-    <!-- START @TODO: check if needed 
-    <GenericNftDrop 
-      title="Claim the NFT for Early Stakers" 
-      description="Early stakers can claim this free commemorative NFT. One NFT per address. Hurry up, limited time only!"
-      :claimersData="claimers" 
-      merkleClaimerAddress="0x484cCFE329E4dbdB0C594d2401400D4Df3AaeDE9" 
-      nftImage="https://bafybeic3fpbvtqj6kqpu77vy56efkasgbaviguc3qm4jgy3dy7fuk7fire.ipfs.w3s.link/early-staker-nft-sgb-chat.png"
-    /> -->
-    <!-- // END @TODO: check if needed -->
   </div>
 </template>
 
 <script>
-import { ethers } from 'ethers'
-import { useEthers } from '~/store/ethers'
+import { formatEther } from 'viem'
 import { useToast } from 'vue-toastification/dist/index.mjs'
-import WaitingToast from '~/components/WaitingToast'
-import { useUserStore } from '~/store/user'
-import { getLessDecimals } from '~/utils/numberUtils'
-import GenericNftDrop from '~/components/merkle/genericNftDrop' // @TODO: check if needed
-import earlyStakers from '~/assets/merkle/earlyStakers.json' // @TODO: check if needed
+import WaitingToast from '@/components/WaitingToast'
+import { getLessDecimals } from '@/utils/numberUtils'
+import { useWeb3 } from '@/composables/useWeb3'
+import { useAccountData } from '@/composables/useAccountData'
 
 export default {
   name: 'StakingClaim',
@@ -110,12 +98,7 @@ export default {
   },
 
   components: {
-    GenericNftDrop, // @TODO: check if needed
     WaitingToast,
-  },
-
-  created() {
-    this.claimers = earlyStakers // @TODO: check if needed
   },
 
   computed: {
@@ -129,7 +112,7 @@ export default {
         return 0
       }
 
-      return ethers.utils.formatEther(String(this.claimAmountWei))
+      return formatEther(BigInt(this.claimAmountWei))
     },
 
     claimRewardsTotal() {
@@ -142,7 +125,7 @@ export default {
         return 0
       }
 
-      return ethers.utils.formatEther(String(this.claimRewardsTotalWei))
+      return formatEther(BigInt(this.claimRewardsTotalWei))
     },
 
     futureRewards() {
@@ -155,7 +138,7 @@ export default {
         return 0
       }
 
-      return ethers.utils.formatEther(String(this.futureRewardsWei))
+      return formatEther(BigInt(this.futureRewardsWei))
     },
 
     lastPeriodDateTime() {
@@ -165,23 +148,30 @@ export default {
         this.lastClaimPeriod === '' ||
         this.lastClaimPeriod == 0
       ) {
-        return null
+        return 'Not available'
       }
 
-      const d = new Date(this.lastClaimPeriod * 1000)
-      const month = new Intl.DateTimeFormat('en', { month: 'short' }).format(d)
+      try {
+        // Convert to number to ensure consistent type handling
+        const lastClaimPeriodNum = Number(this.lastClaimPeriod)
+        const d = new Date(lastClaimPeriodNum * 1000)
+        const month = new Intl.DateTimeFormat('en', { month: 'short' }).format(d)
 
-      return (
-        d.getDate() +
-        ' ' +
-        month +
-        ' ' +
-        d.getFullYear() +
-        ' ' +
-        d.getHours() +
-        ':' +
-        d.getMinutes().toString().padStart(2, '0')
-      )
+        return (
+          d.getDate() +
+          ' ' +
+          month +
+          ' ' +
+          d.getFullYear() +
+          ' ' +
+          d.getHours() +
+          ':' +
+          d.getMinutes().toString().padStart(2, '0')
+        )
+      } catch (error) {
+        console.error('Error formatting lastPeriodDateTime:', error)
+        return 'Invalid date'
+      }
     },
 
     lastPeriodUpdateNeeded() {
@@ -189,19 +179,31 @@ export default {
         this.lastClaimPeriod === null ||
         this.lastClaimPeriod === undefined ||
         this.lastClaimPeriod === '' ||
-        this.lastClaimPeriod == 0
+        this.lastClaimPeriod == 0 ||
+        this.periodLength === null ||
+        this.periodLength === undefined ||
+        this.periodLength === '' ||
+        this.periodLength == 0
       ) {
         return false
       }
 
-      const now = Math.floor(Date.now() / 1000)
+      try {
+        // Convert all values to numbers to ensure consistent type handling
+        const lastClaimPeriodNum = Number(this.lastClaimPeriod)
+        const periodLengthNum = Number(this.periodLength)
+        const now = Math.floor(Date.now() / 1000)
 
-      if (now - (Number(this.lastClaimPeriod) + Number(this.periodLength)) > 0) {
-        // last claim period is more than the period length ago, so we need to update the claim period
-        return true
+        if (now - (lastClaimPeriodNum + periodLengthNum) > 0) {
+          // last claim period is more than the period length ago, so we need to update the claim period
+          return true
+        }
+
+        return false
+      } catch (error) {
+        console.error('Error calculating lastPeriodUpdateNeeded:', error)
+        return false
       }
-
-      return false
     },
 
     minDeposit() {
@@ -214,7 +216,7 @@ export default {
         return 0
       }
 
-      return ethers.utils.formatEther(String(this.minDepositWei))
+      return formatEther(BigInt(this.minDepositWei))
     },
 
     periodLengthHumanReadable() {
@@ -249,7 +251,9 @@ export default {
     },
 
     stakeTokenBalance() {
-      return ethers.utils.formatEther(this.userStore.getStakeTokenBalanceWei)
+      // This would need to be passed as a prop from the parent component
+      // For now, returning 0 as placeholder
+      return 0
     },
   },
 
@@ -257,21 +261,35 @@ export default {
     async claim() {
       this.waiting = true
 
-      // set up staking contract
-      const stakingContractInterface = new ethers.utils.Interface([
-        'function claimRewards() external returns (uint256)',
-      ])
-
-      const stakingContract = new ethers.Contract(
-        this.$config.public.stakingContractAddress,
-        stakingContractInterface,
-        this.signer,
-      )
+      let toastWait;
 
       try {
-        const tx = await stakingContract.claimRewards()
+        // Set up staking contract configuration
+        const stakingContractConfig = {
+          address: this.$config.public.stakingContractAddress,
+          abi: [
+            {
+              name: 'claimRewards',
+              type: 'function',
+              stateMutability: 'nonpayable',
+              inputs: [],
+              outputs: [
+                {
+                  name: '',
+                  type: 'uint256',
+                  internalType: 'uint256'
+                }
+              ]
+            }
+          ],
+          functionName: 'claimRewards',
+          args: []
+        }
 
-        const toastWait = this.toast(
+        // Write the transaction
+        const hash = await this.writeData(stakingContractConfig)
+
+        toastWait = this.toast(
           {
             component: WaitingToast,
             props: {
@@ -280,13 +298,14 @@ export default {
           },
           {
             type: 'info',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           },
         )
 
-        const receipt = await tx.wait()
+        // Wait for transaction receipt
+        const receipt = await this.waitForTxReceipt(hash)
 
-        if (receipt.status === 1) {
+        if (receipt.status === 'success') {
           this.$emit('clearClaimAmount') // clear claim amount in parent component
           this.$emit('updateLastClaimPeriod') // update last claim period in parent component
 
@@ -294,7 +313,7 @@ export default {
 
           this.toast('You have successfully claimed rewards!', {
             type: 'success',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           })
 
           this.waiting = false
@@ -303,28 +322,43 @@ export default {
           this.waiting = false
           this.toast('Transaction has failed.', {
             type: 'error',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           })
           console.log(receipt)
         }
       } catch (e) {
-        console.error(e)
-        this.toast(e.message, { type: 'error' })
+        try {
+          let extractMessage = e.message.split('Details:')[1]
+          extractMessage = extractMessage.split('Version: viem')[0]
+          extractMessage = extractMessage.replace(/"/g, "");
+          extractMessage = extractMessage.replace('execution reverted:', "Error:");
+
+          console.log(extractMessage);
+          
+          this.toast(extractMessage, {type: "error"});
+        } catch (e) {
+          this.toast("Transaction has failed.", {type: "error"});
+        }
+        this.waiting = false
+      } finally {
+        this.toast.dismiss(toastWait)
         this.waiting = false
       }
     },
   },
 
   setup() {
-    const { address, signer } = useEthers()
+    const { writeData, waitForTxReceipt } = useWeb3()
+    const { address, chainId, isActivated } = useAccountData()
     const toast = useToast()
-    const userStore = useUserStore()
 
     return {
       address,
-      signer,
+      chainId,
+      isActivated,
       toast,
-      userStore,
+      writeData,
+      waitForTxReceipt,
     }
   },
 }

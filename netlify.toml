@@ -1,3 +1,15 @@
 [build]
   publish = "dist"
   command = "npm run generate"
+
+[context.development]
+  command = "node check-node-version.js && npm run dev"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[functions]
+  node_bundler = "esbuild"
+  external_node_modules = ["arweave", "axios", "buffer", "imagekit"]
+  [functions.node_version]
+    node_version = "22"

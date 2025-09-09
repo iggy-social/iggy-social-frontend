@@ -76,15 +76,16 @@
 
 <script>
 import axios from 'axios';
-import { ethers } from 'ethers';
-import { useEthers } from 'vue-dapp';
+import { isAddress, parseAbi } from 'viem';
 import { useToast } from "vue-toastification/dist/index.mjs";
-import WaitingToast from "~/components/WaitingToast";
-import { hasTextBlankCharacters } from '~/utils/textUtils';
+import { useWeb3 } from '@/composables/useWeb3'
+import { useAccountData } from '@/composables/useAccountData'
+import WaitingToast from "@/components/WaitingToast";
+import { hasTextBlankCharacters } from '@/utils/textUtils';
 
 export default {
   name: 'SendNftModal',
-  props: ["address", "cAddress", "signer"],
+  props: ["address", "cAddress"],
 
   data() {
     return {
@@ -122,14 +123,21 @@ export default {
       console.log("NFT contract address: ", this.cAddress);
 
       if (this.cAddress && this.address) {
-        const nftInterface = new ethers.utils.Interface([
+        const nftAbi = parseAbi([
           "function tokenOfOwnerByIndex(address owner, uint256 index) public view returns (uint256)"
         ]);
 
-        const nftContract = new ethers.Contract(this.cAddress, nftInterface, this.signer);
-
         try {
-          this.tokenId = await nftContract.tokenOfOwnerByIndex(this.address, 0); // get user's NFT if it exists
+          const result = await this.readData({
+            address: this.cAddress,
+            abi: nftAbi,
+            functionName: 'tokenOfOwnerByIndex',
+            args: [this.address, 0n] // get user's NFT if it exists
+          });
+          
+          if (result) {
+            this.tokenId = result.toString();
+          }
         } catch (e) {
           console.log("Could not fetch NFT ID for user.");
         }
@@ -142,15 +150,19 @@ export default {
       // get NFT metadata from tokenURI
       this.waiting = true;
 
-      const nftInterface = new ethers.utils.Interface([
+      const nftAbi = parseAbi([
         "function ownerOf(uint256 tokenId) external view returns (address)",
         "function tokenURI(uint256 tokenId) external view returns (string)"
       ]);
 
       try {
-        const nftContract = new ethers.Contract(this.cAddress, nftInterface, this.signer);
-
-        const holder = await nftContract.ownerOf(this.tokenId);
+        // Check ownership first
+        const holder = await this.readData({
+          address: this.cAddress,
+          abi: nftAbi,
+          functionName: 'ownerOf',
+          args: [BigInt(this.tokenId)]
+        });
 
         console.log("NFT holder: ", holder);
 
@@ -160,7 +172,13 @@ export default {
           return;
         }
 
-        let tokenURI = await nftContract.tokenURI(this.tokenId);
+        // Get token URI
+        let tokenURI = await this.readData({
+          address: this.cAddress,
+          abi: nftAbi,
+          functionName: 'tokenURI',
+          args: [BigInt(this.tokenId)]
+        });
 
         if (tokenURI.startsWith("ipfs://")) {
           tokenURI = tokenURI.replace("ipfs://", this.$config.public.ipfsGateway);
@@ -199,26 +217,26 @@ export default {
 
     async processRecipient(recipient) {
       if (recipient) {
-        if (ethers.utils.isAddress(recipient)) {
+        if (isAddress(recipient)) {
           this.recipientAddress = recipient;
         } else {
           const domainName = String(recipient).trim().toLowerCase().replace(this.$config.public.tldName, "");
 
-          // fetch provider from hardcoded RPCs
-          let provider = this.$getFallbackProvider(this.$config.public.supportedChainId);
-
-          if (this.isActivated && this.chainId === this.$config.public.supportedChainId) {
-            // fetch provider from user's MetaMask
-            provider = this.signer;
-          }
-
-          const tldInterface = new ethers.utils.Interface([
+          const tldAbi = parseAbi([
             "function getDomainHolder(string) view returns (address)"
           ]);
 
-          const tldContract = new ethers.Contract(this.$config.public.punkTldAddress, tldInterface, provider);
-
-          this.recipientAddress = await tldContract.getDomainHolder(domainName);
+          try {
+            this.recipientAddress = await this.readData({
+              address: this.$config.public.punkTldAddress,
+              abi: tldAbi,
+              functionName: 'getDomainHolder',
+              args: [domainName]
+            });
+          } catch (error) {
+            console.error("Error fetching domain holder:", error);
+            this.toast("Could not resolve domain name to address.", {type: "error"});
+          }
         }
       }
     },
@@ -228,16 +246,27 @@ export default {
 
       await this.processRecipient(this.recipientInput);
 
-      const nftInterface = new ethers.utils.Interface([
+      if (!this.recipientAddress) {
+        this.toast("Could not resolve recipient address.", {type: "error"});
+        this.waiting = false;
+        return;
+      }
+
+      const nftAbi = parseAbi([
         "function transferFrom(address from, address to, uint256 tokenId) external"
       ]);
+
+      let toastWait;
       
-      const nftContract = new ethers.Contract(this.cAddress, nftInterface, this.signer);
-
       try {
-        const tx = await nftContract.transferFrom(this.address, this.recipientAddress, this.tokenId);
+        const hash = await this.writeData({
+          address: this.cAddress,
+          abi: nftAbi,
+          functionName: 'transferFrom',
+          args: [this.address, this.recipientAddress, BigInt(this.tokenId)]
+        });
 
-        const toastWait = this.toast(
+        toastWait = this.toast(
           {
             component: WaitingToast,
             props: {
@@ -246,18 +275,18 @@ export default {
           },
           {
             type: "info",
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl+"/tx/"+hash, '_blank').focus()
           }
         );
 
-        const receipt = await tx.wait();
+        const receipt = await this.waitForTxReceipt(hash);
 
-        if (receipt.status === 1) {
+        if (receipt.status === 'success') {
           this.toast.dismiss(toastWait);
 
           this.toast("You have successfully transferred the NFT.", {
             type: "success",
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl+"/tx/"+hash, '_blank').focus()
           });
 
           this.recipientAddress = null;
@@ -274,7 +303,7 @@ export default {
           this.waiting = false;
           this.toast("Transaction has failed.", {
             type: "error",
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl+"/tx/"+hash, '_blank').focus()
           });
           console.log(receipt);
         }
@@ -282,8 +311,8 @@ export default {
         console.error(e);
 
         try {
-          let extractMessage = e.message.split("reason=")[1];
-          extractMessage = extractMessage.split(", method=")[0];
+          let extractMessage = e.message.split('Details:')[1]
+          extractMessage = extractMessage.split('Version: viem')[0]
           extractMessage = extractMessage.replace(/"/g, "");
           extractMessage = extractMessage.replace('execution reverted:', "Error:");
 
@@ -295,15 +324,27 @@ export default {
         }
 
         this.waiting = false;
+      } finally {
+        this.toast.dismiss(toastWait)
+        this.waiting = false
       }
     },
   },
 
   setup() {
-    const { chainId, isActivated } = useEthers();
+    const { readData, writeData, waitForTxReceipt } = useWeb3();
+    const { address, chainId, isActivated } = useAccountData();
     const toast = useToast();
 
-    return { chainId, isActivated, toast };
+    return { 
+      readData, 
+      writeData, 
+      waitForTxReceipt,
+      address, 
+      chainId, 
+      isActivated, 
+      toast 
+    };
   },
 
   watch: {

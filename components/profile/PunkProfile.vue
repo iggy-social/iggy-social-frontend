@@ -21,7 +21,10 @@
               {{ getTextWithoutBlankCharacters(domain) }}
             </h3>
             <h3 v-if="domain && isCurrentUser" class="mb-3">
-              {{ getTextWithoutBlankCharacters(userStore.getDefaultDomain) }}
+              {{ getTextWithoutBlankCharacters(domainName) }}
+            </h3>
+            <h3 v-if="!domain && address" class="mb-3">
+              {{ shortAddress }}
             </h3>
 
             <!-- Data -->
@@ -146,16 +149,17 @@
 </template>
 
 <script>
-import { useEthers, shortenAddress } from '~/store/ethers'
-import { ethers } from 'ethers'
-import { useUserStore } from '~/store/user'
+import { formatEther, formatUnits } from 'viem'
+import { useAccountData } from '@/composables/useAccountData'
+import { useWeb3 } from '@/composables/useWeb3'
 import { useToast } from 'vue-toastification/dist/index.mjs'
-import ChangePfpModal from '~/components/profile/ChangePfpModal.vue'
-import ProfileImage from '~/components/profile/ProfileImage.vue'
-import { getActivityPoints } from '~/utils/balanceUtils'
-import { getDomainName, getDomainHolder } from '~/utils/domainUtils'
-import { fetchUsername, storeData, storeUsername } from '~/utils/storageUtils'
-import { getTextWithoutBlankCharacters } from '~/utils/textUtils'
+import ChangePfpModal from '@/components/profile/ChangePfpModal.vue'
+import ProfileImage from '@/components/profile/ProfileImage.vue'
+import { getActivityPoints } from '@/utils/balanceUtils'
+import { getDomainName, getDomainHolder } from '@/utils/domainUtils'
+import { fetchUsername, storeData, storeUsername } from '@/utils/browserStorageUtils'
+import { getTextWithoutBlankCharacters } from '@/utils/textUtils'
+import { getLessDecimals } from '@/utils/numberUtils'
 
 export default {
   name: 'PunkProfile',
@@ -164,12 +168,12 @@ export default {
   data() {
     return {
       balanceAp: 0,
-      balanceChatTokenWei: 0,
+      balanceChatTokenWei: BigInt(0),
       domain: this.pDomain,
       newEmail: null,
       newImageLink: null,
       uAddress: this.pAddress,
-      uBalance: 0,
+      uBalance: BigInt(0),
       waitingDataLoad: false,
       waitingImageUpdate: false,
     }
@@ -189,23 +193,11 @@ export default {
 
   computed: {
     balanceChatToken() {
-      const bal = ethers.utils.formatEther(this.balanceChatTokenWei)
-
-      if (bal >= 0) {
-        return Math.floor(Number(bal))
-      } else {
-        return Number(bal).toFixed(4)
-      }
+      return getLessDecimals(formatUnits(this.balanceChatTokenWei, 18))
     },
 
     balanceEth() {
-      const bal = ethers.utils.formatEther(this.uBalance)
-
-      if (bal > 0) {
-        return Number(bal).toFixed(2)
-      } else {
-        return Number(bal).toFixed(4)
-      }
+      return getLessDecimals(formatEther(this.uBalance))
     },
 
     isCurrentUser() {
@@ -219,6 +211,10 @@ export default {
 
       return String(this.domain).replace(this.$config.public.tldName, "")
     },
+
+    shortAddress() {
+      return this.address ? this.shortenAddress(this.address) : ''
+    }
   },
 
   methods: {
@@ -249,17 +245,9 @@ export default {
         this.domain = fetchUsername(window, this.uAddress)
       }
 
-      // set contract
-      let provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
-
-      if (this.isActivated && this.chainId === this.$config.public.supportedChainId) {
-        // fetch provider from user's wallet
-        provider = this.signer
-      }
-
       // if domain is not provided, then fetch it
       if (!this.domain && this.uAddress) {
-        const domainName = await getDomainName(this.uAddress, provider)
+        const domainName = await getDomainName(this.uAddress, window)
 
         if (domainName) {
           this.domain = String(domainName).replace(this.$config.public.tldName, "") + this.$config.public.tldName
@@ -268,9 +256,9 @@ export default {
       }
 
       if (this.domain && !this.uAddress) {
-        const domainHolder = await getDomainHolder(String(this.domain).toLowerCase().split('.')[0], provider)
+        const domainHolder = await getDomainHolder(String(this.domain).toLowerCase().split('.')[0])
 
-        if (domainHolder !== ethers.constants.AddressZero) {
+        if (domainHolder && domainHolder !== '0x0000000000000000000000000000000000000000') {
           this.uAddress = domainHolder
         }
 
@@ -283,23 +271,37 @@ export default {
 
     async fetchBalance() {
       if (this.uAddress) {
-        let provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
-
         // fetch balance of an address
-        this.uBalance = await provider.getBalance(this.uAddress)
+        this.uBalance = await this.getNativeCoinBalanceWei(this.uAddress)
 
         if (this.$config.public.chatTokenAddress) {
           // fetch chat balance
-          const chatTokenInterface = new ethers.utils.Interface(['function balanceOf(address owner) view returns (uint256)'])
+          const chatTokenContractConfig = {
+            address: this.$config.public.chatTokenAddress,
+            abi: [
+              {
+                constant: true,
+                inputs: [{ name: 'owner', type: 'address' }],
+                name: 'balanceOf',
+                outputs: [{ name: '', type: 'uint256' }],
+                payable: false,
+                stateMutability: 'view',
+                type: 'function'
+              }
+            ],
+            functionName: 'balanceOf',
+            args: [this.uAddress]
+          }
 
-          const chatTokenContract = new ethers.Contract(this.$config.public.chatTokenAddress, chatTokenInterface, provider)
-
-          this.balanceChatTokenWei = await chatTokenContract.balanceOf(this.uAddress)
+          const result = await this.readData(chatTokenContractConfig)
+          if (result) {
+            this.balanceChatTokenWei = result
+          }
         }
 
         // fetch activity points balance
         if (this.$config.public.activityPointsAddress && this.$config.public.showFeatures.activityPoints) {
-          this.balanceAp = await getActivityPoints(this.uAddress, provider);
+          this.balanceAp = await getActivityPoints(this.uAddress)
         }
       }
     },
@@ -314,11 +316,18 @@ export default {
   },
 
   setup() {
-    const { address, balance, chainId, isActivated, signer } = useEthers()
-    const userStore = useUserStore()
+    const { address, domainName, shortenAddress } = useAccountData()
+    const { getNativeCoinBalanceWei, readData } = useWeb3()
     const toast = useToast()
 
-    return { address, balance, chainId, isActivated, userStore, shortenAddress, signer, toast }
+    return { 
+      address, 
+      domainName, 
+      shortenAddress,
+      getNativeCoinBalanceWei,
+      readData,
+      toast
+    }
   },
 
   watch: {

@@ -51,7 +51,7 @@
     <!-- BUTTONS -->
     <div class="d-flex justify-content-center mt-4">
       <!-- Connect Wallet button -->
-      <ConnectWalletButton v-if="!isActivated" class="btn btn-outline-primary" btnText="Connect wallet" />
+      <ConnectWalletButton v-if="!isActivated" customClass="btn-outline-primary" btnText="Connect wallet" />
 
       <!-- Disabled Send tokens button (if not input amount is entered) -->
       <button
@@ -100,15 +100,16 @@
 </template>
 
 <script>
-import { ethers } from 'ethers'
-import { useEthers } from '~/store/ethers'
+import { isAddress, parseUnits, zeroAddress } from 'viem'
+import { useAccountData } from '@/composables/useAccountData'
+import { useWeb3 } from '@/composables/useWeb3'
 import { useToast } from 'vue-toastification/dist/index.mjs'
-import { getTokenBalance } from '~/utils/balanceUtils'
-import { hasTextBlankCharacters } from '~/utils/textUtils'
-import WaitingToast from '~/components/WaitingToast'
-import ConnectWalletButton from '~/components/ConnectWalletButton.vue'
-import SwitchChainButton from '~/components/SwitchChainButton.vue'
-import Erc20Abi from '~/assets/abi/Erc20Abi.json'
+import { getTokenBalance } from '@/utils/balanceUtils'
+import { hasTextBlankCharacters } from '@/utils/textUtils'
+import WaitingToast from '@/components/WaitingToast'
+import ConnectWalletButton from '@/components/connect/ConnectWalletButton.vue'
+import SwitchChainButton from '@/components/connect/SwitchChainButton.vue'
+import Erc20Abi from '@/data/abi/Erc20Abi.json'
 
 export default {
   name: 'SendTokensComponent',
@@ -131,6 +132,7 @@ export default {
   components: {
     ConnectWalletButton,
     SwitchChainButton,
+    WaitingToast,
   },
 
   mounted() {
@@ -154,9 +156,9 @@ export default {
         if (this.inputTokenBalance == 0) {
           return 0
         } else if (this.inputTokenBalance > 100) {
-          return Number(this.inputTokenBalance).toFixed(2)
+          return Number.parseFloat(Number(this.inputTokenBalance).toFixed(2))
         } else {
-          return Number(this.inputTokenBalance).toFixed(4)
+          return Number.parseFloat(Number(this.inputTokenBalance).toFixed(8))
         }
       }
 
@@ -191,24 +193,31 @@ export default {
 
     async processRecipient(recipient) {
       if (recipient) {
-        if (ethers.utils.isAddress(recipient)) {
+        if (isAddress(recipient)) {
           this.recipientAddress = recipient
         } else {
           const domainName = String(recipient).trim().toLowerCase().replace(this.$config.public.tldName, '')
 
-          // fetch provider from hardcoded RPCs
-          let provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
-
-          if (this.isActivated && this.chainId === this.$config.public.supportedChainId) {
-            // fetch provider from user's MetaMask
-            provider = this.signer
+          // Create contract config for TLD contract
+          const tldContractConfig = {
+            address: this.$config.public.punkTldAddress,
+            abi: [{ 
+              name: 'getDomainHolder', 
+              type: 'function', 
+              stateMutability: 'view', 
+              inputs: [{ name: 'domain', type: 'string' }], 
+              outputs: [{ name: '', type: 'address' }] 
+            }],
+            functionName: 'getDomainHolder',
+            args: [domainName]
           }
 
-          const tldInterface = new ethers.utils.Interface(['function getDomainHolder(string) view returns (address)'])
-
-          const tldContract = new ethers.Contract(this.$config.public.punkTldAddress, tldInterface, provider)
-
-          this.recipientAddress = await tldContract.getDomainHolder(domainName)
+          try {
+            this.recipientAddress = await this.readData(tldContractConfig)
+          } catch (error) {
+            console.error('Error fetching domain holder:', error)
+            this.recipientAddress = null
+          }
         }
       }
     },
@@ -217,8 +226,27 @@ export default {
       this.inputToken = token
       this.inputTokenAmount = null
 
-      if (this.signer) {
-        this.inputTokenBalance = await this.getTokenBalance(token, this.address, this.signer)
+      if (this.isActivated) {
+        try {
+          this.inputTokenBalance = await this.getTokenBalance(token, this.address)
+        } catch (error) {
+          console.error('Failed to fetch token balance:', error)
+          this.inputTokenBalance = '0'
+          
+          // Provide more specific error messages based on the error type
+          let errorMessage = 'Could not fetch token balance. Showing 0 balance.'
+          
+          if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string') {
+            if (error.message.includes('ContractFunctionExecutionError')) {
+              errorMessage = 'Token contract call failed. This might mean the contract has restrictions or you have 0 balance.'
+            } else if (error.message.includes('ContractFunctionRevertedError')) {
+              errorMessage = 'Token contract reverted. This usually means the user has 0 balance or the contract has restrictions.'
+            }
+          }
+          
+          // Show toast notification to the user
+          this.toast(errorMessage, { type: 'info' })
+        }
       }
     },
 
@@ -235,29 +263,36 @@ export default {
       await this.processRecipient(this.inputReceiver)
 
       // prevent sending to 0x0 address
-      if (this.recipientAddress == ethers.constants.AddressZero) {
+      if (this.recipientAddress == zeroAddress) {
         this.waiting = false
         return this.toast.error('This domain name does not exist')
       }
 
       // check if sending native coin or ERC-20 token
-      if (this.inputToken.address == ethers.constants.AddressZero) {
-        this.sendNativeCoin()
+      if (this.inputToken.address == zeroAddress) {
+        this.sendNativeTokens()
       } else {
         this.sendErc20Tokens()
       }
     },
 
     async sendErc20Tokens() {
-      const tokenContract = new ethers.Contract(this.inputToken.address, Erc20Abi, this.signer)
+      const tokenContractConfig = {
+        address: this.inputToken.address,
+        abi: Erc20Abi,
+        functionName: 'transfer',
+        args: [
+          this.recipientAddress,
+          parseUnits(this.inputTokenAmount, this.inputToken.decimals)
+        ]
+      }
+
+      let toastWait;
 
       try {
-        const tx = await tokenContract.transfer(
-          this.recipientAddress,
-          ethers.utils.parseUnits(this.inputTokenAmount, this.inputToken.decimals),
-        )
+        const hash = await this.writeData(tokenContractConfig)
 
-        const toastWait = this.toast(
+        toastWait = this.toast(
           {
             component: WaitingToast,
             props: {
@@ -266,13 +301,13 @@ export default {
           },
           {
             type: 'info',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           },
         )
 
-        const receipt = await tx.wait()
+        const receipt = await this.waitForTxReceipt(hash)
 
-        if (receipt.status === 1) {
+        if (receipt.status === 'success' || receipt.status === 1) {
           this.toast.dismiss(toastWait)
 
           this.toast(
@@ -284,7 +319,7 @@ export default {
               this.inputReceiver,
             {
               type: 'success',
-              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
             },
           )
 
@@ -296,7 +331,7 @@ export default {
           this.waiting = false
           this.toast('Transaction has failed.', {
             type: 'error',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           })
           console.log(receipt)
         }
@@ -304,8 +339,8 @@ export default {
         console.error(e)
 
         try {
-          let extractMessage = e.message.split('reason=')[1]
-          extractMessage = extractMessage.split(', method=')[0]
+          let extractMessage = e.message.split('Details:')[1]
+          extractMessage = extractMessage.split('Version: viem')[0]
           extractMessage = extractMessage.replace(/"/g, '')
           extractMessage = extractMessage.replace('execution reverted:', 'Error:')
 
@@ -317,19 +352,22 @@ export default {
         }
 
         this.waiting = false
+      } finally {
+        this.toast.dismiss(toastWait)
+        this.waiting = false
       }
     },
 
-    async sendNativeCoin() {
-      const tokenContract = new ethers.Contract(this.inputToken.address, Erc20Abi, this.signer)
+    async sendNativeTokens() {
+      let toastWait;
 
       try {
-        const tx = await this.signer.sendTransaction({
-          to: this.recipientAddress,
-          value: ethers.utils.parseUnits(this.inputTokenAmount, this.inputToken.decimals),
-        })
+        const hash = await this.sendNativeCoin(
+          this.recipientAddress,
+          this.inputTokenAmount
+        )
 
-        const toastWait = this.toast(
+        toastWait = this.toast(
           {
             component: WaitingToast,
             props: {
@@ -338,13 +376,13 @@ export default {
           },
           {
             type: 'info',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           },
         )
 
-        const receipt = await tx.wait()
+        const receipt = await this.waitForTxReceipt(hash)
 
-        if (receipt.status === 1) {
+        if (receipt.status === "success" || receipt.status === 1) {
           this.toast.dismiss(toastWait)
 
           this.toast(
@@ -356,7 +394,7 @@ export default {
               this.inputReceiver,
             {
               type: 'success',
-              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
             },
           )
 
@@ -368,7 +406,7 @@ export default {
           this.waiting = false
           this.toast('Transaction has failed.', {
             type: 'error',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           })
           console.log(receipt)
         }
@@ -376,8 +414,8 @@ export default {
         console.error(e)
 
         try {
-          let extractMessage = e.message.split('reason=')[1]
-          extractMessage = extractMessage.split(', method=')[0]
+          let extractMessage = e.message.split('Details:')[1]
+          extractMessage = extractMessage.split('Version: viem')[0]
           extractMessage = extractMessage.replace(/"/g, '')
           extractMessage = extractMessage.replace('execution reverted:', 'Error:')
 
@@ -388,6 +426,9 @@ export default {
           this.toast('Transaction has failed.', { type: 'error' })
         }
 
+        this.waiting = false
+      } finally {
+        this.toast.dismiss(toastWait)
         this.waiting = false
       }
     },
@@ -402,16 +443,26 @@ export default {
   },
 
   setup() {
-    const { address, chainId, isActivated, signer } = useEthers()
+    const { address, chainId, isActivated } = useAccountData()
+    const { readData, sendNativeCoin, waitForTxReceipt, writeData } = useWeb3()
     const toast = useToast()
 
-    return { address, chainId, isActivated, signer, toast }
+    return { 
+      address, 
+      chainId, 
+      isActivated, 
+      toast,
+      readData,
+      sendNativeCoin,
+      waitForTxReceipt,
+      writeData,
+    }
   },
 
   watch: {
     async isActivated() {
-      if (this.address) {
-        this.inputTokenBalance = await this.getTokenBalance(this.inputToken, this.address, this.signer)
+      if (this.address && this.inputToken) {
+        this.inputTokenBalance = await this.getTokenBalance(this.inputToken, this.address)
       }
     },
   },

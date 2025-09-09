@@ -1,8 +1,16 @@
-import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill'
-import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill'
+import { defineNuxtConfig } from 'nuxt/config'
+import { readFileSync } from 'fs'
+import { join } from 'path'
+
+const manifestFile = JSON.parse(readFileSync(join(__dirname, 'public/manifest.webmanifest'), 'utf-8'))
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  devtools: false, // disables Nuxt Webtools
+  ssr: false, // full static site generation
+  modules: ['@wagmi/vue/nuxt', '@vite-pwa/nuxt'],
+  css: ['vue-toastification/dist/index.css'],
+  components: false,
   app: {
     head: {
       meta: [
@@ -18,7 +26,7 @@ export default defineNuxtConfig({
         {
           // Bootstrap
           rel: 'stylesheet',
-          href: '	https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css',
+          href: 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css',
         },
         {
           // Bootstrap icons
@@ -30,6 +38,11 @@ export default defineNuxtConfig({
           rel: 'stylesheet',
           href: '/css/custom.css',
         },
+        {
+          // PWA Manifest
+          rel: 'manifest',
+          href: '/manifest.webmanifest',
+        },
       ],
       script: [
         {
@@ -38,19 +51,11 @@ export default defineNuxtConfig({
       ],
     },
   },
-  components: false,
-  css: ['vue-toastification/dist/index.css'],
-  modules: ['@pinia/nuxt', '@vueuse/nuxt'],
-  router: {
-    options: {
-      hashMode: false,
-    },
-  },
   runtimeConfig: {
     public: {
-      activityPointsAddress: '',
-      airdropApAddress: '', // chat token claim for APs
-      airdropClaimDomainsAddress: '', // chat token claim for domain holders
+      activityPointsAddress: '0xe69FD53b8C0F2F764cFe5929CAb5e213c0328b42',
+      airdropApAddress: '0x6Dd7580ae0B5b764D08a1d40dE348198F54Bd6BF', // chat token claim for APs
+      airdropClaimDomainsAddress: '0xf8bEe277615A92e56AD9664e3020bCc2526F2c0F', // chat token claim for domain holders
       arweaveAddress: process.env.ARWEAVE_ADDRESS,
       arweaveGateway: 'https://arweave.net/',
       arweaveMinBalance: 0.02, // minimum AR balance to upload files
@@ -64,15 +69,17 @@ export default defineNuxtConfig({
         },
         storage: 'arweave', // storage type: 'arweave' or 'ipfs'
       },
-      chatTokenAddress: '', // chat token address
-      chatTokenImage: '', // chat token image
+      chatTokenAddress: '0x2843e0b801436409E3e26789217d71a486c6D7dD', // chat token address
+      chatTokenDecimals: 18,
+      chatTokenImage: 'https://www.pngall.com/wp-content/uploads/8/Gold-Dollar-Coin-PNG-180x180.png', // chat token image
       chatTokenSymbol: 'DEMO', // chat token symbol or name
       domainRequiredToPost: true,
       expiryCollections: 1000 * 60 * 60 * 24 * 7, // must be in milliseconds (0 means no expiration)
       expiryMods: 1000 * 60 * 60 * 24 * 7, // must be in milliseconds (0 means no expiration)
       expiryPfps: 1000 * 60 * 60 * 24 * 10, // must be in milliseconds (0 means no expiration)
       expiryUsernames: 1000 * 60 * 60 * 24 * 7, // must be in milliseconds (0 means no expiration)
-      favicon: '/img/favicon.svg',
+      farcasterShareText: 'Check out Iggy Social - A starter template for building Web3 applications with Wagmi and Nuxt!',
+      favicon: '/img/favicon.ico',
       fileUploadEnabled: true, // enable/disable file uploads (enable only if external file storage is used, e.g. Arweave)
       fileUploadSizeLimit: 1 * 1024 * 1024, // max file upload size in bytes (1 * 1024 * 1024 = 1 MB)
       fileUploadStorageType: "arweave", // "arweave" or "imagekit"
@@ -87,6 +94,7 @@ export default defineNuxtConfig({
       linkPreviews: process.env.LINK_PREVIEW_SERVICE || 'netlify', // "netlify", "vercel", or "microlink" (or leave empty for no link previews)
       lpTokenAddress: '', // liquidity pool token (token to stake in the staking contract)
       lpTokenSymbol: 'LP tokens', // LP token symbol
+      lpTokenDecimals: 18,
       marketplaceNftCollectionBaseUrl: 'https://testnets.opensea.io/assets/holesky/', // url (append nft address to it)
       newsletterLink: 'https://paragraph.xyz/@iggy?modal=subscribe',
       nftDefaultRatio: 1, // default ratio for the NFT price bonding curve
@@ -101,58 +109,61 @@ export default defineNuxtConfig({
       previewImagePostNft: '/img/covers/cover-post-nft.png',
       previewImageProfile: '/img/covers/cover-profile.png',
       previewImageStake: '/img/covers/cover-stake.png',
-      projectMetadataTitle: 'Iggy Social Demo | Web3 Social Template For Your DAO',
+      projectMetadataTitle: 'Iggy Social',
       projectName: 'Iggy Demo',
-      projectDescription: 'This is a demo website presenting Iggy Social, a web3 social template for your DAO.',
-      projectTwitter: 'https://twitter.com/iggysocial',
-      projectUrl: 'https://demo.iggy.social', // without trailing slash!
+      projectDescription: 'A starter template for Wagmi Nuxt projects',
+      projectTwitter: '@example',
+      projectUrl: 'https://demo.iggy.social',
       punkMinterAddress: '', // punk domain minter contract address
       punkNumberOfPrices: 1, // number of different prices (based on domain length), usually 1 (price()) or 5 (price1char() - price5char())
       punkTldAddress: '0x320881Fff17c9a2189226c61ad1157DFF80b18B5', // punk domain TLD address
       showFeatures: {
         // show/hide features in sidebars (if you have too many "true", make the sidebar scrollable --> sidebarLeftSticky: false)
-        activityPoints: false,
-        airdrop: false,
+        activityPoints: true,
+        airdrop: true,
         governance: false,
         newsletter: false,
         nftLaunchpad: true,
         swap: false,
         stake: false,
         sendTokens: true,
-        spotify: false,
       },
       sidebarLeftSticky: false, // make the left sidebar sticky (always visible)
-      spotifyPlaylistId: '5y7f2Wxfq49G5KuNQfMPbk', // enter just the ID of the playlist (not the full URL)
       stakingContractAddress: '', // this is also the stake/gov token address
+      stakeTokenDecimals: 18,
       stakeTokenSymbol: 'IGT', // stake token symbol (governance token symbol)
       supportedChainId: 17000,
       swapPriceImpactMaxBps: 1000, // max price impact in bips (1 bps = 0.01%, 1000bps = 10%) for the swap function
       swapRouterAddress: '', // iggy swap router contract address
       tenorApiKey: process.env.TENOR_KEY || '',
       tldName: '.holesky',
-      tokenAddress: null, // leave null if it's a native token of the chain
+      tokenAddress: undefined, // leave undefined if it's a native token of the chain
       tokenDecimals: 18,
       tokenSymbol: 'ETH',
-    },
+    }
   },
+  compatibilityDate: '2025-06-21',
   vite: {
-    build: {
-      target: ['es2020'], // fix big integer literals error
+    server: {
+      allowedHosts: true
+    }
+  },
+  pwa: {
+    registerType: 'autoUpdate',
+    workbox: {
+      navigateFallback: '/',
+      globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
     },
-    optimizeDeps: {
-      esbuildOptions: {
-        define: {
-          global: 'globalThis', // fix nuxt3 global
-        },
-        plugins: [
-          NodeGlobalsPolyfillPlugin({
-            process: true, // fix nuxt3 process
-            buffer: true,
-          }),
-          NodeModulesPolyfillPlugin(),
-        ],
-        target: 'es2020', // fix big integer literals error
-      },
+    client: {
+      installPrompt: true,
     },
+    devOptions: {
+      enabled: true,
+      suppressWarnings: true,
+      navigateFallbackAllowlist: [/^\/$/],
+      type: 'module',
+    },
+    includeAssets: ['img/favicon.ico', 'img/apple-touch-icon.png', 'img/masked-icon.svg'],
+    manifest: manifestFile,
   },
 })

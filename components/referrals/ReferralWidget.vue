@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import ShareReferralLink from '~/components/referrals/ShareReferralLink.vue'
+import ShareReferralLink from '@/components/referrals/ShareReferralLink.vue'
 
 export default {
   name: 'ReferralWidget',

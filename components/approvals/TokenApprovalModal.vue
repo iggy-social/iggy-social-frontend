@@ -67,11 +67,11 @@
 </template>
 
 <script>
-import { useEthers } from '~/store/ethers'
-import { ethers } from 'ethers'
+import { parseUnits } from 'viem'
 import { useToast } from 'vue-toastification/dist/index.mjs'
-import WaitingToast from '~/components/WaitingToast'
-import Erc20Abi from '~/assets/abi/Erc20Abi.json'
+import WaitingToast from '@/components/WaitingToast'
+import { useWeb3 } from '@/composables/useWeb3'
+import Erc20Abi from '@/data/abi/Erc20Abi.json'
 
 export default {
   name: 'TokenApprovalModal',
@@ -114,14 +114,21 @@ export default {
         approvalAmount = 10_000_000_000_000_000
       }
 
-      const amountWei = ethers.utils.parseUnits(String(approvalAmount), this.token.decimals)
+      const amountWei = parseUnits(String(approvalAmount), this.token.decimals)
 
-      const contract = new ethers.Contract(this.token.address, Erc20Abi, this.signer)
+      const contractConfig = {
+        address: this.token.address,
+        abi: Erc20Abi,
+        functionName: 'approve',
+        args: [this.routerAddress, amountWei],
+      }
+
+      let toastWait;
 
       try {
-        const tx = await contract.approve(this.routerAddress, amountWei)
+        const hash = await this.writeData(contractConfig)
 
-        const toastWait = this.toast(
+        toastWait = this.toast(
           {
             component: WaitingToast,
             props: {
@@ -130,17 +137,17 @@ export default {
           },
           {
             type: 'info',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           },
         )
 
-        const receipt = await tx.wait()
+        const receipt = await this.waitForTxReceipt(hash)
 
-        if (receipt.status === 1) {
+        if (receipt.status === 'success') {
           this.toast.dismiss(toastWait)
           this.toast('You have successfully approved ' + this.token.symbol + '!', {
             type: 'success',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           })
           this.$emit('setApprovalAmount', approvalAmount)
           this.waiting = false
@@ -150,12 +157,28 @@ export default {
           this.toast.dismiss(toastWait)
           this.toast('Transaction has failed.', {
             type: 'error',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           })
           console.log(receipt)
         }
       } catch (e) {
-        this.toast.error('Something went wrong while approving the token')
+        
+        try {
+          let extractMessage = e.message.split('Details:')[1]
+          extractMessage = extractMessage.split('Version: viem')[0]
+          extractMessage = extractMessage.replace(/"/g, "");
+          extractMessage = extractMessage.replace('execution reverted:', "Error:");
+
+          console.log(extractMessage);
+          
+          this.toast(extractMessage, {type: "error"});
+        } catch (e) {
+          this.toast("Transaction has failed.", {type: "error"});
+        }
+        
+        this.waiting = false
+      } finally {
+        this.toast.dismiss(toastWait)
         this.waiting = false
         return
       }
@@ -165,11 +188,12 @@ export default {
   },
 
   setup() {
-    const { signer } = useEthers()
+    const { writeData, waitForTxReceipt } = useWeb3()
     const toast = useToast()
 
     return {
-      signer,
+      writeData,
+      waitForTxReceipt,
       toast,
     }
   },

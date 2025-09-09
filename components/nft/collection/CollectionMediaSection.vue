@@ -61,8 +61,8 @@
 </template>
 
 <script>
-import { getWorkingUrl } from '~/utils/ipfsUtils';
-import { youtubeParsing } from '~/utils/textUtils';
+import { getWorkingUrl } from '@/utils/fileUtils';
+import { youtubeParsing } from '@/utils/textUtils';
 
 export default {
   name: 'CollectionMediaSection',
@@ -94,7 +94,7 @@ export default {
 
         if (this.audioUrl) {
           const result = await getWorkingUrl(this.audioUrl);
-          if (result) {
+          if (result?.success) {
             this.aUrl = result.url;
             this.aFormat = result.format;
           }
@@ -102,7 +102,7 @@ export default {
 
         if (this.videoUrl) {
           const result = await getWorkingUrl(this.videoUrl);
-          if (result) {
+          if (result?.success) {
             this.vUrl = result.url;
             this.vFormat = result.format;
           }

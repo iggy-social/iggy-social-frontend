@@ -130,10 +130,9 @@
 </template>
 
 <script>
-import { ethers } from 'ethers'
-import { useEthers } from '~/store/ethers'
 import { useToast } from 'vue-toastification/dist/index.mjs'
-import WaitingToast from '~/components/WaitingToast'
+import WaitingToast from '@/components/WaitingToast'
+import { useWeb3 } from '@/composables/useWeb3'
 
 export default {
   name: 'ChangeNftTypeModal',
@@ -164,12 +163,6 @@ export default {
     async updateMetadata() {
       this.waitingMetadata = true
 
-      const metadataInterface = new ethers.utils.Interface([
-        'function setMdTypeAndUrlOrImage(address nftAddress_, uint256 mdType_, string memory mdUrlOrImage_, string memory collectionImage_) external',
-      ])
-
-      const metadataContract = new ethers.Contract(this.mdAddress, metadataInterface, this.signer)
-
       if (this.typeChoice === 0) {
         this.editImagePreviewUrl = this.editImageMetadataUrl
       }
@@ -178,15 +171,39 @@ export default {
         this.editImagePreviewUrl = ''
       }
 
-      try {
-        const tx = await metadataContract.setMdTypeAndUrlOrImage(
-          this.cAddress,
-          this.typeChoice,
-          this.editImageMetadataUrl,
-          this.editImagePreviewUrl,
-        )
+      let toastWait;
 
-        const toastWait = this.toast(
+      try {
+        // Contract configuration for the write operation
+        const contractConfig = {
+          address: this.mdAddress,
+          abi: [
+            {
+              name: 'setMdTypeAndUrlOrImage',
+              type: 'function',
+              stateMutability: 'nonpayable',
+              inputs: [
+                { name: 'nftAddress_', type: 'address' },
+                { name: 'mdType_', type: 'uint256' },
+                { name: 'mdUrlOrImage_', type: 'string' },
+                { name: 'collectionImage_', type: 'string' }
+              ],
+              outputs: [],
+            }
+          ],
+          functionName: 'setMdTypeAndUrlOrImage',
+          args: [
+            this.cAddress,
+            this.typeChoice,
+            this.editImageMetadataUrl,
+            this.editImagePreviewUrl,
+          ]
+        }
+
+        // Write the transaction
+        const hash = await this.writeData(contractConfig)
+
+        toastWait = this.toast(
           {
             component: WaitingToast,
             props: {
@@ -195,18 +212,19 @@ export default {
           },
           {
             type: 'info',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           },
         )
 
-        const receipt = await tx.wait()
+        // Wait for transaction receipt
+        const receipt = await this.waitForTxReceipt(hash)
 
-        if (receipt.status === 1) {
+        if (receipt.status === 'success') {
           this.toast.dismiss(toastWait)
 
           this.toast('You have updated the NFT image and/or metadata URL.', {
             type: 'success',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           })
 
           this.$emit('saveCollection', {
@@ -226,7 +244,7 @@ export default {
           this.waitingMetadata = false
           this.toast('Transaction has failed.', {
             type: 'error',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           })
           console.log(receipt)
         }
@@ -234,8 +252,8 @@ export default {
         console.error(e)
 
         try {
-          let extractMessage = e.message.split('reason=')[1]
-          extractMessage = extractMessage.split(', method=')[0]
+          let extractMessage = e.message.split('Details:')[1]
+          extractMessage = extractMessage.split('Version: viem')[0]
           extractMessage = extractMessage.replace(/"/g, '')
           extractMessage = extractMessage.replace('execution reverted:', 'Error:')
 
@@ -247,15 +265,18 @@ export default {
         }
 
         this.waitingMetadata = false
+      } finally {
+        this.toast.dismiss(toastWait)
+        this.waitingMetadata = false
       }
     },
   },
 
   setup() {
-    const { signer } = useEthers()
+    const { writeData, waitForTxReceipt } = useWeb3()
     const toast = useToast()
 
-    return { signer, toast }
+    return { writeData, waitForTxReceipt, toast }
   },
 }
 </script>

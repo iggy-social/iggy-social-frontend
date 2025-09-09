@@ -7,7 +7,7 @@
 
     <!-- Input field -->
     <div class="input-group mt-5">
-      <button class="btn btn-primary" type="button" data-bs-toggle="dropdown" aria-expanded="false" disabled>
+      <button class="btn btn-primary" type="button" aria-expanded="false" disabled>
         {{ $config.public.stakeTokenSymbol }}
       </button>
 
@@ -63,16 +63,16 @@
 </template>
 
 <script>
-import { ethers } from 'ethers'
-import { useEthers } from '~/store/ethers'
+import { parseEther, formatUnits } from 'viem'
 import { useToast } from 'vue-toastification/dist/index.mjs'
-import WaitingToast from '~/components/WaitingToast'
-import RemoveLiquidity from '~/components/stake/RemoveLiquidity.vue'
-import { useUserStore } from '~/store/user'
+import WaitingToast from '@/components/WaitingToast.vue'
+import RemoveLiquidity from '@/components/stake/RemoveLiquidity.vue'
+import { useAccountData } from '@/composables/useAccountData'
+import { useWeb3 } from '@/composables/useWeb3'
 
 export default {
   name: 'StakingWithdrawal',
-  props: ['loadingStakingData', 'lockedTimeLeft', 'minDepositWei', 'lpTokenDecimals'],
+  props: ['loadingStakingData', 'lockedTimeLeft', 'minDepositWei'],
   emits: ['clearClaimAmount'],
 
   data() {
@@ -84,6 +84,10 @@ export default {
 
   components: {
     RemoveLiquidity,
+  },
+
+  mounted() {
+    // Component now gets getStakeTokenBalanceWei from useAccountData composable
   },
 
   computed: {
@@ -119,19 +123,19 @@ export default {
     },
 
     minDeposit() {
-      return ethers.utils.formatUnits(String(this.minDepositWei), Number(this.lpTokenDecimals))
+      return formatUnits(this.minDepositWei || BigInt(0), this.$config.public.lpTokenDecimals || 18)
     },
 
     stakeTokenBalance() {
-      return ethers.utils.formatEther(this.userStore.getStakeTokenBalanceWei)
+      return formatUnits(this.getStakeTokenBalanceWei(), this.$config.public.stakeTokenDecimals || 18)
     },
 
     withdrawalAmountWei() {
       if (!this.withdrawalAmount || Number(this.withdrawalAmount) === 0) {
-        return 0
+        return BigInt(0)
       }
 
-      return ethers.utils.parseEther(String(this.withdrawalAmount))
+      return parseEther(String(this.withdrawalAmount))
     },
 
     withdrawalIncorrect() {
@@ -144,18 +148,17 @@ export default {
       }
 
       // amount is too high
-      if (Number(this.withdrawalAmountWei) > Number(this.userStore.getStakeTokenBalanceWei)) {
+      if (this.withdrawalAmountWei > this.getStakeTokenBalanceWei) {
         return {
           error: true,
           message: 'The amount exceeds your staked token balance.',
         }
       }
 
-      if (Number(this.withdrawalAmountWei) < Number(this.userStore.getStakeTokenBalanceWei)) {
-        const remainingStakedAmountWei =
-          Number(this.userStore.getStakeTokenBalanceWei) - Number(this.withdrawalAmountWei)
+      if (this.withdrawalAmountWei < this.getStakeTokenBalanceWei) {
+        const remainingStakedAmountWei = this.getStakeTokenBalanceWei - this.withdrawalAmountWei
 
-        if (Number(remainingStakedAmountWei) < Number(this.minDepositWei)) {
+        if (remainingStakedAmountWei < (this.minDepositWei || BigInt(0))) {
           return {
             error: true,
             message:
@@ -178,21 +181,27 @@ export default {
     async withdrawal() {
       this.waitingWithdrawal = true
 
-      // set up staking contract
-      const stakingContractInterface = new ethers.utils.Interface([
-        'function withdraw(uint256 _assets) external returns (uint256)',
-      ])
-
-      const stakingContract = new ethers.Contract(
-        this.$config.public.stakingContractAddress,
-        stakingContractInterface,
-        this.signer,
-      )
+      let toastWait;
 
       try {
-        const tx = await stakingContract.withdraw(this.withdrawalAmountWei)
+        const contractConfig = {
+          address: this.$config.public.stakingContractAddress,
+          abi: [
+            {
+              name: 'withdraw',
+              type: 'function',
+              stateMutability: 'nonpayable',
+              inputs: [{ name: '_assets', type: 'uint256' }],
+              outputs: [{ name: '', type: 'uint256' }]
+            }
+          ],
+          functionName: 'withdraw',
+          args: [this.withdrawalAmountWei]
+        }
 
-        const toastWait = this.toast(
+        const hash = await this.writeData(contractConfig)
+
+        toastWait = this.toast(
           {
             component: WaitingToast,
             props: {
@@ -201,22 +210,23 @@ export default {
           },
           {
             type: 'info',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           },
         )
 
-        const receipt = await tx.wait()
+        const receipt = await this.waitForTxReceipt(hash)
 
-        if (receipt.status === 1) {
-          this.userStore.setLpTokenBalanceWei(this.userStore.getLpTokenBalanceWei.add(this.withdrawalAmountWei))
-          this.userStore.setStakeTokenBalanceWei(this.userStore.getStakeTokenBalanceWei.sub(this.withdrawalAmountWei))
+        if (receipt.status === 'success') {
+          // Update balance directly in the composable using the setter
+          this.addToStakeTokenBalanceWei(-this.withdrawalAmountWei)
+          
           this.$emit('clearClaimAmount') // clear claim amount in parent component
 
           this.toast.dismiss(toastWait)
 
           this.toast('You have successfully unstaked tokens!', {
             type: 'success',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           })
 
           this.waitingWithdrawal = false
@@ -225,7 +235,7 @@ export default {
           this.waitingWithdrawal = false
           this.toast('Transaction has failed.', {
             type: 'error',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           })
           console.log(receipt)
         }
@@ -233,8 +243,8 @@ export default {
         console.error(e)
 
         try {
-          let extractMessage = e.message.split('reason=')[1]
-          extractMessage = extractMessage.split(', method=')[0]
+          let extractMessage = e.message.split('Details:')[1]
+          extractMessage = extractMessage.split('Version: viem')[0]
           extractMessage = extractMessage.replace(/"/g, '')
           extractMessage = extractMessage.replace('execution reverted:', 'Error:')
           extractMessage = extractMessage.replace('PeriodicEthRewards: ', '')
@@ -247,6 +257,9 @@ export default {
         }
 
         this.waitingWithdrawal = false
+      } finally {
+        this.toast.dismiss(toastWait)
+        this.waitingWithdrawal = false
       }
     },
 
@@ -256,15 +269,22 @@ export default {
   },
 
   setup() {
-    const { address, signer } = useEthers()
+    const { readData, writeData, waitForTxReceipt } = useWeb3()
+    const { 
+      address, 
+      getStakeTokenBalanceWei, 
+      addToStakeTokenBalanceWei 
+    } = useAccountData()
     const toast = useToast()
-    const userStore = useUserStore()
 
     return {
+      readData,
+      writeData,
+      waitForTxReceipt,
       address,
-      signer,
       toast,
-      userStore,
+      getStakeTokenBalanceWei,
+      addToStakeTokenBalanceWei,
     }
   },
 }

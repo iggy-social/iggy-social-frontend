@@ -9,7 +9,7 @@
     <div class="input-group mt-5">
       <input v-model="domainName" type="text" placeholder="Enter domain name" class="form-control" />
 
-      <button class="btn btn-primary" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+      <button class="btn btn-primary" type="button" aria-expanded="false">
         {{ $config.public.tldName }}
       </button>
     </div>
@@ -17,13 +17,13 @@
     <!-- Claim button -->
     <div class="d-flex justify-content-center mt-4 mb-4">
       <button
-        :disabled="waiting || loadingData || !domainName"
+        :disabled="waiting || !domainName"
         class="btn btn-outline-primary"
         type="button"
         @click="claim"
       >
         <span
-          v-if="loadingData || waiting"
+          v-if="waiting"
           class="spinner-border spinner-border-sm"
           role="status"
           aria-hidden="true"
@@ -44,50 +44,101 @@
 </template>
 
 <script>
-import { ethers } from 'ethers'
-import { useEthers } from '~/store/ethers'
+import { formatEther } from 'viem'
 import { useToast } from 'vue-toastification/dist/index.mjs'
-import WaitingToast from '~/components/WaitingToast'
-import { useUserStore } from '~/store/user'
+import WaitingToast from '@/components/WaitingToast'
+import { useAccountData } from '@/composables/useAccountData'
+import { useWeb3 } from '@/composables/useWeb3'
 
 export default {
   name: 'AirdropDomainHolders',
-  props: ['domainChatRewardWei', 'loadingData'],
 
   data() {
     return {
       domainName: null,
       waiting: false,
+      domainChatRewardWei: 0,
+      fetchingData: false,
     }
   },
 
   computed: {
     domainChatReward() {
-      return Math.floor(Number(ethers.utils.formatEther(this.domainChatRewardWei)))
+      return Math.floor(Number(formatEther(this.domainChatRewardWei)))
     },
   },
 
+  mounted() {
+    if (this.address) {
+      this.fetchAirdropData()
+    }
+  },
+
   methods: {
+    async fetchAirdropData() {
+      // fetch airdrop data
+      this.fetchingData = true
+
+      try {
+        // fetch chat reward from the ChatTokenClaimDomains contract
+        const chatRewardResult = await this.readData({
+          address: this.$config.public.airdropClaimDomainsAddress,
+          abi: [
+            {
+              name: 'chatReward',
+              type: 'function',
+              stateMutability: 'view',
+              inputs: [],
+              outputs: [{ type: 'uint256', name: '' }]
+            }
+          ],
+          functionName: 'chatReward'
+        })
+
+        if (chatRewardResult) {
+          this.domainChatRewardWei = chatRewardResult
+        }
+      } catch (error) {
+        console.error('Error fetching airdrop data:', error)
+      } finally {
+        this.fetchingData = false
+      }
+    },
+
     async claim() {
       this.waiting = true
 
       const cleanDomainName = this.domainName.replace(this.$config.public.tldName, '').trim().toLowerCase()
       console.log(cleanDomainName)
 
-      const chatTokenClaimDomainsInterface = new ethers.utils.Interface([
-        'function claim(string calldata _domainName) external',
-      ])
+      const chatTokenClaimDomainsContract = {
+        address: this.$config.public.airdropClaimDomainsAddress,
+        abi: [
+          {
+            name: 'claim',
+            type: 'function',
+            inputs: [
+              {
+                name: '_domainName',
+                type: 'string'
+              }
+            ],
+            outputs: [],
+            stateMutability: 'nonpayable'
+          }
+        ]
+      }
 
-      const chatTokenClaimDomainsContract = new ethers.Contract(
-        this.$config.public.airdropClaimDomainsAddress,
-        chatTokenClaimDomainsInterface,
-        this.signer,
-      )
+      let toastWait;
 
       try {
-        const tx = await chatTokenClaimDomainsContract.claim(cleanDomainName)
+        const hash = await this.writeData({
+          ...chatTokenClaimDomainsContract,
+          functionName: 'claim',
+          args: [cleanDomainName]
+        })
 
-        const toastWait = this.toast(
+        toastWait = this.toast(
           {
             component: WaitingToast,
             props: {
@@ -96,21 +147,21 @@ export default {
           },
           {
             type: 'info',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           },
         )
 
-        const receipt = await tx.wait()
+        const receipt = await this.waitForTxReceipt(hash)
 
-        if (receipt.status === 1) {
+        if (receipt.status === 'success') {
           this.toast.dismiss(toastWait)
 
           this.toast('Airdrop for ' + cleanDomainName + this.$config.public.tldName + ' has been successfully claimed!', {
             type: 'success',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           })
 
-          this.userStore.addToChatTokenBalanceWei(this.domainChatRewardWei)
+          this.addToChatTokenBalanceWei(this.domainChatRewardWei)
 
           this.waiting = false
         } else {
@@ -118,7 +169,7 @@ export default {
           this.waiting = false
           this.toast('Transaction has failed.', {
             type: 'error',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           })
           console.log(receipt)
         }
@@ -127,7 +178,7 @@ export default {
 
         try {
           let extractMessage = e.message.split('Details:')[1]
-          extractMessage = extractMessage.split('Version: viem@2.9.4')[0]
+          extractMessage = extractMessage.split('Version: viem')[0]
           extractMessage = extractMessage.replace(/"/g, '')
           extractMessage = extractMessage.replace('execution reverted:', 'Error:')
           extractMessage = extractMessage.replace('ChatTokenClaimDomains: ', '')
@@ -140,21 +191,34 @@ export default {
         }
 
         this.waiting = false
+      } finally {
+        this.toast.dismiss(toastWait)
+        this.waiting = false
       }
     },
   },
 
   setup() {
-    const { address, signer } = useEthers()
+    const { readData, writeData, waitForTxReceipt } = useWeb3()
+    const { addToChatTokenBalanceWei, address } = useAccountData()
     const toast = useToast()
-    const userStore = useUserStore()
 
     return {
+      readData,
+      writeData,
+      waitForTxReceipt,
+      addToChatTokenBalanceWei,
       address,
-      signer,
       toast,
-      userStore,
     }
+  },
+
+  watch: {
+    address() {
+      if (this.address) {
+        this.fetchAirdropData()
+      }
+    },
   },
 }
 </script>

@@ -2,12 +2,15 @@
   <Head>
     <Title>About | {{ $config.public.projectMetadataTitle }}</Title>
     <Meta property="og:title" :content="'About | ' + $config.public.projectMetadataTitle" />
+    
+    <!-- Farcaster Mini App Embed -->
+    <Meta name="fc:miniapp" :content="farcasterMetaContent" />
   </Head>
 
   <div class="card border scroll-500">
     <div class="card-body">
-      <p class="fs-3" @click="$router.back()">
-        <i class="bi bi-arrow-left-circle cursor-pointer"></i>
+      <p class="fs-3">
+        <i @click="$router.back()" class="bi bi-arrow-left-circle cursor-pointer"></i>
       </p>
 
       <h3 class="mb-3 mt-3">Web3 Social is here.</h3>
@@ -63,7 +66,30 @@
 </template>
 
 <script>
+import farcasterConfig from '@/public/.well-known/farcaster.json'
+
 export default {
   name: 'About',
+
+  computed: {
+
+    farcasterMetaContent() {
+      return JSON.stringify({
+        version: farcasterConfig.miniapp.version,
+        imageUrl: farcasterConfig.miniapp.imageUrl,
+        button: {
+          title: "About " + this.$config.public.projectName,
+          action: {
+            type: 'launch_miniapp',
+            name: this.$config.public.projectName,
+            url: this.$config.public.projectUrl + '/about',
+            splashImageUrl: farcasterConfig.miniapp.splashImageUrl,
+            splashBackgroundColor: farcasterConfig.miniapp.splashBackgroundColor
+          }
+        }
+      })
+    }
+
+  },
 }
 </script>

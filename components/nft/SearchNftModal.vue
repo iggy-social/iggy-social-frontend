@@ -41,8 +41,9 @@
 </template>
 
 <script>
-import { ethers } from 'ethers'
-import { useEthers } from '~/store/ethers'
+import { useWeb3 } from '@/composables/useWeb3'
+import { useAccountData } from '@/composables/useAccountData'
+import { zeroAddress } from 'viem'
 
 export default {
   name: 'SearchNftModal',
@@ -76,34 +77,35 @@ export default {
           return (this.waitingFind = false)
         } else {
           // search by unique ID
-          const launchpadInterface = new ethers.utils.Interface([
-            'function getNftContractAddress(string calldata _uniqueId) external view returns(address)',
-          ])
+          try {
+            const contractConfig = {
+              address: this.$config.public.nftLaunchpadBondingAddress,
+              abi: [
+                {
+                  name: 'getNftContractAddress',
+                  type: 'function',
+                  stateMutability: 'view',
+                  inputs: [{ name: '_uniqueId', type: 'string' }],
+                  outputs: [{ name: '', type: 'address' }]
+                }
+              ],
+              functionName: 'getNftContractAddress',
+              args: [this.searchText]
+            }
 
-          // fetch provider from hardcoded RPCs
-          let provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
+            const nftAddress = await this.readData(contractConfig)
 
-          if (this.isActivated && this.chainId === this.$config.public.supportedChainId) {
-            // fetch provider from user's MetaMask
-            provider = this.signer
-          }
+            if (nftAddress && nftAddress !== zeroAddress) {
+              // close the modal
+              document.getElementById('closeModal-' + this.componentId).click()
 
-          const launchpadContract = new ethers.Contract(
-            this.$config.public.nftLaunchpadBondingAddress,
-            launchpadInterface,
-            provider,
-          )
+              this.$router.push({ path: '/nft/collection/', query: { id: nftAddress } })
+              this.searchText = null
 
-          const nftAddress = await launchpadContract.getNftContractAddress(this.searchText)
-
-          if (nftAddress !== ethers.constants.AddressZero) {
-            // close the modal
-            document.getElementById('closeModal-' + this.componentId).click()
-
-            this.$router.push({ path: '/nft/collection/', query: { id: nftAddress } })
-            this.searchText = null
-
-            return (this.waitingFind = false)
+              return (this.waitingFind = false)
+            }
+          } catch (error) {
+            console.error('Error finding NFT:', error)
           }
         }
 
@@ -115,9 +117,14 @@ export default {
   },
 
   setup() {
-    const { chainId, isActivated, signer } = useEthers()
+    const { readData } = useWeb3()
+    const { chainId, isActivated } = useAccountData()
 
-    return { chainId, isActivated, signer }
+    return { 
+      readData,
+      chainId, 
+      isActivated
+    }
   },
 }
 </script>

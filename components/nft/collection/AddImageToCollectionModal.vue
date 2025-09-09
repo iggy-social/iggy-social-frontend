@@ -62,12 +62,11 @@
 </template>
 
 <script>
-import { ethers } from 'ethers'
-import { useEthers } from '~/store/ethers'
 import { useToast } from 'vue-toastification/dist/index.mjs'
-import Image from '~/components/Image.vue'
-import WaitingToast from '~/components/WaitingToast'
-import FileUploadInput from '~/components/storage/FileUploadInput.vue'
+import Image from '@/components/Image.vue'
+import WaitingToast from '@/components/WaitingToast'
+import FileUploadInput from '@/components/storage/FileUploadInput.vue'
+import { useWeb3 } from '@/composables/useWeb3'
 
 export default {
   name: 'AddImageToCollectionModal',
@@ -90,16 +89,32 @@ export default {
     async addNewImage() {
       this.waiting = true
 
-      const metadataInterface = new ethers.utils.Interface([
-        'function addImageToCollection(address nftAddress_, string memory imageUrl_) external',
-      ])
-
-      const metadataContract = new ethers.Contract(this.mdAddress, metadataInterface, this.signer)
+      let toastWait;
 
       try {
-        const tx = await metadataContract.addImageToCollection(this.cAddress, this.imageUrl)
+        // Prepare contract configuration for the write operation
+        const contractConfig = {
+          address: this.mdAddress,
+          abi: [
+            {
+              name: 'addImageToCollection',
+              type: 'function',
+              stateMutability: 'nonpayable',
+              inputs: [
+                { name: 'nftAddress_', type: 'address' },
+                { name: 'imageUrl_', type: 'string' }
+              ],
+              outputs: []
+            }
+          ],
+          functionName: 'addImageToCollection',
+          args: [this.cAddress, this.imageUrl]
+        }
 
-        const toastWait = this.toast(
+        // Write the transaction and get hash
+        const hash = await this.writeData(contractConfig)
+
+        toastWait = this.toast(
           {
             component: WaitingToast,
             props: {
@@ -108,18 +123,19 @@ export default {
           },
           {
             type: 'info',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           },
         )
 
-        const receipt = await tx.wait()
+        // Wait for transaction receipt
+        const receipt = await this.waitForTxReceipt(hash)
 
-        if (receipt.status === 1) {
+        if (receipt.status === 'success') {
           this.toast.dismiss(toastWait)
 
           this.toast('You have successfully added new image URL to the NFT collection.', {
             type: 'success',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           })
 
           this.imageUrl = null
@@ -133,7 +149,7 @@ export default {
           this.waiting = false
           this.toast('Transaction has failed.', {
             type: 'error',
-            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
           })
           console.log(receipt)
         }
@@ -141,8 +157,8 @@ export default {
         console.error(e)
 
         try {
-          let extractMessage = e.message.split('reason=')[1]
-          extractMessage = extractMessage.split(', method=')[0]
+          let extractMessage = e.message.split('Details:')[1]
+          extractMessage = extractMessage.split('Version: viem')[0]
           extractMessage = extractMessage.replace(/"/g, '')
           extractMessage = extractMessage.replace('execution reverted:', 'Error:')
 
@@ -150,9 +166,12 @@ export default {
 
           this.toast(extractMessage, { type: 'error' })
         } catch (e) {
-          this.toast('Transaction has failed.', { type: 'error' })
+          this.toast("Transaction has failed.", {type: "error"});
         }
 
+        this.waiting = false
+      } finally {
+        this.toast.dismiss(toastWait)
         this.waiting = false
       }
     },
@@ -163,10 +182,14 @@ export default {
   },
 
   setup() {
-    const { signer } = useEthers()
+    const { writeData, waitForTxReceipt } = useWeb3()
     const toast = useToast()
 
-    return { signer, toast }
+    return { 
+      writeData, 
+      waitForTxReceipt, 
+      toast 
+    }
   },
 }
 </script>

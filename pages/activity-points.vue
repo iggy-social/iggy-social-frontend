@@ -18,7 +18,7 @@
       <div class="row">
         <div class="col-md-5">
           <div class="input-group">
-            <input :value="userStore.getCurentUserActivityPoints" type="text" class="form-control" disabled />
+            <input :value="getCurentUserActivityPoints()" type="text" class="form-control" disabled />
 
             <button class="btn btn-primary disabled" type="button" data-bs-toggle="dropdown" aria-expanded="false">
               Activity Points
@@ -58,10 +58,9 @@
 </template>
 
 <script>
-import { useEthers } from '~/store/ethers'
-import { useUserStore } from '~/store/user'
-import { getActivityPoints } from '~/utils/balanceUtils'
-import ShareReferralLink from '~/components/referrals/ShareReferralLink.vue'
+import { getActivityPoints } from '@/utils/balanceUtils'
+import ShareReferralLink from '@/components/referrals/ShareReferralLink.vue'
+import { useAccountData } from '@/composables/useAccountData'
 
 export default {
   name: 'ActivityPoints',
@@ -79,18 +78,24 @@ export default {
 
     async fetchActivityPoints() {
       if (this.$config.public.activityPointsAddress && this.address) {
-        const provider = this.$getFallbackProvider(this.$config.public.supportedChainId)
-        const activityPoints = await this.getActivityPoints(this.address, provider)
-        this.userStore.setCurrentUserActivityPoints(activityPoints)
+        const activityPoints = await this.getActivityPoints(this.address)
+        this.setCurrentUserActivityPoints(activityPoints)
       }
     },
   },
 
   setup() {
-    const { address } = useEthers()
-    const userStore = useUserStore()
+    const { 
+      address, 
+      getCurentUserActivityPoints, 
+      setCurrentUserActivityPoints 
+    } = useAccountData()
 
-    return { address, userStore }
+    return { 
+      address, 
+      getCurentUserActivityPoints, 
+      setCurrentUserActivityPoints 
+    }
   },
 }
 </script>
