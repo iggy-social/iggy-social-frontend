@@ -15,10 +15,33 @@ export function useAccountData() {
   // VARIABLES
   
   // library variables and functions
-  const { address, isConnected, isConnecting } = useAccount()
+  const { address, isConnected, isConnecting, status } = useAccount()
   const { data: balanceData } = useBalance({ address })
-  const { disconnect } = useDisconnect()
-  const { connect, connectors, error: connectError, status: connectStatus } = useConnect()
+  const { connectors, error: connectError, status: connectStatus } = useConnect()
+
+  const { disconnect } = useDisconnect({
+    mutation: {
+      onSuccess() {
+        // needed to prevent wagmi's bug which sometimes happens ("ConnectorAlreadyConnectedError")
+        window.location.reload()
+      },
+    }
+  })
+
+  const { connect } = useConnect({
+    mutation: {
+      onSuccess: (data, variables) => {
+        console.log('Connection successful!')
+      },
+      onError: (error) => {
+        console.error('Connection failed:', error)
+        // needed to prevent wagmi's bug which sometimes happens ("ConnectorAlreadyConnectedError")
+        disconnect()
+        window.location.reload()
+      }
+    }
+  })
+
   const config = useConfig()
   
   // state variables
@@ -59,11 +82,6 @@ export function useAccountData() {
   // Function to get current chain ID
   function getCurrentChainId(): number | null {
     return currentChainId.value
-  }
-
-  // Function to get current connection status
-  function getCurrentConnectionStatus(): boolean {
-    return isConnected.value
   }
 
   // Function to get domain name
@@ -163,8 +181,9 @@ export function useAccountData() {
     balanceEth: computed(() => getBalanceEth()),
     balanceWei: computed(() => getBalanceWei()),
     chainId: computed(() => getCurrentChainId()),
+    connectionStatus: computed(() => status.value),
     currentChainName: computed(() => getCurrentChainName()),
-    isActivated: computed(() => getCurrentConnectionStatus()),
+    isActivated: computed(() => isConnected.value),
     isConnecting: computed(() => isConnecting.value),
     isCurrentChainSupported: computed(() => isCurrentChainSupported.value),
 

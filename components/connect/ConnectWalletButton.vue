@@ -1,7 +1,7 @@
 <template>
   <div>
-    <button class="btn" :class="customClass" @click="openModal" :disabled="isConnecting">
-      <span v-if="!isConnecting">{{ btnText }}</span>
+    <button class="btn" :class="customClass" @click="openModal" :disabled="isWalletConnecting">
+      <span v-if="!isWalletConnecting">{{ btnText }}</span>
       <span v-else>
         <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
         <span>Connecting...</span>
@@ -134,15 +134,24 @@ export default {
 
   data() {
     return {
+      breakpoint: 1000,
       isModalOpen: false,
     }
   },
 
-  methods: {
-    openModal() {
-      this.isModalOpen = true
-      document.body.classList.add('modal-open')
+  computed: {
+    isWalletConnecting() {
+      if (window.innerWidth < this.breakpoint) {
+        return false
+      } else if (this.connectionStatus) {
+        return this.isConnecting
+      } else {
+        return false
+      }
     },
+  },
+
+  methods: {
 
     closeModal() {
       this.isModalOpen = false
@@ -151,7 +160,7 @@ export default {
 
     async connectInjected() {
       try {
-        await this.connect({ connector: this.connectors[0], chainId: this.chainId })
+        this.connect({ connector: this.connectors[0], chainId: this.chainId })
         this.closeModal()
       } catch (error) {
         console.error('Failed to connect injected wallet:', error)
@@ -161,19 +170,21 @@ export default {
 
     async connectMetaMask() {
       try {
-        await this.connect({ connector: this.connectors[1], chainId: this.chainId })
+        this.connect({ connector: this.connectors[1], chainId: this.chainId })
         this.closeModal()
       } catch (error) {
-        console.error('Failed to connect MetaMask:', error)
+        console.error('Failed to connect MetaMask wallet:', error)
+        console.error('Error details:', error.message, error.stack)
       }
     },
 
     async connectWalletConnect() {
       try {
-        await this.connect({ connector: this.connectors[2], chainId: this.chainId })
+        this.connect({ connector: this.connectors[2], chainId: this.chainId })
         this.closeModal()
       } catch (error) {
-        console.error('Failed to connect WalletConnect:', error)
+        console.error('Failed to connect WalletConnect wallet:', error)
+        console.error('Error details:', error.message, error.stack)
       }
     },
 
@@ -183,18 +194,25 @@ export default {
         this.closeModal()
       } catch (error) {
         console.error('Failed to connect Farcaster wallet:', error)
+        console.error('Error details:', error.message, error.stack)
       }
+    },
+
+    openModal() {
+      this.isModalOpen = true
+      document.body.classList.add('modal-open')
     },
   },
 
   setup() {
-    const { connect, connectors, chainId, isConnecting } = useAccountData()
+    const { connect, connectors, chainId, connectionStatus, isConnecting } = useAccountData()
     const { environment } = useWeb3()
 
     return {
       connect,
       connectors,
       chainId,
+      connectionStatus,
       environment,
       isConnecting,
     }
