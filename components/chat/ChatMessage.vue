@@ -308,6 +308,10 @@ export default {
 
   methods: {
     async checkIfCurrenctUserIsMod() {
+      if (!this.address) {
+        return this.currUserIsMod = false
+      }
+
       const value = fetchData(window, this.chatContext, 'mod-' + this.address, this.$config.public.expiryMods)
 
       if (value) {
