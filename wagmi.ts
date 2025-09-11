@@ -1,10 +1,10 @@
 import { farcasterMiniApp } from '@farcaster/miniapp-wagmi-connector'
 import { http, cookieStorage, createConfig, createStorage } from '@wagmi/vue'
-import { holesky } from '@wagmi/vue/chains'
+import { arbitrumSepolia } from '@wagmi/vue/chains'
 import { injected, metaMask, walletConnect } from '@wagmi/vue/connectors'
 
 export const config = createConfig({
-  chains: [holesky],
+  chains: [arbitrumSepolia],
   connectors: [
     injected(),
     metaMask(),
@@ -18,7 +18,7 @@ export const config = createConfig({
   }),
   ssr: true,
   transports: {
-    [holesky.id]: http(),
+    [arbitrumSepolia.id]: http(),
   },
 })
 
