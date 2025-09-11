@@ -16,22 +16,6 @@ export function useWeb3() {
   // Environment state using Nuxt's useState
   const environment = useState<'standard' | 'farcaster'>('web3Environment', () => 'standard')
 
-  // Lazy detection function that checks environment when needed
-  function getCurrentEnvironment(): 'standard' | 'farcaster' {
-    if (typeof window !== 'undefined') {
-      if ((window as any).parent !== window) {
-        environment.value = 'farcaster'
-        return 'farcaster'
-      }
-    }
-
-    environment.value = 'standard'
-    return 'standard'
-  }
-
-  // Initial detection when composable is mounted
-  environment.value = getCurrentEnvironment()
-
   async function getNativeCoinBalanceWei(address: string): Promise<bigint> {
     try {
       const balance = await getBalance(config, { address: address as `0x${string}` })
@@ -94,6 +78,10 @@ export function useWeb3() {
     }
   }
 
+  function setEnvironment(env: 'standard' | 'farcaster') {
+    environment.value = env
+  }
+
   async function signMessageAsync(message: string) {
     try {
       const signature = await signMessage(config, { message })
@@ -143,7 +131,8 @@ export function useWeb3() {
 
   return {
     // Environment
-    environment: computed(() => getCurrentEnvironment()),
+    environment: computed(() => environment.value),
+    setEnvironment,
     
     // Web3-specific methods
     readData,

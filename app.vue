@@ -53,6 +53,7 @@ import SidebarRight from '@/components/sidebars/SidebarRight.vue'
 import { useSidebars } from '@/composables/useSidebars'
 import { useSiteSettings } from '@/composables/useSiteSettings'
 import { useAccountData } from '@/composables/useAccountData'
+import { useWeb3 } from '@/composables/useWeb3'
 import { getActivityPoints, getArweaveBalance, getTokenBalanceWei } from '@/utils/balanceUtils'
 import { getDomainName } from '@/utils/domainUtils'
 import { parseReferrer } from '@/utils/referrerUtils'
@@ -81,7 +82,7 @@ export default {
     SiteSettingsModal,
   },
 
-  mounted() {
+  async mounted() {
     this.isMounted = true
 
     // set color mode
@@ -108,6 +109,16 @@ export default {
 
     // initialize Farcaster SDK
     sdk.actions.ready()
+
+    // detect if running in Farcaster environment and connect to Farcaster wallet if so
+    this.isFarcaster = await sdk.isInMiniApp()
+
+    if (this.isFarcaster) {
+      this.setEnvironment('farcaster')
+
+      // Connect to Farcaster wallet
+      this.connect({ connector: this.connectors[3], chainId: this.chainId })
+    }
 
     // enable popovers everywhere
     new bootstrap.Popover(document.body, {
@@ -194,24 +205,30 @@ export default {
   },
 
   setup() {
+    
+    const { 
+      address, chainId, connect, connectors, domainName, isActivated, 
+      setCurrentUserActivityPoints, setDomainName, setChatTokenBalanceWei } = useAccountData()
+
     const { mainContent, setLeftSidebar, setRightSidebar, setMainContent } = useSidebars()
     const { colorMode, setArweaveBalance, setFileUploadEnabled } = useSiteSettings()
-    const { 
-      address, chainId, domainName, isActivated, 
-      setCurrentUserActivityPoints, setDomainName, setChatTokenBalanceWei } = useAccountData()
+
+    const { setEnvironment } = useWeb3()
     
     return {
       address,
       chainId,
       colorMode,
+      connect,
+      connectors,
       domainName,
       isActivated,
       mainContent,
-      
       setArweaveBalance,
       setChatTokenBalanceWei,
       setCurrentUserActivityPoints,
       setDomainName,
+      setEnvironment,
       setFileUploadEnabled,
       setLeftSidebar,
       setMainContent,
