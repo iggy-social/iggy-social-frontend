@@ -56,8 +56,20 @@ export function useWeb3() {
       console.error('Failed contract call details:', {
         address: contractConfig.address,
         functionName: contractConfig.functionName,
-        args: contractConfig.args
+        args: contractConfig.args,
+        errorMessage: error?.message,
+        errorCode: error?.code,
+        errorName: error?.name
       })
+      
+      // Check for specific common errors and provide helpful messages
+      if (error?.message?.includes('execution reverted')) {
+        console.error('Contract execution reverted - this usually means the function call failed on-chain')
+      } else if (error?.message?.includes('network')) {
+        console.error('Network error - check your RPC connection')
+      } else if (error?.message?.includes('timeout')) {
+        console.error('Request timeout - the blockchain might be slow')
+      }
       
       return null
     }

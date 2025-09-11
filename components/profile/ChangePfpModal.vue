@@ -165,15 +165,17 @@ export default {
           args: [String(this.domainNameWithoutTld).toLowerCase()]
         })
 
-        if (!domainDataResult) {
-          throw new Error('Failed to read domain data')
-        }
-
-        let domainData
-        try {
-          domainData = JSON.parse(domainDataResult)
-        } catch (e) {
-          domainData = {}
+        let domainData = {}
+        
+        if (domainDataResult) {
+          try {
+            domainData = JSON.parse(domainDataResult)
+          } catch (e) {
+            console.warn('Failed to parse domain data as JSON, using empty object:', e)
+            domainData = {}
+          }
+        } else {
+          console.log('No existing domain data found, creating new domain data for:', this.domainNameWithoutTld)
         }
 
         domainData['image'] = this.imageLink
