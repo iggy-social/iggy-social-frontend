@@ -48,13 +48,16 @@
 </template>
 
 <script>
+import { formatUnits, parseUnits } from 'viem'
 import { useToast } from 'vue-toastification/dist/index.mjs'
+import { useAccountData } from '@/composables/useAccountData'
+import { useWeb3 } from '@/composables/useWeb3'
 import WaitingToast from '@/components/WaitingToast'
 import ConnectWalletButton from '@/components/connect/ConnectWalletButton'
 import SwitchChainButton from '@/components/connect/SwitchChainButton.vue'
 import { getDomainName, getDomainHolder, validateDomainName } from '@/utils/domainUtils'
 import { fetchReferrer, storeUsername } from '@/utils/browserStorageUtils'
-import { formatUnits, parseUnits } from 'viem'
+import { sendLog } from '@/utils/logger'
 
 export default {
   name: 'NameMintWidget',
@@ -83,6 +86,7 @@ export default {
   },
 
   mounted() {
+    sendLog('info', 'NameMintWidget mounted')
     this.fetchDomainData()
   },
 
@@ -334,13 +338,18 @@ export default {
 
     async mintName() {
       this.loadingMint = true
+      sendLog('info', `Minting name: ${this.domainName}`)
 
       if (this.isActivated && !this.domainNotValid.invalid) {
+        sendLog('info', `Checking if domain is already taken: ${this.domainName}`)
         // check if name is already taken
         const domainHolder = await getDomainHolder(this.domainName.toLowerCase())
 
+        sendLog('info', `Domain holder: ${domainHolder}`)
+
         if (domainHolder && domainHolder !== '0x0000000000000000000000000000000000000000') {
           this.toast('This name is already taken', { type: 'error' })
+          sendLog('error', `Domain is already taken: ${this.domainName}`)
           this.loadingMint = false
           return
         }
@@ -370,7 +379,17 @@ export default {
             contractAddress = this.$config.public.punkTldAddress
           }
 
-          const txHash = await this.writeData({
+          sendLog('info', `Contract address: ${contractAddress}`)
+          sendLog('info', `Domain name: ${this.domainName.toLowerCase()}`)
+          sendLog('info', `Domain receiver: ${this.address}`)
+          sendLog('info', `Referrer: ${fetchReferrer(window)}`)
+          sendLog('info', `Name price: ${this.getNamePrice}`)
+          sendLog('info', `Name price wei: ${parseUnits(this.getNamePrice, this.$config.public.tokenDecimals)}`)
+
+          let txHash;
+
+          try {
+            txHash = await this.writeData({
             address: contractAddress,
             abi: mintInterface,
             functionName: 'mint',
@@ -379,8 +398,14 @@ export default {
               this.address, // domain receiver
               fetchReferrer(window), // referrer
             ],
-            value: parseUnits(this.getNamePrice, this.$config.public.tokenDecimals),
-          })
+              value: parseUnits(this.getNamePrice, this.$config.public.tokenDecimals),
+            })
+          } catch (e) {
+            sendLog('error', `Error: ${e}`)
+            throw e
+          }
+
+          sendLog('info', `Transaction hash: ${txHash}`)
 
           toastWait = this.toast(
             {
@@ -396,6 +421,8 @@ export default {
           )
 
           const receipt = await this.waitForTxReceipt(txHash)
+
+          sendLog('info', `Receipt: ${receipt}`)
 
           if (receipt.status === 'success') {
             this.toast.dismiss(toastWait)
@@ -415,6 +442,8 @@ export default {
             console.log(receipt)
           }
         } catch (e) {
+          sendLog('error', `Error: ${e}`)
+
           try {
             let extractMessage = e.message.split('Details:')[1]
             extractMessage = extractMessage.split('Version: viem')[0]
@@ -422,6 +451,8 @@ export default {
             extractMessage = extractMessage.replace('execution reverted:', "Error:");
 
             console.log(extractMessage);
+
+            sendLog('error', `Extract message: ${extractMessage}`)
             
             this.toast(extractMessage, {type: "error"});
           } catch (e) {
@@ -439,6 +470,7 @@ export default {
 
   setup() {
     const { readData, writeData, waitForTxReceipt } = useWeb3()
+
     const { 
       address, 
       balanceEth, 
@@ -446,6 +478,7 @@ export default {
       isActivated, 
       setDomainName 
     } = useAccountData()
+
     const toast = useToast()
 
     return { 

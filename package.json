@@ -23,7 +23,7 @@
     "@vueuse/core": "^13.6.0",
     "@wagmi/vue": "latest",
     "arweave": "^1.15.7",
-    "axios": "^1.11.0",
+    "axios": "^1.12.1",
     "dompurify": "^3.2.6",
     "emoji-mart-vue-fast": "^15.0.4",
     "imagekit": "^6.0.0",
