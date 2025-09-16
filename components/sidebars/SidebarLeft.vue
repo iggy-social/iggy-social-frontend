@@ -232,6 +232,7 @@ import { useAccountData } from '@/composables/useAccountData'
 import { useSidebars } from '@/composables/useSidebars'
 import { useWeb3 } from '@/composables/useWeb3'
 import { getActivityPoints } from '@/utils/balanceUtils'
+import { getLessDecimals } from '@/utils/numberUtils'
 import { getTextWithoutBlankCharacters } from '@/utils/textUtils'
 
 export default {
@@ -255,7 +256,7 @@ export default {
 
     getUserAp() {
       if (this.getCurentUserActivityPoints() > 0) {
-        return this.getCurentUserActivityPoints()
+        return getLessDecimals(this.getCurentUserActivityPoints())
       } else {
         return 0
       }

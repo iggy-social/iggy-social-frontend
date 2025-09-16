@@ -18,7 +18,7 @@
       <div class="row">
         <div class="col-md-5">
           <div class="input-group">
-            <input :value="getCurentUserActivityPoints()" type="text" class="form-control" disabled />
+            <input :value="getLessDecimals(getCurentUserActivityPoints())" type="text" class="form-control" disabled />
 
             <button class="btn btn-primary disabled" type="button" data-bs-toggle="dropdown" aria-expanded="false">
               Activity Points
@@ -58,9 +58,10 @@
 </template>
 
 <script>
-import { getActivityPoints } from '@/utils/balanceUtils'
 import ShareReferralLink from '@/components/referrals/ShareReferralLink.vue'
 import { useAccountData } from '@/composables/useAccountData'
+import { getActivityPoints } from '@/utils/balanceUtils'
+import { getLessDecimals } from '@/utils/numberUtils'
 
 export default {
   name: 'ActivityPoints',

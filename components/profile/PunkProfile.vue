@@ -41,7 +41,7 @@
 
               <p class="me-4" v-if="$config.public.activityPointsAddress && $config.public.showFeatures.activityPoints">
                 <i class="bi bi-wallet me-1"></i>
-                {{ balanceAp }} AP
+                {{ getLessDecimals(balanceAp) }} AP
               </p>
 
               <p class="me-4">
