@@ -1,1 +1,0 @@
-function t(r){const e=Number(r);return e===0?0:e<1e-10||e<1e-4?Number.parseFloat(e.toFixed(8)):e<.01?Number.parseFloat(e.toFixed(6)):e<1?Number.parseFloat(e.toFixed(4)):e<100?Number.parseFloat(e.toFixed(2)):Math.round(e)}export{t as g};
