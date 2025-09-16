@@ -120,7 +120,7 @@ export default {
         address: this.token.address,
         abi: Erc20Abi,
         functionName: 'approve',
-        args: [this.routerAddress, amountWei],
+        args: [this.routerAddress, BigInt(amountWei)],
       }
 
       let toastWait;

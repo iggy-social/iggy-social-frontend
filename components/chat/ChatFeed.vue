@@ -347,8 +347,8 @@ export default {
               type: 'function'
             }],
             functionName: 'createReply',
-            args: [this.mainItemId, storageUrl],
-            value: this.priceWei
+            args: [BigInt(this.mainItemId), storageUrl],
+            value: BigInt(this.priceWei)
           }
         } else if (this.isCommentFeed) {
           contractConfig = {
@@ -365,7 +365,7 @@ export default {
             }],
             functionName: 'createComment',
             args: [this.mainItemId, storageUrl],
-            value: this.priceWei
+            value: BigInt(this.priceWei)
           }
         } else {
           contractConfig = {
@@ -379,7 +379,7 @@ export default {
             }],
             functionName: 'createMessage',
             args: [storageUrl],
-            value: this.priceWei
+            value: BigInt(this.priceWei)
           }
         }
 
@@ -410,6 +410,7 @@ export default {
 
           // get main message or reply count
           let fullThreadLength
+
           if (this.isReplyFeed) {
             const replyCountConfig = {
               address: this.chatContext,
@@ -421,9 +422,11 @@ export default {
                 type: 'function'
               }],
               functionName: 'getReplyCount',
-              args: [this.mainItemId]
+              args: [BigInt(this.mainItemId)]
             }
-                         fullThreadLength = await this.readData(replyCountConfig)
+            
+            fullThreadLength = await this.readData(replyCountConfig)
+
           } else if (this.isCommentFeed) {
             const commentCountConfig = {
               address: this.chatContext,
@@ -437,7 +440,9 @@ export default {
               functionName: 'getCommentCount',
               args: [this.mainItemId]
             }
-                         fullThreadLength = await this.readData(commentCountConfig)
+            
+            fullThreadLength = await this.readData(commentCountConfig)
+
           } else {
             const mainMessageCountConfig = {
               address: this.chatContext,
@@ -451,7 +456,8 @@ export default {
               functionName: 'getMainMessageCount',
               args: []
             }
-                         fullThreadLength = await this.readData(mainMessageCountConfig)
+            
+            fullThreadLength = await this.readData(mainMessageCountConfig)
           }
 
           // prepend message to messages array
@@ -601,7 +607,7 @@ export default {
               type: 'function'
             }],
             functionName: 'fetchMainMessages',
-            args: [true, fromIndex, queryLength]
+            args: [true, BigInt(fromIndex), BigInt(queryLength)]
           }
         }
 
@@ -745,7 +751,7 @@ export default {
               type: 'function'
             }],
             functionName: 'fetchLastMainMessages',
-            args: [true, this.pageLength]
+            args: [true, BigInt(this.pageLength)]
           }
         }
 

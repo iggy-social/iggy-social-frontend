@@ -32,7 +32,7 @@ export async function getPriceImpactBps(
     address: routerAddress as `0x${string}`,
     abi: routerAbi,
     functionName: 'getPriceImpact',
-    args: [inputToken.address, outputToken.address, amountInWei],
+    args: [inputToken.address, outputToken.address, BigInt(amountInWei)],
   }
 
   const impact = await readData(contractConfig)

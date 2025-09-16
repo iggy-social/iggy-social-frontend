@@ -194,7 +194,7 @@ export default {
           functionName: 'setMdTypeAndUrlOrImage',
           args: [
             this.cAddress,
-            this.typeChoice,
+            BigInt(this.typeChoice),
             this.editImageMetadataUrl,
             this.editImagePreviewUrl,
           ]

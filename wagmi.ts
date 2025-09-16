@@ -41,11 +41,14 @@ export const config = createConfig({
   chains: [customArbitrumSepolia],
   connectors: [
     injected(),
+    farcasterMiniApp(),
     metaMask(),
+    /*
     walletConnect({
       projectId: import.meta.env.VITE_WC_PROJECT_ID,
     }),
-    farcasterMiniApp(),
+    */
+    
   ],
   storage: createStorage({
     storage: cookieStorage,

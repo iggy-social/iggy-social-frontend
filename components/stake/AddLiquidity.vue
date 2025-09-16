@@ -197,7 +197,7 @@ export default {
             }
           ],
           functionName: 'approve',
-          args: [this.$config.public.swapRouterAddress, this.depositAmountWei]
+          args: [this.$config.public.swapRouterAddress, BigInt(this.depositAmountWei)]
         }
 
         const hash = await this.writeData(contractConfig)
@@ -301,13 +301,13 @@ export default {
           functionName: 'addLiquidityETH',
           args: [
             this.$config.public.chatTokenAddress,
-            this.depositAmountWei, // chat token deposit
-            depositAmountWeiMin, // chat token deposit min
-            ncAmountWeiMin, // native coin deposit min
+            BigInt(this.depositAmountWei), // chat token deposit
+            BigInt(depositAmountWeiMin), // chat token deposit min
+            BigInt(ncAmountWeiMin), // native coin deposit min
             this.address,
-            deadline
+            BigInt(deadline)
           ],
-          value: ncAmountWei
+          value: BigInt(ncAmountWei)
         }
 
         const hash = await this.writeData(contractConfig)

@@ -340,7 +340,7 @@ export default {
               this.uniqueId, // unique ID to easily find the NFT contract address
               parseEther(String(this.ratio)) // bonding curve ratio
             ],
-            value: this.createPriceWei // price for creating collection
+            value: BigInt(this.createPriceWei) // price for creating collection
           }
 
           const hash = await this.writeData(launchpadContract)
@@ -468,7 +468,7 @@ export default {
           address: this.$config.public.nftLaunchpadBondingAddress,
           abi: launchpadInterface,
           functionName: 'isUniqueIdAvailable',
-          args: [this.uniqueId]
+          args: [this.uniqueId] // string
         })
 
         if (!isUniqueIdAvailable) {

@@ -170,7 +170,7 @@ export default {
 
     async connectMetaMask() {
       try {
-        this.connect({ connector: this.connectors[1], chainId: this.chainId })
+        this.connect({ connector: this.connectors[2], chainId: this.chainId })
         this.closeModal()
       } catch (error) {
         console.error('Failed to connect MetaMask wallet:', error)
@@ -180,7 +180,7 @@ export default {
 
     async connectWalletConnect() {
       try {
-        this.connect({ connector: this.connectors[2], chainId: this.chainId })
+        this.connect({ connector: this.connectors[4], chainId: this.chainId })
         this.closeModal()
       } catch (error) {
         console.error('Failed to connect WalletConnect wallet:', error)
@@ -190,7 +190,7 @@ export default {
 
     async connectFarcaster() {
       try {
-        await this.connect({ connector: this.connectors[3], chainId: this.chainId })
+        await this.connect({ connector: this.connectors[1], chainId: this.chainId })
         this.closeModal()
       } catch (error) {
         console.error('Failed to connect Farcaster wallet:', error)

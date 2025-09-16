@@ -462,7 +462,7 @@ export default {
           functionName: 'getMintPrice',
         })
 
-        this.priceBuyWei = Number(priceResult)
+        this.priceBuyWei = priceResult
       } catch (e) {
         console.error('Failed to get mint price:', e)
         this.waitingBuy = false
@@ -478,7 +478,7 @@ export default {
           abi: nftAbi,
           functionName: 'mint',
           args: [this.address],
-          value: Number(this.priceBuyWei),
+          value: BigInt(this.priceBuyWei),
         })
 
         toastWait = this.toast(
@@ -519,15 +519,15 @@ export default {
               })
             ])
             
-            this.priceBuyWei = Number(newPriceBuy)
-            this.priceSellWei = Number(newPriceSell)
+            this.priceBuyWei = newPriceBuy
+            this.priceSellWei = newPriceSell
 
             try {
               this.userTokenId = Number(await this.readData({
                 address: this.cAddress,
                 abi: nftAbi,
                 functionName: 'tokenOfOwnerByIndex',
-                args: [this.address, 0],
+                args: [this.address, BigInt(0)],
               }))
             } catch (e) {
               this.userTokenId = null
@@ -828,7 +828,7 @@ export default {
             address: this.cAddress,
             abi: nftAbi,
             functionName: 'tokenOfOwnerByIndex',
-            args: [this.address, 0],
+            args: [this.address, BigInt(0)],
           })
         } else {
           this.userTokenId = null
@@ -888,7 +888,7 @@ export default {
         address: this.mdAddress,
         abi: metadataAbi,
         functionName: 'getMetadata',
-        args: [this.cAddress, mdTokenId],
+        args: [this.cAddress, BigInt(mdTokenId)],
       });
 
       if (String(metadata).startsWith("http")) {
@@ -1024,14 +1024,14 @@ export default {
           address: this.cAddress,
           abi: nftAbi,
           functionName: 'tokenURI',
-          args: [1],
+          args: [BigInt(1)],
         });
       } catch (e) { // ERC-1155
         tokenURI = await this.readData({
           address: this.cAddress,
           abi: nftAbi,
           functionName: 'uri',
-          args: [1],
+          args: [BigInt(1)],
         });
       }
 
@@ -1215,7 +1215,7 @@ export default {
           address: this.cAddress,
           abi: nftAbi,
           functionName: 'burn',
-          args: [this.userTokenId],
+          args: [BigInt(this.userTokenId)],
         })
 
         toastWait = this.toast(
@@ -1265,7 +1265,7 @@ export default {
                   address: this.cAddress,
                   abi: nftAbi,
                   functionName: 'tokenOfOwnerByIndex',
-                    args: [this.address, 0],
+                    args: [this.address, BigInt(0)],
                 })
               }
             } catch (e) {

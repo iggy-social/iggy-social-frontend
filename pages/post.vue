@@ -131,7 +131,7 @@ export default {
             }
           ],
           functionName: 'getMainMessage',
-          args: [this.getMessageId]
+          args: [BigInt(this.getMessageId)]
         }
 
         let msg;
@@ -143,7 +143,7 @@ export default {
           const replyContractConfig = {
             ...contractConfig,
             functionName: 'getReply',
-            args: [this.getMessageId, this.getReplyId]
+            args: [BigInt(this.getMessageId), BigInt(this.getReplyId)]
           }
           replyObj = await this.readData(replyContractConfig);
         }

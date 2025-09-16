@@ -164,7 +164,7 @@ export default {
             }
           ],
           functionName: 'getFeaturedNftContracts',
-          args: [4]
+          args: [BigInt(4)]
         }
 
         // get featured NFTs using readData
@@ -230,7 +230,7 @@ export default {
           const lastNftsConfig = {
             ...launchpadContractConfig,
             functionName: 'getLastNftContracts',
-            args: [1]
+            args: [BigInt(1)]
           }
           const lNfts = await this.readData(lastNftsConfig)
           if (lNfts) {
@@ -252,7 +252,7 @@ export default {
           const contractsConfig = {
             ...launchpadContractConfig,
             functionName: 'getNftContracts',
-            args: [this.allNftsIndexStart, this.allNftsIndexEnd]
+            args: [BigInt(this.allNftsIndexStart), BigInt(this.allNftsIndexEnd)]
           }
           const lNfts = await this.readData(contractsConfig)
           

@@ -202,7 +202,7 @@ export default {
             }
           ],
           functionName: 'approve',
-          args: [this.$config.public.stakingContractAddress, this.depositAmountWei]
+          args: [this.$config.public.stakingContractAddress, BigInt(this.depositAmountWei)]
         }
 
         const hash = await this.writeData(contractConfig)
@@ -282,7 +282,7 @@ export default {
             }
           ],
           functionName: 'deposit',
-          args: [this.depositAmountWei]
+          args: [BigInt(this.depositAmountWei)]
         }
 
         const hash = await this.writeData(contractConfig)

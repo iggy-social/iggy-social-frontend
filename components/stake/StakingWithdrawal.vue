@@ -196,7 +196,7 @@ export default {
             }
           ],
           functionName: 'withdraw',
-          args: [this.withdrawalAmountWei]
+          args: [BigInt(this.withdrawalAmountWei)]
         }
 
         const hash = await this.writeData(contractConfig)

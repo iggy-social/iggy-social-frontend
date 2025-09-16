@@ -353,21 +353,21 @@ export default {
               address: this.chatContext,
               abi: [{ name: 'deleteReply', type: 'function', inputs: [{ name: 'mainMsgIndex_', type: 'uint256' }, { name: 'replyMsgIndex_', type: 'uint256' }], outputs: [], stateMutability: 'nonpayable' }],
               functionName: 'deleteReply',
-              args: [this.mainItemId, this.message.index]
+              args: [BigInt(this.mainItemId), BigInt(this.message.index)]
             }
           } else if (this.isComment) {
             contractConfig = {
               address: this.chatContext,
               abi: [{ name: 'deleteComment', type: 'function', inputs: [{ name: 'subjectAddress_', type: 'address' }, { name: 'commentIndex_', type: 'uint256' }], outputs: [], stateMutability: 'nonpayable' }],
               functionName: 'deleteComment',
-              args: [this.mainItemId, this.message.index]
+              args: [this.mainItemId, BigInt(this.message.index)]
             }
           } else {
             contractConfig = {
               address: this.chatContext,
               abi: [{ name: 'deleteMessage', type: 'function', inputs: [{ name: 'mainMsgIndex_', type: 'uint256' }], outputs: [], stateMutability: 'nonpayable' }],
               functionName: 'deleteMessage',
-              args: [this.message.index]
+              args: [BigInt(this.message.index)]
             }
           }
 

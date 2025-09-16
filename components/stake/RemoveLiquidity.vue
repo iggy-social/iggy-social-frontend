@@ -139,7 +139,7 @@ export default {
             }
           ],
           functionName: 'approve',
-          args: [this.$config.public.swapRouterAddress, this.depositAmountWei]
+          args: [this.$config.public.swapRouterAddress, BigInt(this.depositAmountWei)]
         }
 
         const hash = await this.writeData(lpTokenContract)
@@ -227,7 +227,7 @@ export default {
             }
           ],
           functionName: 'calculateETHAndTokensToReceive',
-          args: [this.$config.public.chatTokenAddress, this.depositAmountWei]
+          args: [this.$config.public.chatTokenAddress, BigInt(this.depositAmountWei)]
         }
 
         const chatETHAmounts = await this.readData(calculateContract)
@@ -269,11 +269,11 @@ export default {
           functionName: 'removeLiquidityETH',
           args: [
             this.$config.public.chatTokenAddress,
-            this.depositAmountWei, // LP tokens to burn
-            tokenAmountWeiMin, // min amount of chat tokens to receive
-            ncAmountWeiMin, // min amount of native coins to receive
+            BigInt(this.depositAmountWei), // LP tokens to burn
+            BigInt(tokenAmountWeiMin), // min amount of chat tokens to receive
+            BigInt(ncAmountWeiMin), // min amount of native coins to receive
             this.address,
-            deadline,
+            BigInt(deadline),
           ]
         }
 

@@ -117,7 +117,7 @@ export default {
       this.setEnvironment('farcaster')
 
       // Connect to Farcaster wallet
-      this.connect({ connector: this.connectors[3], chainId: this.chainId })
+      this.connect({ connector: this.connectors[1], chainId: this.chainId })
     }
 
     // enable popovers everywhere
