@@ -9,6 +9,7 @@ import {
   useDisconnect,
   useConnect
 } from '@wagmi/vue'
+import { useWeb3 } from '@/composables/useWeb3'
 
 export function useAccountData() {
 
@@ -18,12 +19,15 @@ export function useAccountData() {
   const { address, isConnected, isConnecting, status } = useAccount()
   const { data: balanceData } = useBalance({ address })
   const { connectors, error: connectError, status: connectStatus } = useConnect()
+  const { environment } = useWeb3()
 
   const { disconnect } = useDisconnect({
     mutation: {
       onSuccess() {
-        // needed to prevent wagmi's bug which sometimes happens ("ConnectorAlreadyConnectedError")
-        window.location.reload()
+        if (environment.value !== 'farcaster') {
+          // needed to prevent wagmi's bug which sometimes happens ("ConnectorAlreadyConnectedError")
+          window.location.reload()
+        }
       },
     }
   })
@@ -35,9 +39,11 @@ export function useAccountData() {
       },
       onError: (error) => {
         console.error('Connection failed:', error)
-        // needed to prevent wagmi's bug which sometimes happens ("ConnectorAlreadyConnectedError")
-        disconnect()
-        window.location.reload()
+        if (environment.value !== 'farcaster') {
+          // needed to prevent wagmi's bug which sometimes happens ("ConnectorAlreadyConnectedError")
+          disconnect()
+          window.location.reload()
+        }
       }
     }
   })
