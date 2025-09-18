@@ -161,7 +161,7 @@ export default {
 
     async connectInjected() {
       try {
-        this.connect({ connector: this.connectors[0], chainId: this.chainId })
+        this.connect({ connector: this.injectedConnector, chainId: this.chainId })
         this.closeModal()
       } catch (error) {
         console.error('Failed to connect injected wallet:', error)
@@ -171,7 +171,7 @@ export default {
 
     async connectMetaMask() {
       try {
-        this.connect({ connector: this.connectors[2], chainId: this.chainId })
+        this.connect({ connector: this.metaMaskConnector, chainId: this.chainId })
         this.closeModal()
       } catch (error) {
         console.error('Failed to connect MetaMask wallet:', error)
@@ -181,7 +181,7 @@ export default {
 
     async connectWalletConnect() {
       try {
-        this.connect({ connector: this.connectors[4], chainId: this.chainId })
+        this.connect({ connector: this.walletConnectConnector, chainId: this.chainId })
         this.closeModal()
       } catch (error) {
         console.error('Failed to connect WalletConnect wallet:', error)
@@ -191,7 +191,7 @@ export default {
 
     async connectFarcaster() {
       try {
-        await this.connect({ connector: this.connectors[1], chainId: this.chainId })
+        await this.connect({ connector: this.farcasterConnector, chainId: this.chainId })
         this.closeModal()
       } catch (error) {
         console.error('Failed to connect Farcaster wallet:', error)
@@ -209,13 +209,33 @@ export default {
     const { connect, connectors, chainId, connectionStatus, isConnecting } = useAccountData()
     const { environment } = useWeb3()
 
+    let injectedConnector;
+    let metaMaskConnector;
+    let walletConnectConnector;
+    let farcasterConnector;
+
+    for (const connector of connectors) {
+      if (connector.name === 'Injected') {
+        injectedConnector = connector
+      } else if (connector.name === 'MetaMask') {
+        metaMaskConnector = connector
+      } else if (connector.name === 'WalletConnect') {
+        walletConnectConnector = connector
+      } else if (connector.name === 'Farcaster') {
+        farcasterConnector = connector
+      }
+    }
+
     return {
       connect,
-      connectors,
       chainId,
       connectionStatus,
       environment,
+      farcasterConnector,
+      injectedConnector,
       isConnecting,
+      metaMaskConnector,
+      walletConnectConnector,
     }
   },
 }
