@@ -33,41 +33,6 @@
             </button>
           </div>
           <div class="modal-body row">
-            <div class="card col-6 bg-transparent" role="button" @click.stop="connectInjected">
-              <img
-                src="/img/wallets/rabby.png"
-                class="card-img-top card-img-wallet"
-                alt="Rabby"
-              />
-              <small class="text-center mb-3 text-muted">Rabby</small>
-            </div>
-
-            <div class="card col-6 bg-transparent" role="button" @click.stop="connectWalletConnect">
-              <img
-                src="/img/wallets/wc.png"
-                class="card-img-top card-img-wallet"
-                alt="WalletConnect"
-              />
-              <small class="text-center mb-3 text-muted">WalletConnect</small>
-            </div>
-
-            <div class="card col-6 bg-transparent" role="button" @click.stop="connectMetaMask">
-              <img
-                src="/img/wallets/metamask.png"
-                class="card-img-top card-img-wallet"
-                alt="MetaMask"
-              />
-              <small class="text-center mb-3 text-muted">MetaMask</small>
-            </div>
-
-            <div class="card col-6 bg-transparent" role="button" @click.stop="connectInjected">
-              <img
-                src="/img/wallets/rainbow.png"
-                class="card-img-top card-img-wallet"
-                alt="Rainbow"
-              />
-              <small class="text-center mb-3 text-muted">Rainbow</small>
-            </div>
 
             <!-- Farcaster wallet - only show in Farcaster environment -->
             <div 
@@ -82,6 +47,42 @@
                 alt="Farcaster"
               />
               <small class="text-center mb-3 text-muted">Farcaster</small>
+            </div>
+
+            <div v-if="environment !== 'farcaster'" class="card col-6 bg-transparent" role="button" @click.stop="connectInjected">
+              <img
+                src="/img/wallets/rabby.png"
+                class="card-img-top card-img-wallet"
+                alt="Rabby"
+              />
+              <small class="text-center mb-3 text-muted">Rabby</small>
+            </div>
+
+            <div v-if="environment !== 'farcaster'" class="card col-6 bg-transparent" role="button" @click.stop="connectWalletConnect">
+              <img
+                src="/img/wallets/wc.png"
+                class="card-img-top card-img-wallet"
+                alt="WalletConnect"
+              />
+              <small class="text-center mb-3 text-muted">WalletConnect</small>
+            </div>
+
+            <div v-if="environment !== 'farcaster'" class="card col-6 bg-transparent" role="button" @click.stop="connectMetaMask">
+              <img
+                src="/img/wallets/metamask.png"
+                class="card-img-top card-img-wallet"
+                alt="MetaMask"
+              />
+              <small class="text-center mb-3 text-muted">MetaMask</small>
+            </div>
+
+            <div v-if="environment !== 'farcaster'" class="card col-6 bg-transparent" role="button" @click.stop="connectInjected">
+              <img
+                src="/img/wallets/rainbow.png"
+                class="card-img-top card-img-wallet"
+                alt="Rainbow"
+              />
+              <small class="text-center mb-3 text-muted">Rainbow</small>
             </div>
 
             <!-- Bifrost wallet - hide in Farcaster environment -->
@@ -99,7 +100,7 @@
               <small class="text-center mb-3 text-muted">Bifrost</small>
             </div>
 
-            <div class="card col-6 bg-transparent" role="button" @click.stop="connectInjected">
+            <div v-if="environment !== 'farcaster'" class="card col-6 bg-transparent" role="button" @click.stop="connectInjected">
               <img
                 src="/img/wallets/brave.png"
                 class="card-img-top card-img-wallet"

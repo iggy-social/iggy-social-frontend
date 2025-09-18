@@ -14,8 +14,6 @@
     <Meta name="twitter:title" :content="$config.public.projectMetadataTitle" />
     <Meta name="twitter:description" :content="$config.public.projectDescription" />
     <Meta name="twitter:image" :content="$config.public.projectUrl + $config.public.previewImage" />
-    
-    <Meta name="fc:miniapp" :content="farcasterMetaContent" />
   </Head>
 
   <NavbarDesktop v-if="!isMobile" />
@@ -42,7 +40,6 @@
 
 <script>
 import { sdk } from '@farcaster/miniapp-sdk'
-import farcasterConfig from '@/public/.well-known/farcaster.json'
 import SiteSettingsModal from '@/components/SiteSettingsModal.vue'
 import ChangeUsernameModal from '@/components/names/ChangeUsernameModal.vue'
 import NavbarDesktop from '@/components/navbars/NavbarDesktop.vue'
@@ -149,23 +146,6 @@ export default {
       }
       return false
     },
-    
-    farcasterMetaContent() {
-      return JSON.stringify({
-        version: farcasterConfig.miniapp.version,
-        imageUrl: farcasterConfig.miniapp.imageUrl,
-        button: {
-          title: farcasterConfig.miniapp.buttonTitle,
-          action: {
-            type: 'launch_miniapp',
-            name: farcasterConfig.miniapp.name,
-            url: farcasterConfig.miniapp.homeUrl,
-            splashImageUrl: farcasterConfig.miniapp.splashImageUrl,
-            splashBackgroundColor: farcasterConfig.miniapp.splashBackgroundColor
-          }
-        }
-      })
-    }
   },
 
   methods: {

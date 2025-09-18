@@ -15,11 +15,15 @@ export default defineNuxtConfig({
     head: {
       meta: [
         {
+          charset: 'utf-8',
+        },
+        {
           name: 'viewport',
           content: 'width=device-width, initial-scale=1',
         },
         {
-          charset: 'utf-8',
+          name: 'fc:miniapp',
+          content: '{"version":"next", "imageUrl":"https://demo.iggy.social/img/farcaster/fc-image.png", "button":{"title":"A starter template for building Web3 applications with Wagmi and Nuxt", "action":{ "type":"launch_miniapp", "name":"Iggy Social", "url":"https://demo.iggy.social", "splashImageUrl":"https://demo.iggy.social/img/farcaster/fc-icon.png", "splashBackgroundColor":"#002b36"}}}',
         },
       ],
       link: [

@@ -257,6 +257,9 @@
     @saveCollection="saveCollection"
   />
 
+  <!-- Change media modal -->
+  <ChangeMediaModal :cAddress="cAddress" :mdAddress="mdAddress" />
+
   <!-- Change Metadata URL Modal -->
   <ChangeNftTypeModal :mdAddress="mdAddress" :cType="cType" :cAddress="cAddress" @saveCollection="saveCollection" />
 
@@ -278,6 +281,7 @@ import WaitingToast from '@/components/WaitingToast'
 import AddImageToCollectionModal from '@/components/nft/collection/AddImageToCollectionModal'
 import ChangeCollectionPreviewModal from '@/components/nft/collection/ChangeCollectionPreviewModal'
 import ChangeDescriptionModal from '@/components/nft/collection/ChangeDescriptionModal'
+import ChangeMediaModal from '@/components/nft/collection/ChangeMediaModal'
 import ChangeNftTypeModal from '@/components/nft/collection/ChangeNftTypeModal'
 import CollectionMediaSection from '@/components/nft/collection/CollectionMediaSection.vue';
 import RemoveImageFromCollectionModal from '@/components/nft/collection/RemoveImageFromCollectionModal'
@@ -321,6 +325,7 @@ export default {
     AddImageToCollectionModal,
     ChangeCollectionPreviewModal,
     ChangeDescriptionModal,
+    ChangeMediaModal,
     ChangeNftTypeModal,
     ChatFeed,
     CollectionMediaSection,

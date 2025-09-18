@@ -33,7 +33,6 @@
         <ul>
           <li>Mint {{ $config.public.tldName }} domains</li>
           <li v-if="$config.public.showFeatures.swap">Swap tokens (when the receiving token is {{ $config.public.tokenSymbol }})</li>
-          <li>Mint posts</li>
           <li>Invite others to {{ $config.public.projectName }} using referral links</li>
           <li v-if="$config.public.showFeatures.nftLaunchpad">Launch and mint NFTs via the NFT Launchpad</li>
           <li>Other kinds of earning APs are coming soon, stay tuned!</li>

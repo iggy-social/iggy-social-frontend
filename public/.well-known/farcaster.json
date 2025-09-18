@@ -12,11 +12,11 @@
     "description": "A starter template for building Web3 applications with Wagmi and Nuxt",
     "tags": ["send", "token", "transfer", "domain", "name"],
     "primaryCategory": "utility",
-    "homeUrl": "https://iggy-social-nuxt.vercel.app",
-    "iconUrl": "https://iggy-social-nuxt.vercel.app/img/logo.svg",
-    "heroImageUrl": "https://iggy-social-nuxt.vercel.app/img/covers/cover.png",
-    "imageUrl": "https://iggy-social-nuxt.vercel.app/img/covers/cover.png",
-    "splashImageUrl": "https://iggy-social-nuxt.vercel.app/img/logo.svg",
+    "homeUrl": "https://demo.iggy.social",
+    "iconUrl": "https://demo.iggy.social/img/farcaster/fc-icon.png",
+    "heroImageUrl": "https://demo.iggy.social/img/farcaster/fc-hero.png",
+    "imageUrl": "https://demo.iggy.social/img/farcaster/fc-image.png",
+    "splashImageUrl": "https://demo.iggy.social/img/farcaster/fc-icon.png",
     "splashBackgroundColor": "#002b36"
   }
 }
