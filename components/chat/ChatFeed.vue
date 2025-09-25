@@ -98,6 +98,7 @@
 
         <div class="d-flex mt-2 row">
           <img
+            v-if="showImagePreview"
             v-for="(imgLink, index) in getAllImagesFromText(messageText)"
             :src="imgLink"
             :key="index"
@@ -162,7 +163,7 @@ import ChatMessage from '@/components/chat/ChatMessage.vue'
 import FileUploadModal from '@/components/storage/FileUploadModal.vue'
 import TenorGifSearch from '@/components/tenor/TenorGifSearch.vue'
 import TenorStickerSearch from '@/components/tenor/TenorStickerSearch.vue'
-import { getWorkingUrl } from '@/utils/fileUtils'
+import { getArweaveUrlAsHttp, getWorkingUrl } from '@/utils/fileUtils'
 import { getAllImagesFromText } from '@/utils/textUtils'
 import { fetchData, storeData } from '@/utils/browserStorageUtils'
 import { useAccountData } from '@/composables/useAccountData'
@@ -198,6 +199,7 @@ export default {
       pageLength: 10,
       price: 0, // price to post a message (in ETH)
       priceWei: 0, // price to post a message (in wei)
+      showImagePreview: true,
       showLoadMore: true,
       waitingCreateMessage: false,
       waitingLoadMessages: false,
@@ -860,7 +862,14 @@ export default {
 
         if (imgRes.success) {
           imageUrl = imgRes.url
+        } else {
+          this.showImagePreview = false
         }
+      }
+
+      if (imageUrl.startsWith('ar://')) {
+        // if image url still starts with ar://, then convert it to http
+        imageUrl = getArweaveUrlAsHttp(imageUrl)
       }
 
       if (
