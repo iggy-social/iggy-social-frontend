@@ -39,6 +39,7 @@
 </template>
 
 <script>
+import { useAccount, useConfig, useDisconnect, useConnect } from '@wagmi/vue'
 import { sdk } from '@farcaster/miniapp-sdk'
 import SiteSettingsModal from '@/components/SiteSettingsModal.vue'
 import ChangeUsernameModal from '@/components/names/ChangeUsernameModal.vue'
@@ -50,7 +51,6 @@ import SidebarRight from '@/components/sidebars/SidebarRight.vue'
 import { useSidebars } from '@/composables/useSidebars'
 import { useSiteSettings } from '@/composables/useSiteSettings'
 import { useAccountData } from '@/composables/useAccountData'
-import { useWeb3 } from '@/composables/useWeb3'
 import { getActivityPoints, getArweaveBalance, getTokenBalanceWei } from '@/utils/balanceUtils'
 import { getDomainName } from '@/utils/domainUtils'
 import { parseReferrer } from '@/utils/referrerUtils'
@@ -107,14 +107,52 @@ export default {
     // initialize Farcaster SDK
     sdk.actions.ready()
 
+    // fetch connected-with from local storage
+    const connectedWith = window.localStorage.getItem("connected-with")
+
     // detect if running in Farcaster environment and connect to Farcaster wallet if so
     this.isFarcaster = await sdk.isInMiniApp()
 
     if (this.isFarcaster) {
       this.setEnvironment('farcaster')
 
-      // Connect to Farcaster wallet
-      this.connect({ connector: this.farcasterConnector, chainId: this.chainId })
+      // Auto-connect to Farcaster wallet
+      try {
+        await this.connectAsync({ connector: this.farcasterConnector, chainId: this.chainId })
+      } catch (error) {
+        console.error('[app.vue] Failed to connect Farcaster wallet:', error)
+        console.error('[app.vue] Error details:', error.message, error.stack)
+      }
+    } else if (connectedWith === "injected") {
+      // Auto-connect to injected wallet
+      console.log("[app.vue] User has already connected with injected connector")
+      try {
+        await this.disconnectAsync()
+        await this.connectAsync({ connector: this.injectedConnector, chainId: this.chainId })
+      } catch (error) {
+        console.error('[app.vue] Failed to connect injected wallet:', error)
+        console.error('[app.vue] Error details:', error.message, error.stack)
+      }
+    } else if (connectedWith === "metaMask") {
+      // Auto-connect to MetaMask wallet
+      console.log("User has already connected with metaMask connector")
+      try {
+        await this.disconnectAsync()
+        await this.connectAsync({ connector: this.metaMaskConnector, chainId: this.chainId })
+      } catch (error) {
+        console.error('[app.vue] Failed to connect metaMask wallet:', error)
+        console.error('[app.vue] Error details:', error.message, error.stack)
+      }
+    } else if (connectedWith === "walletConnect") {
+      // Auto-connect to WalletConnect wallet
+      console.log("User has already connected with walletConnect connector")
+      try {
+        await this.disconnectAsync()
+        await this.connectAsync({ connector: this.walletConnectConnector, chainId: this.chainId })
+      } catch (error) {
+        console.error('[app.vue] Failed to connect walletConnect wallet:', error)
+        console.error('[app.vue] Error details:', error.message, error.stack)
+      }
     }
 
     // enable popovers everywhere
@@ -163,7 +201,8 @@ export default {
     async fetchArweaveBalance() {
       if (this.$config.public.arweaveAddress) {
         const balance = await getArweaveBalance(this.$config.public.arweaveAddress)
-        console.log('Arweave balance:', balance)
+        console.log('Arweave balance:')
+        console.log(balance)
 
         this.setArweaveBalance(balance)
       }
@@ -185,20 +224,75 @@ export default {
   },
 
   setup() {
-    
-    const { 
-      address, chainId, connect, connectors, domainName, isActivated, 
-      setCurrentUserActivityPoints, setDomainName, setChatTokenBalanceWei } = useAccountData()
+    const { domainName, setCurrentUserActivityPoints, setDomainName, setChatTokenBalanceWei } = useAccountData()
 
     const { mainContent, setLeftSidebar, setRightSidebar, setMainContent } = useSidebars()
-    const { colorMode, setArweaveBalance, setFileUploadEnabled } = useSiteSettings()
+    const { colorMode, setArweaveBalance, setEnvironment, setFileUploadEnabled } = useSiteSettings()
 
-    const { setEnvironment } = useWeb3()
+    const config = useConfig()
+    const { address, chainId, isConnected } = useAccount({ config })
+    const { connectors } = useConnect()
 
+    // DISCONNECT
+    const { disconnectAsync } = useDisconnect({
+      config,
+      mutation: {
+        onSuccess() {
+          window.localStorage.setItem("connected-with", "")
+
+          /*
+          if (environment.value !== 'farcaster') {
+            // needed to prevent wagmi's bug which sometimes happens ("ConnectorAlreadyConnectedError")
+            //window.location.reload()
+          }
+          */
+        },
+      }
+    })
+
+    // CONNECT
+    const { connectAsync } = useConnect({
+      config,
+      mutation: {
+        onSuccess: (data, variables) => {
+          console.log('Connection successful!')
+          if (variables?.connector?.id) {
+            window.localStorage.setItem("connected-with", variables.connector.id)
+          }
+        },
+        onError: async (error) => {
+          console.error('Connection failed:', error)
+          if (String(error).startsWith("ConnectorAlreadyConnectedError")) {
+            console.log("INSIDE ConnectorAlreadyConnectedError")
+            toast("ConnectorAlreadyConnectedError Error, please try connecting again.", { type: 'error' })
+            await disconnectAsync()
+          }
+
+          /*
+          if (environment.value !== 'farcaster') {
+            // needed to prevent wagmi's bug which sometimes happens ("ConnectorAlreadyConnectedError")
+            //disconnectAsync()
+            //window.location.reload()
+          }
+          */
+        }
+      }
+    })
+
+    // CONNECTORS
+    let injectedConnector;
+    let metaMaskConnector;
+    let walletConnectConnector;
     let farcasterConnector;
 
     for (const connector of connectors) {
-      if (connector.name === 'Farcaster') {
+      if (connector.name === 'Injected') {
+        injectedConnector = connector
+      } else if (connector.name === 'MetaMask') {
+        metaMaskConnector = connector
+      } else if (connector.name === 'WalletConnect') {
+        walletConnectConnector = connector
+      } else if (connector.name === 'Farcaster') {
         farcasterConnector = connector
       }
     }
@@ -207,11 +301,14 @@ export default {
       address,
       chainId,
       colorMode,
-      connect,
+      connectAsync,
+      disconnectAsync,
       domainName,
       farcasterConnector,
-      isActivated,
+      injectedConnector,
+      isConnected,
       mainContent,
+      metaMaskConnector,
       setArweaveBalance,
       setChatTokenBalanceWei,
       setCurrentUserActivityPoints,
@@ -221,6 +318,7 @@ export default {
       setLeftSidebar,
       setMainContent,
       setRightSidebar,
+      walletConnectConnector
     }
   },
 
@@ -266,7 +364,7 @@ export default {
       }
     },
 
-    async isActivated(newIsActivated) {
+    async isConnected(newIsActivated) {
       if (newIsActivated && this.address) {
         const domain = await getDomainName(this.address, window)
         this.setDomainName(domain)
