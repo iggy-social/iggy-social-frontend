@@ -78,8 +78,8 @@
 import axios from 'axios';
 import { isAddress, parseAbi } from 'viem';
 import { useToast } from "vue-toastification/dist/index.mjs";
-import { useWeb3 } from '@/composables/useWeb3'
-import { useAccountData } from '@/composables/useAccountData'
+import { readData, writeData } from '@/utils/contractUtils'
+import { waitForTxReceipt } from '@/utils/txUtils'
 import WaitingToast from "@/components/WaitingToast";
 import { hasTextBlankCharacters } from '@/utils/textUtils';
 
@@ -128,7 +128,7 @@ export default {
         ]);
 
         try {
-          const result = await this.readData({
+          const result = await readData({
             address: this.cAddress,
             abi: nftAbi,
             functionName: 'tokenOfOwnerByIndex',
@@ -157,7 +157,7 @@ export default {
 
       try {
         // Check ownership first
-        const holder = await this.readData({
+        const holder = await readData({
           address: this.cAddress,
           abi: nftAbi,
           functionName: 'ownerOf',
@@ -173,7 +173,7 @@ export default {
         }
 
         // Get token URI
-        let tokenURI = await this.readData({
+        let tokenURI = await readData({
           address: this.cAddress,
           abi: nftAbi,
           functionName: 'tokenURI',
@@ -227,7 +227,7 @@ export default {
           ]);
 
           try {
-            this.recipientAddress = await this.readData({
+            this.recipientAddress = await readData({
               address: this.$config.public.punkTldAddress,
               abi: tldAbi,
               functionName: 'getDomainHolder',
@@ -259,7 +259,7 @@ export default {
       let toastWait;
       
       try {
-        const hash = await this.writeData({
+        const hash = await writeData({
           address: this.cAddress,
           abi: nftAbi,
           functionName: 'transferFrom',
@@ -279,7 +279,7 @@ export default {
           }
         );
 
-        const receipt = await this.waitForTxReceipt(hash);
+        const receipt = await waitForTxReceipt(hash);
 
         if (receipt.status === 'success') {
           this.toast.dismiss(toastWait);
@@ -332,17 +332,9 @@ export default {
   },
 
   setup() {
-    const { readData, writeData, waitForTxReceipt } = useWeb3();
-    const { address, chainId, isActivated } = useAccountData();
     const toast = useToast();
 
     return { 
-      readData, 
-      writeData, 
-      waitForTxReceipt,
-      address, 
-      chainId, 
-      isActivated, 
       toast 
     };
   },

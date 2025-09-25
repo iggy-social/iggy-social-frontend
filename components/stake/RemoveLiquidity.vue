@@ -68,10 +68,15 @@
 <script>
 import { parseEther, formatUnits } from 'viem'
 import { useToast } from 'vue-toastification/dist/index.mjs'
+import { useAccount, useConfig } from '@wagmi/vue'
+
 import WaitingToast from '@/components/WaitingToast'
-import { useWeb3 } from '@/composables/useWeb3'
+
 import { useAccountData } from '@/composables/useAccountData'
 import { useSiteSettings } from '@/composables/useSiteSettings'
+
+import { readData, writeData } from '@/utils/contractUtils'
+import { waitForTxReceipt } from '@/utils/txUtils'
 
 export default {
   name: 'RemoveLiquidity',
@@ -142,7 +147,7 @@ export default {
           args: [this.$config.public.swapRouterAddress, BigInt(this.depositAmountWei)]
         }
 
-        const hash = await this.writeData(lpTokenContract)
+        const hash = await writeData(lpTokenContract)
 
         toastWait = this.toast(
           {
@@ -157,7 +162,7 @@ export default {
           },
         )
 
-        const receipt = await this.waitForTxReceipt(hash)
+        const receipt = await waitForTxReceipt(hash)
 
         if (receipt.status === 'success') {
           this.allowanceWei = this.depositAmountWei
@@ -230,7 +235,7 @@ export default {
           args: [this.$config.public.chatTokenAddress, BigInt(this.depositAmountWei)]
         }
 
-        const chatETHAmounts = await this.readData(calculateContract)
+        const chatETHAmounts = await readData(calculateContract)
 
         if (!chatETHAmounts) {
           throw new Error('Failed to calculate amounts')
@@ -277,7 +282,7 @@ export default {
           ]
         }
 
-        const hash = await this.writeData(routerContract)
+        const hash = await writeData(routerContract)
 
         toastWait = this.toast(
           {
@@ -292,7 +297,7 @@ export default {
           },
         )
 
-        const receipt = await this.waitForTxReceipt(hash)
+        const receipt = await waitForTxReceipt(hash)
 
         if (receipt.status === 'success') {
           this.toast.dismiss(toastWait)
@@ -363,7 +368,7 @@ export default {
           args: [this.address, this.$config.public.swapRouterAddress]
         }
 
-        const result = await this.readData(lpTokenContract)
+        const result = await readData(lpTokenContract)
         if (result) {
           this.allowanceWei = result
         }
@@ -378,12 +383,10 @@ export default {
   },
 
   setup() {
-    const { readData, writeData, waitForTxReceipt } = useWeb3()
-    const { 
-      address, 
-      getLpTokenBalanceWei, 
-      setLpTokenBalanceWei 
-    } = useAccountData()
+    const config = useConfig()
+    const { address } = useAccount({ config })
+
+    const { getLpTokenBalanceWei, setLpTokenBalanceWei } = useAccountData()
     const { slippage, swapDeadline } = useSiteSettings()
     const toast = useToast()
 
@@ -392,9 +395,6 @@ export default {
       slippage,
       swapDeadline,
       toast,
-      readData,
-      writeData,
-      waitForTxReceipt,
       getLpTokenBalanceWei,
       setLpTokenBalanceWei,
     }

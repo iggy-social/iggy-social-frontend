@@ -41,11 +41,13 @@
 </template>
 
 <script>
+import { useAccount, useConfig } from '@wagmi/vue'
 import { formatEther } from 'viem'
 import { useToast } from 'vue-toastification/dist/index.mjs'
 import WaitingToast from '@/components/WaitingToast'
 import { useAccountData } from '@/composables/useAccountData'
-import { useWeb3 } from '@/composables/useWeb3'
+import { readData, writeData } from '@/utils/contractUtils'
+import { waitForTxReceipt } from '@/utils/txUtils'
 
 export default {
   name: 'AirdropActivityPoints',
@@ -76,7 +78,7 @@ export default {
 
       try {
         // preview airdrop claim for past APs
-        const claimPreviewResult = await this.readData({
+        const claimPreviewResult = await readData({
           address: this.$config.public.airdropApAddress,
           abi: [
             {
@@ -114,7 +116,7 @@ export default {
       let toastWait;
 
       try {
-        const hash = await this.writeData(claimApContract)
+        const hash = await writeData(claimApContract)
 
         toastWait = this.toast(
           {
@@ -129,7 +131,7 @@ export default {
           },
         )
 
-        const receipt = await this.waitForTxReceipt(hash)
+        const receipt = await waitForTxReceipt(hash)
 
         if (receipt.status === 'success') {
           this.toast.dismiss(toastWait)
@@ -179,14 +181,12 @@ export default {
   },
 
   setup() {
-    const { readData, writeData, waitForTxReceipt } = useWeb3()
-    const { addToChatTokenBalanceWei, address } = useAccountData()
+    const config = useConfig()
+    const { address } = useAccount({ config })
+    const { addToChatTokenBalanceWei } = useAccountData()
     const toast = useToast()
 
     return {
-      readData,
-      writeData,
-      waitForTxReceipt,
       addToChatTokenBalanceWei,
       address,
       toast,

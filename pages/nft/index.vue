@@ -106,12 +106,14 @@
 
 <script>
 import { formatEther } from 'viem'
-import { useAccount } from '@wagmi/vue'
+
 import Image from '@/components/Image.vue'
 import SearchNftModal from '@/components/nft/SearchNftModal.vue'
-import { getWorkingUrl } from '@/utils/fileUtils'
+
 import { fetchCollection, storeCollection } from '@/utils/browserStorageUtils'
-import { useWeb3 } from '@/composables/useWeb3'
+import { readData } from '@/utils/contractUtils';
+import { getWorkingUrl } from '@/utils/fileUtils'
+import { getLessDecimals } from '@/utils/numberUtils';
 
 export default {
   name: 'Nft',
@@ -168,7 +170,7 @@ export default {
         }
 
         // get featured NFTs using readData
-        const fNfts = await this.readData(launchpadContractConfig)
+        const fNfts = await readData(launchpadContractConfig)
         
         if (fNfts) {
           await this.parseNftsArray(fNfts, this.featuredNfts)
@@ -222,7 +224,7 @@ export default {
             functionName: 'getNftContractsArrayLength',
             args: []
           }
-          const lengthResult = await this.readData(lengthConfig)
+          const lengthResult = await readData(lengthConfig)
           this.allNftsArrayLength = lengthResult ? Number(lengthResult) : 0
         }
 
@@ -232,7 +234,7 @@ export default {
             functionName: 'getLastNftContracts',
             args: [BigInt(1)]
           }
-          const lNfts = await this.readData(lastNftsConfig)
+          const lNfts = await readData(lastNftsConfig)
           if (lNfts) {
             await this.parseNftsArray(lNfts)
           }
@@ -254,7 +256,7 @@ export default {
             functionName: 'getNftContracts',
             args: [BigInt(this.allNftsIndexStart), BigInt(this.allNftsIndexEnd)]
           }
-          const lNfts = await this.readData(contractsConfig)
+          const lNfts = await readData(contractsConfig)
           
           if (lNfts) {
             const lNftsWritable = [...lNfts] // copy the lNfts array to make it writable (for reverse() method)
@@ -286,30 +288,11 @@ export default {
 
     formatPrice(priceWei) {
       if (priceWei === null) {
-        return null
+        return null;
       }
 
-      const price = Number(formatEther(priceWei))
-
-      if (price > 100) {
-        return price.toFixed(0)
-      } else if (price > 1) {
-        return price.toFixed(2)
-      } else if (price > 0.1) {
-        return price.toFixed(4)
-      } else if (price > 0.01) {
-        return price.toFixed(5)
-      } else if (price > 0.001) {
-        return price.toFixed(6)
-      } else if (price > 0.0001) {
-        return price.toFixed(7)
-      } else if (price > 0.00001) {
-        return price.toFixed(8)
-      } else if (price > 0.000001) {
-        return price.toFixed(9)
-      } else {
-        return price
-      }
+      const price = Number(formatEther(priceWei));
+      return getLessDecimals(price);
     },
 
     async parseNftsArray(inputArray, outputArray = this.lastNfts) {
@@ -366,7 +349,7 @@ export default {
               functionName: 'name',
               args: []
             }
-            cName = await this.readData(nameConfig)
+            cName = await readData(nameConfig)
             if (cName) {
               collection['name'] = cName
             }
@@ -379,7 +362,7 @@ export default {
             functionName: 'getMintPrice',
             args: []
           }
-          const mintPriceWei = await this.readData(priceConfig)
+          const mintPriceWei = await readData(priceConfig)
 
           // get image
           let cImage
@@ -394,7 +377,7 @@ export default {
               args: []
             }
 
-            cImage = await this.readData(imageConfig)
+            cImage = await readData(imageConfig)
 
             if (cImage) {
               let cImageResult = await getWorkingUrl(cImage)
@@ -418,15 +401,6 @@ export default {
         }
       }
     },
-
-
-  },
-
-  setup() {
-    const { address, chainId, isConnected } = useAccount()
-    const { readData } = useWeb3()
-
-    return { address, chainId, isConnected, readData }
   },
 }
 </script>

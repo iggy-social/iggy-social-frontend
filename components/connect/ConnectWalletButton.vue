@@ -117,8 +117,9 @@
 </template>
 
 <script>
-import { useAccountData } from '@/composables/useAccountData'
-import { useWeb3 } from '@/composables/useWeb3'
+import { useToast } from 'vue-toastification/dist/index.mjs'
+import { useAccount, useConfig, useDisconnect, useConnect } from '@wagmi/vue'
+import { useSiteSettings } from '@/composables/useSiteSettings'
 
 export default {
   name: 'ConnectWalletButton',
@@ -161,41 +162,45 @@ export default {
 
     async connectInjected() {
       try {
-        this.connect({ connector: this.injectedConnector, chainId: this.chainId })
+        await this.disconnectAsync()
+        await this.connectAsync({ connector: this.injectedConnector, chainId: this.chainId })
         this.closeModal()
       } catch (error) {
-        console.error('Failed to connect injected wallet:', error)
-        console.error('Error details:', error.message, error.stack)
+        console.error('[ConnectWalletButton] Failed to connect injected wallet:', error)
+        console.error('[ConnectWalletButton] Error details:', error.message, error.stack)
       }
     },
 
     async connectMetaMask() {
       try {
-        this.connect({ connector: this.metaMaskConnector, chainId: this.chainId })
+        await this.disconnectAsync()
+        await this.connectAsync({ connector: this.metaMaskConnector, chainId: this.chainId })
         this.closeModal()
       } catch (error) {
-        console.error('Failed to connect MetaMask wallet:', error)
-        console.error('Error details:', error.message, error.stack)
+        console.error('[ConnectWalletButton] Failed to connect MetaMask wallet:', error)
+        console.error('[ConnectWalletButton] Error details:', error.message, error.stack)
       }
     },
 
     async connectWalletConnect() {
       try {
-        this.connect({ connector: this.walletConnectConnector, chainId: this.chainId })
+        await this.disconnectAsync()
+        await this.connectAsync({ connector: this.walletConnectConnector, chainId: this.chainId })
         this.closeModal()
       } catch (error) {
-        console.error('Failed to connect WalletConnect wallet:', error)
-        console.error('Error details:', error.message, error.stack)
+        console.error('[ConnectWalletButton] Failed to connect WalletConnect wallet:', error)
+        console.error('[ConnectWalletButton] Error details:', error.message, error.stack)
       }
     },
 
     async connectFarcaster() {
       try {
-        await this.connect({ connector: this.farcasterConnector, chainId: this.chainId })
+        await this.disconnectAsync()
+        await this.connectAsync({ connector: this.farcasterConnector, chainId: this.chainId })
         this.closeModal()
       } catch (error) {
-        console.error('Failed to connect Farcaster wallet:', error)
-        console.error('Error details:', error.message, error.stack)
+        console.error('[ConnectWalletButton] Failed to connect Farcaster wallet:', error)
+        console.error('[ConnectWalletButton] Error details:', error.message, error.stack)
       }
     },
 
@@ -206,9 +211,13 @@ export default {
   },
 
   setup() {
-    const { connect, connectors, chainId, connectionStatus, isConnecting } = useAccountData()
-    const { environment } = useWeb3()
+    const config = useConfig()
+    const { chainId, isConnecting, status } = useAccount({ config })
+    const { connectors } = useConnect()
+    const { environment } = useSiteSettings()
+    const toast = useToast()
 
+    // CONNECTORS
     let injectedConnector;
     let metaMaskConnector;
     let walletConnectConnector;
@@ -226,10 +235,53 @@ export default {
       }
     }
 
+    // DISCONNECT
+    const { disconnectAsync } = useDisconnect({
+      config,
+      mutation: {
+        onSuccess() {
+          window.localStorage.setItem("connected-with", "")
+
+          /*
+          if (environment.value !== 'farcaster') {
+            // needed to prevent wagmi's bug which sometimes happens ("ConnectorAlreadyConnectedError")
+            //window.location.reload()
+          }
+          */
+        },
+      }
+    })
+
+    // CONNECT
+    const { connectAsync } = useConnect({
+      config,
+      mutation: {
+        onSuccess: (data, variables) => {
+          // store to localstorage
+          if (variables?.connector?.id) {
+            window.localStorage.setItem("connected-with", variables.connector.id)
+          }
+          
+        },
+        onError: async (error) => {
+          //toast("Error, please try connecting again.", { type: 'error' })
+          console.error('Connection failed:', error)
+
+          if (String(error).startsWith("ConnectorAlreadyConnectedError")) {
+            console.log("INSIDE ConnectorAlreadyConnectedError")
+            toast("ConnectorAlreadyConnectedError Error, please try connecting again.", { type: 'error' })
+            await disconnectAsync()
+            //window.location.reload()
+          }
+        }
+      }
+    })
+
     return {
-      connect,
       chainId,
-      connectionStatus,
+      connectAsync,
+      connectionStatus: status,
+      disconnectAsync,
       environment,
       farcasterConnector,
       injectedConnector,

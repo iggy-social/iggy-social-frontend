@@ -6,21 +6,21 @@
       </NuxtLink>
 
       <ul class="navbar-nav justify-content-end flex-grow-1">
-        <li v-if="isActivated" class="nav-item">
+        <li v-if="isConnected" class="nav-item">
           <span class="nav-link cursor-pointer" data-bs-toggle="modal" data-bs-target="#referralModal">
             Earn referral fees! 🤑
           </span>
         </li>
 
-        <li v-if="!isActivated" class="nav-item">
+        <li v-if="!isConnected" class="nav-item">
           <ConnectWalletButton customClass="nav-link cursor-pointer btn-primary" />
         </li>
 
-        <li v-if="isActivated" class="nav-item">
+        <li v-if="isConnected" class="nav-item">
           <SwitchChainButton dropdown="true" navbar="true" />
         </li>
 
-        <li v-if="isActivated" class="nav-item dropdown">
+        <li v-if="isConnected" class="nav-item dropdown">
           <a
             class="nav-link dropdown-toggle"
             data-bs-toggle="dropdown"
@@ -65,11 +65,13 @@
 </template>
 
 <script>
+import { useAccount, useConfig, useDisconnect } from '@wagmi/vue'
 import ConnectWalletButton from '@/components/connect/ConnectWalletButton.vue'
 import SwitchChainButton from '@/components/connect/SwitchChainButton.vue'
-import { addTokenToMetaMask } from '@/utils/tokenUtils'
 import { useAccountData } from '@/composables/useAccountData'
 import { useSiteSettings } from '@/composables/useSiteSettings'
+import { shortenAddress } from '@/utils/addressUtils'
+import { addTokenToMetaMask } from '@/utils/tokenUtils'
 
 export default {
   name: 'NavbarDesktop',
@@ -101,15 +103,15 @@ export default {
       }
     },
 
-    isActivated() {
-      return this?.isActivated || false
+    isConnected() {
+      return this?.isConnected || false
     },
 
     showDomainOrAddress() {
       if (this.domainName) {
         return this.domainName
       } else if (this.address) {
-        return this.addressShort
+        return shortenAddress(this.address)
       }
       return 'Profile'
     },
@@ -138,7 +140,7 @@ export default {
 
     async disconnectWallet() {
       try {
-        await this.disconnect()
+        await this.disconnectAsync()
       } catch (error) {
         console.error('Failed to disconnect wallet:', error)
       }
@@ -146,24 +148,34 @@ export default {
   },
 
   setup() {
-
-    const { 
-      address,
-      addressShort, 
-      disconnect,
-      domainName,
-      isActivated, 
-    } = useAccountData()
-
+    const config = useConfig()
+    const { address, isConnected } = useAccount({ config })
+    const { domainName } = useAccountData()
     const { colorMode, setColorMode } = useSiteSettings()
+
+    // DISCONNECT
+    const { disconnectAsync } = useDisconnect({
+      config,
+      mutation: {
+        onSuccess() {
+          window.localStorage.setItem("connected-with", "")
+
+          /*
+          if (environment.value !== 'farcaster') {
+            // needed to prevent wagmi's bug which sometimes happens ("ConnectorAlreadyConnectedError")
+            //window.location.reload()
+          }
+          */
+        },
+      }
+    })
 
     return {
       address,
-      addressShort,
       colorMode,
-      disconnect,
+      disconnectAsync,
       domainName,
-      isActivated,
+      isConnected,
       setColorMode,
     }
   },

@@ -141,13 +141,18 @@
 
 <script>
 import axios from 'axios'
-import { isAddress } from 'viem'
 import DOMPurify from 'dompurify'
+import { isAddress } from 'viem'
 import { useToast } from 'vue-toastification/dist/index.mjs'
+import { useAccount, useConfig } from '@wagmi/vue'
+
 import Image from '@/components/Image.vue'
 import WaitingToast from '@/components/WaitingToast'
 import ProfileImage from '@/components/profile/ProfileImage.vue'
+import { shortenAddress } from '@/utils/addressUtils'
+import { fetchData, fetchUsername, storeData, storeUsername } from '@/utils/browserStorageUtils'
 import { getDomainName } from '@/utils/domainUtils'
+import { readData, writeData } from '@/utils/contractUtils'
 import {
   getTextWithoutBlankCharacters,
   findFirstUrl,
@@ -156,7 +161,7 @@ import {
   urlParsing,
   youtubeParsing,
 } from '@/utils/textUtils'
-import { fetchData, fetchUsername, storeData, storeUsername } from '@/utils/browserStorageUtils'
+import { waitForTxReceipt } from '@/utils/txUtils'
 
 export default {
   name: 'ChatMessage',
@@ -276,7 +281,7 @@ export default {
       if (this.authorDomain) {
         return getTextWithoutBlankCharacters(this.authorDomain)
       } else {
-        return this.shortenAddress(this.message.author)
+        return shortenAddress(this.message.author)
       }
     },
 
@@ -330,7 +335,7 @@ export default {
           args: [this.address]
         }
 
-        const isMod = await this.readData(contractConfig)
+        const isMod = await readData(contractConfig)
         storeData(window, this.chatContext, { isMod: Boolean(isMod) }, 'mod-' + this.address)
         return this.currUserIsMod = Boolean(isMod)
       } catch (error) {
@@ -371,7 +376,7 @@ export default {
             }
           }
 
-          txHash = await this.writeData(contractConfig)
+          txHash = await writeData(contractConfig)
 
           toastWait = this.toast(
             {
@@ -386,7 +391,7 @@ export default {
             },
           )
 
-          const receipt = await this.waitForTxReceipt(txHash)
+          const receipt = await waitForTxReceipt(txHash)
           
           if (receipt.status === 'success') {
             this.toast.dismiss(toastWait)
@@ -584,20 +589,14 @@ export default {
 
   setup() {
     const route = useRoute()
-    const { address, chainId, isActivated, shortenAddress } = useAccountData()
-    const { readData, writeData, waitForTxReceipt } = useWeb3()
+    const config = useConfig()
+    const { address } = useAccount({ config })
     const toast = useToast()
 
     return { 
       address, 
-      chainId, 
-      isActivated, 
       route, 
-      shortenAddress, 
-      toast,
-      readData,
-      writeData,
-      waitForTxReceipt
+      toast
     }
   },
 

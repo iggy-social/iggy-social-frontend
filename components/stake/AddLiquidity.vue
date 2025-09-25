@@ -97,10 +97,14 @@
 <script>
 import { parseEther, formatEther, formatUnits } from 'viem'
 import { useToast } from 'vue-toastification/dist/index.mjs'
+import { useAccount, useConfig } from '@wagmi/vue'
+
 import WaitingToast from '@/components/WaitingToast'
-import { useWeb3 } from '@/composables/useWeb3'
 import { useAccountData } from '@/composables/useAccountData'
 import { useSiteSettings } from '@/composables/useSiteSettings'
+import { getNativeCoinBalanceWei } from '@/utils/balanceUtils'
+import { readData, writeData } from '@/utils/contractUtils'
+import { waitForTxReceipt } from '@/utils/txUtils'
 
 export default {
   name: 'AddLiquidity',
@@ -108,6 +112,7 @@ export default {
   data() {
     return {
       allowanceWei: BigInt(0),
+      balanceWei: null,
       debounce: null, // debounce to get ETH amount
       depositAmount: 0,
       ethFieldDisabled: true,
@@ -200,7 +205,7 @@ export default {
           args: [this.$config.public.swapRouterAddress, BigInt(this.depositAmountWei)]
         }
 
-        const hash = await this.writeData(contractConfig)
+        const hash = await writeData(contractConfig)
 
         toastWait = this.toast(
           {
@@ -215,7 +220,7 @@ export default {
           },
         )
 
-        const receipt = await this.waitForTxReceipt(hash)
+        const receipt = await waitForTxReceipt(hash)
 
         if (receipt.status === 'success') {
           this.allowanceWei = this.depositAmountWei
@@ -310,7 +315,7 @@ export default {
           value: BigInt(ncAmountWei)
         }
 
-        const hash = await this.writeData(contractConfig)
+        const hash = await writeData(contractConfig)
 
         toastWait = this.toast(
           {
@@ -325,7 +330,7 @@ export default {
           },
         )
 
-        const receipt = await this.waitForTxReceipt(hash)
+        const receipt = await waitForTxReceipt(hash)
 
         if (receipt.status === 'success') {
           this.toast.dismiss(toastWait)
@@ -391,7 +396,7 @@ export default {
           args: [this.address, this.$config.public.swapRouterAddress]
         }
 
-        const result = await this.readData(contractConfig)
+        const result = await readData(contractConfig)
         if (result !== null) {
           this.allowanceWei = result
         }
@@ -417,7 +422,7 @@ export default {
           args: [this.address]
         }
 
-        const result = await this.readData(contractConfig)
+        const result = await readData(contractConfig)
         if (result !== null) {
           this.setLpTokenBalanceWei(result)
         }
@@ -449,7 +454,7 @@ export default {
           ]
         }
 
-        const result = await this.readData(contractConfig)
+        const result = await readData(contractConfig)
         if (result !== null) {
           this.nativeCoinAmountWei = result
           this.nativeCoinAmount = formatEther(this.nativeCoinAmountWei)
@@ -461,6 +466,12 @@ export default {
       } catch (error) {
         console.error('Error fetching native coin amount:', error)
       }
+    },
+
+    setMaxInputTokenAmount() {
+      this.depositAmount = this.chatTokenBalance
+
+      this.fetchNativeCoinAmount()
     },
 
     fetchNativeCoinAmountWithTimeout() {
@@ -475,31 +486,23 @@ export default {
       }, self.timeout)
     },
 
-    setMaxInputTokenAmount() {
-      this.depositAmount = this.chatTokenBalance
-
-      this.fetchNativeCoinAmount()
+    async getUserNativeCoinBalanceWei() {
+      if (this.address) {
+        this.balanceWei = await getNativeCoinBalanceWei(this.address)
+      }
     },
   },
 
   setup() {
-    const { readData, writeData, waitForTxReceipt } = useWeb3()
-    const { 
-      address, 
-      balanceWei, 
-      getChatTokenBalanceWei, 
-      setChatTokenBalanceWei,
-      setLpTokenBalanceWei
-    } = useAccountData()
+    const config = useConfig()
+    const { address } = useAccount({ config })
+
+    const { getChatTokenBalanceWei, setChatTokenBalanceWei, setLpTokenBalanceWei} = useAccountData()
     const { swapDeadline, slippage } = useSiteSettings()
     const toast = useToast()
 
     return {
-      readData,
-      writeData,
-      waitForTxReceipt,
       address,
-      balanceWei,
       getChatTokenBalanceWei,
       setChatTokenBalanceWei,
       setLpTokenBalanceWei,

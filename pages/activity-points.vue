@@ -57,6 +57,8 @@
 </template>
 
 <script>
+import { useAccount, useConfig } from '@wagmi/vue'
+
 import ShareReferralLink from '@/components/referrals/ShareReferralLink.vue'
 import { useAccountData } from '@/composables/useAccountData'
 import { getActivityPoints } from '@/utils/balanceUtils'
@@ -85,11 +87,10 @@ export default {
   },
 
   setup() {
-    const { 
-      address, 
-      getCurentUserActivityPoints, 
-      setCurrentUserActivityPoints 
-    } = useAccountData()
+    const config = useConfig()
+    const { address } = useAccount({ config })
+
+    const { getCurentUserActivityPoints, setCurrentUserActivityPoints } = useAccountData()
 
     return { 
       address, 

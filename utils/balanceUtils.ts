@@ -83,13 +83,13 @@ export async function getArweaveBalance(arweaveAddress: string): Promise<string>
   return arweave.ar.winstonToAr(balance)
 }
 
-export async function getNativeTokenBalanceWei(address: string): Promise<bigint> {
+export async function getNativeCoinBalanceWei(address: string): Promise<bigint> {
   const balance = await getBalance(config, { address: address as `0x${string}` })
   return balance.value
 }
 
 export async function getNativeCoinBalanceEth(address: string): Promise<string> {
-  const balance = await getNativeTokenBalanceWei(address)
+  const balance = await getNativeCoinBalanceWei(address)
   return formatEther(balance)
 }
 
@@ -136,7 +136,7 @@ export async function getTokenBalanceWei(
 ): Promise<bigint> {
   if (getAddress(token.address) === zeroAddress) {
     // For native token (ETH), use the dedicated function
-    return await getNativeTokenBalanceWei(userAddress)
+    return await getNativeCoinBalanceWei(userAddress)
   } else {
     // First, try to check if the contract exists and has the required function
     const contractConfig: Erc20ContractConfig<readonly [string]> = {

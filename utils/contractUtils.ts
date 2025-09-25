@@ -40,11 +40,6 @@ export async function readData(contractConfig: any) {
   }
 }
 
-export async function waitForTxReceipt(hash: `0x${string}`) {
-  const receipt = await waitForTransactionReceipt(config, { hash })
-  return receipt
-}
-
 export async function writeData(contractConfig: any) {
   try {
     // Write the transaction and get hash immediately

@@ -72,10 +72,12 @@
 <script>
 import { formatEther } from 'viem'
 import { useToast } from 'vue-toastification/dist/index.mjs'
+
 import WaitingToast from '@/components/WaitingToast'
+
+import { writeData } from '@/utils/contractUtils'
 import { getLessDecimals } from '@/utils/numberUtils'
-import { useWeb3 } from '@/composables/useWeb3'
-import { useAccountData } from '@/composables/useAccountData'
+import { waitForTxReceipt } from '@/utils/txUtils'
 
 export default {
   name: 'StakingClaim',
@@ -287,7 +289,7 @@ export default {
         }
 
         // Write the transaction
-        const hash = await this.writeData(stakingContractConfig)
+        const hash = await writeData(stakingContractConfig)
 
         toastWait = this.toast(
           {
@@ -303,7 +305,7 @@ export default {
         )
 
         // Wait for transaction receipt
-        const receipt = await this.waitForTxReceipt(hash)
+        const receipt = await waitForTxReceipt(hash)
 
         if (receipt.status === 'success') {
           this.$emit('clearClaimAmount') // clear claim amount in parent component
@@ -348,17 +350,10 @@ export default {
   },
 
   setup() {
-    const { writeData, waitForTxReceipt } = useWeb3()
-    const { address, chainId, isActivated } = useAccountData()
     const toast = useToast()
 
     return {
-      address,
-      chainId,
-      isActivated,
       toast,
-      writeData,
-      waitForTxReceipt,
     }
   },
 }

@@ -68,13 +68,13 @@
                 >
               </div>
 
-              <button v-if="isActivated && isSupportedChain" class="btn btn-primary" @click="submitToBlockchain" :disabled="!imageLink || waitingSubmit">
+              <button v-if="isConnected && isSupportedChain" class="btn btn-primary" @click="submitToBlockchain" :disabled="!imageLink || waitingSubmit">
                 <span v-if="waitingSubmit" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                 Submit to blockchain
               </button>
 
-              <ConnectWalletButton v-if="!isActivated" class="btn-outline-primary mt-2 mb-2" btnText="Connect Wallet" />
-              <SwitchChainButton v-if="isActivated && !isSupportedChain" />
+              <ConnectWalletButton v-if="!isConnected" class="btn-outline-primary mt-2 mb-2" btnText="Connect Wallet" />
+              <SwitchChainButton v-if="isConnected && !isSupportedChain" />
             </div>
           </div>
         </div>
@@ -85,11 +85,15 @@
 
 <script>
 import { useToast } from 'vue-toastification/dist/index.mjs'
+import { useAccount, useConfig } from '@wagmi/vue'
+
 import ConnectWalletButton from '@/components/connect/ConnectWalletButton'
 import Image from '@/components/Image.vue'
 import SwitchChainButton from '@/components/connect/SwitchChainButton.vue'
 import WaitingToast from '@/components/WaitingToast'
 import FileUploadInput from '@/components/storage/FileUploadInput.vue'
+import { readData, writeData } from '@/utils/contractUtils'
+import { waitForTxReceipt } from '@/utils/txUtils'
 
 export default {
   name: 'ChangePfpModal',
@@ -150,7 +154,7 @@ export default {
 
       try {
         // Get domain data first
-        const domainDataResult = await this.readData({
+        const domainDataResult = await readData({
           address: this.$config.public.punkTldAddress,
           abi: [
             {
@@ -181,7 +185,7 @@ export default {
         domainData['image'] = this.imageLink
 
         // Submit to blockchain
-        const txHash = await this.writeData({
+        const txHash = await writeData({
           address: this.$config.public.punkTldAddress,
           abi: [
             {
@@ -216,7 +220,7 @@ export default {
         )
 
         // Wait for transaction receipt
-        const receipt = await this.waitForTxReceipt(txHash)
+        const receipt = await waitForTxReceipt(txHash)
 
         if (receipt.status === 'success') {
           this.waitingSubmit = false
@@ -266,17 +270,14 @@ export default {
   },
 
   setup() {
-    const { readData, writeData, waitForTxReceipt } = useWeb3()
+    const config = useConfig()
+    const { isConnected, chainId } = useAccount({ config })
     const { fileUploadEnabled } = useSiteSettings()
-    const { isActivated, chainId } = useAccountData()
     const toast = useToast()
 
     return {
-      readData,
-      writeData,
-      waitForTxReceipt,
       fileUploadEnabled,
-      isActivated,
+      isConnected,
       chainId,
       toast,
     }

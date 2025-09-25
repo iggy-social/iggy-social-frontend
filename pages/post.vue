@@ -31,6 +31,7 @@
 import { useToast } from 'vue-toastification/dist/index.mjs'
 import ChatFeed from '@/components/chat/ChatFeed.vue'
 import ChatMessage from '@/components/chat/ChatMessage.vue'
+import { readData } from '@/utils/contractUtils'
 
 export default {
   data() {
@@ -145,7 +146,7 @@ export default {
             functionName: 'getReply',
             args: [BigInt(this.getMessageId), BigInt(this.getReplyId)]
           }
-          replyObj = await this.readData(replyContractConfig);
+          replyObj = await readData(replyContractConfig);
         }
 
         if (msg && !msg.deleted) {
@@ -186,12 +187,10 @@ export default {
   setup() {
     const route = useRoute()
     const toast = useToast()
-    const { readData } = useWeb3()
 
     return {
       route,
       toast,
-      readData,
     }
   },
 

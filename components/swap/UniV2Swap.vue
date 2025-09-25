@@ -72,17 +72,17 @@
     <div class="d-flex justify-content-center mt-4">
       <!-- Connect Wallet button -->
       <ConnectWalletButton
-        v-if="!isActivated && !isSupportedChain"
+        v-if="!isConnected && !isSupportedChain"
         class="btn-outline-primary"
         btnText="Connect wallet"
       />
 
       <!-- Switch Chain button -->
-      <SwitchChainButton v-if="isActivated && !isSupportedChain" />
+      <SwitchChainButton v-if="isConnected && !isSupportedChain" />
 
       <!-- Disabled Swap tokens button (if not input amount is entered) -->
       <button
-        v-if="isActivated && isSupportedChain && !inputTokenAmount"
+        v-if="isConnected && isSupportedChain && !inputTokenAmount"
         :disabled="true"
         class="btn btn-outline-primary"
         type="button"
@@ -93,7 +93,7 @@
       <!-- Approve token button -->
       <button
         v-if="
-          isActivated &&
+          isConnected &&
           isSupportedChain &&
           inputTokenAmount &&
           inputAmountLessThanBalance &&
@@ -122,7 +122,7 @@
       <!-- Swap tokens button (and fetch the output token amount again) -->
       <button
         v-if="
-          isActivated &&
+          isConnected &&
           isSupportedChain &&
           inputTokenAmount &&
           inputAmountLessThanBalance &&
@@ -136,7 +136,7 @@
           !outputToken ||
           !inputTokenAmount ||
           !outputTokenAmount ||
-          !isActivated ||
+          !isConnected ||
           bothTokensAreTheSame ||
           !inputAmountLessThanBalance
         "
@@ -164,7 +164,7 @@
       <!-- Balance too low button -->
       <button
         v-if="
-          isActivated &&
+          isConnected &&
           isSupportedChain &&
           inputTokenAmount &&
           !inputAmountLessThanBalance &&
@@ -180,7 +180,7 @@
 
       <!-- Both tokens are the same button -->
       <button
-        v-if="isActivated && isSupportedChain && inputTokenAmount && bothTokensAreTheSame && !priceImpactTooHigh"
+        v-if="isConnected && isSupportedChain && inputTokenAmount && bothTokensAreTheSame && !priceImpactTooHigh"
         :disabled="true"
         class="btn btn-outline-primary"
         type="button"
@@ -190,7 +190,7 @@
 
       <!-- Price impact too high -->
       <button
-        v-if="isActivated && isSupportedChain && inputTokenAmount && priceImpactTooHigh"
+        v-if="isConnected && isSupportedChain && inputTokenAmount && priceImpactTooHigh"
         :disabled="true"
         class="btn btn-outline-primary"
         type="button"
@@ -209,11 +209,12 @@
 
 <script>
 import { zeroAddress, maxUint256, parseUnits, formatUnits } from 'viem'
+import { useAccount, useConfig } from '@wagmi/vue'
+
 import ConnectWalletButton from '@/components/connect/ConnectWalletButton.vue'
 import SwitchChainButton from '@/components/connect/SwitchChainButton.vue'
 import TokenApprovalModal from '@/components/approvals/TokenApprovalModal.vue'
 import UniV2SwapTokensModal from '@/components/swap/UniV2SwapTokensModal.vue'
-import { useAccountData } from '@/composables/useAccountData'
 import { useSiteSettings } from '@/composables/useSiteSettings'
 import wrappedNativeTokens from '@/data/wrappedNativeTokens.json'
 import { getTokenAllowance, getTokenBalance } from '@/utils/balanceUtils'
@@ -475,7 +476,7 @@ export default {
       this.inputToken = token
       this.inputTokenAmount = null
 
-      if (this.isActivated) {
+      if (this.isConnected) {
         this.inputTokenBalance = await this.getTokenBalance(token, this.address)
       }
 
@@ -507,14 +508,15 @@ export default {
   },
 
   setup() {
-    const { address, chainId, isActivated } = useAccountData()
+    const config = useConfig()
+    const { address, chainId, isConnected } = useAccount({ config })
     const siteSettings = useSiteSettings()
 
-    return { address, chainId, isActivated, siteSettings }
+    return { address, chainId, isConnected, siteSettings }
   },
 
   watch: {
-    async isActivated() {
+    async isConnected() {
       if (this.address && this.inputToken) {
         this.inputTokenBalance = await this.getTokenBalance(this.inputToken, this.address)
       }

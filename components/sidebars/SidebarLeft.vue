@@ -5,7 +5,7 @@
         <div class="card m-2 p-2 bg-light">
 
           <!-- Profile Image and Data -->
-          <div v-if="isActivated && domainName" class="text-center">
+          <div v-if="isConnected && domainName" class="text-center">
             <NuxtLink :to="getProfileLink">
               <ProfileImage
                 :key="domainName"
@@ -92,7 +92,7 @@
               </li>
 
               <!-- Profile -->
-              <li v-if="isActivated && domainName" class="nav-item p-1" @click="closeLeftSidebar">
+              <li v-if="isConnected && domainName" class="nav-item p-1" @click="closeLeftSidebar">
                 <NuxtLink
                   class="nav-link"
                   :class="$route.path.startsWith('/profile') ? 'active' : ''"
@@ -227,10 +227,14 @@
 <script>
 import { sdk } from '@farcaster/miniapp-sdk'
 import { useToast } from 'vue-toastification/dist/index.mjs'
+import { useAccount, useConfig } from '@wagmi/vue'
+
 import ProfileImage from '@/components/profile/ProfileImage.vue'
+
 import { useAccountData } from '@/composables/useAccountData'
 import { useSidebars } from '@/composables/useSidebars'
-import { useWeb3 } from '@/composables/useWeb3'
+import { useSiteSettings } from '@/composables/useSiteSettings'
+
 import { getActivityPoints } from '@/utils/balanceUtils'
 import { getLessDecimals } from '@/utils/numberUtils'
 import { getTextWithoutBlankCharacters } from '@/utils/textUtils'
@@ -323,23 +327,23 @@ export default {
   },
 
   setup() {
-    const { 
-      address, domainName, getCurentUserActivityPoints, isActivated, 
-      setCurrentUserActivityPoints
-    } = useAccountData()
+    const config = useConfig()
+    const { address, isConnected } = useAccount({ config })
+
+    const { domainName, getCurentUserActivityPoints, setCurrentUserActivityPoints } = useAccountData()
 
     const { setLeftSidebar, setMainContent } = useSidebars()
 
-    const toast = useToast()
+    const { environment } = useSiteSettings()
 
-    const { environment } = useWeb3()
+    const toast = useToast()
 
     return {
       address,
       domainName,
       environment,
       getCurentUserActivityPoints,
-      isActivated,
+      isConnected,
       setCurrentUserActivityPoints,
       setLeftSidebar,
       setMainContent,

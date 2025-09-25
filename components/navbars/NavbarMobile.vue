@@ -17,18 +17,18 @@
     </div>
   </nav>
 
-  <div v-if="!isSupportedChain || !isActivated" class="card border m-3">
+  <div v-if="!isSupportedChain || !isConnected" class="card border m-3">
     <div class="card-body d-flex justify-content-center">
-      <ConnectWalletButton v-if="!isActivated" customClass="btn-primary" />
-      <SwitchChainButton v-if="isActivated && !isSupportedChain" />
+      <ConnectWalletButton v-if="!isConnected" customClass="btn-primary" />
+      <SwitchChainButton v-if="isConnected && !isSupportedChain" />
     </div>
   </div>
 </template>
 
 <script>
+import { useAccount, useConfig } from '@wagmi/vue'
 import ConnectWalletButton from '@/components/connect/ConnectWalletButton.vue'
 import SwitchChainButton from '@/components/connect/SwitchChainButton.vue'
-import { useAccountData } from '@/composables/useAccountData'
 import { useSidebars } from '@/composables/useSidebars'
 
 export default {
@@ -45,8 +45,8 @@ export default {
       return this.chainId === this.$config.public.supportedChainId
     },
 
-    isActivated() {
-      return this.isActivated || false
+    isConnected() {
+      return this.isConnected || false
     },
 
     chainId() {
@@ -89,29 +89,21 @@ export default {
         this.setMainContent(false)
       }
     },
-
-    async changeNetwork(chainId) {
-      try {
-        await this.switchToNetwork(chainId)
-      } catch (error) {
-        console.error('Failed to switch network:', error)
-      }
-    },
   },
 
   setup() {
-    const { isActivated, chainId, switchToNetwork } = useAccountData()
+    const config = useConfig()
+    const { chainId, isConnected } = useAccount({ config })
     const { leftSidebar, rightSidebar, setLeftSidebar, setRightSidebar, setMainContent } = useSidebars()
 
     return {
       chainId,
-      isActivated,
+      isConnected,
       leftSidebar,
       rightSidebar,
       setLeftSidebar,
       setRightSidebar,
       setMainContent,
-      switchToNetwork,
     }
   },
 }

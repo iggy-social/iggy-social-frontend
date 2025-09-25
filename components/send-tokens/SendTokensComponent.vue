@@ -51,11 +51,11 @@
     <!-- BUTTONS -->
     <div class="d-flex justify-content-center mt-4">
       <!-- Connect Wallet button -->
-      <ConnectWalletButton v-if="!isActivated" customClass="btn-outline-primary" btnText="Connect wallet" />
+      <ConnectWalletButton v-if="!isConnected" customClass="btn-outline-primary" btnText="Connect wallet" />
 
       <!-- Disabled Send tokens button (if not input amount is entered) -->
       <button
-        v-if="isActivated && !inputTokenAmount && isSupportedChain"
+        v-if="isConnected && !inputTokenAmount && isSupportedChain"
         :disabled="true"
         class="btn btn-outline-primary"
         type="button"
@@ -65,12 +65,12 @@
 
       <!-- Send tokens button -->
       <button
-        v-if="isActivated && inputTokenAmount && inputAmountLessThanBalance && isSupportedChain"
+        v-if="isConnected && inputTokenAmount && inputAmountLessThanBalance && isSupportedChain"
         :disabled="
           waiting ||
           !inputToken ||
           !inputTokenAmount ||
-          !isActivated ||
+          !isConnected ||
           !inputAmountLessThanBalance ||
           !inputReceiver ||
           !isSupportedChain
@@ -85,7 +85,7 @@
 
       <!-- Balance too low button -->
       <button
-        v-if="isActivated && inputTokenAmount && !inputAmountLessThanBalance && isSupportedChain"
+        v-if="isConnected && inputTokenAmount && !inputAmountLessThanBalance && isSupportedChain"
         :disabled="true"
         class="btn btn-outline-primary"
         type="button"
@@ -94,18 +94,20 @@
       </button>
 
       <!-- Wrong network button -->
-      <SwitchChainButton v-if="isActivated && !isSupportedChain" />
+      <SwitchChainButton v-if="isConnected && !isSupportedChain" />
     </div>
   </div>
 </template>
 
 <script>
 import { isAddress, parseUnits, zeroAddress } from 'viem'
-import { useAccountData } from '@/composables/useAccountData'
-import { useWeb3 } from '@/composables/useWeb3'
 import { useToast } from 'vue-toastification/dist/index.mjs'
+import { useAccount, useConfig } from '@wagmi/vue'
+
 import { getTokenBalance } from '@/utils/balanceUtils'
 import { hasTextBlankCharacters } from '@/utils/textUtils'
+import { readData, writeData } from '@/utils/contractUtils'
+import { sendNativeCoin, waitForTxReceipt } from '@/utils/txUtils'
 import WaitingToast from '@/components/WaitingToast'
 import ConnectWalletButton from '@/components/connect/ConnectWalletButton.vue'
 import SwitchChainButton from '@/components/connect/SwitchChainButton.vue'
@@ -213,7 +215,7 @@ export default {
           }
 
           try {
-            this.recipientAddress = await this.readData(tldContractConfig)
+            this.recipientAddress = await readData(tldContractConfig)
           } catch (error) {
             console.error('Error fetching domain holder:', error)
             this.recipientAddress = null
@@ -226,7 +228,7 @@ export default {
       this.inputToken = token
       this.inputTokenAmount = null
 
-      if (this.isActivated) {
+      if (this.isConnected) {
         try {
           this.inputTokenBalance = await this.getTokenBalance(token, this.address)
         } catch (error) {
@@ -290,7 +292,7 @@ export default {
       let toastWait;
 
       try {
-        const hash = await this.writeData(tokenContractConfig)
+        const hash = await writeData(tokenContractConfig)
 
         toastWait = this.toast(
           {
@@ -305,7 +307,7 @@ export default {
           },
         )
 
-        const receipt = await this.waitForTxReceipt(hash)
+        const receipt = await waitForTxReceipt(hash)
 
         if (receipt.status === 'success' || receipt.status === 1) {
           this.toast.dismiss(toastWait)
@@ -362,7 +364,7 @@ export default {
       let toastWait;
 
       try {
-        const hash = await this.sendNativeCoin(
+        const hash = await sendNativeCoin(
           this.recipientAddress,
           this.inputTokenAmount
         )
@@ -380,7 +382,7 @@ export default {
           },
         )
 
-        const receipt = await this.waitForTxReceipt(hash)
+        const receipt = await waitForTxReceipt(hash)
 
         if (receipt.status === "success" || receipt.status === 1) {
           this.toast.dismiss(toastWait)
@@ -443,24 +445,20 @@ export default {
   },
 
   setup() {
-    const { address, chainId, isActivated } = useAccountData()
-    const { readData, sendNativeCoin, waitForTxReceipt, writeData } = useWeb3()
+    const config = useConfig()
+    const { address, chainId, isConnected } = useAccount({ config })
     const toast = useToast()
 
     return { 
       address, 
       chainId, 
-      isActivated, 
+      isConnected, 
       toast,
-      readData,
-      sendNativeCoin,
-      waitForTxReceipt,
-      writeData,
     }
   },
 
   watch: {
-    async isActivated() {
+    async isConnected() {
       if (this.address && this.inputToken) {
         this.inputTokenBalance = await this.getTokenBalance(this.inputToken, this.address)
       }

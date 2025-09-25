@@ -85,10 +85,15 @@
 <script>
 import { parseUnits, formatUnits } from 'viem'
 import { useToast } from 'vue-toastification/dist/index.mjs'
+import { useAccount, useConfig } from '@wagmi/vue'
+
 import WaitingToast from '@/components/WaitingToast.vue'
 import AddLiquidity from '@/components/stake/AddLiquidity.vue'
+
 import { useAccountData } from '@/composables/useAccountData'
-import { useWeb3 } from '@/composables/useWeb3'
+
+import { readData, writeData } from '@/utils/contractUtils'
+import { waitForTxReceipt } from '@/utils/txUtils'
 
 export default {
   name: 'StakingDeposit',
@@ -171,7 +176,7 @@ export default {
             args: [this.address]
           }
 
-          const result = await this.readData(contractConfig)
+          const result = await readData(contractConfig)
           if (result !== null) {
             this.setLpTokenBalanceWei(result)
           }
@@ -205,7 +210,7 @@ export default {
           args: [this.$config.public.stakingContractAddress, BigInt(this.depositAmountWei)]
         }
 
-        const hash = await this.writeData(contractConfig)
+        const hash = await writeData(contractConfig)
 
         toastWait = this.toast(
           {
@@ -220,7 +225,7 @@ export default {
           },
         )
 
-        const receipt = await this.waitForTxReceipt(hash)
+        const receipt = await waitForTxReceipt(hash)
 
         if (receipt.status === 'success') {
           this.$emit('updateAllowance', this.depositAmountWei)
@@ -285,7 +290,7 @@ export default {
           args: [BigInt(this.depositAmountWei)]
         }
 
-        const hash = await this.writeData(contractConfig)
+        const hash = await writeData(contractConfig)
 
         toastWait = this.toast(
           {
@@ -300,7 +305,7 @@ export default {
           },
         )
 
-        const receipt = await this.waitForTxReceipt(hash)
+        const receipt = await waitForTxReceipt(hash)
 
         if (receipt.status === 'success') {
           this.$emit('updateAllowance', BigInt(0)) // reset allowance
@@ -362,20 +367,19 @@ export default {
   },
 
   setup() {
-    const { readData, writeData, waitForTxReceipt } = useWeb3()
-    const { 
-      address, 
+    const config = useConfig()
+    const { address } = useAccount({ config })
+
+    const {  
       getLpTokenBalanceWei, 
       setLpTokenBalanceWei,
       getStakeTokenBalanceWei,
       setStakeTokenBalanceWei
     } = useAccountData()
+
     const toast = useToast()
 
     return {
-      readData,
-      writeData,
-      waitForTxReceipt,
       address,
       toast,
       getLpTokenBalanceWei,

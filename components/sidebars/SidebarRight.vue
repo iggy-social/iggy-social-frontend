@@ -11,7 +11,7 @@
                 Actions
               </button>
               <ul class="dropdown-menu">
-                <li><button class="dropdown-item"  v-if="isActivated" @click="disconnect">Disconnect wallet</button></li>
+                <li><button class="dropdown-item"  v-if="isConnected" @click="disconnect">Disconnect wallet</button></li>
                 <li><button class="dropdown-item" @click="deleteBrowserStorage">Delete browser storage</button></li>
               </ul>
             </div>
@@ -42,10 +42,11 @@
 </template>
 
 <script>
+import { useAccount, useConfig, useDisconnect } from '@wagmi/vue'
 import NameMintWidget from '@/components/names/NameMintWidget.vue'
 import ReferralWidget from '@/components/referrals/ReferralWidget.vue'
-import { useAccountData } from '@/composables/useAccountData'
 import { useSidebars } from '@/composables/useSidebars'
+import { useSiteSettings } from '@/composables/useSiteSettings'
 
 export default {
   name: 'SidebarRight',
@@ -74,11 +75,28 @@ export default {
 
   setup() {
     const { rightSidebar, setRightSidebar, setMainContent } = useSidebars()
-    const { disconnect, isActivated } = useAccountData()
+    const { environment } = useSiteSettings()
+
+    const config = useConfig()
+    const { isConnected } = useAccount({ config })
+
+    // DISCONNECT
+    const { disconnect } = useDisconnect({
+      config,
+      mutation: {
+        onSuccess() {
+          if (environment.value !== 'farcaster') {
+            window.localStorage.setItem("connected-with", "")
+            // needed to prevent wagmi's bug which sometimes happens ("ConnectorAlreadyConnectedError")
+            //window.location.reload()
+          }
+        },
+      }
+    })
 
     return {
       disconnect,
-      isActivated,
+      isConnected,
       rightSidebar,
       setRightSidebar,
       setMainContent,

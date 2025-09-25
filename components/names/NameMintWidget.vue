@@ -24,7 +24,7 @@
 
       <div class="text-center">
         <button
-          v-if="isActivated && isSupportedChain"
+          v-if="isConnected && isSupportedChain"
           class="btn btn-outline-primary mt-2 mb-2"
           :disabled="paused || domainNotValid.invalid || balanceTooLow"
           @click="mintName"
@@ -40,27 +40,36 @@
           <span v-if="!loadingMint && !loadingData && !balanceTooLow">Mint username</span>
         </button>
 
-        <ConnectWalletButton v-if="!isActivated" class="btn-outline-primary mt-2 mb-2" btnText="Connect Wallet" />
-        <SwitchChainButton v-if="isActivated && !isSupportedChain" />
+        <ConnectWalletButton v-if="!isConnected" class="btn-outline-primary mt-2 mb-2" btnText="Connect Wallet" />
+        <SwitchChainButton v-if="isConnected && !isSupportedChain" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { formatUnits, parseUnits } from 'viem'
 import { useToast } from 'vue-toastification/dist/index.mjs'
+import { useAccount, useConfig } from '@wagmi/vue'
+
 import WaitingToast from '@/components/WaitingToast'
 import ConnectWalletButton from '@/components/connect/ConnectWalletButton'
 import SwitchChainButton from '@/components/connect/SwitchChainButton.vue'
-import { getDomainName, getDomainHolder, validateDomainName } from '@/utils/domainUtils'
+
+import { useAccountData } from '@/composables/useAccountData'
+
+import { getNativeCoinBalanceEth } from '@/utils/balanceUtils'
 import { fetchReferrer, storeUsername } from '@/utils/browserStorageUtils'
-import { formatUnits, parseUnits } from 'viem'
+import { readData, writeData } from '@/utils/contractUtils'
+import { getDomainName, getDomainHolder, validateDomainName } from '@/utils/domainUtils'
+import { waitForTxReceipt } from '@/utils/txUtils'
 
 export default {
   name: 'NameMintWidget',
 
   data() {
     return {
+      balanceEth: null,
       domainName: null,
       isMinter: false,
       loadingData: false,
@@ -84,13 +93,13 @@ export default {
 
   mounted() {
     this.fetchDomainData()
+    this.getUserNativeCoinBalanceEth()
   },
 
   computed: {
     balanceTooLow() {
-      const balanceEth = this.balanceEth
-      if (!balanceEth || !this.getNamePrice) return true
-      return Number(balanceEth) < Number(this.getNamePrice)
+      if (!this.balanceEth || !this.getNamePrice) return true
+      return Number(this.balanceEth) < Number(this.getNamePrice)
     },
 
     domainNotValid() {
@@ -217,7 +226,7 @@ export default {
 
       // fetch paused status
       if (this.isMinter) {
-        const pausedResult = await this.readData({
+        const pausedResult = await readData({
           address: contractAddress,
           abi: contractInterface,
           functionName: 'paused',
@@ -225,7 +234,7 @@ export default {
         })
         this.paused = pausedResult
       } else {
-        const buyingEnabledResult = await this.readData({
+        const buyingEnabledResult = await readData({
           address: contractAddress,
           abi: contractInterface,
           functionName: 'buyingEnabled',
@@ -236,7 +245,7 @@ export default {
 
       // fetch price(s)
       if (this.$config.public.punkNumberOfPrices === 1) {
-        const priceResult = await this.readData({
+        const priceResult = await readData({
           address: contractAddress,
           abi: contractInterface,
           functionName: 'price',
@@ -246,7 +255,7 @@ export default {
           this.price = formatUnits(priceResult, this.$config.public.tokenDecimals)
         }
       } else if (this.$config.public.punkNumberOfPrices === 5) {
-        const price1charResult = await this.readData({
+        const price1charResult = await readData({
           address: contractAddress,
           abi: contractInterface,
           functionName: 'price1char',
@@ -256,7 +265,7 @@ export default {
           this.price1char = formatUnits(price1charResult, this.$config.public.tokenDecimals)
         }
 
-        const price2charResult = await this.readData({
+        const price2charResult = await readData({
           address: contractAddress,
           abi: contractInterface,
           functionName: 'price2char',
@@ -266,7 +275,7 @@ export default {
           this.price2char = formatUnits(price2charResult, this.$config.public.tokenDecimals)
         }
 
-        const price3charResult = await this.readData({
+        const price3charResult = await readData({
           address: contractAddress,
           abi: contractInterface,
           functionName: 'price3char',
@@ -276,7 +285,7 @@ export default {
           this.price3char = formatUnits(price3charResult, this.$config.public.tokenDecimals)
         }
 
-        const price4charResult = await this.readData({
+        const price4charResult = await readData({
           address: contractAddress,
           abi: contractInterface,
           functionName: 'price4char',
@@ -286,7 +295,7 @@ export default {
           this.price4char = formatUnits(price4charResult, this.$config.public.tokenDecimals)
         }
 
-        const price5charResult = await this.readData({
+        const price5charResult = await readData({
           address: contractAddress,
           abi: contractInterface,
           functionName: 'price5char',
@@ -299,7 +308,7 @@ export default {
 
       // fetch referral fee
       if (this.isMinter) {
-        const referralFeeResult = await this.readData({
+        const referralFeeResult = await readData({
           address: contractAddress,
           abi: contractInterface,
           functionName: 'referralFee',
@@ -307,7 +316,7 @@ export default {
         })
         this.referralFee = referralFeeResult
       } else {
-        const referralResult = await this.readData({
+        const referralResult = await readData({
           address: contractAddress,
           abi: contractInterface,
           functionName: 'referral',
@@ -320,7 +329,7 @@ export default {
     },
 
     async fetchUserDomain() {
-      if (this.isActivated) {
+      if (this.isConnected) {
         const userDomain = await getDomainName(this.address)
 
         if (userDomain) {
@@ -335,10 +344,16 @@ export default {
       }
     },
 
+    async getUserNativeCoinBalanceEth() {
+      if (this.address) {   
+        this.balanceEth = await getNativeCoinBalanceEth(this.address)
+      }
+    },
+
     async mintName() {
       this.loadingMint = true
 
-      if (this.isActivated && !this.domainNotValid.invalid) {
+      if (this.isConnected && !this.domainNotValid.invalid) {
         // check if name is already taken
         const domainHolder = await getDomainHolder(this.domainName.toLowerCase())
 
@@ -373,7 +388,7 @@ export default {
             contractAddress = this.$config.public.punkTldAddress
           }
 
-          const txHash = await this.writeData({
+          const txHash = await writeData({
             address: contractAddress,
             abi: mintInterface,
             functionName: 'mint',
@@ -398,7 +413,7 @@ export default {
             },
           )
 
-          const receipt = await this.waitForTxReceipt(txHash)
+          const receipt = await waitForTxReceipt(txHash)
 
           if (receipt.status === 'success') {
             this.toast.dismiss(toastWait)
@@ -441,27 +456,25 @@ export default {
   },
 
   setup() {
-    const { readData, writeData, waitForTxReceipt } = useWeb3()
-    const { 
-      address, 
-      balanceEth, 
-      chainId, 
-      isActivated, 
-      setDomainName 
-    } = useAccountData()
+    const config = useConfig()
+    const { address, chainId, isConnected } = useAccount({ config })
+
+    const { setDomainName } = useAccountData()
     const toast = useToast()
 
     return { 
       address, 
-      balanceEth, 
       chainId, 
-      isActivated, 
+      isConnected, 
       setDomainName,
-      readData,
-      writeData,
-      waitForTxReceipt,
       toast 
     }
   },
+
+  watch: {
+    async address(newAddress, oldAddress) {
+      await this.getUserNativeCoinBalanceEth()
+    }
+  }
 }
 </script>

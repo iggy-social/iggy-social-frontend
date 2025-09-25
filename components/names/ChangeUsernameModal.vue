@@ -50,9 +50,16 @@
 
 <script>
 import { useToast } from 'vue-toastification/dist/index.mjs'
+import { useAccount, useConfig } from '@wagmi/vue'
+
 import WaitingToast from '@/components/WaitingToast'
-import { getDomainHolder, getDomainName, validateDomainName } from '@/utils/domainUtils'
+
+import { useAccountData } from '@/composables/useAccountData'
+
 import { storeUsername } from '@/utils/browserStorageUtils'
+import { writeData } from '@/utils/contractUtils'
+import { getDomainHolder, validateDomainName } from '@/utils/domainUtils'
+import { waitForTxReceipt } from '@/utils/txUtils'
 
 export default {
   name: 'ChangeUsernameModal',
@@ -76,7 +83,7 @@ export default {
       this.loading = true
       this.fullDomainName = this.domainName + this.$config.public.tldName
 
-      if (this.isActivated && !this.domainNotValid.invalid) {
+      if (this.isConnected && !this.domainNotValid.invalid) {
         // check if the domain is owned by the user
         const domainHolder = await getDomainHolder(this.domainName)
         if (String(domainHolder).toLowerCase() !== String(this.address).toLowerCase()) {
@@ -99,8 +106,8 @@ export default {
         let toastWait;
 
         try {
-          // Call the contract using writeData from useWeb3
-          const hash = await this.writeData({
+          // Call the contract using writeData from utils/contractUtils
+          const hash = await writeData({
             address: this.$config.public.punkTldAddress,
             abi: tldAbi,
             functionName: 'editDefaultDomain',
@@ -120,8 +127,8 @@ export default {
             },
           )
 
-          // Wait for transaction receipt using waitForTxReceipt from useWeb3
-          const receipt = await this.waitForTxReceipt(hash)
+          // Wait for transaction receipt using waitForTxReceipt from utils/contractUtils
+          const receipt = await waitForTxReceipt(hash)
 
           if (receipt.status === 'success') {
             this.toast.dismiss(toastWait)
@@ -181,25 +188,16 @@ export default {
   setup() {
     const toast = useToast()
     
-    // Use the composables
-    const { 
-      address, 
-      isActivated, 
-      setDomainName 
-    } = useAccountData()
+    const config = useConfig()
+    const { address, isConnected } = useAccount({ config })
     
-    const { 
-      writeData, 
-      waitForTxReceipt 
-    } = useWeb3()
-
+    const { setDomainName } = useAccountData()
+    
     return { 
       address, 
-      isActivated, 
+      isConnected, 
       toast, 
-      setDomainName,
-      writeData,
-      waitForTxReceipt
+      setDomainName
     }
   },
 }

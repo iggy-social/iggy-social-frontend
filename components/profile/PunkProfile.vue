@@ -150,16 +150,21 @@
 
 <script>
 import { formatEther, formatUnits } from 'viem'
-import { useAccountData } from '@/composables/useAccountData'
-import { useWeb3 } from '@/composables/useWeb3'
 import { useToast } from 'vue-toastification/dist/index.mjs'
+import { useAccount, useConfig } from '@wagmi/vue'
+
 import ChangePfpModal from '@/components/profile/ChangePfpModal.vue'
 import ProfileImage from '@/components/profile/ProfileImage.vue'
-import { getActivityPoints } from '@/utils/balanceUtils'
-import { getDomainName, getDomainHolder } from '@/utils/domainUtils'
+
+import { useAccountData } from '@/composables/useAccountData'
+
+import { shortenAddress } from '@/utils/addressUtils'
+import { getActivityPoints, getNativeCoinBalanceWei } from '@/utils/balanceUtils'
 import { fetchUsername, storeData, storeUsername } from '@/utils/browserStorageUtils'
-import { getTextWithoutBlankCharacters } from '@/utils/textUtils'
+import { readData } from '@/utils/contractUtils'
+import { getDomainName, getDomainHolder } from '@/utils/domainUtils'
 import { getLessDecimals } from '@/utils/numberUtils'
+import { getTextWithoutBlankCharacters } from '@/utils/textUtils'
 
 export default {
   name: 'PunkProfile',
@@ -213,7 +218,7 @@ export default {
     },
 
     shortAddress() {
-      return this.address ? this.shortenAddress(this.address) : ''
+      return this.address ? shortenAddress(this.address) : ''
     }
   },
 
@@ -275,7 +280,7 @@ export default {
     async fetchBalance() {
       if (this.uAddress) {
         // fetch balance of an address
-        this.uBalance = await this.getNativeCoinBalanceWei(this.uAddress)
+        this.uBalance = await getNativeCoinBalanceWei(this.uAddress)
 
         if (this.$config.public.chatTokenAddress) {
           // fetch chat balance
@@ -296,7 +301,7 @@ export default {
             args: [this.uAddress]
           }
 
-          const result = await this.readData(chatTokenContractConfig)
+          const result = await readData(chatTokenContractConfig)
           if (result) {
             this.balanceChatTokenWei = result
           }
@@ -319,16 +324,14 @@ export default {
   },
 
   setup() {
-    const { address, domainName, shortenAddress } = useAccountData()
-    const { getNativeCoinBalanceWei, readData } = useWeb3()
+    const config = useConfig()
+    const { address } = useAccount({ config })
+    const { domainName } = useAccountData()
     const toast = useToast()
 
     return { 
       address, 
       domainName, 
-      shortenAddress,
-      getNativeCoinBalanceWei,
-      readData,
       toast
     }
   },

@@ -6,7 +6,7 @@
         <div class="form-group mt-2 mb-2">
           <textarea
             v-model="messageText"
-            :disabled="!isActivated || !isSupportedChain || !hasDomainOrNotRequired"
+            :disabled="!isConnected || !isSupportedChain || !hasDomainOrNotRequired"
             class="form-control"
             id="exampleTextarea"
             rows="5"
@@ -21,7 +21,7 @@
             <TenorGifSearch
               v-if="
                 $config.public.tenorApiKey != '' &&
-                isActivated &&
+                isConnected &&
                 isSupportedChain &&
                 hasDomainOrNotRequired
               "
@@ -30,7 +30,7 @@
 
             <!-- Sticker button 
             <TenorStickerSearch 
-              v-if="$config.public.tenorApiKey != '' && isActivated && isSupportedChain && hasDomainOrNotRequired"  
+              v-if="$config.public.tenorApiKey != '' && isConnected && isSupportedChain && hasDomainOrNotRequired"  
               @insertSticker="insertImage"
             />
             -->
@@ -38,7 +38,7 @@
             <!-- Upload IMG button -->
             <button
               v-if="
-                isActivated &&
+                isConnected &&
                 $config.public.fileUploadEnabled !== '' &&
                 isSupportedChain &&
                 hasDomainOrNotRequired
@@ -54,7 +54,7 @@
 
             <!-- Upload Image Modal -->
             <FileUploadModal
-              v-if="isActivated && isSupportedChain && hasDomainOrNotRequired"
+              v-if="isConnected && isSupportedChain && hasDomainOrNotRequired"
               @processFileUrl="insertImage"
               title="Upload image"
               infoText="Upload an image."
@@ -66,7 +66,7 @@
 
             <!-- Emoji Picker -->
             <EmojiPicker
-              v-if="isActivated && isSupportedChain && hasDomainOrNotRequired"
+              v-if="isConnected && isSupportedChain && hasDomainOrNotRequired"
               @updateEmoji="insertEmoji"
             />
           </div>
@@ -74,7 +74,7 @@
           <div>
             <!-- Create Message button -->
             <button
-              v-if="isActivated && isSupportedChain && hasDomainOrNotRequired"
+              v-if="isConnected && isSupportedChain && hasDomainOrNotRequired"
               :disabled="!messageText || waitingCreateMessage || arweaveBalanceTooLow"
               class="btn btn-primary me-2 mt-2"
               @click="createMessage"
@@ -84,15 +84,15 @@
             </button>
 
             <!-- Get Username button -->
-            <button v-if="isActivated && isSupportedChain && !hasDomainOrNotRequired" class="btn btn-primary disabled">
+            <button v-if="isConnected && isSupportedChain && !hasDomainOrNotRequired" class="btn btn-primary disabled">
               Get yourself a {{ $config.public.tldName }} name to post <i class="bi bi-arrow-right"></i>
             </button>
 
             <!-- Connect Wallet button -->
-            <ConnectWalletButton v-if="!isActivated" class="btn-primary" btnText="Connect wallet" />
+            <ConnectWalletButton v-if="!isConnected" class="btn-primary" btnText="Connect wallet" />
 
             <!-- Switch Chain button -->
-            <SwitchChainButton v-if="isActivated && !isSupportedChain" :navbar="false" :dropdown="false" />
+            <SwitchChainButton v-if="isConnected && !isSupportedChain" :navbar="false" :dropdown="false" />
           </div>
         </div>
 
@@ -151,8 +151,10 @@
 import axios from 'axios'
 import EmojiPicker from '@/components/EmojiPicker.vue'
 import 'emoji-mart-vue-fast/css/emoji-mart.css'
-import { useToast } from 'vue-toastification/dist/index.mjs'
 import { isAddress, formatEther } from 'viem'
+import { useToast } from 'vue-toastification/dist/index.mjs'
+import { useAccount, useConfig } from '@wagmi/vue'
+
 import ConnectWalletButton from '@/components/connect/ConnectWalletButton.vue'
 import SwitchChainButton from '@/components/connect/SwitchChainButton.vue'
 import WaitingToast from '@/components/WaitingToast'
@@ -164,8 +166,9 @@ import { getWorkingUrl } from '@/utils/fileUtils'
 import { getAllImagesFromText } from '@/utils/textUtils'
 import { fetchData, storeData } from '@/utils/browserStorageUtils'
 import { useAccountData } from '@/composables/useAccountData'
-import { useWeb3 } from '@/composables/useWeb3'
 import { useSiteSettings } from '@/composables/useSiteSettings'
+import { readData, writeData } from '@/utils/contractUtils'
+import { waitForTxReceipt } from '@/utils/txUtils'
 
 export default {
   name: 'ChatFeed',
@@ -213,7 +216,7 @@ export default {
     },
 
     createMessagePlaceholder() {
-      if (this.isActivated) {
+      if (this.isConnected) {
         if (this.isReplyFeed) {
           return 'Post your reply'
         } else if (this.isCommentFeed) {
@@ -298,7 +301,7 @@ export default {
             args: [this.address]
           }
 
-          const isMod = await this.readData(contractConfig)
+          const isMod = await readData(contractConfig)
           storeData(window, this.chatContext, { isMod: Boolean(isMod) }, 'mod-' + this.address)
           return this.currentUserIsMod = Boolean(isMod)
         } catch (error) {
@@ -383,7 +386,7 @@ export default {
           }
         }
 
-        tx = await this.writeData(contractConfig)
+        tx = await writeData(contractConfig)
 
         toastWait = this.toast(
           {
@@ -398,7 +401,7 @@ export default {
           },
         )
 
-        const receipt = await this.waitForTxReceipt(tx)
+        const receipt = await waitForTxReceipt(tx)
         
         if (receipt.status === 'success') {
           this.toast.dismiss(toastWait)
@@ -425,7 +428,7 @@ export default {
               args: [BigInt(this.mainItemId)]
             }
             
-            fullThreadLength = await this.readData(replyCountConfig)
+            fullThreadLength = await readData(replyCountConfig)
 
           } else if (this.isCommentFeed) {
             const commentCountConfig = {
@@ -441,7 +444,7 @@ export default {
               args: [this.mainItemId]
             }
             
-            fullThreadLength = await this.readData(commentCountConfig)
+            fullThreadLength = await readData(commentCountConfig)
 
           } else {
             const mainMessageCountConfig = {
@@ -457,7 +460,7 @@ export default {
               args: []
             }
             
-            fullThreadLength = await this.readData(mainMessageCountConfig)
+            fullThreadLength = await readData(mainMessageCountConfig)
           }
 
           // prepend message to messages array
@@ -611,7 +614,7 @@ export default {
           }
         }
 
-        msgs = await this.readData(contractConfig)
+        msgs = await readData(contractConfig)
 
         let msgsToAdd = [];
         for (let i = 0; i < msgs.length; i++) {
@@ -755,7 +758,7 @@ export default {
           }
         }
 
-        msgs = await this.readData(contractConfig)
+        msgs = await readData(contractConfig)
 
         let msgsToAdd = []
         for (let i = 0; i < msgs.length; i++) {
@@ -823,7 +826,7 @@ export default {
           args: []
         }
         
-        this.priceWei = await this.readData(contractConfig)
+        this.priceWei = await readData(contractConfig)
         
         // Handle case where price might be 0 or undefined
         if (this.priceWei === null || this.priceWei === undefined) {
@@ -930,41 +933,19 @@ export default {
   },
 
   setup() {
+    const config = useConfig()
+    const { address, chainId, isConnected } = useAccount({ config })
+    const { domainName } = useAccountData()
+    const { arweaveBalance } = useSiteSettings()
     const toast = useToast()
-    const { 
-      address,
-      chainId,
-      isActivated,
-      isConnecting,
-      isCurrentChainSupported,
-      shortenAddress,
-      domainName
-    } = useAccountData()
-    
-    const { 
-      readData,
-      writeData,
-      waitForTxReceipt
-    } = useWeb3()
-    
-    const { 
-      arweaveBalance
-    } = useSiteSettings()
 
     return { 
-      toast, 
       address,
-      chainId,
-      isActivated,
-      isConnecting,
-      isCurrentChainSupported,
-      shortenAddress,
-      domainName,
-      readData,
-      writeData,
-      waitForTxReceipt,
       arweaveBalance,
-      formatEther
+      chainId,
+      domainName,
+      isConnected,
+      toast, 
     }
   },
 }

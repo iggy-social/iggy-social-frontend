@@ -18,6 +18,8 @@
 
 <script>
 import { useToast } from 'vue-toastification/dist/index.mjs'
+import { useAccount, useConfig } from '@wagmi/vue'
+
 import { getTextWithoutBlankCharacters } from '@/utils/textUtils'
 import { useAccountData } from '@/composables/useAccountData'
 
@@ -57,7 +59,9 @@ export default {
   },
 
   setup() {
-    const { address, domainName } = useAccountData()
+    const config = useConfig()
+    const { address } = useAccount({ config })
+    const { domainName } = useAccountData()
     const toast = useToast()
     const route = useRoute()
 

@@ -65,7 +65,8 @@
 import { useToast } from 'vue-toastification/dist/index.mjs'
 import Image from '@/components/Image.vue'
 import WaitingToast from '@/components/WaitingToast'
-import { useWeb3 } from '@/composables/useWeb3'
+import { readData, writeData } from '@/utils/contractUtils'
+import { waitForTxReceipt } from '@/utils/txUtils'
 
 export default {
   name: 'RemoveImageFromCollectionModal',
@@ -109,7 +110,7 @@ export default {
       }
 
       try {
-        const result = await this.readData(contractConfig)
+        const result = await readData(contractConfig)
         if (result) {
           this.images = result
         }
@@ -144,7 +145,7 @@ export default {
       let toastWait;
 
       try {
-        const hash = await this.writeData(contractConfig)
+        const hash = await writeData(contractConfig)
 
         toastWait = this.toast(
           {
@@ -159,7 +160,7 @@ export default {
           },
         )
 
-        const receipt = await this.waitForTxReceipt(hash)
+        const receipt = await waitForTxReceipt(hash)
 
         if (receipt.status === 'success') {
           this.toast.dismiss(toastWait)
@@ -211,10 +212,9 @@ export default {
   },
 
   setup() {
-    const { readData, writeData, waitForTxReceipt } = useWeb3()
     const toast = useToast()
 
-    return { readData, writeData, waitForTxReceipt, toast }
+    return { toast }
   },
 }
 </script>

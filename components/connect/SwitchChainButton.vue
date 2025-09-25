@@ -4,9 +4,9 @@
     <button
       v-if="!navbar && !dropdown"
       class="btn btn-primary"
-      @click="switchToChain(this.getSupportedChainData().id)"
+      @click="switchToChain(this.getSupportedChainData.id)"
     >
-      Switch to {{ this.getSupportedChainData().name }}
+      Switch to {{ this.getSupportedChainData.name }}
     </button>
 
     <!-- Button with dropdown -->
@@ -15,8 +15,8 @@
         {{ showChainName }}
       </button>
       <div class="dropdown-menu">
-        <span class="dropdown-item cursor-pointer" @click="switchToChain(this.getSupportedChainData().id)">
-          Switch to {{ this.getSupportedChainData().name }}
+        <span class="dropdown-item cursor-pointer" @click="switchToChain(this.getSupportedChainData.id)">
+          Switch to {{ this.getSupportedChainData.name }}
         </span>
       </div>
     </div>
@@ -34,8 +34,8 @@
         {{ showChainName }}
       </a>
       <div class="dropdown-menu dropdown-menu-end">
-        <span class="dropdown-item cursor-pointer" @click="switchToChain(this.getSupportedChainData().id)">
-          Switch to {{ this.getSupportedChainData().name }}
+        <span class="dropdown-item cursor-pointer" @click="switchToChain(this.getSupportedChainData.id)">
+          Switch to {{ this.getSupportedChainData.name }}
         </span>
       </div>
     </li>
@@ -43,16 +43,25 @@
 </template>
 
 <script>
-import { useAccountData } from '@/composables/useAccountData'
+import { switchChain } from '@wagmi/core'
+import { useAccount, useConfig } from '@wagmi/vue'
 
 export default {
   name: 'SwitchChainButton',
   props: ['dropdown', 'navbar'],
 
   computed: {
+    isSupportedChain() {
+      if (this.chainId === this.$config.public.supportedChainId) {
+        return true
+      } else {
+        return false
+      }
+    },
+    
     showChainName() {
-      if (this.isCurrentChainSupported) {
-        return this.getSupportedChainData().name
+      if (this.isSupportedChain) {
+        return this.getSupportedChainData.name
       } else {
         return 'Unsupported network'
       }
@@ -62,7 +71,7 @@ export default {
   methods: {
     async switchToChain(chainId) {
       try {
-        await this.switchToNetwork(chainId)
+        await this.switchChain(this.wagmiConfig, { chainId })
       } catch (error) {
         console.error('Failed to switch network:', error)
       }
@@ -70,18 +79,14 @@ export default {
   },
 
   setup() {
-    const { 
-      chainId, 
-      getSupportedChainData, 
-      isCurrentChainSupported, 
-      switchToNetwork 
-    } = useAccountData()
+    const config = useConfig()
+    const { chainId } = useAccount({ config })
 
     return {
       chainId,
-      getSupportedChainData,
-      isCurrentChainSupported,
-      switchToNetwork,
+      wagmiConfig: config,
+      getSupportedChainData: config.chains[0],
+      switchChain,
     }
   },
 }
