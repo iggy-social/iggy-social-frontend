@@ -126,38 +126,56 @@
 			</div>
 			-->
 
-      <!-- Unique ID -->
-      <div class="mb-4">
-        <label for="uniqueId" class="form-label">Unique ID (store it - just in case)</label>
-        <input
-          type="text"
-          class="form-control"
-          id="uniqueId"
-          aria-describedby="uniqueIdHelp"
-          disabled
-          readonly
-          v-model="uniqueId"
-        />
-        <div id="uniqueIdHelp" class="form-text">
-          This is just in case the frontend will not show you the NFT collection address and you'll need to find it
-          manually.
-        </div>
+      <!-- Advanced Settings Toggle -->
+      <div>
+      <small>
+      <em>
+        <span 
+          class="link-without-color cursor-pointer hover-color" 
+          @click="toggleAdvancedSettings"
+          style="text-decoration: underline;"
+        >
+          {{ showAdvancedSettings ? 'Hide' : 'Show' }} Advanced Settings
+        </span>
+      </em>
+      </small>
       </div>
 
-      <!-- Ratio -->
-      <div class="mb-4">
-        <label for="ratio" class="form-label">Bonding Curve Ratio</label>
-        <input type="text" class="form-control" id="ratio" aria-describedby="ratioHelp" v-model="ratio" />
-        <div id="ratioHelp" class="form-text">
-          Price for mint #1 will be {{ getLessDecimals(calculatePrice(2, ratio)) }} {{ $config.public.tokenSymbol }}, for mint
-          #5 will be {{ getLessDecimals(calculatePrice(5, ratio)) }} {{ $config.public.tokenSymbol }}, for mint #15 will be
-          {{ getLessDecimals(calculatePrice(15, ratio)) }} {{ $config.public.tokenSymbol }}, for mint #30 will be
-          {{ getLessDecimals(calculatePrice(30, ratio)) }} {{ $config.public.tokenSymbol }}, etc.
+      <!-- Advanced Settings -->
+      <div v-show="showAdvancedSettings">
+        <!-- Unique ID -->
+        <div class="mb-4 mt-4">
+          <label for="uniqueId" class="form-label">Unique ID (store it - just in case)</label>
+          <input
+            type="text"
+            class="form-control"
+            id="uniqueId"
+            aria-describedby="uniqueIdHelp"
+            disabled
+            readonly
+            v-model="uniqueId"
+          />
+          <div id="uniqueIdHelp" class="form-text">
+            This is just in case the frontend will not show you the NFT collection address and you'll need to find it
+            manually.
+          </div>
+        </div>
+
+        <!-- Ratio -->
+        <div class="mb-4">
+          <label for="ratio" class="form-label">Bonding Curve Ratio</label>
+          <input type="text" class="form-control" id="ratio" aria-describedby="ratioHelp" v-model="ratio" />
+          <div id="ratioHelp" class="form-text">
+            Price for mint #1 will be {{ getLessDecimals(calculatePrice(2, ratio)) }} {{ $config.public.tokenSymbol }}, for mint
+            #5 will be {{ getLessDecimals(calculatePrice(5, ratio)) }} {{ $config.public.tokenSymbol }}, for mint #15 will be
+            {{ getLessDecimals(calculatePrice(15, ratio)) }} {{ $config.public.tokenSymbol }}, for mint #30 will be
+            {{ getLessDecimals(calculatePrice(30, ratio)) }} {{ $config.public.tokenSymbol }}, etc.
+          </div>
         </div>
       </div>
 
       <!-- Buttons div -->
-      <div class="d-flex justify-content-center mt-5 mb-5">
+      <div class="d-flex justify-content-center mt-4 mb-5">
         <!-- Create Collection button -->
         <button
           :disabled="waitingCreate || !fieldsValid"
@@ -234,6 +252,7 @@ export default {
       nftName: null,
       createPriceWei: null,
       ratio: null,
+      showAdvancedSettings: false,
       uniqueId: null,
       waitingCreate: false,
       waitingData: false,
@@ -495,6 +514,10 @@ export default {
 
     insertImage(imageUrl) {
       this.cImage = imageUrl.replace('?.img', '')
+    },
+
+    toggleAdvancedSettings() {
+      this.showAdvancedSettings = !this.showAdvancedSettings
     },
   },
 
