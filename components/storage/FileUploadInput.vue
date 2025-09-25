@@ -7,19 +7,16 @@
     :disabled="waitingUpload || disable"
   />
 
-  <button type="button" :class="btnCls" @click="uploadFile" :disabled="waitingUpload || !file || fileTooBig || disable">
+  <button type="button" :class="btnCls" @click="uploadFile" :disabled="waitingUpload || !file || disable">
     <span v-if="waitingUpload" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
     Upload
   </button>
-
-  <div v-if="fileTooBig" class="alert alert-danger mt-3" role="alert">
-    File is too big (max size is {{ maxFileSize / 1024 / 1024 }} MB).
-  </div>
 </template>
 
 <script>
 import axios from 'axios'
 import ImageKit from 'imagekit-javascript'
+import { resizeImage } from '@/utils/imageUtils'
 
 export default {
   name: 'FileUploadInput',
@@ -30,7 +27,6 @@ export default {
     return {
       componentId: null,
       file: null,
-      newFileName: null,
       uploadedFileSize: null,
       uploadToken: null,
       waitingUpload: false,
@@ -87,6 +83,32 @@ export default {
       this.$emit('processUploadedFileUrl', fileUri)
     },
 
+    handleFileInput(event) {
+      const uploadedFile = event.target.files[0]
+      this.uploadedFileSize = uploadedFile.size
+
+      // check file size
+      if (this.fileTooBig && !this.isSupportedImage(uploadedFile)) {
+        // if file is not an image, show error message if it's too large (images will get resized before upload)
+        const maxSizeMb = this.maxFileSize / 1024 / 1024
+        console.error('File is too large (max size is ' + maxSizeMb + ' MB)')
+        return
+      }
+
+      // get file name
+      const fileName = uploadedFile.name
+
+      // change file name
+      const fileExtension = fileName.split('.').pop()
+
+      // select random alphanumeric string for name
+      const newFileName = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15) + '.' + fileExtension
+
+      // create new file with new name
+      const newFile = new File([uploadedFile], newFileName, { type: uploadedFile.type })
+      this.file = newFile
+    },
+
     async imageKitUpload() {
       const thisAppUrl = window.location.origin
 
@@ -112,7 +134,7 @@ export default {
 
       const result = await imagekit.upload({
         file: this.file,
-        fileName: this.newFileName,
+        fileName: this.file.name,
         tags: [this.$config.public.projectName, this.$config.public.projectUrl],
         token: authParams.data.token,
         signature: authParams.data.signature,
@@ -124,34 +146,19 @@ export default {
       this.waitingUpload = false
     },
 
-    handleFileInput(event) {
-      const uploadedFile = event.target.files[0]
-      this.uploadedFileSize = uploadedFile.size
-
-      // check file size
-      if (this.maxFileSize && uploadedFile.size > this.maxFileSize) {
-        const maxSizeMb = this.maxFileSize / 1024 / 1024
-        console.error('File is too large (max size is ' + maxSizeMb + ' MB)')
-        return
-      }
-
-      // get file name
-      const fileName = uploadedFile.name
-
-      // change file name
-      const fileExtension = fileName.split('.').pop()
-
-      // select random alphanumeric string for name
-      this.newFileName =
-        Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15) + '.' + fileExtension
-
-      // create new file with new name
-      const newFile = new File([uploadedFile], this.newFileName, { type: uploadedFile.type })
-      this.file = newFile
+    isSupportedImage(file) {
+      // check if file is an image (of a supported format)
+      const supported = ['image/jpeg', 'image/png', 'image/webp']
+      return supported.includes(file.type)
     },
 
     async uploadFile() {
       this.waitingUpload = true
+
+      if (this.isSupportedImage(this.file) && this.fileTooBig) {
+        // if file is an image and too big, resize it before upload
+        this.file = await resizeImage(this.file)
+      }
 
       if (this.storageType === 'arweave') {
         try {
