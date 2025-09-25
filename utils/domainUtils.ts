@@ -1,6 +1,6 @@
-import { useWeb3 } from '@/composables/useWeb3'
 import { useRuntimeConfig } from 'nuxt/app'
 import { fetchUsername, storeUsername } from './browserStorageUtils'
+import { readData } from './contractUtils'
 
 // TLD contract ABI for the functions we need
 const tldAbi = [
@@ -82,8 +82,7 @@ export function validateDomainName(domainName: string | null): DomainValidationR
 }
 
 export async function getDomainName(userAddress: string, window: Window | null = null) {
-  const config = useRuntimeConfig()
-  const { readData } = useWeb3()
+  const runtimeConfig = useRuntimeConfig()
 
   try {
     // First, try to get the domain name from browser storage
@@ -96,7 +95,7 @@ export async function getDomainName(userAddress: string, window: Window | null =
 
     // If not in storage, fetch from blockchain
     const result = await readData({
-      address: config.public.punkTldAddress as `0x${string}`,
+      address: runtimeConfig.public.punkTldAddress as `0x${string}`,
       abi: tldAbi,
       functionName: 'defaultNames',
       args: [userAddress as `0x${string}`]
@@ -106,7 +105,7 @@ export async function getDomainName(userAddress: string, window: Window | null =
       return null
     }
 
-    const fullName = result + config.public.tldName
+    const fullName = result + runtimeConfig.public.tldName
 
     // If we got a result, store it in browser storage
     if (result && typeof result === 'string' && window) {
@@ -121,17 +120,16 @@ export async function getDomainName(userAddress: string, window: Window | null =
 }
 
 export async function getDomainHolder(domainName: string) {
-  const config = useRuntimeConfig()
-  const { readData } = useWeb3()
+  const runtimeConfig = useRuntimeConfig()
 
   try {
     // Remove TLD suffix if present
-    if (domainName.includes(config.public.tldName)) {
-      domainName = domainName.replace(config.public.tldName, '')
+    if (domainName.includes(runtimeConfig.public.tldName)) {
+      domainName = domainName.replace(runtimeConfig.public.tldName, '')
     }
 
     const result = await readData({
-      address: config.public.punkTldAddress as `0x${string}`,
+      address: runtimeConfig.public.punkTldAddress as `0x${string}`,
       abi: tldAbi,
       functionName: 'getDomainHolder',
       args: [domainName]

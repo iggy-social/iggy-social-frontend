@@ -584,8 +584,10 @@ export default {
         const userDomain = await this.getDomainName(this.cAuthorAddress)
 
         if (userDomain) {
-          this.cAuthorDomain = userDomain
-          storeUsername(window, this.cAuthorAddress, userDomain + this.$config.public.tldName)
+          const fullDomainName = userDomain.split('.')[0] + this.$config.public.tldName
+          this.cAuthorDomain = fullDomainName
+
+          storeUsername(window, this.cAuthorAddress, fullDomainName)
         }
       }
     },

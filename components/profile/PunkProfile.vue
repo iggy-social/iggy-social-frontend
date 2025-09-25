@@ -250,7 +250,9 @@ export default {
         const domainName = await getDomainName(this.uAddress, window)
 
         if (domainName) {
-          this.domain = String(domainName).replace(this.$config.public.tldName, "") + this.$config.public.tldName
+          const fullDomainName = domainName.split('.')[0] + this.$config.public.tldName
+          this.domain = fullDomainName
+
           storeUsername(window, this.uAddress, this.domain)
         }
       }
@@ -262,7 +264,8 @@ export default {
           this.uAddress = domainHolder
         }
 
-        this.domain = String(this.domain).replace(this.$config.public.tldName, "") + this.$config.public.tldName
+        this.domain = String(this.domain).split('.')[0] + this.$config.public.tldName
+        
         storeUsername(window, this.uAddress, this.domain)
       }
 

@@ -440,18 +440,18 @@ export default {
         const storedDomain = fetchUsername(window, this.authorAddress)
 
         if (storedDomain) {
-          this.authorDomain = storedDomain
+          const fullDomainName = storedDomain.split('.')[0] + this.$config.public.tldName
+          this.authorDomain = fullDomainName
+
+          storeUsername(window, this.authorAddress, fullDomainName)
         } else {
           const domainName = await getDomainName(this.authorAddress, window)
 
           if (domainName) {
-            if (!domainName.endsWith(this.$config.public.tldName)) {
-              this.authorDomain = domainName + this.$config.public.tldName
-            } else {
-              this.authorDomain = domainName
-            }
-            
-            storeUsername(window, this.authorAddress, this.authorDomain)
+            const fullDomainName = domainName.split('.')[0] + this.$config.public.tldName
+            this.authorDomain = fullDomainName
+
+            storeUsername(window, this.authorAddress, fullDomainName)
           }
         }
       }

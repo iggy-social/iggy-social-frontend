@@ -325,7 +325,10 @@ export default {
 
         if (userDomain) {
           this.setDomainName(userDomain)
-          storeUsername(window, this.address, userDomain)
+
+          const fullDomainName = userDomain.split('.')[0] + this.$config.public.tldName
+
+          storeUsername(window, this.address, fullDomainName)
         } else {
           this.setDomainName('')
         }
