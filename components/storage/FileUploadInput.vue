@@ -54,6 +54,9 @@ export default {
         fetcherService = thisAppUrl + '/.netlify/functions/arweaveUploader'
       } else if (this.$config.public.fileUploadTokenService === 'vercel') {
         fetcherService = thisAppUrl + '/api/arweaveUploader'
+      } else if (this.$config.public.fileUploadTokenService === 'server') {
+        // /server/api/arweave-uploader.ts
+        fetcherService = thisAppUrl + '/api/arweave-uploader'
       }
 
       // Convert file to base64
@@ -117,6 +120,9 @@ export default {
         fetcherService = thisAppUrl + '/.netlify/functions/imageKitUploader'
       } else if (this.$config.public.fileUploadTokenService === 'vercel') {
         fetcherService = thisAppUrl + '/api/imageKitUploader'
+      } else if (this.$config.public.fileUploadTokenService === 'server') {
+        // /server/api/imagekit-uploader.ts
+        fetcherService = thisAppUrl + '/api/imagekit-uploader'
       }
 
       const resp = await $fetch(fetcherService).catch(error => error.data)

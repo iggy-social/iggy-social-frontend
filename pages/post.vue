@@ -138,7 +138,7 @@ export default {
         let msg;
         let replyObj;
 
-        msg = await this.readData(contractConfig);
+        msg = await readData(contractConfig);
         
         if (this.isReply) {
           const replyContractConfig = {

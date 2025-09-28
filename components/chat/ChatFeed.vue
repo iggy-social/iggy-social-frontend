@@ -909,6 +909,9 @@ export default {
           fetcherService = thisAppUrl + '/.netlify/functions/arweaveUploader'
         } else if (this.$config.public.fileUploadTokenService === 'vercel') {
           fetcherService = thisAppUrl + '/api/arweaveUploader'
+        } else if (this.$config.public.fileUploadTokenService === 'server') {
+          // /server/api/arweave-uploader.ts
+          fetcherService = thisAppUrl + '/api/arweave-uploader'
         }
 
         // create JSON file together with file type and file name, and convert it to base64

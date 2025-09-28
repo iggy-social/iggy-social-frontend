@@ -283,7 +283,7 @@ export default {
 
     async fetchLpTokenAllowance() {
       try {
-        const allowanceResult = await this.readData({
+        const allowanceResult = await readData({
           address: this.$config.public.lpTokenAddress,
           abi: [
             {
@@ -309,7 +309,7 @@ export default {
 
     async fetchStakeTokenBalance() {
       try {
-        const stakeTokenBalanceResult = await this.readData({
+        const stakeTokenBalanceResult = await readData({
           address: this.$config.public.stakingContractAddress,
           abi: [
             {
@@ -333,7 +333,7 @@ export default {
 
     async fetchMinDeposit() {
       try {
-        const minDepositResult = await this.readData({
+        const minDepositResult = await readData({
           address: this.$config.public.stakingContractAddress,
           abi: [
             {
@@ -355,7 +355,7 @@ export default {
 
     async fetchLastClaimPeriod() {
       try {
-        const lastClaimPeriodResult = await this.readData({
+        const lastClaimPeriodResult = await readData({
           address: this.$config.public.stakingContractAddress,
           abi: [
             {
@@ -377,7 +377,7 @@ export default {
 
     async fetchPeriodLength() {
       try {
-        const periodLengthResult = await this.readData({
+        const periodLengthResult = await readData({
           address: this.$config.public.stakingContractAddress,
           abi: [
             {
@@ -399,7 +399,7 @@ export default {
 
     async fetchMaxDeposit() {
       try {
-        const maxDepositResult = await this.readData({
+        const maxDepositResult = await readData({
           address: this.$config.public.stakingContractAddress,
           abi: [
             {
