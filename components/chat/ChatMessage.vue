@@ -313,7 +313,7 @@ export default {
 
   methods: {
     async checkIfCurrenctUserIsMod() {
-      if (!this.address) {
+      if (!this.address || !this.chatContext) {
         return this.currUserIsMod = false
       }
 

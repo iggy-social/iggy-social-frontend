@@ -1,14 +1,10 @@
 import { defineNuxtConfig } from 'nuxt/config'
-import { readFileSync } from 'fs'
-import { join } from 'path'
-
-const manifestFile = JSON.parse(readFileSync(join(__dirname, 'public/manifest.webmanifest'), 'utf-8'))
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: false, // disables Nuxt Webtools
   ssr: false, // full static site generation
-  modules: ['@wagmi/vue/nuxt', '@vite-pwa/nuxt'],
+  modules: ['@wagmi/vue/nuxt'],
   css: ['vue-toastification/dist/index.css'],
   components: false,
   app: {
@@ -41,11 +37,6 @@ export default defineNuxtConfig({
           // Custom
           rel: 'stylesheet',
           href: '/css/custom.css',
-        },
-        {
-          // PWA Manifest
-          rel: 'manifest',
-          href: '/manifest.webmanifest',
         },
       ],
       script: [
@@ -151,23 +142,5 @@ export default defineNuxtConfig({
     server: {
       allowedHosts: true
     }
-  },
-  pwa: {
-    registerType: 'autoUpdate',
-    workbox: {
-      navigateFallback: '/',
-      globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
-    },
-    client: {
-      installPrompt: true,
-    },
-    devOptions: {
-      enabled: true,
-      suppressWarnings: true,
-      navigateFallbackAllowlist: [/^\/$/],
-      type: 'module',
-    },
-    includeAssets: ['img/favicon.ico', 'img/apple-touch-icon.png', 'img/masked-icon.svg'],
-    manifest: manifestFile,
   },
 })
