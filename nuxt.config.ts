@@ -48,23 +48,23 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      activityPointsAddress: '0x728D93636fC99A2746F6fFA8310D8fd9DDf653A1',
-      airdropApAddress: '0x1a20A1b287c41F601da0Ea0468E84150AAB71457', // chat token claim for APs
-      airdropClaimDomainsAddress: '0xa9cfa4e8EA79537F5893f45c3B1491A2f7B54e7E', // chat token claim for domain holders
+      activityPointsAddress: '0x7058413D002B36486465FF8628bBcCE080e6Af87',
+      airdropApAddress: '', // chat token claim for APs
+      airdropClaimDomainsAddress: '', // chat token claim for domain holders
       arweaveAddress: process.env.ARWEAVE_ADDRESS,
       arweaveGateway: 'https://arweave.net/',
       arweaveMinBalance: 0.02, // minimum AR balance to upload files
-      blockExplorerBaseUrl: 'https://sepolia.arbiscan.io',
+      blockExplorerBaseUrl: 'https://sepolia.basescan.org',
       chat: {
         contexts: {
-          general: '0x4A82158ff4B0504F3DB4c7555FfB6298452985E2', // general discussion channel
-          memesImages: '0x1EB2Adc19eB3Df26D84427Be11F1eB1887c6631c',
-          shill: '0xC3623737209Cc141592B20bcEBCA6052AFCcD183',
-          nftLaunchpad: '0xBdaba8106cdC29420c9A7Bb31066ED79c9b6Be74', // comments context
+          general: '0x2843e0b801436409E3e26789217d71a486c6D7dD', // general discussion channel
+          memesImages: '0xde16C1c780f32cF8dB6F6F41a58B2D4e91B86fd3',
+          shill: '0x38E89E57e88fF8bB3Dc995f28a54bE8D99b582C2',
+          nftLaunchpad: '0x6Dd7580ae0B5b764D08a1d40dE348198F54Bd6BF', // comments context
         },
         storage: 'arweave', // storage type: 'arweave' or 'ipfs'
       },
-      chatTokenAddress: '0x8c54EAEA2DDAA8491a32F3A0D9B308d810aEA4fc', // chat token address
+      chatTokenAddress: '0x249f1172Ebd8686386a5C0Ee704378B85acD0627', // chat token address
       chatTokenDecimals: 18,
       chatTokenImage: 'https://www.pngall.com/wp-content/uploads/8/Gold-Dollar-Coin-PNG-180x180.png', // chat token image
       chatTokenSymbol: 'DEMO', // chat token symbol or name
@@ -93,7 +93,7 @@ export default defineNuxtConfig({
       marketplaceNftCollectionBaseUrl: 'https://testnets.opensea.io/assets/holesky/', // url (append nft address to it)
       newsletterLink: 'https://paragraph.xyz/@iggy?modal=subscribe',
       nftDefaultRatio: 1, // default ratio for the NFT price bonding curve
-      nftLaunchpadBondingAddress: '0xdeBc51Cc932Aa24fb9bB5D062d73E5B2E933626D', // NFT launchpad with bonding curve contract address
+      nftLaunchpadBondingAddress: '0xBdaba8106cdC29420c9A7Bb31066ED79c9b6Be74', // NFT launchpad with bonding curve contract address
       nftLaunchpadLatestItems: 4, // number of latest NFTs to show in the NFT launchpad
       previewImage: '/img/covers/cover.png',
       previewImageAirdrop: '/img/covers/cover-airdrop.png',
@@ -111,11 +111,11 @@ export default defineNuxtConfig({
       projectUrl: 'https://demo.iggy.social',
       punkMinterAddress: '', // punk domain minter contract address
       punkNumberOfPrices: 1, // number of different prices (based on domain length), usually 1 (price()) or 5 (price1char() - price5char())
-      punkTldAddress: '0x93DFe4CCD510D15656F99D42fD0ED85d0DbB666a', // punk domain TLD address
+      punkTldAddress: '0xD9FF69E89D9B6a7f18a46e9151c48BfBF687B7da', // punk domain TLD address
       showFeatures: {
         // show/hide features in sidebars (if you have too many "true", make the sidebar scrollable --> sidebarLeftSticky: false)
         activityPoints: true,
-        airdrop: true,
+        airdrop: false,
         governance: false,
         newsletter: false,
         nftLaunchpad: true,
@@ -127,7 +127,7 @@ export default defineNuxtConfig({
       stakingContractAddress: '', // this is also the stake/gov token address
       stakeTokenDecimals: 18,
       stakeTokenSymbol: 'IGT', // stake token symbol (governance token symbol)
-      supportedChainId: 421614,
+      supportedChainId: 84532,
       swapPriceImpactMaxBps: 1000, // max price impact in bips (1 bps = 0.01%, 1000bps = 10%) for the swap function
       swapRouterAddress: '', // iggy swap router contract address
       tenorApiKey: process.env.TENOR_KEY || '',

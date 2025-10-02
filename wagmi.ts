@@ -1,11 +1,12 @@
 import { farcasterMiniApp } from '@farcaster/miniapp-wagmi-connector'
 import { http, cookieStorage, createConfig, createStorage } from '@wagmi/vue'
 import { injected, metaMask, walletConnect } from '@wagmi/vue/connectors'
+import { baseSepolia } from '@wagmi/vue/chains'
 import type { Chain } from 'viem'
 
-export const customArbitrumSepolia: Chain = {
-  id: 421_614,
-  name: 'Arbitrum Sepolia',
+export const customBaseSepolia: Chain = {
+  id: 84532,
+  name: 'Base Sepolia',
   nativeCurrency: {
     name: 'Ether',
     symbol: 'ETH',
@@ -14,31 +15,25 @@ export const customArbitrumSepolia: Chain = {
   rpcUrls: {
     default: {
       http: [
-        'https://sepolia-rollup.arbitrum.io/rpc',
-        'https://arbitrum-sepolia.drpc.org',
-        'https://arbitrum-sepolia.therpc.io',
-        'https://arbitrum-sepolia.gateway.tenderly.co',
+        'https://sepolia.base.org',
+        'https://base-sepolia.drpc.org',
+        'https://base-sepolia.therpc.io',
+        'https://base-sepolia.gateway.tenderly.co',
       ],
     },
   },
   blockExplorers: {
     default: {
-      name: 'Arbiscan',
-      url: 'https://sepolia.arbiscan.io',
-      apiUrl: 'https://api-sepolia.arbiscan.io/api',
-    },
-  },
-  contracts: {
-    multicall3: {
-      address: '0xca11bde05977b3631167028862be2a173976ca11',
-      blockCreated: 81930,
+      name: 'BaseScan',
+      url: 'https://sepolia.basescan.org',
+      apiUrl: 'https://api-sepolia.basescan.org/api',
     },
   },
   testnet: true,
 }
 
 export const config = createConfig({
-  chains: [customArbitrumSepolia],
+  chains: [baseSepolia],
   connectors: [
     injected(),
     farcasterMiniApp(),
@@ -52,7 +47,7 @@ export const config = createConfig({
   }),
   ssr: true,
   transports: {
-    [customArbitrumSepolia.id]: http(),
+    [baseSepolia.id]: http(),
   },
 })
 
