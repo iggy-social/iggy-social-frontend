@@ -351,11 +351,13 @@ export default {
     },
 
     async mintName() {
+      const selectedDomainName = this.domainName.toLowerCase()
+      const userAddress = this.address
       this.loadingMint = true
 
       if (this.isConnected && !this.domainNotValid.invalid) {
         // check if name is already taken
-        const domainHolder = await getDomainHolder(this.domainName.toLowerCase())
+        const domainHolder = await getDomainHolder(selectedDomainName)
 
         if (domainHolder && domainHolder !== '0x0000000000000000000000000000000000000000') {
           this.toast('This name is already taken', { type: 'error' })
@@ -393,8 +395,8 @@ export default {
             abi: mintInterface,
             functionName: 'mint',
             args: [
-              this.domainName.toLowerCase(), // domain name
-              this.address, // domain receiver
+              selectedDomainName, // domain name
+              userAddress, // domain receiver
               fetchReferrer(window), // referrer
             ],
             value: parseUnits(this.getNamePrice, this.$config.public.tokenDecimals),
@@ -417,7 +419,11 @@ export default {
 
           if (receipt.status === 'success') {
             this.toast.dismiss(toastWait)
-            this.fetchUserDomain()
+
+            const fullDomainName = selectedDomainName.split('.')[0] + this.$config.public.tldName
+            this.setDomainName(fullDomainName)
+            storeUsername(window, userAddress, fullDomainName)
+            
             this.toast('You have successfully minted a name!', {
               type: 'success',
               onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + txHash, '_blank').focus(),
