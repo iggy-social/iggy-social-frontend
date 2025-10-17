@@ -184,6 +184,7 @@ export default {
 
   methods: {
     async withdrawal() {
+      const toastWaitSign = this.toast({component: WaitingToast, props: {text: 'Please confirm the transaction.'}}, {type: 'info'})
       this.waitingWithdrawal = true
 
       let toastWait;
@@ -205,6 +206,8 @@ export default {
         }
 
         const hash = await writeData(contractConfig)
+
+        this.toast.dismiss(toastWaitSign)
 
         toastWait = this.toast(
           {
@@ -263,6 +266,7 @@ export default {
 
         this.waitingWithdrawal = false
       } finally {
+        this.toast.dismiss(toastWaitSign)
         this.toast.dismiss(toastWait)
         this.waitingWithdrawal = false
       }

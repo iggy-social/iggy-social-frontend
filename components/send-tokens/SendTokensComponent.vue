@@ -279,6 +279,7 @@ export default {
     },
 
     async sendErc20Tokens() {
+      const toastWaitSign = this.toast({component: WaitingToast, props: {text: 'Please confirm the transaction.'}}, {type: 'info'})
       const tokenContractConfig = {
         address: this.inputToken.address,
         abi: Erc20Abi,
@@ -293,6 +294,8 @@ export default {
 
       try {
         const hash = await writeData(tokenContractConfig)
+
+        this.toast.dismiss(toastWaitSign)
 
         toastWait = this.toast(
           {
@@ -355,12 +358,14 @@ export default {
 
         this.waiting = false
       } finally {
+        this.toast.dismiss(toastWaitSign)
         this.toast.dismiss(toastWait)
         this.waiting = false
       }
     },
 
     async sendNativeTokens() {
+      const toastWaitSign = this.toast({component: WaitingToast, props: {text: 'Please confirm the transaction.'}}, {type: 'info'})
       let toastWait;
 
       try {
@@ -368,6 +373,8 @@ export default {
           this.recipientAddress,
           this.inputTokenAmount
         )
+
+        this.toast.dismiss(toastWaitSign)
 
         toastWait = this.toast(
           {
@@ -430,6 +437,7 @@ export default {
 
         this.waiting = false
       } finally {
+        this.toast.dismiss(toastWaitSign)
         this.toast.dismiss(toastWait)
         this.waiting = false
       }

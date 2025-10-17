@@ -107,6 +107,7 @@ export default {
     },
 
     async approveToken() {
+      const toastWaitSign = this.toast({component: WaitingToast, props: {text: 'Please confirm the transaction.'}}, {type: 'info'})
       this.waiting = true
 
       let approvalAmount = this.approvalAmount
@@ -128,6 +129,8 @@ export default {
 
       try {
         const hash = await writeData(contractConfig)
+
+        this.toast.dismiss(toastWaitSign)
 
         toastWait = this.toast(
           {
@@ -180,6 +183,7 @@ export default {
         this.waiting = false
       } finally {
         this.toast.dismiss(toastWait)
+        this.toast.dismiss(toastWaitSign)
         this.waiting = false
         return
       }

@@ -144,6 +144,7 @@ export default {
 
   methods: {
     async swap() {
+      const toastWaitSign = this.toast({component: WaitingToast, props: {text: 'Please confirm the transaction.'}}, {type: 'info'})
       this.waiting = true
 
       const inputTokenAmountWei = parseUnits(this.inputTokenAmount, this.inputToken?.decimals)
@@ -162,6 +163,8 @@ export default {
           this.routerAddress,
           referrer,
         )
+
+        this.toast.dismiss(toastWaitSign)
 
         toastWait = this.toast(
           {
@@ -215,6 +218,7 @@ export default {
         this.waiting = false
         return
       } finally {
+        this.toast.dismiss(toastWaitSign)
         this.toast.dismiss(toastWait)
         this.waiting = false
       }

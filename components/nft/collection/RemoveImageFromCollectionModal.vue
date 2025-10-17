@@ -122,6 +122,7 @@ export default {
     },
 
     async removeImage(imageIndex) {
+      const toastWaitSign = this.toast({component: WaitingToast, props: {text: 'Please confirm the transaction.'}}, {type: 'info'})
       this.waitingRemove = true
 
       const contractConfig = {
@@ -146,6 +147,8 @@ export default {
 
       try {
         const hash = await writeData(contractConfig)
+
+        this.toast.dismiss(toastWaitSign)
 
         toastWait = this.toast(
           {
@@ -205,6 +208,7 @@ export default {
 
         this.waitingRemove = false
       } finally {
+        this.toast.dismiss(toastWaitSign)
         this.toast.dismiss(toastWait)
         this.waitingRemove = false
       }

@@ -26,7 +26,7 @@
         <button
           v-if="isConnected && isSupportedChain"
           class="btn btn-outline-primary mt-2 mb-2"
-          :disabled="paused || domainNotValid.invalid || balanceTooLow"
+          :disabled="paused || domainNotValid.invalid || balanceTooLow || loadingMint || loadingData"
           @click="mintName"
         >
           <span
@@ -38,6 +38,7 @@
           <span v-if="loadingData">Loading data...</span>
           <span v-if="!loadingMint && !loadingData && balanceTooLow">Balance too low</span>
           <span v-if="!loadingMint && !loadingData && !balanceTooLow">Mint username</span>
+          <span v-else>Mint username</span>
         </button>
 
         <ConnectWalletButton v-if="!isConnected" class="btn-outline-primary mt-2 mb-2" btnText="Connect Wallet" />
@@ -351,6 +352,7 @@ export default {
     },
 
     async mintName() {
+      const toastWaitSign = this.toast({component: WaitingToast, props: {text: 'Please confirm the transaction.'}}, {type: 'info'}) 
       const selectedDomainName = this.domainName.toLowerCase()
       const userAddress = this.address
       this.loadingMint = true
@@ -401,6 +403,8 @@ export default {
             ],
             value: parseUnits(this.getNamePrice, this.$config.public.tokenDecimals),
           })
+
+          this.toast.dismiss(toastWaitSign)
 
           toastWait = this.toast(
             {
@@ -455,6 +459,7 @@ export default {
           return
         } finally {
           this.toast.dismiss(toastWait)
+          this.toast.dismiss(toastWaitSign)
           this.loadingMint = false
         }
       }

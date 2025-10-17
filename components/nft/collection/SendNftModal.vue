@@ -242,6 +242,7 @@ export default {
     },
 
     async transferNft() {
+      const toastWaitSign = this.toast({component: WaitingToast, props: {text: 'Please confirm the transaction.'}}, {type: 'info'})
       this.waiting = true;
 
       await this.processRecipient(this.recipientInput);
@@ -265,6 +266,8 @@ export default {
           functionName: 'transferFrom',
           args: [this.address, this.recipientAddress, BigInt(this.tokenId)]
         });
+
+        this.toast.dismiss(toastWaitSign)
 
         toastWait = this.toast(
           {
@@ -325,6 +328,7 @@ export default {
 
         this.waiting = false;
       } finally {
+        this.toast.dismiss(toastWaitSign)
         this.toast.dismiss(toastWait)
         this.waiting = false
       }

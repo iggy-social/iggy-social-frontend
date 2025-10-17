@@ -187,6 +187,7 @@ export default {
     },
 
     async approveToken() {
+      const toastWaitSign = this.toast({component: WaitingToast, props: {text: 'Please confirm the transaction.'}}, {type: 'info'})
       this.waitingApproval = true
 
       let toastWait;
@@ -211,6 +212,8 @@ export default {
         }
 
         const hash = await writeData(contractConfig)
+
+        this.toast.dismiss(toastWaitSign)
 
         toastWait = this.toast(
           {
@@ -264,12 +267,14 @@ export default {
         }
         this.waitingApproval = false
       } finally {
+        this.toast.dismiss(toastWaitSign)
         this.toast.dismiss(toastWait)
         this.waitingApproval = false
       }
     },
 
     async deposit() {
+      const toastWaitSign = this.toast({component: WaitingToast, props: {text: 'Please confirm the transaction.'}}, {type: 'info'})
       this.waitingDeposit = true
 
       let toastWait;
@@ -291,6 +296,8 @@ export default {
         }
 
         const hash = await writeData(contractConfig)
+
+        this.toast.dismiss(toastWaitSign)
 
         toastWait = this.toast(
           {
@@ -356,6 +363,7 @@ export default {
         }
         this.waitingDeposit = false
       } finally {
+        this.toast.dismiss(toastWaitSign)
         this.toast.dismiss(toastWait)
         this.waitingDeposit = false
       }

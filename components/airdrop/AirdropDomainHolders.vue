@@ -108,6 +108,7 @@ export default {
     },
 
     async claim() {
+      const toastWaitSign = this.toast({component: WaitingToast, props: {text: 'Please confirm the transaction.'}}, {type: 'info'})
       this.waiting = true
 
       const cleanDomainName = this.domainName.replace(this.$config.public.tldName, '').trim().toLowerCase()
@@ -139,6 +140,8 @@ export default {
           functionName: 'claim',
           args: [cleanDomainName]
         })
+
+        this.toast.dismiss(toastWaitSign)
 
         toastWait = this.toast(
           {
@@ -194,6 +197,7 @@ export default {
 
         this.waiting = false
       } finally {
+        this.toast.dismiss(toastWaitSign)
         this.toast.dismiss(toastWait)
         this.waiting = false
       }

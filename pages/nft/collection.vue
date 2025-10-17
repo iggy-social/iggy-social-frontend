@@ -422,6 +422,7 @@ export default {
     getDomainName,
 
     async buyNft() {
+      const toastWaitSign = this.toast({component: WaitingToast, props: {text: 'Please confirm the transaction.'}}, {type: 'info'})
       this.waitingBuy = true
 
       const nftAbi = [
@@ -491,6 +492,8 @@ export default {
           args: [this.address],
           value: BigInt(this.priceBuyWei),
         })
+
+        this.toast.dismiss(toastWaitSign)
 
         toastWait = this.toast(
           {
@@ -592,6 +595,7 @@ export default {
 
         this.waitingBuy = false
       } finally {
+        this.toast.dismiss(toastWaitSign)
         this.toast.dismiss(toastWait)
         this.waitingBuy = false
       }
@@ -1196,6 +1200,7 @@ export default {
     },
 
     async sellNft() {
+      const toastWaitSign = this.toast({component: WaitingToast, props: {text: 'Please confirm the transaction.'}}, {type: 'info'})
       this.waitingSell = true
 
       const nftAbi = [
@@ -1248,6 +1253,8 @@ export default {
           functionName: 'burn',
           args: [BigInt(this.userTokenId)],
         })
+
+        this.toast.dismiss(toastWaitSign)
 
         toastWait = this.toast(
           {
@@ -1346,6 +1353,7 @@ export default {
 
         this.waitingSell = false
       } finally {
+        this.toast.dismiss(toastWaitSign)
         this.toast.dismiss(toastWait)
         this.waitingSell = false
       }

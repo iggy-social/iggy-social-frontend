@@ -148,6 +148,7 @@ export default {
     },
 
     async submitToBlockchain() {
+      const toastWaitSign = this.toast({component: WaitingToast, props: {text: 'Please confirm the transaction.'}}, {type: 'info'})
       this.waitingSubmit = true
 
       let toastWait;
@@ -206,6 +207,8 @@ export default {
           ]
         })
 
+        this.toast.dismiss(toastWaitSign)
+
         toastWait = this.toast(
           {
             component: WaitingToast,
@@ -261,6 +264,7 @@ export default {
 
         this.waitingSubmit = false
       } finally {
+        this.toast.dismiss(toastWaitSign)
         this.toast.dismiss(toastWait)
         this.waitingSubmit = false
       }

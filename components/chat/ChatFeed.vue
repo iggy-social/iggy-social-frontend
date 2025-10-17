@@ -314,6 +314,7 @@ export default {
     },
 
     async createMessage() {
+      const toastWaitSign = this.toast({component: WaitingToast, props: {text: 'Please confirm the transaction.'}}, {type: 'info'})
       this.waitingCreateMessage = true
 
       if (!this.isSupportedChain || !this.hasDomainOrNotRequired) {
@@ -389,6 +390,8 @@ export default {
         }
 
         tx = await writeData(contractConfig)
+
+        this.toast.dismiss(toastWaitSign)
 
         toastWait = this.toast(
           {
@@ -502,6 +505,7 @@ export default {
         }
       } finally {
         this.toast.dismiss(toastWait)
+        this.toast.dismiss(toastWaitSign)
         this.waitingCreateMessage = false
       }
     },

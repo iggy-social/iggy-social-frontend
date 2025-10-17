@@ -345,6 +345,7 @@ export default {
     },
 
     async deleteMessage() {
+      const toastWaitSign = this.toast({component: WaitingToast, props: {text: 'Please confirm the transaction.'}}, {type: 'info'})
       if (this.address) {
         this.waitingDeleteMessage = true
         let toastWait;
@@ -377,6 +378,8 @@ export default {
           }
 
           txHash = await writeData(contractConfig)
+
+          this.toast.dismiss(toastWaitSign)
 
           toastWait = this.toast(
             {
@@ -431,6 +434,7 @@ export default {
           }
         } finally {
           this.toast.dismiss(toastWait)
+          this.toast.dismiss(toastWaitSign)
           this.waitingDeleteMessage = false
         }
       }
